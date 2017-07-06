@@ -5,44 +5,59 @@ import traminer.util.spatial.objects.Point;
 import java.util.Comparator;
 
 /**
- * Implements a simple 3D Spatial-Temporal Point entity,
- * with (x,y,z) coordinates and time-stamp.
+ * Implements a simple Spatial-Temporal point (point with time-stamp), 
+ * with (x,y) coordinates and time-stamp. 
  * <p>
- * STPoint objects may contain both spatial-temporal and
+ * STPoint objects may contain both spatial-temporal and 
  * semantic attributes. Spatial-temporal attributes of ST
  * objects, however, are immutable, that means once a STPoint
  * object is created its spatial attributes cannot be changed.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class STPoint extends Point implements SpatialTemporalObject {
     /**
-     * Point time-stamp
+     * Time-stamp
      */
     private final long time;
 
     /**
-     * Creates as empty STPoint with default attributes (0,0,0)
+     * Create a new empty point with zero time stamp.
      */
     public STPoint() {
-        super();
+        super(0, 0);
         this.time = 0;
     }
 
     /**
-     * Set time as zero = 0
+     * Create a new point with the given coordinates and
+     * zero time stamp.
+     *
+     * @param x Point X coordinate.
+     * @param y Point Y coordinate.
      */
     public STPoint(double x, double y) {
         super(x, y);
         this.time = 0;
     }
 
+    /**
+     * Create a new point with the given coordinates and
+     * time stamp.
+     *
+     * @param x    Point X coordinate.
+     * @param y    Point Y coordinate.
+     * @param time Point time-stamp.
+     */
     public STPoint(double x, double y, long time) {
         super(x, y);
         this.time = time;
     }
 
+    /**
+     * @return Point time-stamp.
+     */
     public long time() {
         return time;
     }
@@ -85,10 +100,22 @@ public class STPoint extends Point implements SpatialTemporalObject {
     }
 
     /**
-     * Compare two points by their spatial-temporal coordinate
-     * values, first by X, then by Y, then by Z, then by TIME.
+     * Compares these two STPoints for order using the given comparator.
+     *
+     * @param p The point to compare to.
+     * @param comparator The STPoint comparator to use.
+     * @return Returns a negative integer, zero, or a positive integer as this
+     * point is less than, equal to, or greater than the given point p.
      */
     public int compareTo(STPoint p, Comparator<STPoint> comparator) {
+        if (p == null) {
+            throw new NullPointerException(
+                    "Spatial-temporal Point for compareTo must not be null.");
+        }
+        if (comparator == null) {
+            throw new NullPointerException(
+                    "Spatial-temporal Point comparator must not be null.");
+        }
         return comparator.compare(this, p);
     }
 
@@ -99,6 +126,6 @@ public class STPoint extends Point implements SpatialTemporalObject {
 
     @Override
     public void print() {
-        System.out.println("ST_POINT ( " + toString() + " )");
+        println("ST_POINT ( " + toString() + " )");
     }
 }

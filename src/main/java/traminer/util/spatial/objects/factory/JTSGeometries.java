@@ -6,7 +6,7 @@ import traminer.util.spatial.SpatialInterface;
  * Java Topological Suite (JTS) spatial objects factory.
  * <p>
  * This factory class creates spatial objects instances from the JTS library.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

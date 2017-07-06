@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.st.STPoint;
@@ -12,17 +12,17 @@ import java.util.List;
 /**
  * Segments a trajectory if two consecutive points have
  * a distance gap greater than a given threshold.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class MaxDistanceGapSegmentation extends TrajectorySegmentation {
+public class MaxDistanceGapSegmentation implements TrajectorySegmentation {
     private final double maximumGap;
     private final PointDistanceFunction distanceFunction;
 
     /**
      * Use the default Euclidean distance function.
-     *
+     * 
      * @param maximumGap Maximum distance gap allowed
      * @throws IllegalArgumentException
      */
@@ -35,9 +35,9 @@ public class MaxDistanceGapSegmentation extends TrajectorySegmentation {
         this.distanceFunction = new EuclideanDistanceFunction();
     }
 
-    /**
+    /** 
      * @param maximumGap Maximum distance gap allowed
-     * @param distFunc   The point distance function to use.
+     * @param distFunc The point distance function to use.
      * @throws IllegalArgumentException
      */
     public MaxDistanceGapSegmentation(int maximumGap,
@@ -53,7 +53,7 @@ public class MaxDistanceGapSegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
         List<Trajectory> result = new ArrayList<Trajectory>();
@@ -64,7 +64,7 @@ public class MaxDistanceGapSegmentation extends TrajectorySegmentation {
         for (int i = 1; i < trajectory.size(); i++) {
             STPoint pi = trajectory.get(i);
             STPoint pj = trajectory.get(i - 1);
-            gap = distanceFunction.pointToPointDistance(pi, pj);
+            gap = distanceFunction.distance(pi, pj);
             // split
             if (gap > maximumGap) {
                 result.add(sub);

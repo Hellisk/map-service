@@ -5,9 +5,10 @@ import java.io.Serializable;
 /**
  * A wrapper to store a pair of objects (auxiliary object).
  *
+ * @author uqdalves
+ *
  * @param <T> Type of the first object of the pair.
  * @param <S> Type of the second object of the pair.
- * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class Pair<T, S> implements Serializable {

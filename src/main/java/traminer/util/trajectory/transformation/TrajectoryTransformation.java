@@ -8,7 +8,7 @@ import traminer.util.trajectory.Trajectory;
  * <p>
  * Trajectory transformations are useful for experimentation
  * visualization, and distance measures comparison.
- *
+ * 
  * @author uqdalves *
  */
 @SuppressWarnings("serial")
@@ -84,8 +84,8 @@ public abstract class TrajectoryTransformation implements SpatialInterface {
     }
 
     protected int[] topN(int allSize, int N, double[] valueList) {
-        int[] result = new int[N];
-
+        int[] result = new int[N];       
+        
         int[] allSizeList = sort(valueList);
 
         for (int i = 0; i < N; i++) {

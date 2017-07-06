@@ -1,24 +1,23 @@
 package traminer.util.trajectory.compression;
 
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.SpatialInterface;
 import traminer.util.trajectory.Trajectory;
 
 /**
- * Base class for trajectory data compression methods
- *
+ * Base interface for trajectory data compression methods
+ * 
  * @author uqdalves
+ *
  */
-@SuppressWarnings("serial")
-public abstract class TrajectoryCompression implements SpatialInterface {
+public interface TrajectoryCompression extends SpatialInterface {
     /**
-     * Run the compression algorithm for the
-     * given trajectory.
+     * Run the compression algorithm for the given trajectory.
      *
-     * @return Return a copy of this trajectory compressed.
+     * @param t The trajectory to compress.
+     * @return A copy of this trajectory after compression.
+     * @throws EmptyParameterException If input trajectory is empty.
      */
-    public abstract Trajectory doCompression(Trajectory t);
-
-    protected String getErrorMsg(String name, String message) {
-        return "[COMPRESSION ERROR] In '" + name + "': " + message;
-    }
+    Trajectory doCompression(Trajectory t)
+            throws EmptyParameterException;
 }

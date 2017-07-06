@@ -7,13 +7,13 @@ import java.util.List;
 
 /**
  * STLCSS: Spatial-Temporal Largest Common Subsequence distance.
- * <p>
+ * 
  * </br> Spatial-temporal similarity.
  * </br> Robust to different sampling rates.
  * </br> Robust to noise.
  * </br> Robust to stretching and translation.
  * </br> Not a metric.
- *
+ * 
  * @author HanSu, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")

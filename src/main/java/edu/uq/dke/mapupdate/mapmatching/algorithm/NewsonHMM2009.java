@@ -1,8 +1,8 @@
 package edu.uq.dke.mapupdate.mapmatching.algorithm;
 
-import edu.uq.dke.mapupdate.mapmatching.io.CSVMapReader;
-import edu.uq.dke.mapupdate.mapmatching.io.CSVTrajectoryReader;
-import edu.uq.dke.mapupdate.mapmatching.io.CSVTrajectoryWriter;
+import edu.uq.dke.mapupdate.io.CSVMapReader;
+import edu.uq.dke.mapupdate.io.CSVTrajectoryReader;
+import edu.uq.dke.mapupdate.io.CSVTrajectoryWriter;
 import org.jdom2.JDOMException;
 import traminer.util.map.matching.MapMatchingMethod;
 import traminer.util.map.matching.hmm.HMMMatching;
@@ -52,6 +52,6 @@ public class NewsonHMM2009 {
 //        ParallelMapMatching paraHMM = new ParallelMapMatching(hmm);
 //        Stream<RoadWay> result = paraHMM.doMatching(trajectoryStream, roadNetworkGraph,numThreads);
 //        System.out.println(result.toString());
-        CSVTrajectoryWriter.TrajectoryWriter(result, outputTrajectoryPath);
+        CSVTrajectoryWriter.matchedTrajectoryWriter(result, outputTrajectoryPath);
     }
 }

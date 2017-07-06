@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * ST-Matching auxiliar road node object
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

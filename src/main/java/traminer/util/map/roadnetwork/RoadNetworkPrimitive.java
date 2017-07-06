@@ -7,9 +7,10 @@ import java.util.Map;
 
 /**
  * Superclass for road map (OSM) primitives.
+ * 
+ * @see "http://wiki.openstreetmap.org/wiki/OSM_XML"
  *
  * @author uqdalves
- * @see "http://wiki.openstreetmap.org/wiki/OSM_XML"
  */
 @SuppressWarnings("serial")
 public abstract class RoadNetworkPrimitive implements MapInterface, Cloneable {

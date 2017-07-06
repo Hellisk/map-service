@@ -6,7 +6,7 @@ import java.util.HashMap;
  * Attributes object map. Maps an attribute object's String name (key) to the
  * attribute's value. In this implementation the value for all attributes must
  * be of the same type T.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

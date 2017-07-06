@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * EDwP: Edit Distance with Projections.
- * <p>
+ *
  * </br> Spatial dimension only.
  * </br> Robust to non-uniform sampling rates.
  * </br> Robust to local time shifts.
@@ -166,7 +166,7 @@ public class EDwPDistanceCalculator extends TrajectoryDistanceFunction {
 
     /**
      * Coverage: quantifies how representative the segment being
-     * edit are of the overall trajectory. Edges e1 and e2.
+     * edit are of the overall trajectory. Segment e1 and e2.
      * e1 = [e1.p1, e1.p2], e2 = [e2.p1, e2.p2]
      */
     private double coverage(STPoint e1p1, STPoint e1p2,

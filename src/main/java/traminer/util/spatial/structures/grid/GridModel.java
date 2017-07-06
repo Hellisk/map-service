@@ -207,6 +207,7 @@ public class GridModel implements SpatialIndexModel {
     public HashSet<String> rangeSearch(SpatialObject obj) {
         HashSet<String> posList = new HashSet<>();
         // object is not in this grid
+        // TODO report logic confusion
         if (!boundary.intersects(obj)) return posList;
         // search the grid cells
         for (int i = 0; i < sizeX; i++) {

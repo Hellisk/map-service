@@ -3,16 +3,15 @@ package traminer.util.spatial.objects.st;
 import traminer.util.spatial.objects.Rectangle;
 
 /**
- * Implements a Spatial-Temporal Rectangle entity,
- * Composed by a spatial region (rectangle) and a
- * time interval [t1,t2].
+ * A 2D Spatial-Temporal Rectangle (rectangle with temporal features), 
+ * Composed by a spatial region (rectangle) and a time interval [t1,t2].
  * <p>
- * STRectangle objects may contain both spatial-temporal and
+ * STRectangle objects may contain both spatial-temporal and 
  * semantic attributes. Spatial-temporal attributes of ST
- * spatial objects, however, are immutable, that means once
- * a STRectangle object is created its spatial attributes
+ * spatial objects, however, are immutable, that means once 
+ * a STRectangle object is created its spatial attributes 
  * cannot be changed.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -22,17 +21,29 @@ public class STRectangle extends Rectangle implements SpatialTemporalObject {
      */
     private final long t1, t2;
 
+    /**
+     * Creates a new empty spatial-temporal rectangle.
+     */
     public STRectangle() {
-        super();
+        super(0, 0, 0, 0);
         this.t1 = 0;
         this.t2 = 0;
     }
 
-    public STRectangle(
-            double min_x, double min_y,
-            double max_x, double max_y,
-            long t1, long t2) {
-        super(min_x, min_y, max_x, max_y);
+    /**
+     * Create a new spatial-temporal rectangle with the given
+     * coordinates and time-stamp interval.
+     *
+     * @param minX Lower-left corner X.
+     * @param minY Lower-left corner Y.
+     * @param maxX Upper-right corner X.
+     * @param maxY Upper-right corner Y.
+     * @param t1   Time-stamp start.
+     * @param t2   Time-stamp end.
+     */
+    public STRectangle(double minX, double minY, double maxX, double maxY,
+                       long t1, long t2) {
+        super(minX, minY, maxX, maxY);
         this.t1 = t1;
         this.t2 = t2;
     }
@@ -78,13 +89,13 @@ public class STRectangle extends Rectangle implements SpatialTemporalObject {
 
     @Override
     public String toString() {
-        String s = "(";
+        String s = "( ";
         s += super.toString() + " " + t1 + " " + t2;
-        return s + ")";
+        return s + " )";
     }
 
     @Override
     public void print() {
-        System.out.println("ST_RECTANGLE " + toString());
+        println("ST_RECTANGLE " + toString());
     }
 }

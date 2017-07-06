@@ -8,13 +8,13 @@ import java.util.List;
 
 /**
  * DTW: Dynamic Time Warping for time series.
- * <p>
+ * 
  * </br> Uniform sampling rates only.
  * </br> Spatial dimension only.
  * </br> Robust to local time shift.
  * </br> Sensitive to noise.
  * </br> Not a metric.
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")

@@ -2,7 +2,7 @@ package traminer.util.spatial.objects;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import traminer.util.Attributes;
-import traminer.util.spatial.ClockwiseComparator;
+import traminer.util.spatial.comparators.ClockwiseComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,30 +11,14 @@ import java.util.List;
 /**
  * Base superclass for complex spatial objects.
  * <p>
- * Complex spatial objects are made of a list of
+ * Complex spatial objects are made of a list of 
  * simple spatial objects.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
         extends ArrayList<T> implements SpatialObject {
-    /**
-     * Constructs an empty complex spatial object
-     * with the initial capacity equals 1.
-     */
-    public ComplexSpatialObject() {
-        super(1);
-    }
-
-    /**
-     * Constructs an empty complex spatial object
-     * with the specified initial capacity.
-     */
-    public ComplexSpatialObject(int initialCapacity) {
-        super(initialCapacity);
-    }
-
     /**
      * Semantic attributes of this spatial object.
      */
@@ -51,6 +35,33 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
      * Number of spatial dimension of this object (2 by default).
      */
     private byte dimension = 2;
+
+    /**
+     * Constructs an empty complex spatial object.
+     */
+    public ComplexSpatialObject() {
+        super(1);
+    }
+
+    /**
+     * Constructs an empty complex spatial object
+     * with the specified initial capacity.
+     *
+     * @param initialCapacity
+     */
+    public ComplexSpatialObject(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    /**
+     * Constructs an empty complex spatial object
+     * with the given id.
+     *
+     * @param id Spatial object identifier.
+     */
+    public ComplexSpatialObject(String id) {
+        this.oid = id;
+    }
 
     @Override
     public void setId(String id) {
@@ -93,11 +104,19 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
 
     @Override
     public void setAttributes(Attributes attr) {
+        if (attr == null) {
+            throw new NullPointerException("Spatial object attributes "
+                    + "must not be null.");
+        }
         this.attributes = attr;
     }
 
     @Override
     public void putAttribute(String attrName, Object attrValue) {
+        if (attrName == null) {
+            throw new NullPointerException("Attribute's name "
+                    + "must not be null.");
+        }
         if (attributes == null) {
             attributes = new Attributes();
         }
@@ -106,6 +125,10 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
 
     @Override
     public Object getAttribute(String attrName) {
+        if (attrName == null) {
+            throw new NullPointerException("Attribute's name "
+                    + "must not be null.");
+        }
         return attributes.getAttributeValue(attrName);
     }
 
@@ -122,12 +145,19 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     public abstract ComplexSpatialObject<T> clone();
 
     /**
-     * True if these two spatial objects are adjacent.
+     * Check whether these two complex spatial objects are adjacent
      * (i.e. If they share any edge).
+     *
+     * @param obj Object to check.
+     * @return True if these two spatial objects are adjacent.
      */
     public boolean isAdjacent(ComplexSpatialObject<SimpleSpatialObject> obj) {
-        for (Edges e1 : this.getEdges()) {
-            for (Edges e2 : obj.getEdges()) {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object "
+                    + "to check adjacency must not be null.");
+        }
+        for (Segment e1 : this.getEdges()) {
+            for (Segment e2 : obj.getEdges()) {
                 if (e1.equals2D(e2)) {
                     return true;
                 }
@@ -137,11 +167,14 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     /**
-     * The list of points/vertexes of this complex spatial object
+     * Get the list of points/vertexes of this complex spatial object
      * in Clockwise order.
+     *
+     * @return A copy of the points/vertexes of this complex spatial
+     * object in Clockwise order.
      */
     public List<Point> getCoordinatesClockwise() {
-        List<Point> vertexList = getCoordinates();
+        List<Point> vertexList = new ArrayList<>(getCoordinates());
 
         // sort in clockwise order
         ClockwiseComparator<Point> comparator =
@@ -152,12 +185,14 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     /**
-     * The list of edges/segments of this complex spatial object
+     * Get the list of edges/segments of this complex spatial object
      * in Clockwise order.
+     *
+     * @return A copy of the edges/segments of this complex spatial
+     * object in Clockwise order.
      */
-    public List<Edges> getEdgesClockwise() {
-        List<Edges> edgesClockwise =
-                new ArrayList<Edges>();
+    public List<Segment> getEdgesClockwise() {
+        List<Segment> edgesClockwise = new ArrayList<Segment>();
         List<Point> vertexes = getCoordinatesClockwise();
         double x1;
         double y1;
@@ -172,7 +207,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
             if ((x1 - centroid.x()) >= 0 && (x2 - centroid.x()) < 0 && (y2 - centroid.y()) > 0) {
                 double cross = (x2 - x1) * (centroid.y() - y1) - (y2 - y1) * (centroid.x() - x1);
                 if (cross > 0.0) {
-                    Edges edge = new Edges(x2, y2, x1, y1);
+                    Segment edge = new Segment(x2, y2, x1, y1);
                     edgesClockwise.add(edge);
                     return edgesClockwise;
                 }
@@ -183,7 +218,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
             y1 = vertexes.get(i).y();
             x2 = vertexes.get(i + 1).x();
             y2 = vertexes.get(i + 1).y();
-            Edges edge = new Edges(x1, y1, x2, y2);
+            Segment edge = new Segment(x1, y1, x2, y2);
             if (this.contains(edge)) {
                 edgesClockwise.add(edge);
             }
@@ -194,7 +229,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
             y1 = vertexes.get(vertexes.size() - 1).y();
             x2 = vertexes.get(0).x();
             y2 = vertexes.get(0).y();
-            Edges edge = new Edges(x1, y1, x2, y2);
+            Segment edge = new Segment(x1, y1, x2, y2);
             if (this.contains(edge)) {
                 edgesClockwise.add(edge);
             }
@@ -203,7 +238,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     /**
-     * The centroid of this complex spatial object.
+     * @return The centroid/center of this complex spatial object.
      */
     public Point centroid() {
         double x = 0, y = 0;
@@ -217,10 +252,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
         return new Point(x, y);
     }
 
-    /**
-     * The Minimum Bounding Rectangle (MBR)
-     * of this Spatial Object.
-     */
+    @Override
     public Rectangle mbr() {
         if (!this.isEmpty()) {
             double minX = INFINITY, maxX = -INFINITY;
@@ -239,6 +271,8 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     /**
      * Computes the smallest convex Polygon that contains
      * all the points in the Spatial Object.
+     *
+     * @return The convex hull of this spatial object.
      */
     public Polygon convexHull() {
         Coordinate[] coordList = this.toJTSGeometry().
@@ -252,7 +286,10 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     /**
-     * Computes the convex hull of this spatial object
+     * Computes the smallest convex Polygon that contains
+     * all the points in the Spatial Object.
+     *
+     * @return The convex hull of this spatial object
      * represented as a list of coordinate points.
      */
     public List<Point> convexHullCoordinates() {

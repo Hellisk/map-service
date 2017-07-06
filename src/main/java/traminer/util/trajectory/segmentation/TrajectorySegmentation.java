@@ -1,23 +1,25 @@
 package traminer.util.trajectory.segmentation;
 
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.SpatialInterface;
 import traminer.util.trajectory.Trajectory;
 
 import java.util.List;
 
 /**
- * A common abstract class for segmenting a long trajectory
+ * A common abstract class for segmenting a long trajectory 
  * into multiple short, more meaningful sub-trajectories.
  *
- * @author Kevin Zheng, uqdalves
+ * @author uqdalves
  */
-@SuppressWarnings("serial")
-public abstract class TrajectorySegmentation implements SpatialInterface {
+public interface TrajectorySegmentation extends SpatialInterface {
     /**
      * Segments the given trajectory into multiple sub-trajectories.
      *
+     * @param trajectory The trajectory to segment.
      * @return A list of sub-trajectories.
-     * @throws EmptyTrajectoryException If input trajectory is empty.
+     * @throws EmptyParameterException If input trajectory is empty.
      */
-    public abstract List<Trajectory> doSegmentation(Trajectory trajectory);
+    List<Trajectory> doSegmentation(Trajectory trajectory)
+            throws EmptyParameterException;
 }

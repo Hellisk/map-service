@@ -14,14 +14,14 @@ import java.util.List;
 
 /**
  * A 2D rectangle defined by its bottom-left and
- * upper-right coordinates, and whose edges are
+ * upper-right coordinates, and whose edges are  
  * parallel to the X and Y axis.
  * <p>
- * Rectangle objects may contain both spatial and semantic
- * attributes. Spatial attributes of simple objects, however,
- * are immutable, that means once a Rectangle object is created
- * its spatial attributes cannot be changed.
- *
+ * Rectangle objects may contain both spatial and semantic 
+ * attributes. Spatial attributes of simple objects, however, 
+ * are immutable, that means once a Rectangle object is created 
+ * its spatial attributes cannot be changed. 
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -44,12 +44,14 @@ public class Rectangle extends SimpleSpatialObject {
      **/
     private final double maxY;
 
-    // auxiliary Polygon from JTS lib
+    /**
+     * Auxiliary Polygon from JTS lib
+     */
     private com.vividsolutions.jts.geom.
             Polygon JTSPolygon = null;
 
     /**
-     * Creates an empty rectangle.
+     * Creates a new empty rectangle.
      */
     public Rectangle() {
         this.minX = 0.0;
@@ -58,6 +60,14 @@ public class Rectangle extends SimpleSpatialObject {
         this.maxY = 0.0;
     }
 
+    /**
+     * Create a new rectangle with the given coordinates.
+     *
+     * @param minX Lower-left corner X.
+     * @param minY Lower-left corner Y.
+     * @param maxX Upper-right corner X.
+     * @param maxY Upper-right corner Y.
+     */
     public Rectangle(double minX, double minY,
                      double maxX, double maxY) {
         this.minX = minX;
@@ -66,18 +76,30 @@ public class Rectangle extends SimpleSpatialObject {
         this.maxY = maxY;
     }
 
+    /**
+     * @return Lower-left corner X coordinate.
+     */
     public double minX() {
         return minX;
     }
 
+    /**
+     * @return Lower-left corner Y coordinate.
+     */
     public double minY() {
         return minY;
     }
 
+    /**
+     * @return Upper-right corner X coordinate.
+     */
     public double maxX() {
         return maxX;
     }
 
+    /**
+     * @return Upper-right corner Y coordinate.
+     */
     public double maxY() {
         return maxY;
     }
@@ -98,8 +120,8 @@ public class Rectangle extends SimpleSpatialObject {
     }
 
     @Override
-    public List<Edges> getEdges() {
-        List<Edges> edges = new ArrayList<Edges>(4);
+    public List<Segment> getEdges() {
+        List<Segment> edges = new ArrayList<Segment>(4);
         edges.add(leftEdge());
         edges.add(upperEdge());
         edges.add(rightEdge());
@@ -113,24 +135,36 @@ public class Rectangle extends SimpleSpatialObject {
         return true;
     }
 
+    /**
+     * @return The perimeter of this rectangle.
+     */
     public double perimeter() {
         return (2 * Math.abs(maxY - minY) + 2 * Math.abs(maxX - minX));
     }
 
+    /**
+     * @return The area of this rectangle.
+     */
     public double area() {
         return (maxY - minY) * (maxX - minX);
     }
 
+    /**
+     * @return The height of this rectangle.
+     */
     public double height() {
         return Math.abs(maxY - minY);
     }
 
+    /**
+     * @return The width of this rectangle.
+     */
     public double width() {
         return Math.abs(maxX - minX);
     }
 
     /**
-     * The center of this rectangle as a coordinate point.
+     * @return The center of this rectangle as a coordinate point.
      */
     public Point center() {
         double xCenter = minX + (maxX - minX) / 2;
@@ -138,34 +172,56 @@ public class Rectangle extends SimpleSpatialObject {
         return new Point(xCenter, yCenter);
     }
 
-    public Edges leftEdge() {
-        return new Edges(minX, minY, minX, maxY);
-    }
-
-    public Edges rightEdge() {
-        return new Edges(maxX, minY, maxX, maxY);
-    }
-
-    public Edges lowerEdge() {
-        return new Edges(minX, minY, maxX, minY);
-    }
-
-    public Edges upperEdge() {
-        return new Edges(minX, maxY, maxX, maxY);
-    }
-
-    public boolean isSquare() {
-        return (Double.doubleToLongBits(Math.abs(maxX - minX)) ==
-                Double.doubleToLongBits(Math.abs(maxY - minY)));
+    /**
+     * @return The left edge of this rectangle.
+     */
+    public Segment leftEdge() {
+        return new Segment(minX, minY, minX, maxY);
     }
 
     /**
-     * True if these two rectangles are adjacent.
+     * @return The right edge of this rectangle.
+     */
+    public Segment rightEdge() {
+        return new Segment(maxX, minY, maxX, maxY);
+    }
+
+    /**
+     * @return The bottom edge of this rectangle.
+     */
+    public Segment lowerEdge() {
+        return new Segment(minX, minY, maxX, minY);
+    }
+
+    /**
+     * @return The top edge of this rectangle.
+     */
+    public Segment upperEdge() {
+        return new Segment(minX, maxY, maxX, maxY);
+    }
+
+    /**
+     * Check whether this rectangle is a square,
+     * i.e. if height equal width.
+     *
+     * @return True is this rectangle is a square.
+     */
+    public boolean isSquare() {
+        return (Double.doubleToLongBits(height()) ==
+                Double.doubleToLongBits(width()));
+    }
+
+    /**
+     * Check whether these two rectangles are adjacent,
      * i.e. If they share any edge.
+     *
+     * @param r The rectangle to check.
+     * @return True is these two rectangles are adjacent.
      */
     public boolean isAdjacent(Rectangle r) {
-        for (Edges e1 : this.getEdges()) {
-            for (Edges e2 : r.getEdges()) {
+        if (r == null) return false;
+        for (Segment e1 : this.getEdges()) {
+            for (Segment e2 : r.getEdges()) {
                 if (e1.equals2D(e2)) {
                     return true;
                 }
@@ -175,9 +231,13 @@ public class Rectangle extends SimpleSpatialObject {
     }
 
     /**
-     * True is this rectangle contains the given point
-     * p = (x,y) inside its perimeter. Check if the point
-     * lies inside the rectangle area.
+     * Check whether this rectangle  contains the given point
+     * p = (x,y) inside its perimeter.
+     *
+     * @param x
+     * @param y
+     * @return True if the point p = (x,y)  lies inside the
+     * rectangle's perimeter.
      */
     public boolean contains(double x, double y) {
         return x >= minX && x <= maxX &&
@@ -185,106 +245,23 @@ public class Rectangle extends SimpleSpatialObject {
     }
 
     /**
-     * Check is this rectangle contains the line segment (x1,y1)--(x2,y2),
-     * that is, the line segment is inside the rectangle area.
-     */
-/*	private boolean contains(double x1, double y1, double x2, double y2){
-        if(contains(x1, y1) && contains(x2, y2)){
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * True is this rectangle touches the point p = (x,y).
-	 * Check if the point touches any edge of the rectangle.
-	 */
-/*	private boolean touches(double x, double y){
-        // check top and bottom edges
-		if( x >= min_x && x <= max_x && 
-		   (y == max_y || y == min_y) ){
-			return true;
-		}
-		// check left and right edges
-		if( y >= min_y && y <= max_y && 
-		   (x == min_x || x == max_x) ){
-			return true;
-		}
-		return false;
-	}
-
-	// TODO implement
-	/**
-	 * True is this rectangle touches the line segment (x1,y1)--(x2,y2).
-	 * Check if the line segment touches any edge of the rectangle.
-	 */
-/*	public boolean touches(double x1, double y1, double x2, double y2){
-		for(Edges edge : getEdges()){
-			if(edge.){
-				
-			}
-		}
-		
-		if(touches(x1,y1) || touches(x2,y2)){
-			
-		}
-		return false;
-		
-		// check top and bottom edges
-		if( x >= min_x && x <= max_x && 
-		   (y == max_y || y == min_y) ){
-			return true;
-		}
-		// check left and right edges
-		if( y >= min_y && y <= max_y && 
-		   (x == min_x || x == max_x) ){
-			return true;
-		}
-		return false;
-	}
-*/
-
-    /**
-     * Check is these two rectangles overlap.
+     * Check whether these two rectangles overlap.
+     *
+     * @param r The other rectangle to check.
+     * @return True if these two rectangles overlap.
      */
     public boolean overlaps(Rectangle r) {
+        if (r == null) return false;
         if (this.maxX < r.minX) return false;
         if (this.minX > r.maxX) return false;
         if (this.maxY < r.minY) return false;
         return !(this.minY > r.maxY);
     }
 
-/**
- * True is this rectangle overlaps with the given line segment.
- * <br> Line segment given by end points X and Y coordinates.
- */
-/*private boolean overlaps(double x1, double y1, double x2, double y2){
-	if(contains(x1, y1) && contains(x2, y2)){
-		return true;
-	}
-	return false;
-}
-*/
     /**
-     * True if the given line segment (x1,y1)--(x2,y2)
-     * intersects this Rectangle.
-     */
-/*	private boolean intersects(
-			double x1, double y1, double x2, double y2){
-		if(contains(x1, y1, x2, y2)){
-			return true;
-		}
-		for(Edges edge : getEdges()){
-			if(edge.intersects(x1, y1, x2, y2)){
-				return true;
-			}
-		}
-		return false;
-	}
-*/
-
-    /**
-     * Return this rectangle as a Polygon object.
+     * Convert this rectangle to a Polygon object.
+     *
+     * @return The equivalent Polygon object of this Rectangle.
      */
     public Polygon toPolygon() {
         Polygon poly = new Polygon();
@@ -294,7 +271,9 @@ public class Rectangle extends SimpleSpatialObject {
     }
 
     /**
-     * Get the Rectangle2D (AWT) representation of this rectangle.
+     * Convert this point object to a AWT Rectangle2D object.
+     *
+     * @return The Rectangle2D representation of this rectangle.
      */
     public Rectangle2D toRectangle2D() {
         return new Rectangle2D.Double(minX, maxY, width(), height());

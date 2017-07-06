@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Interface for map-matching algorithms.
- *
+ * 
  * @author uqdalves
  */
 public interface MapMatchingMethod extends MapInterface {
@@ -40,7 +40,7 @@ public interface MapMatchingMethod extends MapInterface {
      * matches each point in the given collection.
      * @throws MapMatchingException
      */
-    List<MatchPair> doMatching(
+    List<PointNodePair> doMatching(
             final Collection<STPoint> pointsList,
             final Collection<RoadNode> nodesList) throws MapMatchingException;
 }

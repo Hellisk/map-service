@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * Changes the sampling rate of the trajectory points.
  * Make the time interval between every sample point of
  * the trajectory equals a given rate.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -21,7 +21,7 @@ public class SamplingRateTransformation extends TrajectoryTransformation {
 
     /**
      * Set the default sample rate = 1 time unit,
-     * and start time as the time-stamp of the
+     * and start time as the time-stamp of the 
      * trajectory's first sample point.
      */
     public SamplingRateTransformation() {
@@ -61,7 +61,7 @@ public class SamplingRateTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

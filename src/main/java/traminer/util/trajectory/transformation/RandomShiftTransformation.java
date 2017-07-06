@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
@@ -24,7 +26,7 @@ public class RandomShiftTransformation extends TrajectoryTransformation {
     }
 
     /**
-     * @param shiftRate     The rate of points to shift (0.0 = 0%, 1.0 = 100%)
+     * @param shiftRate The rate of points to shift (0.0 = 0%, 1.0 = 100%)
      * @param shiftDistance Distance for random shifting points.
      */
     public RandomShiftTransformation(double shiftRate, double shiftDistance) {
@@ -39,7 +41,7 @@ public class RandomShiftTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged
@@ -55,7 +57,7 @@ public class RandomShiftTransformation extends TrajectoryTransformation {
      */
     public Trajectory getTransformation(Trajectory t, List<STPoint> escapeList) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Trajectory for transformation must not be empty.");
         }
         // make sure the original trajectory is unchanged

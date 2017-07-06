@@ -9,13 +9,13 @@ import java.util.List;
 
 /**
  * EDC: Euclidean Distance for 2D Point Series (Trajectories).
- * <p>
+ * 
  * </br> Uniform sampling rates only.
  * </br> Spatial dimension only.
  * </br> ??Cope with local time shift.
  * </br> ??Not sensitive to noise.
  * </br> ??Not a metric.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

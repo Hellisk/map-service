@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * A spatial index model representing a Voronoi Diagram.
+ * A spatial index model representing a Voronoi Diagram. 
  * Contains the list of Voronoi Polygons boundaries that
  * compose the diagram.
- *
+ *  
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -199,7 +199,7 @@ public class VoronoiDiagramModel implements SpatialIndexModel {
      * Search all Voronoi polygons that intersects with
      * the given line string.
      *
-     * @param r The line string to do the search.
+     * @param ls The line string to do the search.
      * @return A list of polygon IDs.
      */
     public HashSet<String> rangeSearch(LineString ls) {

@@ -287,7 +287,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             }
 
             // sort by distance
-            Collections.sort(distanceList, distanceComparator);
+            distanceList.sort(distanceComparator);
 
             // get the kNN
             for (int i = 0; i < k; i++) {

@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shifts the time period of a trajectory,
+ * Shifts the time period of a trajectory, 
  * make it starts from time t = startTime
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -38,7 +38,7 @@ public class TimeShiftTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

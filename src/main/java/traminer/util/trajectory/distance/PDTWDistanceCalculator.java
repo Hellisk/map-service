@@ -9,8 +9,9 @@ import java.util.List;
 
 /**
  * PDTW: Trajectory distance measure
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
+ *
  */
 @SuppressWarnings("serial")
 public class PDTWDistanceCalculator extends TrajectoryDistanceFunction {

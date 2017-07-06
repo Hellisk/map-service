@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -9,20 +9,19 @@ import java.util.List;
 
 /**
  * Add some extra points to a given trajectory.
- *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
 public class AddPointsTransformation extends TrajectoryTransformation {
-    private final double addRate;
-
+    private final double addRate; 
+    
     /**
      * Set the default add rate = 0.25 (25%).
      */
     public AddPointsTransformation() {
         this.addRate = 0.25;
-    }
-
+    }    
     /**
      * @param addPointsRate Rate of points to add (0.0 = 0%, 1.0 = 100%)
      */
@@ -37,7 +36,7 @@ public class AddPointsTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

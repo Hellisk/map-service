@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -13,7 +9,7 @@ import java.util.List;
 
 /**
  * Changes the scale of a trajectory by a given ratio.
- *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
@@ -26,7 +22,6 @@ public class ScaleTransformation extends TrajectoryTransformation {
     public ScaleTransformation() {
         this.scaleRatio = 1.5;
     }
-
     /**
      * @param scaleRatio The new scale ratio (0.5 = 50%, 1.0 = 100%, 2.0 = 200%, and so on)
      */
@@ -41,7 +36,7 @@ public class ScaleTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

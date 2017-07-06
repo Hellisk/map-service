@@ -1,18 +1,19 @@
 package traminer.util.spatial;
 
+import traminer.util.Printable;
+
 import java.io.Serializable;
 
 /**
  * Base interface for spatial-related objects and services.
- *
+ * 
  * @author uqdalves
  */
-public interface SpatialInterface extends Serializable {
-    double PI = Math.PI;
+public interface SpatialInterface extends Printable, Serializable {
     /**
-     * Earth radius (average) in meters
+     * Pi
      */
-    int EARTH_RADIUS = 6371000;
+    double PI = Math.PI;
     /**
      * Infinity (big) value
      */
@@ -21,20 +22,4 @@ public interface SpatialInterface extends Serializable {
      * Min distance between objects -> less than that is taken as zero
      */
     double MIN_DIST = 0.000001;
-
-    default void print(Object s) {
-        System.out.print(s.toString());
-    }
-
-    default void println(Object s) {
-        System.out.println(s.toString());
-    }
-
-    default void println() {
-        System.out.println();
-    }
-
-    default void printerr(Object s) {
-        System.err.println(s.toString());
-    }
 }

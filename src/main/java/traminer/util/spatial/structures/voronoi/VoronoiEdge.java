@@ -1,17 +1,17 @@
 package traminer.util.spatial.structures.voronoi;
 
-import traminer.util.spatial.objects.Edges;
+import traminer.util.spatial.objects.Segment;
 
 /**
  * A Voronoi Edge is composed by its end points X and
  * Y coordinates, and the two polygons (pivots) it
- * belongs to. Each Voronoi Edge is shared by
+ * belongs to. Each Voronoi Edge is shared by 
  * exactly two polygons.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class VoronoiEdge extends Edges {
+public class VoronoiEdge extends Segment {
     /**
      * The Voronoi polygon at the left side of this edge
      */
@@ -24,14 +24,14 @@ public class VoronoiEdge extends Edges {
     /**
      * Creates a Voronoi edge with the given end-points.
      *
-     * @param x1        First end-point X coordinate.
-     * @param y1        First end-point Y coordinate.
-     * @param x2        Second end-point X coordinate.
-     * @param y2        Second end-point Y coordinate.
-     * @param leftSite  The id of Voronoi polygon at
-     *                  the left side of this edge.
-     * @param rightSite The id of Voronoi polygon at
-     *                  the right side of this edge.
+     * @param x1 First end-point X coordinate.
+     * @param y1 First end-point Y coordinate.
+     * @param x2 Second end-point X coordinate.
+     * @param y2 Second end-point Y coordinate.
+     * @param leftSite The id of Voronoi polygon at 
+     * the left side of this edge.
+     * @param rightSite The id of Voronoi polygon at 
+     * the right side of this edge.
      */
     public VoronoiEdge(double x1, double y1, double x2, double y2,
                        String leftSite, String rightSite) {

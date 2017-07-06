@@ -2,7 +2,7 @@ package traminer.util.map.matching.nearest;
 
 import traminer.util.exceptions.MapMatchingException;
 import traminer.util.map.matching.MapMatchingMethod;
-import traminer.util.map.matching.MatchPair;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -17,12 +17,12 @@ import java.util.List;
 
 /**
  * Implementation of Nearest-Neighbor Point-to-Point map matching.
- * Simply match every trajectory point to its nearest node in the
+ * Simply match every trajectory point to its nearest node in the  
  * road network graph.
  * <p>
  * Note that this algorithm does not take the road network nodes
  * connectivity into account.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -56,11 +56,11 @@ public class PointToNodeMatching implements MapMatchingMethod {
             final RoadNetworkGraph roadNetworkGraph) throws MapMatchingException {
         // make sure there is data to match
         if (trajectory == null || trajectory.isEmpty()) {
-            throw new MapMatchingException("EmptyPointsList",
+            throw new MapMatchingException(
                     "Trajectory for map-matching must not be empty nor null.");
         }
         if (roadNetworkGraph == null || roadNetworkGraph.isEmpty()) {
-            throw new MapMatchingException("EmptyNodesList",
+            throw new MapMatchingException(
                     "Road-Network-Graph for map-matching must not be empty nor null.");
         }
 
@@ -89,21 +89,21 @@ public class PointToNodeMatching implements MapMatchingMethod {
     }
 
     @Override
-    public List<MatchPair> doMatching(
+    public List<PointNodePair> doMatching(
             final Collection<STPoint> pointsList,
             final Collection<RoadNode> nodesList) throws MapMatchingException {
         // make sure there is data to match
         if (pointsList == null || pointsList.isEmpty()) {
-            throw new MapMatchingException("EmptyPointsList",
+            throw new MapMatchingException(
                     "Points list for map-matching must not be empty nor null.");
         }
         if (nodesList == null || nodesList.isEmpty()) {
-            throw new MapMatchingException("EmptyNodesList",
+            throw new MapMatchingException(
                     "Nodes list for map-matching must not be empty nor null.");
         }
 
         // simply match every point to its closest node
-        List<MatchPair> matchedPairs = new ArrayList<>();
+        List<PointNodePair> matchedPairs = new ArrayList<>();
         double dist, minDist;
         RoadNode nearestNode;
         for (STPoint p : pointsList) {
@@ -119,7 +119,7 @@ public class PointToNodeMatching implements MapMatchingMethod {
             }
             // make sure it returns a copy of the node
             if (nearestNode != null) {
-                matchedPairs.add(new MatchPair(p, nearestNode.clone()));
+                matchedPairs.add(new PointNodePair(p, nearestNode.clone()));
             }
         }
 

@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -24,12 +24,11 @@ public class TranslationTransformation extends TrajectoryTransformation {
         this.translationX = 1.0;
         this.translationY = 1.0;
     }
-
     /**
-     * @param translationX Translation value over the X axis,
-     *                     may be positive or negative.
-     * @param translationY Translation value over the Y axis,
-     *                     may be positive or negative.
+     * @param translationX Translation value over the X axis, 
+     * may be positive or negative.
+     * @param translationY Translation value over the Y axis, 
+     * may be positive or negative.
      */
     public TranslationTransformation(double translationX, double translationY) {
         this.translationX = translationX;
@@ -39,7 +38,7 @@ public class TranslationTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

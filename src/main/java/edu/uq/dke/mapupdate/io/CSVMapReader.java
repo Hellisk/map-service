@@ -1,4 +1,4 @@
-package edu.uq.dke.mapupdate.mapmatching.io;
+package edu.uq.dke.mapupdate.io;
 
 import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
@@ -97,6 +97,79 @@ public class CSVMapReader implements SpatialInterface {
 
 
         bwEdges.close();
+
+        roadGraph.addNodes(nodes);
+        roadGraph.addWays(ways);
+        roadGraph.setMaxLat(maxLat);
+        roadGraph.setMinLat(minLat);
+        roadGraph.setMaxLon(maxLon);
+        roadGraph.setMinLon(minLon);
+
+        return roadGraph;
+    }
+
+    public RoadNetworkGraph readShapeCSV() throws JDOMException, IOException {
+
+        double maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+        double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;        // boarder of the map
+        List<RoadNode> nodes = new ArrayList<RoadNode>();
+        List<RoadWay> ways = new ArrayList<RoadWay>();
+        // read road nodes
+        String line;
+        BufferedReader brVertices = new BufferedReader(new FileReader(csvVerticesPath));
+        while ((line = brVertices.readLine()) != null) {
+            String[] nodeInfo = line.split(",");
+            double lon = Double.parseDouble(nodeInfo[1]);
+            double lat = Double.parseDouble(nodeInfo[2]);
+
+            // update the map boarder
+            if (maxLon < lon) {
+                maxLon = lon;
+            }
+            if (minLon > lon) {
+                minLon = lon;
+            }
+            if (maxLat < lat) {
+                maxLat = lat;
+            }
+            if (minLat > lat) {
+                minLat = lat;
+            }
+
+            RoadNode newNode = new RoadNode(nodeInfo[0], lon, lat);
+            nodes.add(newNode);
+        }
+        brVertices.close();
+
+        // read road ways
+        BufferedReader brEdges = new BufferedReader(new FileReader(csvEdgesPath));
+        while ((line = brEdges.readLine()) != null) {
+            RoadWay newWay = new RoadWay();
+            List<RoadNode> intermediateNodes = new ArrayList<>();
+            String[] edgeInfo = line.split("\\|");
+            if (!edgeInfo[0].contains(",")) {
+                boolean isCompleteRoad = true;
+                for (int i = 1; i < edgeInfo.length; i++) {
+                    String[] roadWayPoint = edgeInfo[i].split(",");
+                    if (roadWayPoint.length == 3) {
+                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
+                        intermediateNodes.add(newNode);
+                    } else {
+                        System.out.println("Wrong road node:" + roadWayPoint.length);
+                        isCompleteRoad = false;
+                        break;
+                    }
+                }
+                if (isCompleteRoad) {
+                    newWay.setId(edgeInfo[0]);
+                    newWay.setNodes(intermediateNodes);
+                    ways.add(newWay);
+                }
+            } else {
+                System.out.println("Wrong road id info:" + edgeInfo[0]);
+            }
+        }
+        brEdges.close();
 
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);

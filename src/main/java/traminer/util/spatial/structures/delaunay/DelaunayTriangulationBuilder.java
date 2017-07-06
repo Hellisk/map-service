@@ -2,8 +2,8 @@ package traminer.util.spatial.structures.delaunay;
 
 import traminer.util.spatial.SpatialInterface;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.Point;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.Triangle;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class DelaunayTriangulation implements SpatialInterface {
+public class DelaunayTriangulationBuilder implements SpatialInterface {
     /**
      * Compute the Delaunay triangulation for a finite set of points.
      * Return a list of Delaunay triangles.
@@ -70,10 +70,10 @@ public class DelaunayTriangulation implements SpatialInterface {
                 }
             }
             // find the boundary of the polygonal hole
-            List<Edges> edgeList = new ArrayList<Edges>();
+            List<Segment> edgeList = new ArrayList<Segment>();
             for (int i = 0; i < badTriangles.size(); i++) {
                 Triangle bad_i = badTriangles.get(i);
-                for (Edges edge : bad_i.getEdges()) {
+                for (Segment edge : bad_i.getEdges()) {
                     // if edge is not shared by any other triangles in badTriangles
                     boolean shared = false;
                     for (int j = 0; j < badTriangles.size(); j++) {
@@ -94,7 +94,7 @@ public class DelaunayTriangulation implements SpatialInterface {
             }
             // re-triangulate the polygonal hole.
             // for each edge, form a triangle from edge to point
-            for (Edges edge : edgeList) {
+            for (Segment edge : edgeList) {
                 Triangle newTri = new Triangle(p.x(), p.y(),
                         edge.x1(), edge.y1(), edge.x2(), edge.y2());
                 triList.add(newTri);

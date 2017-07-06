@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import traminer.util.DeltaEncoder;
-import traminer.util.exceptions.SpatialObjectException;
+import traminer.util.exceptions.SpatialObjectConstructionException;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.*;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * A 2D spatial-temporal trajectory entity.
  * Discrete list of spatial-temporal points.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -76,14 +76,18 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         return list;
     }
 
+    public List<STPoint> getPoints() {
+        return this;
+    }
+
     @Override
-    public List<Edges> getEdges() {
-        List<Edges> list = new ArrayList<Edges>();
+    public List<Segment> getEdges() {
+        List<Segment> list = new ArrayList<Segment>();
         Point pi, pj;
         for (int i = 0; i < size() - 1; i++) {
             pi = this.get(i);
             pj = this.get(i + 1);
-            list.add(new Edges(pi.x(), pi.y(), pj.x(), pj.y()));
+            list.add(new Segment(pi.x(), pi.y(), pj.x(), pj.y()));
         }
         return list;
     }
@@ -256,11 +260,11 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     /**
      * Get the Path2D (AWT) representation of this trajectory.
      *
-     * @throws SpatialObjectException
+     * @throws SpatialObjectConstructionException
      */
     public Path2D toPath2D() {
         if (!isEmpty()) {
-            throw new SpatialObjectException(
+            throw new SpatialObjectConstructionException(
                     "Semgments list for Path2D must not be empty.");
         }
         Path2D path = new Path2D.Double();
@@ -306,9 +310,9 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * only compress the spatial-temporal attributes.
      */
     public Trajectory deltaCompress() {
-        double[] xValues = DeltaEncoder.deltaEncode(this.getXArray());
-        double[] yValues = DeltaEncoder.deltaEncode(this.getYArray());
-        long[] tValues = DeltaEncoder.deltaEncode(this.getTimeArray());
+        double[] xValues = DeltaEncoder.deltaEncode(this.getXValues());
+        double[] yValues = DeltaEncoder.deltaEncode(this.getYValues());
+        long[] tValues = DeltaEncoder.deltaEncode(this.getTimeValues());
 
         Trajectory delta = new Trajectory();
         this.cloneTo(delta);
@@ -323,9 +327,9 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * only decompress the spatial-temporal attributes.
      */
     public Trajectory deltaDecompress() {
-        double[] xValues = DeltaEncoder.deltaDecode(this.getXArray());
-        double[] yValues = DeltaEncoder.deltaDecode(this.getYArray());
-        long[] tValues = DeltaEncoder.deltaDecode(this.getTimeArray());
+        double[] xValues = DeltaEncoder.deltaDecode(this.getXValues());
+        double[] yValues = DeltaEncoder.deltaDecode(this.getYValues());
+        long[] tValues = DeltaEncoder.deltaDecode(this.getTimeValues());
 
         Trajectory delta = new Trajectory();
         delta.setSTCoordinates(xValues, yValues, tValues);
@@ -370,7 +374,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Returns an array with the X coordinates of
      * this trajectory sample points.
      */
-    public double[] getXArray() {
+    public double[] getXValues() {
         double[] result = new double[this.size()];
         int i = 0;
         for (STPoint p : this) {
@@ -383,7 +387,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Returns an array with the Y coordinates of
      * this trajectory sample points.
      */
-    public double[] getYArray() {
+    public double[] getYValues() {
         double[] result = new double[this.size()];
         int i = 0;
         for (STPoint p : this) {
@@ -396,7 +400,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Returns an array with the TIME coordinates of
      * this trajectory sample points.
      */
-    public long[] getTimeArray() {
+    public long[] getTimeValues() {
         long[] result = new long[this.size()];
         int i = 0;
         for (STPoint p : this) {

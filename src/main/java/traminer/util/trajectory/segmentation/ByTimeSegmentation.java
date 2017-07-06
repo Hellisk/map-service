@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -10,13 +10,13 @@ import java.util.List;
 /**
  * Segments a trajectory based on a time threshold.
  * That is, segments a trajectory such that the time span
- * of every sub-trajectory is no greater than the given
+ * of every sub-trajectory is no greater than the given 
  * threshold.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class ByTimeSegmentation extends TrajectorySegmentation {
+public class ByTimeSegmentation implements TrajectorySegmentation {
     private final double timeThreshold;
 
     /**
@@ -33,7 +33,7 @@ public class ByTimeSegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
         List<Trajectory> result = new ArrayList<Trajectory>();

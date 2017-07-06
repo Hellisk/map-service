@@ -1,9 +1,7 @@
 package traminer.util.map.roadnetwork;
 
-import org.graphstream.graph.EdgeRejectedException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.graph.implementations.SingleNode;
 import traminer.util.map.MapInterface;
 
 import java.util.Collection;
@@ -13,7 +11,7 @@ import java.util.Map;
 
 /**
  * A Road Network Graph object, based on OpenStreetMap (OSM) data model.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -237,18 +235,10 @@ public class RoadNetworkGraph implements MapInterface {
             for (int i = 0; i < way.size() - 1; i++) {
                 RoadNode nodei = way.getNodes().get(i);
                 RoadNode nodej = way.getNodes().get(i + 1);
-                SingleNode newNode = null;
-                try {
-                    // TODO avoid the exception in the future
-                    graph.addEdge(way.getId() + "_E" + i, nodei.getId(), nodej.getId());
-                } catch (EdgeRejectedException e) {
-                    System.out.println("fail");
-                }
+                graph.addEdge(way.getId() + "_E" + i, nodei.getId(), nodej.getId());
             }
         }
 
-        // TODO change style of graph
-        graph.addAttribute("ui.stylesheet", "node {size: 1px;fill-color: #777;text-mode: hidden;z-index: 0;} edge {shape: line;fill-color: #222;arrow-size: 3px, 2px;}");
         return graph;
     }
 

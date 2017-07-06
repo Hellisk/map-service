@@ -1,9 +1,9 @@
 package traminer.util.trajectory.distance;
 
 import traminer.util.spatial.distance.PointDistanceFunction;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.Point;
 import traminer.util.spatial.objects.Polygon;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -58,9 +58,9 @@ public class LIPDistanceCalculator extends TrajectoryDistanceFunction {
     private double getLength(List<? extends Point> p) {
         double result = 0.0;
         for (int i = 0; i < p.size() - 1; i++) {
-            result += distFunc.pointToPointDistance(p.get(i), p.get(i + 1));
+            result += distFunc.distance(p.get(i), p.get(i + 1));
         }
-        return result;
+        return result;        
     }
 
     private List<Polygon> getPolygon(List<STPoint> r, List<STPoint> s) {
@@ -70,9 +70,9 @@ public class LIPDistanceCalculator extends TrajectoryDistanceFunction {
         double lengthR = getLength(r);
         double lengthS = getLength(s);
 
-        List<Edges> rl = getPolyline(r);
-        List<Edges> sl = getPolyline(s);
-
+        List<Segment> rl = getPolyline(r);
+        List<Segment> sl = getPolyline(s);
+        
         List<Point> intersections = new ArrayList<Point>();
         List<TwoInt> index = new ArrayList<TwoInt>();
 

@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Add some noise to a given trajectory.
- *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
@@ -24,9 +24,8 @@ public class AddNoiseTransformation extends TrajectoryTransformation {
         this.noiseRate = 0.25;
         this.noiseDistance = 0.01;
     }
-
     /**
-     * @param noiseRate     Rate of noise to add (0.0 = 0%, 1.0 = 100%)
+     * @param noiseRate Rate of noise to add (0.0 = 0%, 1.0 = 100%)
      * @param noiseDistance Distance threshold for noisy points.
      */
     public AddNoiseTransformation(double noiseRate, double noiseDistance) {
@@ -41,7 +40,7 @@ public class AddNoiseTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Transformation error. Trajectory must not be empty.");
         }
         // make sure the original trajectory is unchanged

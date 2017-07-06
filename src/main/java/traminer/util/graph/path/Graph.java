@@ -88,4 +88,16 @@ public class Graph {
 
         return new ArrayList<Integer>(distances.keySet());
     }
+
+    //TODO report new function
+    public double getDistance(int idStart, int idEnd) {
+        List<Vertex> adjacentVertices = vertices.get(idStart);
+        double distance = 0;
+        for (Vertex v : adjacentVertices) {
+            if (v.getId() == idEnd) {
+                distance = v.getDistance();
+            }
+        }
+        return distance;
+    }
 }

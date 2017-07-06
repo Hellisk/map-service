@@ -26,10 +26,10 @@ import java.util.List;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class PointWithEdges extends SimpleSpatialObject {
+public class PointWithSegment extends SimpleSpatialObject {
     private final double x;
     private final double y;
-    private final ArrayList<Edges> adjacentEdges;
+    private final ArrayList<Segment> adjacentSegments;
 
     // auxiliary point from JTS lib
     private com.vividsolutions.jts.geom.
@@ -39,33 +39,36 @@ public class PointWithEdges extends SimpleSpatialObject {
      * Creates an empty Point with default
      * (0,0,0) coordinates.
      */
-    public PointWithEdges() {
+    public PointWithSegment() {
         this.x = 0.0;
         this.y = 0.0;
-        this.adjacentEdges = new ArrayList<>();
+        this.adjacentSegments = new ArrayList<>();
     }
 
     /**
      * Creates a 2D point with the given
      * coordinates, and z set as zero.
      */
-    public PointWithEdges(double x, double y) {
+    public PointWithSegment(double x, double y) {
         this.x = x;
         this.y = y;
-        this.adjacentEdges = new ArrayList<>();
+        this.adjacentSegments = new ArrayList<>();
     }
 
     /**
      * Create a 2D point with the given
      * coordinates and connected road list.
      */
-    public PointWithEdges(double x, double y, List<Edges> edges) {
+    public PointWithSegment(double x, double y, List<Segment> edges) {
         this.x = x;
         this.y = y;
-        this.adjacentEdges = new ArrayList<>();
-        adjacentEdges.addAll(edges);
+        this.adjacentSegments = new ArrayList<>();
+        adjacentSegments.addAll(edges);
     }
 
+    public Point toPoint() {
+        return new Point(this.x, this.y);
+    }
 
     public double x() {
         return x;
@@ -82,28 +85,28 @@ public class PointWithEdges extends SimpleSpatialObject {
     /**
      * Return the list of segments whose end point is this point.
      */
-    public List<Edges> getAdjacentEdges() {
-        return this.adjacentEdges;
+    public List<Segment> getAdjacentSegments() {
+        return this.adjacentSegments;
     }
 
     /**
-     * Add an adjacent edges to this point
+     * Add an adjacent segment to this point
      *
-     * @param edges
+     * @param segment
      * @return true if added successfully, otherwise false
      */
 
-    public boolean addAdjacentEdges(Edges edges) {
-        return this.adjacentEdges.add(edges);
+    public boolean addAdjacentSegment(Segment segment) {
+        return this.adjacentSegments.add(segment);
     }
 
     /**
      * Returns the default Euclidean distance between
      * this point and a given point p.
      */
-    public double distance(PointWithEdges p) {
+    public double distance(PointWithSegment p) {
         return new EuclideanDistanceFunction()
-                .pointToPointDistance(p.getPoint(), this.getPoint());
+                .distance(p.getPoint(), this.getPoint());
     }
 
     /**
@@ -121,8 +124,8 @@ public class PointWithEdges extends SimpleSpatialObject {
      *
      * @param dist The point distance measure to use.
      */
-    public double distance(PointWithEdges p, PointDistanceFunction dist) {
-        return dist.pointToPointDistance(p.getPoint(), this.getPoint());
+    public double distance(PointWithSegment p, PointDistanceFunction dist) {
+        return dist.distance(p.getPoint(), this.getPoint());
     }
 
     /**
@@ -150,8 +153,8 @@ public class PointWithEdges extends SimpleSpatialObject {
     }
 
     @Override
-    public List<Edges> getEdges() {
-        return new ArrayList<Edges>();
+    public List<Segment> getEdges() {
+        return new ArrayList<Segment>();
     }
 
     @Override
@@ -159,20 +162,22 @@ public class PointWithEdges extends SimpleSpatialObject {
         return false;
     }
 
-    // TODO add override
     //@Override
     public boolean touches(SpatialObject obj) {
-        if (obj instanceof PointWithEdges) {
+        if (obj == null) {
             return false;
         }
-        if (obj instanceof Edges) {
-            return ((Edges) obj).touches(this);
+        if (obj instanceof Point) {
+            return false;
+        }
+        if (obj instanceof Segment) {
+            return ((Segment) obj).touches(this.getPoint());
         }
         if (obj instanceof Circle) {
             return ((Circle) obj).touches(this);
         }
-        for (Edges s : obj.getEdges()) {
-            if (s.touches(this)) {
+        for (Segment s : obj.getEdges()) {
+            if (s.touches(this.getPoint())) {
                 return true;
             }
         }
@@ -180,8 +185,8 @@ public class PointWithEdges extends SimpleSpatialObject {
     }
 
     @Override
-    public PointWithEdges clone() {
-        PointWithEdges clone = new PointWithEdges(x, y, this.getAdjacentEdges());
+    public PointWithSegment clone() {
+        PointWithSegment clone = new PointWithSegment(x, y, this.getAdjacentSegments());
         super.cloneTo(clone); // clone semantics
         return clone;
     }
@@ -202,10 +207,10 @@ public class PointWithEdges extends SimpleSpatialObject {
     public boolean equals2D(SpatialObject obj) {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (obj instanceof PointWithEdges) {
-            PointWithEdges p = (PointWithEdges) obj;
-            for (Edges t : p.getAdjacentEdges()) {
-                if (!this.getAdjacentEdges().contains(t)) {
+        if (obj instanceof PointWithSegment) {
+            PointWithSegment p = (PointWithSegment) obj;
+            for (Segment t : p.getAdjacentSegments()) {
+                if (!this.getAdjacentSegments().contains(t)) {
                     return false;
                 }
             }
@@ -253,17 +258,17 @@ public class PointWithEdges extends SimpleSpatialObject {
     /**
      * Compare two points by using the given comparator.
      */
-    public int compareTo(PointWithEdges p, Comparator<PointWithEdges> comparator) {
+    public int compareTo(PointWithSegment p, Comparator<PointWithSegment> comparator) {
         return comparator.compare(this, p);
     }
 
     /**
      * Compare points by X value.
      */
-    public static final Comparator<PointWithEdges> X_COMPARATOR =
-            new Comparator<PointWithEdges>() {
+    public static final Comparator<PointWithSegment> X_COMPARATOR =
+            new Comparator<PointWithSegment>() {
                 @Override
-                public int compare(PointWithEdges o1, PointWithEdges o2) {
+                public int compare(PointWithSegment o1, PointWithSegment o2) {
                     if (o1.x < o2.x)
                         return -1;
                     if (o1.x > o2.x)
@@ -275,10 +280,10 @@ public class PointWithEdges extends SimpleSpatialObject {
     /**
      * Compare points by Y value.
      */
-    public static final Comparator<PointWithEdges> Y_COMPARATOR =
-            new Comparator<PointWithEdges>() {
+    public static final Comparator<PointWithSegment> Y_COMPARATOR =
+            new Comparator<PointWithSegment>() {
                 @Override
-                public int compare(PointWithEdges o1, PointWithEdges o2) {
+                public int compare(PointWithSegment o1, PointWithSegment o2) {
                     if (o1.y < o2.y)
                         return -1;
                     if (o1.y > o2.y)

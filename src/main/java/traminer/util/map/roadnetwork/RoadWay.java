@@ -2,8 +2,8 @@ package traminer.util.map.roadnetwork;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.LineString;
+import traminer.util.spatial.objects.Segment;
 
 import java.util.*;
 
@@ -82,6 +82,11 @@ public class RoadWay extends RoadNetworkPrimitive {
         return nodeList;
     }
 
+    public void setNodes(List<RoadNode> nodes) {
+        this.nodeList.clear();
+        nodeList.addAll(nodes);
+    }
+
     /**
      * Get the road node in the given index position
      * from this road way.
@@ -151,13 +156,13 @@ public class RoadWay extends RoadNetworkPrimitive {
      *
      * @return A sorted list of way segments.
      */
-    public List<Edges> getEdges() {
-        List<Edges> sList = new ArrayList<>(size() - 1);
+    public List<Segment> getEdges() {
+        List<Segment> sList = new ArrayList<>(size() - 1);
         RoadNode node1, node2;
         for (int i = 0; i < nodeList.size() - 1; i++) {
             node1 = nodeList.get(i);
             node2 = nodeList.get(i + 1);
-            sList.add(new Edges(node1.lon(), node1.lat(), node2.lon(), node2.lat()));
+            sList.add(new Segment(node1.lon(), node1.lat(), node2.lon(), node2.lat()));
         }
         return sList;
     }
@@ -243,7 +248,7 @@ public class RoadWay extends RoadNetworkPrimitive {
 
     /**
      * A comparator to compare nodes by time-stamp value.
-     * <p>
+     *
      * <br> Note: time-stamp values should be able to be parsed to long numbers.
      */
     private static final Comparator<RoadNode> TIME_COMPARATOR =

@@ -2,7 +2,7 @@ package traminer.util.spatial.objects;
 
 import com.vividsolutions.jts.geom.Geometry;
 import traminer.util.Attributes;
-import traminer.util.exceptions.SpatialObjectException;
+import traminer.util.exceptions.SpatialObjectConstructionException;
 import traminer.util.exceptions.SpatialRelationException;
 import traminer.util.spatial.SpatialInterface;
 
@@ -11,8 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Base interface for all spatial objects
- * (i.e. simple, complex, and collections).
+ * Base interface for all spatial objects (i.e. simple, complex, and collections).
  *
  * @author uqdalves
  */
@@ -22,44 +21,52 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
 	 * **************/
 
     /**
-     * Set the identifier of this spatial object.
+     * Set the id of this spatial object.
+     *
+     * @param id Object's identifier.
      */
     void setId(String id);
 
     /**
-     * The identifier of this spatial object.
+     * @return The identifier of this spatial object.
      */
     String getId();
 
     /**
-     * Set the identifier of the parent of this spatial object (if any).
+     * Set the  of the parent of this spatial object (if any).
+     *
+     * @param parentId Parent object identifier.
      */
     void setParentId(String parentId);
 
     /**
-     * The identifier of the parent of this  spatial object (if any).
+     * @return The identifier of the parent of this  spatial object (if any).
      */
     String getParentId();
 
     /**
-     * Set the number of spatial dimensions
-     * of this spatial object [1..127].
+     * Set the number of spatial dimensions of this spatial object.
+     *
+     * @param dim A number in the range [1..127].
      */
     void setDimension(byte dim);
 
     /**
-     * The number of spatial dimensions
-     * of this spatial object [1..127].
+     * @return The number of spatial dimensions of this spatial object [1..127].
      */
     byte getDimension();
 
     /**
-     * The semantic attributes in this spatial object.
+     * @return The semantic attributes in this spatial object.
+     * @see Attributes
      */
     Attributes getAttributes();
 
     /**
      * Set the semantic attributes in this spatial object.
+     *
+     * @param attr A set of attributes (name,value).
+     * @see Attributes
      */
     void setAttributes(Attributes attr);
 
@@ -68,17 +75,26 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * specified as a String. The attributes name is case-insensitive.
      * If the Map previously contained a mapping for the attribute name,
      * the old value is replaced.
+     *
+     * @param attrName Attribute's name.
+     * @param attrValue Attribute's value.
+     * @see Attributes
      */
     void putAttribute(String attrName, Object attrValue);
 
     /**
-     * Returns the value of the specified attribute name, specified
+     * Returns the value of the specified attribute's name.
+     *
+     * @param attrName Attribute's name.
+     * @return The value of the specified attribute's name, specified
      * as a string, or null if the attribute was not found.
+     * @see Attributes
      */
     Object getAttribute(String attrName);
 
     /**
-     * The list of attribute names in this spatial object.
+     * @return The list of attribute's names in this spatial object.
+     * @see Attributes
      */
     List<String> getAttributeNames();
 	
@@ -87,26 +103,27 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
 	 * **************/
 
     /**
-     * The list of points/vertexes of this spatial object.
+     * @return The list of points/vertexes of this spatial object.
+     * @see Point
      */
     List<Point> getCoordinates();
 
     /**
-     * The list of edges/segments of this spatial object (if any).
+     * @return The list of edges/segments of this spatial object (if any).
+     * @see Segment
      */
-    List<Edges> getEdges();
+    List<Segment> getEdges();
 
     /**
-     * Return the Minimun Bounding Rectangle (MBR) of
+     * @return Return the Minimun Bounding Rectangle (MBR) of
      * this spatial object.
-     *
-     * @throws SpatialObjectException if object is empty or null.
+     * @throws SpatialObjectConstructionException if object is empty or null.
      */
     default Rectangle mbr() {
         List<Point> coordList = getCoordinates();
         if (coordList == null || coordList.isEmpty()) {
-            throw new SpatialObjectException(
-                    "Cannot calculate MBR. Object is empty.");
+            throw new SpatialObjectConstructionException(
+                    "Cannot calculate MBR. Object is empty or null.");
         }
 
         int size = coordList.size();
@@ -121,14 +138,17 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Check is this spatial object is a closed object, that is,
-     * return true if the object is composed by edges (or a circle)
+     * Check whether this spatial object is a closed object.
+     *
+     * @return True if the object is composed by edges (or a circle)
      * and its first and final edge points are the same.
      */
     boolean isClosed();
 
     /**
      * Makes an exact copy of this spatial object.
+     *
+     * @return A copy of this object.
      */
     SpatialObject clone();
 
@@ -139,6 +159,10 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * @param obj The spatial object to receive the cloned attributes.
      */
     default void cloneTo(SpatialObject obj) {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object to receive "
+                    + "cloned attributes cannot be null.");
+        }
         if (this.getAttributes() != null) {
             obj.setAttributes(new Attributes(this.getAttributes()));
         }
@@ -165,30 +189,43 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * For ComplexSpatialObjects this method verifies if every
      * coordinate of the two objects are the same in the exact order
      * they are declared in the object.
+     *
+     * @param obj The spatial object to compare.
+     * @return True if these two spatial objects are spatially equivalent.
      */
     boolean equals2D(SpatialObject obj);
 
     /**
-     * String representation of this spatial object.
+     * @return A String representation of this spatial object.
      */
     @Override
     String toString();
 
     /**
      * Compare this spatial object using the given comparator.
+     * The result of this method is the same as comparator.compare(this, obj).
      *
      * @param obj        The spatial object to compare.
      * @param comparator The comparator to use.
-     * @return The result of this method is the as same as
-     * comparator.compare(this, obj).
+     * @return A negative integer, zero, or a positive integer as the first
+     * argument is less than, equal to, or greater than the second.
      */
     default int compareTo(SpatialObject obj, Comparator<SpatialObject> comparator) {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object to compare cannot be null.");
+        }
+        if (comparator == null) {
+            throw new NullPointerException("Spatial object's comparator cannot be null.");
+        }
         return comparator.compare(this, obj);
     }
 
     /**
-     * Returns the JTS equivalent Geometry object of
-     * this Spatial Object.
+     * Cast this spatial object to an equivalent JavaTopologicalSuit (JTS)
+     * geometry object.
+     *
+     * @return Returns the JTS equivalent Geometry object of this Spatial Object.
+     * @see Geometry
      */
     Geometry toJTSGeometry();
     
@@ -197,8 +234,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
 	 * **************/
 
     /**
-     * Returns TRUE if the given spatial object 'obj' is completely contained
-     * by this spatial object.
+     * Check whether the given spatial object is completely contained by this spatial object.
      * <p>
      * The contains predicate returns the exact opposite result of the Within predicate.
      * <br> The boundary and interior of the second geometry are not allowed to intersect
@@ -206,8 +242,16 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * <br> The interiors of both geometries must intersect and that the interior and
      * boundary of the secondary (geometry b) must not intersect the exterior of
      * the primary (geometry a).
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if the given spatial object 'obj' is completely contained
+     * by this spatial object.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean contains(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
                 return ((Circle) obj).within(this);
@@ -220,8 +264,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE if this spatial object is completely within the
-     * given spatial object 'obj'.
+     * Check whether this spatial object is completely within the given spatial object 'obj'.
      * <p>
      * Within tests for the exact opposite result of Contains.
      * <br> The boundary and interior of the first geometry are not allowed
@@ -230,9 +273,20 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * <br> The interiors of both geometries must intersect and that the interior
      * and boundary of the primary geometry (geometry a) must not intersect the
      * exterior of the secondary (geometry b).
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if this spatial object is completely within the
+     * given spatial object 'obj'.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean within(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
+            if (obj instanceof Circle) {
+                return ((Circle) obj).contains(this);
+            }
             return this.toJTSGeometry().within(obj.toJTSGeometry());
         } catch (Exception e) {
             throw new SpatialRelationException("'Within' operation not supported "
@@ -241,13 +295,24 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE is this spatial object lies in this spatial object 'obj' .
+     * Check whether the given spatial object is completely contained by this spatial object.
      * <p>
      * ''a'' is covered by ''b'' (extends Within) if every point of ''a'' is a point of ''b'',
      * and the interiors of the two geometries have at least one point in common.
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if the given spatial object 'obj' is completely contained
+     * by this spatial object.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean coveredBy(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
+            if (obj instanceof Circle) {
+                return ((Circle) obj).covers(this);
+            }
             return this.toJTSGeometry().coveredBy(obj.toJTSGeometry());
         } catch (Exception e) {
             throw new SpatialRelationException("'CoveredBy' operation not supported "
@@ -256,15 +321,22 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE is the given spatial object 'obj' lies in this spatial object.
+     * Check whether the given spatial object lies in this spatial object.
      * <p>
      * ''a'' covers ''b'' if no points of ''b'' lie in the exterior of ''a'', or every
      * point of ''b'' is a point of (the interior or boundary of) ''a''.
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE is the given spatial object 'obj' lies in this spatial object.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean covers(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
-                return this.contains(obj);
+                return ((Circle) obj).coveredBy(this);
             }
             return this.toJTSGeometry().covers(obj.toJTSGeometry());
         } catch (Exception e) {
@@ -274,7 +346,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE if these two spatial objects cross.
+     * Check whether these two spatial objects cross each other.
      * <p>
      * Returns TRUE if the intersection results in a geometry whose dimension is one
      * less than the maximum dimension of the two source geometries, and the intersection
@@ -282,8 +354,15 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * <br> The interiors must intersect and at least the interior of the primary (geometry a)
      * must intersect the exterior of the secondary (geometry b).
      * <br> The dimension of the intersection of the interiors must be 0 (intersect at a point).
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if these two spatial objects cross.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean crosses(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
                 return ((Circle) obj).overlaps(this);
@@ -296,15 +375,22 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE if the intersection of these two spatial objects is an empty set.
+     * Check whether the intersection of these two spatial objects is an empty set.
      * <p>
      * Geometries are disjoint if they do not intersect one another in any way.
      * <br> Disjoint returns the exact opposite result of Intersects.
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if the intersection of these two spatial objects is an empty set.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean disjoint(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
-                return !((Circle) obj).intersects(this);
+                return ((Circle) obj).disjoint(this);
             }
             return this.toJTSGeometry().disjoint(obj.toJTSGeometry());
         } catch (Exception e) {
@@ -314,8 +400,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE if the intersection of these tow spatial objects does not
-     * result in an empty set.
+     * Check whether the intersection of these tow spatial objects does not result in an empty set.
      * <p>
      * Intersects returns the exact opposite result of Disjoint.
      * <br> The intersects predicate returns TRUE if the interiors of both geometries intersect.
@@ -324,8 +409,15 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * <br> The intersects predicate returns TRUE if the boundary of the first geometry intersects
      * the interior of the second.
      * <br> The intersects predicate returns TRUE if the boundaries of either geometry intersect.
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if the intersection of these tow spatial objects does not result in an empty set.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean intersects(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
                 return ((Circle) obj).intersects(this);
@@ -338,7 +430,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     }
 
     /**
-     * Returns TRUE if these two spatial objects overlap.
+     * Check whether these two spatial objects overlap.
      * <p>
      * Compares two geometries of the same dimension and returns TRUE if their intersection set
      * results in a geometry different from both, but of the same dimension.
@@ -347,8 +439,15 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * intersection of two polygons results in polygon, then overlap returns TRUE.
      * <br> The overlap predicate returns TRUE if the interior of both geometries intersects
      * the others interior and exterior.
+     *
+     * @param obj The spatial object to check.
+     * @return Returns TRUE if these two spatial objects overlap.
+     * @throws SpatialRelationException If the operation is not supported by these spatial objects.
      */
     default boolean overlaps(SpatialObject obj) throws SpatialRelationException {
+        if (obj == null) {
+            throw new NullPointerException("Spatial object cannot be null.");
+        }
         try {
             if (obj instanceof Circle) {
                 return ((Circle) obj).overlaps(this);
@@ -360,43 +459,18 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
         }
     }
 
-// TODO
-/**
- * Returns TRUE if these two spatial object touch.
- * <p>
- * Returns TRUE if none of the points common to both geometries intersect 
- * the interiors of both geometries.
- * <br> The touch predicate returns TRUE if the boundary of one geometry intersects 
- * the interior of the other but the interiors do not intersect.
- * <br> The touch predicate returns TRUE if the boundary of one geometry intersects 
- * the interior of the other but the interiors do not intersect.
- * <br> The touch predicate returns TRUE if the boundaries of both geometries intersect 
- * but the interiors do not.
- */
-//boolean touches(SpatialObject obj) throws SpatialRelationException;// {return false;}
-
-	
-	/* ************** 
-	 * Static methods
-	 * **************/
-
+    // TODO
     /**
-     * Check whether a -- b -- c is a counter-clockwise turn.
+     * Returns TRUE if these two spatial object touch.
      * <p>
-     * +1 if counter-clockwise, -1 if clockwise, 0 if collinear.
+     * Returns TRUE if none of the points common to both geometries intersect
+     * the interiors of both geometries.
+     * <br> The touch predicate returns TRUE if the boundary of one geometry intersects
+     * the interior of the other but the interiors do not intersect.
+     * <br> The touch predicate returns TRUE if the boundary of one geometry intersects
+     * the interior of the other but the interiors do not intersect.
+     * <br> The touch predicate returns TRUE if the boundaries of both geometries intersect
+     * but the interiors do not.
      */
-    static int isCCW(Point a, Point b, Point c) {
-        double area2 = (b.x() - a.x()) * (c.y() - a.y()) -
-                (c.x() - a.x()) * (b.y() - a.y());
-        if (area2 < 0) return -1;
-        else if (area2 > 0) return +1;
-        else return 0;
-    }
-
-    /**
-     * Check whether a--b--c are collinear.
-     */
-    static boolean isCollinear(Point a, Point b, Point c) {
-        return isCCW(a, b, c) == 0;
-    }
+    //boolean touches(SpatialObject obj) throws SpatialRelationException;// {return false;}
 }

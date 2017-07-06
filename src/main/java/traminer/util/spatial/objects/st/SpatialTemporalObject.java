@@ -6,7 +6,8 @@ import java.util.Comparator;
 
 /**
  * Base interface for Spatial-Temporal objects.
- *
+ * Spatial objects with temporal features.
+ * 
  * @author uqdalves
  */
 public interface SpatialTemporalObject extends SpatialObject {
@@ -15,22 +16,28 @@ public interface SpatialTemporalObject extends SpatialObject {
      * and whether they have the same 2D spatial coordinates and temporal
      * attributes. That is, check weather they are spatial-temporally
      * equivalents.
+     *
+     * @param obj The spatial-temporal object to compare.
+     * @return True if these two spatial objects are
+     * spatial-temporally equivalent.
      */
     boolean equalsST(SpatialTemporalObject obj);
 
     /**
-     * The initial/start time of this spatial-temporal object.
+     * @return The initial/start time of this spatial-temporal object.
      */
     long timeStart();
 
     /**
-     * The final/end time of this spatial-temporal object.
+     * @return The final/end time of this spatial-temporal object.
      */
     long timeFinal();
 
     /**
      * The duration in time of this spatial-temporal object.
      * That is, the time duration this object was active.
+     *
+     * @return The temporal duration of this object.
      */
     default long duration() {
         return (this.timeFinal() - this.timeStart());

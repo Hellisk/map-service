@@ -1,16 +1,71 @@
 package traminer.util.spatial.distance;
 
-import traminer.util.spatial.objects.Edges;
+import traminer.util.exceptions.DistanceFunctionException;
 import traminer.util.spatial.objects.Point;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.Vector2D;
 
 /**
  * Euclidean Distance function for spatial objects.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class EuclideanDistanceFunction implements PointDistanceFunction, SegmentDistanceFunction {
+public class EuclideanDistanceFunction implements
+        PointDistanceFunction, SegmentDistanceFunction, VectorDistanceFunction {
+
+    /**
+     * Euclidean distance between two spatial points.
+     */
+    @Override
+    public double distance(Point p1, Point p2) {
+        if (p1 == null || p2 == null) {
+            throw new NullPointerException("Points for distance "
+                    + "calculation cannot be null.");
+        }
+        return pointToPointDistance(p1.x(), p1.y(), p2.x(), p2.y());
+    }
+
+    /**
+     * Euclidean distance between two line segments.
+     */
+    @Override
+    public double distance(Segment s, Segment r) {
+        if (s == null || r == null) {
+            throw new NullPointerException("Segments for distance "
+                    + "calculation cannot be null.");
+        }
+        return segmentToSegmentDistance(
+                s.x1(), s.x2(), s.y1(), s.y2(),
+                r.x1(), r.x2(), r.y1(), r.y2());
+    }
+
+    /**
+     * Euclidean distance between two N-dimensional vectors.
+     */
+    @Override
+    public double distance(double[] v, double[] u)
+            throws DistanceFunctionException {
+        if (v == null || u == null) {
+            throw new NullPointerException("Vectors for Euclidean distance "
+                    + "calculation cannot be null.");
+        }
+        if (v.length != u.length) {
+            throw new DistanceFunctionException("Vectors should be "
+                    + "of same size for Jaccard distance calculation.");
+        }
+        if (v.length == 0) {
+            return 0;
+        }
+
+        double distance = 0;
+        for (int i = 0; i < v.length; i++) {
+            distance += (v[i] - u[i]) * (v[i] - u[i]);
+        }
+
+        return Math.sqrt(distance);
+    }
+
     /**
      * Euclidean distance between 2D points.
      * <br> {@inheritDoc}
@@ -20,15 +75,6 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
         double dist2 = (x1 - x2) * (x1 - x2) +
                 (y1 - y2) * (y1 - y2);
         return Math.sqrt(dist2);
-    }
-
-    /**
-     * Euclidean distance between 2D points.
-     * <br> {@inheritDoc}
-     */
-    @Override
-    public double pointToPointDistance(Point p1, Point p2) {
-        return pointToPointDistance(p1.x(), p1.y(), p2.x(), p2.y());
     }
 
     /**
@@ -53,41 +99,36 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
     }
 
     /**
-     * Euclidean distance between N-Dimensional points.
-     *
-     * @param vec1 N-Dimensional coordinates vector (p1).
-     * @param vec2 N-Dimensional coordinates vector (p2).
-     * @return Euclidean distance between two N-D points.
-     */
-    public double pointToPointDistance(double[] vec1, double[] vec2) {
-        if (vec1 == null || vec2 == null) {
-            throw new NullPointerException(
-                    "Points coordinates vector cannot be null.");
-        }
-        if (vec1.length != vec2.length) {
-            throw new IllegalArgumentException("Points for distance "
-                    + "calculation must have same dimension.");
-        }
-        double dist2 = 0.0;
-        for (int i = 0; i < vec1.length; i++) {
-            dist2 += (vec1[i] - vec2[i]) * (vec1[i] - vec2[i]);
-        }
-
-        return Math.sqrt(dist2);
-    }
-
-    /**
      * Euclidean distance between point and segment.
      * <br> {@inheritDoc}
      */
     @Override
     public double pointToSegmentDistance(double x, double y,
                                          double sx1, double sy1, double sx2, double sy2) {
-        // triangle height
-        double num = (sy2 - sy1) * x - (sx2 - sx1) * y + sx2 * sy1 - sy2 * sx1;
-        double den = (sy2 - sy1) * (sy2 - sy1) + (sx2 - sx1) * (sx2 - sx1);
-        double dist = Math.abs(num) / Math.sqrt(den);
-        return dist;
+
+        double k = ((sy2 - sy1) * (x - sx1) - (sx2 - sx1) * (y - sy1)) / (Math.pow((sy2 - sy1), 2) + (Math.pow(sx2 - sx1, 2)));
+
+        double px = x - k * (sy2 - sy1);
+        double py = y + k * (sx2 - sx1);
+
+        // check whether the perpendicular point is outside the segment
+        if (sx1 < sx2) {
+            if (px < sx1) {
+                px = sx1;
+                py = sy1;
+            } else if (px > sx2) {
+                px = sx2;
+                py = sy2;
+            }
+        } else if (px < sx2) {
+            px = sx2;
+            py = sy2;
+        } else if (px > sx1) {
+            px = sx1;
+            py = sy1;
+        }
+
+        return Math.sqrt(Math.pow(px - x, 2) + Math.pow(py - y, 2));
     }
 
     /**
@@ -95,9 +136,17 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
      * <br> {@inheritDoc}
      */
     @Override
-    public double pointToSegmentDistance(Point p, Edges s) {
+    public double pointToSegmentDistance(Point p, Segment s) {
+        if (p == null) {
+            throw new NullPointerException("Point for distance "
+                    + "calculation cannot be null.");
+        }
+        if (s == null) {
+            throw new NullPointerException("Segment for distance "
+                    + "calculation cannot be null.");
+        }
         return pointToSegmentDistance(p.x(), p.y(),
-                s.x1(), s.x2(), s.y1(), s.y2());
+                s.x1(), s.y1(), s.x2(), s.y2());
     }
 
     /**
@@ -109,8 +158,7 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
             double sx1, double sy1, double sx2, double sy2,
             double rx1, double ry1, double rx2, double ry2) {
         // if they intersect the shortest distance is zero
-        if (Edges.segmentsCross(sx1, sy1, sx2, sy2,
-                rx1, ry1, rx2, ry2)) {
+        if (Segment.segmentsCross(sx1, sy1, sx2, sy2, rx1, ry1, rx2, ry2)) {
             return 0.0;
         }
 
@@ -133,8 +181,8 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
 
         // compute the line parameters of the two closest points
         if (D < MIN_DIST) {  // the lines are almost parallel
-            sN = 0.0;         // force using point P0 on segment S1
-            sD = 1.0;         // to prevent possible division by 0.0 later
+            sN = 0.0;        // force using point P0 on segment S1
+            sD = 1.0;        // to prevent possible division by 0.0 later
             tN = e;
             tD = c;
         }
@@ -194,16 +242,5 @@ public class EuclideanDistanceFunction implements PointDistanceFunction, Segment
         double dist = Math.sqrt(dx * dx + dy * dy);
 
         return dist;
-    }
-
-    /**
-     * Euclidean distance between line segments.
-     * <br> {@inheritDoc}
-     */
-    @Override
-    public double segmentToSegmentDistance(Edges s, Edges r) {
-        return segmentToSegmentDistance(
-                s.x1(), s.x2(), s.y1(), s.y2(),
-                r.x1(), r.x2(), r.y1(), r.y2());
     }
 }

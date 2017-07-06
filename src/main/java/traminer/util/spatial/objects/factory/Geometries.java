@@ -1,8 +1,5 @@
 package traminer.util.spatial.objects.factory;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import traminer.util.spatial.SpatialInterface;
 import traminer.util.spatial.objects.*;
 import traminer.util.spatial.objects.st.STCircle;
 import traminer.util.spatial.objects.st.STPoint;
@@ -10,15 +7,16 @@ import traminer.util.spatial.objects.st.STRectangle;
 import traminer.util.spatial.objects.st.STSegment;
 import traminer.util.trajectory.Trajectory;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Spatial objects factory.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public final class Geometries implements SpatialInterface {
+public final class Geometries implements Serializable {
 
     public static final Point point(double x, double y) {
         return new Point(x, y);
@@ -32,8 +30,8 @@ public final class Geometries implements SpatialInterface {
         return new STPoint(x, y, time);
     }
 
-    public static final Edges segment(double x1, double y1, double x2, double y2) {
-        return new Edges(x1, y1, x2, y2);
+    public static final Segment segment(double x1, double y1, double x2, double y2) {
+        return new Segment(x1, y1, x2, y2);
     }
 
     public static final Rectangle rectangle(double min_x, double min_y, double max_x, double max_y) {
@@ -90,25 +88,5 @@ public final class Geometries implements SpatialInterface {
 
     public static final Trajectory trajectory(STPoint... points) {
         return new Trajectory(points);
-    }
-
-    public static void display(List<Point> list) {
-        if (list.isEmpty()) return;
-
-        Graph graph = new SingleGraph("MultiPoint");
-        graph.display(false);
-        // create one node per point
-        Point p;
-        for (int i = 1; i < list.size(); i++) {
-            p = list.get(i);
-            graph.addNode("N" + i).setAttribute("xyz", p.x(), p.y());
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static void displayMany(List<ComplexSpatialObject> spatialObjList) {
-        for (ComplexSpatialObject obj : spatialObjList) {
-            obj.display();
-        }
     }
 }

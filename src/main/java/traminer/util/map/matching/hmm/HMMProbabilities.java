@@ -39,9 +39,9 @@ class HMMProbabilities {
 
     /**
      * @param sigma standard deviation of the normal distribution [m] used for modeling the
-     *              GPS error
-     * @param beta  beta parameter of the exponential distribution for 1 s sampling interval, used
-     *              for modeling transition probabilities
+     * GPS error
+     * @param beta beta parameter of the exponential distribution for 1 s sampling interval, used
+     * for modeling transition probabilities
      */
     public HMMProbabilities(double sigma, double beta) {
         this.sigma = sigma;
@@ -61,10 +61,10 @@ class HMMProbabilities {
      * Returns the logarithmic transition probability density for the given transition
      * parameters.
      *
-     * @param routeLength    Length of the shortest route [m] between two consecutive map matching
-     *                       candidates.
+     * @param routeLength Length of the shortest route [m] between two consecutive map matching
+     * candidates.
      * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
-     * @param timeDiff       time difference [s] between two consecutive GPS measurements.
+     * @param timeDiff time difference [s] between two consecutive GPS measurements.
      */
     public double transitionLogProbability(double routeLength, double linearDistance,
                                            double timeDiff) {
@@ -75,7 +75,7 @@ class HMMProbabilities {
     /**
      * Returns a transition metric for the transition between two consecutive map matching
      * candidates.
-     * <p>
+     *
      * In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
      * time difference to make the beta parameter of the exponential distribution independent of the
      * sampling interval.

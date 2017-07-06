@@ -4,7 +4,7 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.utils.MapUtils;
-import edu.uq.dke.mapupdate.mapmatching.io.CSVMapReader;
+import edu.uq.dke.mapupdate.io.CSVMapReader;
 import org.jdom2.JDOMException;
 import processing.core.PApplet;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;

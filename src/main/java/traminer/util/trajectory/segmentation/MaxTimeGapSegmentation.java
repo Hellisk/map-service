@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -10,11 +10,11 @@ import java.util.List;
 /**
  * Segments a trajectory if two consecutive points have
  * a time gap greater than a given threshold.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class MaxTimeGapSegmentation extends TrajectorySegmentation {
+public class MaxTimeGapSegmentation implements TrajectorySegmentation {
     private final long maximumGap;
 
     /**
@@ -32,7 +32,7 @@ public class MaxTimeGapSegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
         List<Trajectory> result = new ArrayList<Trajectory>();

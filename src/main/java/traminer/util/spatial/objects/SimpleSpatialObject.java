@@ -30,6 +30,21 @@ public abstract class SimpleSpatialObject implements SpatialObject {
      */
     private byte dimension = 2;
 
+    /**
+     * Creates a new empty simple spatial object.
+     */
+    public SimpleSpatialObject() {
+    }
+
+    /**
+     * Creates a new simple spatial object with the given id.
+     *
+     * @param id Spatial object identifier.
+     */
+    public SimpleSpatialObject(String id) {
+        this.oid = id;
+    }
+
     @Override
     public void setId(String id) {
         this.oid = id;
@@ -71,11 +86,19 @@ public abstract class SimpleSpatialObject implements SpatialObject {
 
     @Override
     public void setAttributes(Attributes attr) {
+        if (attr == null) {
+            throw new NullPointerException("Spatial object attributes "
+                    + "must not be null.");
+        }
         this.attributes = new Attributes(attr);
     }
 
     @Override
     public void putAttribute(String attrName, Object attrValue) {
+        if (attrName == null) {
+            throw new NullPointerException("Attribute's name "
+                    + "must not be null.");
+        }
         if (attributes == null) {
             attributes = new Attributes();
         }
@@ -84,6 +107,10 @@ public abstract class SimpleSpatialObject implements SpatialObject {
 
     @Override
     public Object getAttribute(String attrName) {
+        if (attrName == null) {
+            throw new NullPointerException("Attribute's name "
+                    + "must not be null.");
+        }
         return attributes.getAttributeValue(attrName);
     }
 

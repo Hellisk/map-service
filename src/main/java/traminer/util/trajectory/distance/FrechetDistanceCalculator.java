@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Frechet: Trajectory Distance measure
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")
@@ -78,7 +78,7 @@ public class FrechetDistanceCalculator extends TrajectoryDistanceFunction {
             sCurrentPoint = s3d.get(sCurrentLine).getPointByTime(t);
 
             double distance = distFunc
-                    .pointToPointDistance(rCurrentPoint, sCurrentPoint);
+                    .distance(rCurrentPoint, sCurrentPoint);
 
             if (distance > max) {
                 max = distance;

@@ -9,13 +9,13 @@ import java.util.List;
 
 /**
  * ERP: Edit distance with Real Penalty.
- * <p>
- * </br> Discrete 1D time series only.
+ *
+ * </br> Discrete 1D time series only.  
  * </br> Uniform sampling rates only.
  * </br> Sensitive to noise.
  * </br> Cope with local time shift.
  * </br> Metric function.
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")

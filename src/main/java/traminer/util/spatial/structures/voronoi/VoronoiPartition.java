@@ -7,12 +7,13 @@ import traminer.util.spatial.structures.SpatialPartition;
 /**
  * Object representing a partition in a voronoi diagram.
  * <p>
- * Each partition is represented by its Voronoi Polygon
- * boundaries, and contains the list of spatial objects
+ * Each partition is represented by its Voronoi Polygon 
+ * boundaries, and contains the list of spatial objects 
  * in the partition.
+ * 
+ * @author uqdalves
  *
  * @param <T> Type of spatial object to store in this partition.
- * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class VoronoiPartition<T extends SpatialObject> extends SpatialPartition<XYObject<T>> {
@@ -26,7 +27,7 @@ public class VoronoiPartition<T extends SpatialObject> extends SpatialPartition<
      * polygon boundary.
      *
      * @param partitionId The id/index of this partition.
-     * @param boundary    The boundaries of this Voronoi partition,
+     * @param boundary The boundaries of this Voronoi partition,
      */
     public VoronoiPartition(String partitionId, VoronoiPolygon boundary) {
         super(partitionId);

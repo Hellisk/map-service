@@ -2,7 +2,7 @@ package traminer.util.map.matching.stmatching;
 
 /**
  * ST-Matching auxiliary road segment object
- *
+ * 
  * @author uqdalves
  */
 class CandidateSegment {

@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import traminer.util.exceptions.SpatialObjectConstructionException;
 import traminer.util.spatial.distance.PointDistanceFunction;
 
 import java.awt.geom.Path2D;
@@ -15,15 +16,17 @@ import java.util.List;
 /**
  * Implements a mutable LineString entity.
  * <p>
- * LineString are composed of a list of connected
- * 2D segments, and may contain both spatial and
+ * LineString are composed of a list of connected 
+ * 2D segments, and may contain both spatial and 
  * semantic attributes.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class LineString extends ComplexSpatialObject<Edges> {
-    // auxiliary LineString from JTS lib
+public class LineString extends ComplexSpatialObject<Segment> {
+    /**
+     * Auxiliary LineString from JTS lib
+     */
     private com.vividsolutions.jts.geom.
             LineString JTSLineString = null;
 
@@ -34,72 +37,87 @@ public class LineString extends ComplexSpatialObject<Edges> {
     }
 
     /**
-     * Creates a LineString from the given list of points.
+     * Creates a new LineString from the given list of points.
+     *
+     * @param pointList A ordered list of points.
      */
     public LineString(List<? extends Point> pointList) {
+        if (pointList == null) {
+            throw new NullPointerException("Points list for "
+                    + "LineString construction must not be null.");
+        }
         if (pointList.size() < 2) {
-            throw new IllegalArgumentException(
+            throw new SpatialObjectConstructionException(
                     "LineString must have at least 2 points.");
         }
         Point pi, pj;
         for (int i = 0; i < pointList.size() - 1; i++) {
             pi = pointList.get(i);
             pj = pointList.get(i + 1);
-            Edges seg = new Edges(
-                    pi.x(), pi.y(), pj.x(), pj.y());
+            Segment seg = new Segment(pi.x(), pi.y(), pj.x(), pj.y());
             this.add(seg);
         }
     }
 
     /**
-     * Construct a linestring from the given list of points.
+     * Creates a new LineString from the given sequence of points.
+     *
+     * @param points A ordered sequence of points.
      */
     public LineString(Point... points) {
+        if (points == null) {
+            throw new NullPointerException("Points list for "
+                    + "LineString construction must not be null.");
+        }
         if (points.length < 2) {
-            throw new IllegalArgumentException(
+            throw new SpatialObjectConstructionException(
                     "LineString must have at least 2 points.");
         }
         Point pi, pj;
         for (int i = 0; i < points.length - 1; i++) {
             pi = points[i];
             pj = points[i + 1];
-            Edges seg = new Edges(
-                    pi.x(), pi.y(), pj.x(), pj.y());
+            Segment seg = new Segment(pi.x(), pi.y(), pj.x(), pj.y());
             this.add(seg);
         }
     }
 
     /**
-     * The length of this line string.
+     * The length of this LineString.
      *
-     * @param dist the points distance measure to use.
+     * @param distFunc the points distance measure to use.
      */
-    public double length(PointDistanceFunction dist) {
+    public double length(PointDistanceFunction distFunc) {
+        if (distFunc == null) {
+            throw new NullPointerException("Distance function "
+                    + "must not be null.");
+        }
         double sum = 0.0;
         if (!isEmpty()) {
-            for (Edges s : this) {
-                sum += s.lenght(dist);
+            for (Segment s : this) {
+                sum += s.length(distFunc);
             }
         }
         return sum;
     }
 
     /**
-     * The reverse representation of this LineString.
+     * Get the reverse representation of this LineString.
+     * <br>
+     * This method does not change the original LineString.
+     *
+     * @return A copy of the reverse representation of this LineString.
      */
     public LineString reverse() {
         LineString reverse = new LineString();
         for (int i = size() - 1; i >= 0; i--) {
-            Edges s = this.get(i);
+            Segment s = this.get(i);
             reverse.add(s.clone());
         }
         return reverse;
     }
 
-    /**
-     * This if this LineString is closed (first segment point
-     * equals to last segment point).
-     */
+    @Override
     public boolean isClosed() {
         this.toJTSGeometry();
         return JTSLineString.isClosed();
@@ -109,27 +127,31 @@ public class LineString extends ComplexSpatialObject<Edges> {
     public List<Point> getCoordinates() {
         List<Point> list = new ArrayList<Point>();
         if (!this.isEmpty()) {
-            for (Edges s : this) {
+            for (Segment s : this) {
                 list.add(s.p1());
             }
             // check the last vertex
-            Edges s = this.get(this.size() - 1);
+            Segment s = this.get(this.size() - 1);
             list.add(s.p2());
         }
         return list;
     }
 
     @Override
-    public List<Edges> getEdges() {
+    public List<Segment> getEdges() {
         return this;
     }
 
     /**
-     * Get the Path2D (AWT) representation of this LineString.
+     * Convert this LineString object to a AWT Path2D object.
+     *
+     * @return The Path2D representation of this LineString.
      */
     public Path2D toPath2D() {
-        assert (!isEmpty()) :
-                "Semgments list for Path2D must not be empty.";
+        if (isEmpty()) {
+            throw new SpatialObjectConstructionException("Segments list for Path2D "
+                    + "construction must not be empty.");
+        }
         List<Point> pList = getCoordinates();
         Path2D path = new Path2D.Double();
         path.moveTo(pList.get(0).x(), pList.get(0).y());
@@ -173,7 +195,7 @@ public class LineString extends ComplexSpatialObject<Edges> {
     @Override
     public LineString clone() {
         LineString clone = new LineString();
-        for (Edges s : this) {
+        for (Segment s : this) {
             clone.add(s.clone());
         }
         super.cloneTo(clone);
@@ -182,17 +204,17 @@ public class LineString extends ComplexSpatialObject<Edges> {
 
     @Override
     public void print() {
-        System.out.println("LINESTRING " + toString());
+        println("LINESTRING " + toString());
     }
 
     @Override
     public void display() {
-        if (this.isEmpty()) return;
+        if (isEmpty()) return;
 
         Graph graph = new SingleGraph("LineString");
         graph.display(false);
         // create one node per trajectory point
-        Edges s = this.get(0);
+        Segment s = this.get(0);
         graph.addNode("N0").setAttribute("xy", s.x1(), s.y1());
         graph.addNode("N1").setAttribute("xy", s.x2(), s.y2());
         graph.addEdge("E1", "N0", "N1");
@@ -219,5 +241,4 @@ public class LineString extends ComplexSpatialObject<Edges> {
         }
         return JTSLineString;
     }
-
 }

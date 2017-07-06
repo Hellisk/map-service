@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * A Map-Matching service to match trajectories
  * to a road network graph.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

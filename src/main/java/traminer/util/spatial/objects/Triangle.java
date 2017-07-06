@@ -13,25 +13,28 @@ import java.util.List;
  * A 2D triangle entity, defined by its three
  * vertices coordinate points.
  * <p>
- * Triangle objects may contain both spatial and semantic
- * attributes. Spatial attributes of simple objects, however,
- * are immutable, that means once a Triangle object is
- * created, its spatial attributes cannot be changed.
- *
+ * Triangle objects may contain both spatial and semantic 
+ * attributes. Spatial attributes of simple objects, however, 
+ * are immutable, that means once a Triangle object is 
+ * created, its spatial attributes cannot be changed. 
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class Triangle extends SimpleSpatialObject {
-    // triangle vertexes
+    /**
+     * Triangle vertices
+     */
     private final double v1x, v1y;
     private final double v2x, v2y;
     private final double v3x, v3y;
-
-    // the list of edges of this triangle
-    private List<Edges> edgeList = null;
+    /**
+     * The list of edges of this triangle
+     */
+    private List<Segment> edgeList = null;
 
     /**
-     * Creates an empty triangle
+     * Creates a new empty triangle.
      */
     public Triangle() {
         this.v1x = 0.0;
@@ -42,6 +45,16 @@ public class Triangle extends SimpleSpatialObject {
         this.v3y = 0.0;
     }
 
+    /**
+     * Creates a new triangle with the given vertices.
+     *
+     * @param v1x Vertex 1x coordinate.
+     * @param v1y Vertex 1y coordinate.
+     * @param v2x Vertex 2x coordinate.
+     * @param v2y Vertex 2y coordinate.
+     * @param v3x Vertex 3x coordinate.
+     * @param v3y Vertex 3y coordinate.
+     */
     public Triangle(double v1x, double v1y,
                     double v2x, double v2y,
                     double v3x, double v3y) {
@@ -54,21 +67,21 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Vertex V1.
+     * @return Vertex V1.
      */
     public Point v1() {
         return new Point(v1x, v1y);
     }
 
     /**
-     * Vertex V2.
+     * @return Vertex V2.
      */
     public Point v2() {
         return new Point(v2x, v2y);
     }
 
     /**
-     * Vertex V3.
+     * @return Vertex V3.
      */
     public Point v3() {
         return new Point(v3x, v3y);
@@ -84,12 +97,12 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     @Override
-    public List<Edges> getEdges() {
+    public List<Segment> getEdges() {
         if (edgeList == null) {
-            edgeList = new ArrayList<Edges>(3);
-            edgeList.add(new Edges(v1x, v1y, v2x, v2y));
-            edgeList.add(new Edges(v1x, v1y, v3x, v3y));
-            edgeList.add(new Edges(v2x, v2y, v3x, v3y));
+            edgeList = new ArrayList<Segment>(3);
+            edgeList.add(new Segment(v1x, v1y, v2x, v2y));
+            edgeList.add(new Segment(v1x, v1y, v3x, v3y));
+            edgeList.add(new Segment(v2x, v2y, v3x, v3y));
         }
         return edgeList;
     }
@@ -100,7 +113,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The coordinates of the circumcenter of this triangle.
+     * @return The coordinates of the circumcenter of this triangle.
      */
     public Point circumcenter() {
         double ax = v1x;
@@ -112,21 +125,21 @@ public class Triangle extends SimpleSpatialObject {
 
         double d = 2.0 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
 
-        double center_x = (ax * ax + ay * ay) * (by - cy) +
+        double centerX = (ax * ax + ay * ay) * (by - cy) +
                 (bx * bx + by * by) * (cy - ay) +
                 (cx * cx + cy * cy) * (ay - by);
-        center_x = center_x / d;
+        centerX = centerX / d;
 
-        double center_y = (ax * ax + ay * ay) * (cx - bx) +
+        double centerY = (ax * ax + ay * ay) * (cx - bx) +
                 (bx * bx + by * by) * (ax - cx) +
                 (cx * cx + cy * cy) * (bx - ax);
-        center_y = center_y / d;
+        centerY = centerY / d;
 
-        return new Point(center_x, center_y);
+        return new Point(centerX, centerY);
     }
 
     /**
-     * The radius of the circumcircle of this triangle.
+     * @return The radius of the circumcircle of this triangle.
      */
     public double circumradius() {
         // triangle sides length
@@ -142,7 +155,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The coordinates of the incenter of this triangle.
+     * @return The coordinates of the incenter of this triangle.
      */
     public Point incenter() {
         double a = baseV1V2();
@@ -157,7 +170,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The radius of the incircle of this triangle.
+     * @return The radius of the incircle of this triangle.
      */
     public double inradius() {
         double s = perimeter() / 2.0; // semiperimeter
@@ -171,7 +184,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The centroid (i.e. barycenter) of this triangle.
+     * @return The centroid (i.e. barycenter) of this triangle.
      */
     public Point centroid() {
         double x = v1x + v2x + v3x;
@@ -188,14 +201,14 @@ public class Triangle extends SimpleSpatialObject {
 	}*/
 
     /**
-     * Perimeter of this triangle.
+     * @return The perimeter of this triangle.
      */
     public double perimeter() {
         return (baseV1V2() + baseV1V3() + baseV2V3());
     }
 
     /**
-     * Area of this triangle.
+     * @return The area of this triangle.
      */
     public double area() {
         double area = (baseV1V2() * heightV3()) / 2.0;
@@ -203,7 +216,9 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle base from vertex V1 to vertex V2 (egde length).
+     * Get the length of the edge V1V2 of this triangle.
+     *
+     * @return Triangle's base from vertex V1 to vertex V2.
      */
     public double baseV1V2() {
         return new EuclideanDistanceFunction()
@@ -211,7 +226,9 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle base from vertex V1 to vertex V3 (egde length).
+     * Get the length of the edge V1V3 of this triangle.
+     *
+     * @return Triangle's base from vertex V1 to vertex V3.
      */
     public double baseV1V3() {
         return new EuclideanDistanceFunction()
@@ -219,7 +236,9 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle base from vertex V2 to vertex V3 (egde length).
+     * Get the length of the edge V2V3 of this triangle.
+     *
+     * @return Triangle's base from vertex V2 to vertex V3.
      */
     public double baseV2V3() {
         return new EuclideanDistanceFunction()
@@ -227,7 +246,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle height over base V2--V3 to V1.
+     * @return The triangle's height over base V2V3 to V1.
      */
     public double heightV1() {
         double height = (2.0 / baseV2V3()) * heightCoefficient();
@@ -235,7 +254,7 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle height over base V1--V3 to V2.
+     * @return The triangle's height over base V1V3 to V2.
      */
     public double heightV2() {
         double height = (2.0 / baseV1V3()) * heightCoefficient();
@@ -243,27 +262,31 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Triangle height over base V1--V2 to V3.
+     * @return The triangle's height over base V1V2 to V3.
      */
     public double heightV3() {
         double height = (2.0 / baseV1V2()) * heightCoefficient();
         return height;
     }
 
-    // Coefficient of Heron's formula
+    /**
+     * @return Coefficient of Heron's formula.
+     */
     private double heightCoefficient() {
         double s = perimeter() / 2.0; // semi-perimeter
         double base_a = baseV1V2();
         double base_b = baseV1V3();
         double base_c = baseV2V3();
-        double coef = Math.sqrt(s * (s - base_a) *
-                (s - base_b) * (s - base_c));
-        return coef;
+        double coef = s * (s - base_a) * (s - base_b) * (s - base_c);
+
+        return Math.sqrt(coef);
     }
 
     /**
-     * Length of the segment connecting the vertex V1
-     * to its opposite edge V2--V3.
+     * Get the length of the segment connecting the vertex V1
+     * to its opposite edge V2V3.
+     *
+     * @return The median of this triangle from the vertex V1.
      */
     public double medianV1() {
         double median = Math.pow(baseV1V2(), 2) +
@@ -275,8 +298,10 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Length of the segment connecting the vertex V2
-     * to its opposite edge V1--V3.
+     * Get the length of the segment connecting the vertex V2
+     * to its opposite edge V1V3.
+     *
+     * @return The median of this triangle from the vertex V2.
      */
     public double medianV2() {
         double median = Math.pow(baseV1V2(), 2) +
@@ -288,8 +313,10 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Length of the segment connecting the vertex V3
-     * to its opposite edge V1--V2.
+     * Get the length of the segment connecting the vertex V3
+     * to its opposite edge V1V2.
+     *
+     * @return The median of this triangle from the vertex V3.
      */
     public double medianV3() {
         double median = Math.pow(baseV1V3(), 2) +
@@ -301,8 +328,11 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The length of the segment connecting V1 to its oposite edge,
-     * and divides the vertex V1 into two angles of same size.
+     * Get the length of the segment connecting the vertex V1
+     * to its opposite edge that divides the vertex V1 into
+     * two angles of same size.
+     *
+     * @return The bisector of this triangle from the vertex V1.
      */
     public double bisectorV1() {
         double s = perimeter() / 2.0; // semiperimeter
@@ -315,8 +345,11 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The length of the segment connecting V2 to its oposite edge,
-     * and divides the vertex V2 into two angles of same size.
+     * Get the length of the segment connecting the vertex V2
+     * to its opposite edge that divides the vertex V2 into
+     * two angles of same size.
+     *
+     * @return The bisector of this triangle from the vertex V2.
      */
     public double bisectorV2() {
         double s = perimeter() / 2.0; // semiperimeter
@@ -329,8 +362,11 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The length of the segment connecting V3 to its oposite edge,
-     * and divides the vertex V3 into two angles of same size.
+     * Get the length of the segment connecting the vertex V3
+     * to its opposite edge that divides the vertex V3 into
+     * two angles of same size.
+     *
+     * @return The bisector of this triangle from the vertex V3.
      */
     public double bisectorV3() {
         double s = perimeter() / 2.0; // semiperimeter
@@ -343,7 +379,8 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The intern angle under the vetex V1.
+     * @return The intern angle of this triangle under
+     * the vertex V1.
      */
     public double angleV1() {
         double ux = v2x - v1x;
@@ -355,7 +392,8 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The intern angle under the vetex V2.
+     * @return The intern angle of this triangle under
+     * the vertex V2.
      */
     public double angleV2() {
         double ux = v1x - v2x;
@@ -367,7 +405,8 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * The intern angle under the vetex V2.
+     * @return The intern angle of this triangle under
+     * the vertex V3.
      */
     public double angleV3() {
         double ux = v1x - v3x;
@@ -379,7 +418,10 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True if this triangle is scalene (has three edge of different lengths).
+     * Check whether this triangle is scalene (has three edges
+     * of different lengths).
+     *
+     * @return True if this triangle is scalene.
      */
     public boolean isScalene() {
         double a = baseV1V2();
@@ -389,7 +431,10 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True is this triangle is isosceles (has two edges of same length).
+     * Check whether this triangle is isosceles (has at least
+     * two edges of same lengths).
+     *
+     * @return True if this triangle is isosceles.
      */
     public boolean isIsosceles() {
         double a = baseV1V2();
@@ -399,14 +444,19 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True is this triangle is equilateral (has three edges of same length).
+     * Check whether this triangle is equilateral (has the three
+     * edges of same length).
+     *
+     * @return True if this triangle is equilateral.
      */
     public boolean isEquilateral() {
         return (baseV1V2() == baseV1V3() && baseV1V2() == baseV2V3());
     }
 
     /**
-     * True if this triangle is rectangle (has a 90* intern angle).
+     * Check whether this triangle is rectangle (has a 90* intern angle).
+     *
+     * @return True if this triangle is rectangle.
      */
     public boolean isRectangle() {
         double a2 = Math.pow(baseV1V2(), 2);
@@ -416,12 +466,16 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True if these two triangles are adjacent.
+     * Check whether these two triangles are adjacent,
      * i.e. If they share any edge.
+     *
+     * @param tri The other triangle to check.
+     * @return True if these two triangles are adjacent.
      */
     public boolean isAdjacent(Triangle tri) {
-        for (Edges e1 : this.getEdges()) {
-            for (Edges e2 : tri.getEdges()) {
+        if (tri == null) return false;
+        for (Segment e1 : this.getEdges()) {
+            for (Segment e2 : tri.getEdges()) {
                 if (e1.equals(e2)) {
                     return true;
                 }
@@ -431,7 +485,12 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True if the point p = (x,y) is a vertex
+     * Check whether the point p = (x,y) is a vertex
+     * of this triangle.
+     *
+     * @param x
+     * @param y
+     * @return True if the p = (x,y) is a vertex
      * of this triangle.
      */
     public boolean hasVertex(double x, double y) {
@@ -439,29 +498,42 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * True if the given point p is a vertex
+     * Check whether the point p is a vertex
      * of this triangle.
+     *
+     * @param p The point to check.
+     * @return True if the p is a vertex of this triangle.
      */
     public boolean hasVertex(Point p) {
+        if (p == null) return false;
         if (p.equals(this.v1())) return true;
         if (p.equals(this.v2())) return true;
         return p.equals(this.v3());
     }
 
     /**
-     * True if this segment s = (x1,y1)--(x2,y2)
+     * Check whether the segment s = (x1,y1)(x2,y2)
      * is an edge of this triangle.
+     *
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return True if s = (x1,y1)(x2,y2) is an edge of this triangle.
      */
     public boolean hasEdge(double x1, double y1, double x2, double y2) {
-        return hasEdge(new Edges(x1, y1, x2, y2));
+        return hasEdge(new Segment(x1, y1, x2, y2));
     }
 
     /**
-     * True if the given segment is an edge of
-     * this triangle.
+     * Check whether the segment s is an edge of this triangle.
+     *
+     * @param e The segment to check.
+     * @return True if e is an edge of this triangle.
      */
-    public boolean hasEdge(Edges e) {
-        for (Edges edge : this.getEdges()) {
+    public boolean hasEdge(Segment e) {
+        if (e == null) return false;
+        for (Segment edge : this.getEdges()) {
             if (e.equals(edge))
                 return true;
         }
@@ -469,14 +541,18 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Return this triangle as a Polygon object.
+     * Convert this triangle to a Polygon object.
+     *
+     * @return The equivalent Polygon object of this Triangle.
      */
     public Polygon toPolygon() {
         return new Polygon(this.getCoordinates());
     }
 
     /**
-     * Get the Triangle2D (AWT) representation of this triangle.
+     * Convert this point object to a AWT Triangle2D object.
+     *
+     * @return The Triangle2D representation of this triangle.
      */
     public Triangle2D toTriangle2D() {
         return new Triangle2D(
@@ -559,15 +635,24 @@ public class Triangle extends SimpleSpatialObject {
     }
 
     /**
-     * Auxiliary Triangle2D object.
-     * Adaptation of a closed Path2D from the java.awt.geom geometry library.
+     * Auxiliary Triangle2D object. Adaptation of a
+     * closed Path2D from the java.awt.geom library.
      */
     public static class Triangle2D extends Path2D.Double {
+        /**
+         * Creates a AWT Triangle2D from the given vertices.
+         *
+         * @param v1x Vertex 1x coordinate.
+         * @param v1y Vertex 1y coordinate.
+         * @param v2x Vertex 2x coordinate.
+         * @param v2y Vertex 2y coordinate.
+         * @param v3x Vertex 3x coordinate.
+         * @param v3y Vertex 3y coordinate.
+         */
         public Triangle2D(
                 double v1x, double v1y,
                 double v2x, double v2y,
                 double v3x, double v3y) {
-            super();
             this.moveTo(v1x, v1y);
             this.lineTo(v2x, v2y);
             this.lineTo(v3x, v3y);

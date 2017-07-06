@@ -9,8 +9,9 @@ import java.util.List;
 
 /**
  * STED: Trajectory distance measure
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
+ *
  */
 @SuppressWarnings("serial")
 public class STEDDistanceCalculator extends TrajectoryDistanceFunction {
@@ -78,8 +79,8 @@ public class STEDDistanceCalculator extends TrajectoryDistanceFunction {
             rCurrentPoint = r3d.get(rCurrentLine).getPointByTime((long) (rStartTime + i * calculateTimeInterval));
             sCurrentPoint = s3d.get(sCurrentLine).getPointByTime((long) (sStartTime + i * calculateTimeInterval));
 
-            double distance = distFunc.pointToPointDistance(rCurrentPoint, sCurrentPoint);
-
+            double distance = distFunc.distance(rCurrentPoint, sCurrentPoint);
+            
             sum += distance;
         }
 

@@ -7,34 +7,39 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Implements a N-Dimensional point entity, with
+ * Implements a N-dimensional spatial point, with
  * (x1, x2, ..., xn) coordinates.
  * <p>
- * N-Dimensional Point objects may contain both spatial
- * and semantic attributes. Spatial attributes of simple
- * objects, however, are immutable, that means once a
- * N-Dimensional Point object is created, its spatial
- * attributes cannot be changed.
- *
+ * N-dimensional points may contain both spatial and semantic 
+ * attributes. Spatial attributes of simple objects, however, 
+ * are immutable, that means once a N-dimensional Point object 
+ * is created, its spatial attributes cannot be changed. 
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class PointND extends SimpleSpatialObject {
+    /**
+     * The coordinates of this spatial point
+     */
     private final double[] coordinates;
 
-    // auxiliary point from JTS lib
+    /**
+     * Auxiliary point from JTS lib
+     */
     private com.vividsolutions.jts.geom.
             Point JTSPoint = null;
 
     /**
      * Creates an empty d-Dimensional point.
      *
-     * @param d Dimension
+     * @param d Number of dimensions.
      */
     public PointND(byte d) {
         this.setDimension(d);
@@ -42,9 +47,11 @@ public class PointND extends SimpleSpatialObject {
     }
 
     /**
-     * Creates a new d-Dimensional point from
-     * the given coordinates. Dimension is set
-     * as the number of elements in the array.
+     * Creates a new d-Dimensional point from the given
+     * list of coordinates. Dimension is set as the
+     * number of elements in the array.
+     *
+     * @param coordinates The coordinates of this spatial point.
      */
     public PointND(double[] coordinates) {
         this.coordinates = coordinates;
@@ -52,8 +59,7 @@ public class PointND extends SimpleSpatialObject {
     }
 
     /**
-     * Get the N-dimensional coordinates of this PointND
-     * as an array of N doubles.
+     * @return Array with the coordinates of this PointND.
      */
     public double[] getCoordinate() {
         return coordinates;
@@ -62,13 +68,13 @@ public class PointND extends SimpleSpatialObject {
     @Override
     public List<Point> getCoordinates() {
         ArrayList<Point> list = new ArrayList<Point>();
-        list.add(toPoint2D());
+        list.add(toPoint());
         return list;
     }
 
     @Override
-    public List<Edges> getEdges() {
-        return new ArrayList<Edges>();
+    public List<Segment> getEdges() {
+        return new ArrayList<Segment>();
     }
 
     @Override
@@ -78,21 +84,26 @@ public class PointND extends SimpleSpatialObject {
 
     /**
      * Returns the Euclidean distance between
-     * this point and a given point p.
+     * this PointND and a given point p.
+     *
+     * @param p
+     * @return Euclidean distance between this and p.
      */
     public double distance(PointND p) {
         return new EuclideanDistanceFunction()
-                .pointToPointDistance(this.coordinates, p.coordinates);
+                .distance(this.coordinates, p.coordinates);
     }
 
     /**
-     * Returns the Euclidean distance between
-     * this point and a given point p.
-     * Point given by its coordinates vector.
+     * Returns the Euclidean distance between this PointND
+     * and the point given by its coordinates vector.
+     *
+     * @param coordinates
+     * @return Euclidean distance between this and the given point.
      */
-    public double distance(double[] vec) {
+    public double distance(double[] coordinates) {
         return new EuclideanDistanceFunction()
-                .pointToPointDistance(this.coordinates, vec);
+                .distance(this.coordinates, coordinates);
     }
 
     @Override
@@ -106,11 +117,18 @@ public class PointND extends SimpleSpatialObject {
         return clone;
     }
 
-    public boolean equalsND(Object obj) {
+    /**
+     * Check whether these two points have the same dimension,
+     * and the same spatial coordinates.
+     *
+     * @param obj The N-dimensional point to check.
+     * @return True if these two PointND are spatially equivalent.
+     */
+    public boolean equalsND(PointND obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (obj instanceof PointND) {
-            PointND p = (PointND) obj;
+            PointND p = obj;
             if (this.getDimension() != p.getDimension()) return false;
             for (int i = 0; i < getDimension(); i++) {
                 if (this.coordinates[i] != p.coordinates[i]) {
@@ -135,19 +153,6 @@ public class PointND extends SimpleSpatialObject {
         return false;
     }
 
-    public boolean equals3D(SimpleSpatialObject obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (obj instanceof PointND) {
-            PointND p = (PointND) obj;
-            if (this.getDimension() < 3 || p.getDimension() < 3) return false;
-            return (coordinates[0] == p.coordinates[0] &&
-                    coordinates[1] == p.coordinates[1] &&
-                    coordinates[2] == p.coordinates[2]);
-        }
-        return false;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -158,10 +163,11 @@ public class PointND extends SimpleSpatialObject {
     }
 
     /**
-     * Return this N-dimensional point as a
-     * simple Point (2D) object.
+     * Convert this N-dimensional point to a Point (x,y) object.
+     *
+     * @return A Point with the (x,y) coordinates of this PointND.
      */
-    public Point toPoint2D() {
+    public Point toPoint() {
         double x = 0, y = 0;
         if (getDimension() > 0) {
             x = coordinates[0];
@@ -172,18 +178,34 @@ public class PointND extends SimpleSpatialObject {
         return new Point(x, y);
     }
 
+    /**
+     * Convert this PointND object to a AWT Point2D object.
+     *
+     * @return The Point2D representation of this PointND.
+     */
+    public Point2D toPoint2D() {
+        double x = 0, y = 0;
+        if (getDimension() > 0) {
+            x = coordinates[0];
+        }
+        if (getDimension() > 1) {
+            y = coordinates[1];
+        }
+        return new Point2D.Double(x, y);
+    }
+
     @Override
     public String toString() {
         String s = "";
         for (int i = 0; i < getDimension(); i++) {
-            s += " " + String.format("%.3f", coordinates[i]);
+            s += " " + String.format("%.5f", coordinates[i]);
         }
         return s.substring(1);
     }
 
     @Override
     public void print() {
-        System.out.println("POINT" + getDimension() + "D ( " + toString() + " )");
+        println("POINT" + getDimension() + "D ( " + toString() + " )");
     }
 
     @Override

@@ -1,34 +1,38 @@
 package edu.uq.dke.mapupdate.main;
 
-import edu.uq.dke.mapupdate.mapmatching.algorithm.YouzeFastMatching2012;
+import edu.uq.dke.mapupdate.io.SHPMapReader;
 import org.jdom2.JDOMException;
+import traminer.util.map.roadnetwork.RoadNetworkGraph;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 //import edu.uq.dke.mapupdate.mapmatching.algorithm.YouzeFastMatching2012;
 
 public class Main {
 
-    // path to the folder that contains input tracks.
-    public static String BASE_PATH = "C:/Users/uqpchao/OneDrive/data/";
-    //    public static String BASE_PATH = "F:/OneDrive/data/";
-    public static String CITY_NAME = "chicago";
-    public static String INPUT_PATH = BASE_PATH + "Pfoser/tracks/" + CITY_NAME + "/trips/";
-    public static String OUTPUT_MAP_PATH = BASE_PATH + "Pfoser/outputMaps/" + CITY_NAME + "/";
-    public static String OUTPUT_TRAJECTORY_PATH = BASE_PATH + "Pfoser/outputTrajectorys/" + CITY_NAME + "/trips/";
+    // global parameters
+    private static String CITY_NAME = "beijing";
+    private static String BASE_PATH = "C:/Users/uqpchao/OneDrive/data/";
+    //    private static String BASE_PATH = "F:/OneDrive/data/";
+    //    private static String BASE_PATH = "/media/dragon_data/uqpchao/trajectory_map_data/";
+    // all pair shortest path folder
+    private static String GROUND_TRUTH_MAP_PATH = BASE_PATH + "maps/map_" + CITY_NAME + "/";
+    private static String GROUND_TRUTH_MATCHING_PATH = BASE_PATH + "groundTruthTrajectorys/" + CITY_NAME + "/trips/";
+    private static String OUTPUT_SHORTEST_PATH_FOLDER = BASE_PATH + "shortestPath/" + CITY_NAME + "/";
+    // map-matching parameters
+    private static String INPUT_TRAJECTORY_PATH = BASE_PATH + "tracks/" + CITY_NAME + "/trips/";
+    private static String OUTPUT_MATCHED_TRAJECTORY_PATH = BASE_PATH + "outputTrajectorys/" + CITY_NAME + "/trips/";
+    // map inference parameters
+    private static String OUTPUT_MAP_PATH = BASE_PATH + "outputMaps/" + CITY_NAME + "/";
+
+    private static String BEIJING_RAW_MAP_PATH = BASE_PATH + "rawMaps/beijing/";
 
     // parameters for map evaluation
-
-    public static String GROUND_TRUTH_MAP_PATH = BASE_PATH + "Pfoser/maps/map_" + CITY_NAME + "/";
-    public static String EVALUATION_RESULT_PATH = BASE_PATH + "Pfoser/evaluation/result/" + CITY_NAME + "/";
-    public static String PATH_GENERATION_PATH = BASE_PATH + "Pfoser/evaluation/paths/" + CITY_NAME + "/";
-    public static boolean IS_DIRECTED = false;
-    public static String BOUNDARY = "()";
-    public static String LINK_LENGTH = "LinkThree";
+//    private static String EVALUATION_RESULT_PATH = BASE_PATH + "evaluation/result/" + CITY_NAME + "/";
+//    private static String PATH_GENERATION_PATH = BASE_PATH + "evaluation/paths/" + CITY_NAME + "/";
+//    private static boolean IS_DIRECTED = false;
+//    private static String BOUNDARY = "()";
+//    private static String LINK_LENGTH = "LinkThree";
 
     /* parameters for Ahmed 2012 */
     public static double AHMED_EPSILON = 150.0;
@@ -38,64 +42,50 @@ public class Main {
     public static double MIN_ALT_EPS = 4.0;
 
     // log-related settings
-    public static String LOG_PATH = BASE_PATH + "log/";
+    private static String LOG_PATH = BASE_PATH + "log/";
 
     public static void main(String[] args) throws JDOMException, IOException {
 
-        // logger handler
-        final Logger logger = Logger.getLogger("MapUpdate");
-        FileHandler handler;
-        try {
-            File logFile = new File(LOG_PATH + "MapUpdate.log");
-            if (!logFile.exists()) {
-                logFile.createNewFile();
-            }
-            handler = new FileHandler(LOG_PATH + "MapUpdate.log", true);
-            logger.addHandler(handler);
-            SimpleFormatter formatter = new SimpleFormatter();
-            handler.setFormatter(formatter);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        logger.info("Map Update Algorithm v 0.1.0");
+//        // logger handler
+//        final Logger logger = Logger.getLogger("MapUpdate");
+//        FileHandler handler;
+//        try {
+//            File logFile = new File(LOG_PATH + "MapUpdate.log");
+//            if (!logFile.exists()) {
+//                logFile.createNewFile();
+//            }
+//            handler = new FileHandler(LOG_PATH + "MapUpdate.log", true);
+//            logger.addHandler(handler);
+//            SimpleFormatter formatter = new SimpleFormatter();
+//            handler.setFormatter(formatter);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        logger.info("Map Update Algorithm v 0.1.0");
         long startTime = System.currentTimeMillis();
         long endTime;
-//        int mapInference = 0;
-//        int mapEvaluation = 0;
-//
-//        // pure test map inference
-//        AhmedTraceMerge2012.AhmedTraceMerge(OUTPUT_TRAJECTORY_PATH, OUTPUT_MAP_PATH, AHMED_EPSILON, HAS_ALTITUDE, MIN_ALT_EPS);
+
+//        // generate all pair shortest path file
+//        AllPairsShortestPathFile shortestPathFile = new AllPairsShortestPathFile(CITY_NAME, GROUND_TRUTH_MAP_PATH, true);
+//        shortestPathFile.writeShortestPathFiles(OUTPUT_SHORTEST_PATH_FOLDER);
+
+//        // pure test map matching
+//        YouzeFastMatching2012.YouzeFastMatching(CITY_NAME, INPUT_TRAJECTORY_PATH, GROUND_TRUTH_MAP_PATH, OUTPUT_MATCHED_TRAJECTORY_PATH, OUTPUT_SHORTEST_PATH_FOLDER, true);
+        // pure test map inference
+//        AhmedTraceMerge2012.AhmedTraceMerge(CITY_NAME, INPUT_TRAJECTORY_PATH, GROUND_TRUTH_MAP_PATH, OUTPUT_MAP_PATH, AHMED_EPSILON, HAS_ALTITUDE, MIN_ALT_EPS);
 //        endTime = System.currentTimeMillis();
 //        logger.info("Total map inference time:" + (endTime - startTime) / 1000 + "s");
 //        AhmedFrechetEvaluation2013.AhmedFrechetEvaluation(CITY_NAME, OUTPUT_MAP_PATH, GROUND_TRUTH_MAP_PATH, IS_DIRECTED, BOUNDARY, EVALUATION_RESULT_PATH, PATH_GENERATION_PATH, LINK_LENGTH);
 //
-//        // pure test map matching
-        YouzeFastMatching2012.YouzeFastMatching(CITY_NAME, INPUT_PATH, GROUND_TRUTH_MAP_PATH, OUTPUT_TRAJECTORY_PATH, 1);
-
-//        NewsonHMM2009.NewsonHMM(CITY_NAME, INPUT_PATH, GROUND_TRUTH_MAP_PATH, OUTPUT_TRAJECTORY_PATH, 1);
-//        if (args.length == 2) {
-//            mapInference = Integer.parseInt(args[0]);
-//            mapEvaluation = Integer.parseInt(args[1]);
-//
-//
-//            switch (mapInference) {
-//                case 1: {
-//                    System.out.println("Start the Ahmed Trace Merge 2012.");
-//                    logger.info("Start the Ahmed Trace Merge 2012.");
-//                    AhmedTraceMerge2012.AhmedTraceMerge(INPUT_PATH, OUTPUT_MAP_PATH, AHMED_EPSILON, HAS_ALTITUDE, MIN_ALT_EPS);
-//                    break;
-//                }
-//                case 2: {
-//                    System.out.println("Start the Davies KDE 2006.");
-//                    logger.info("Start the Davies KDE 2006.");
-//                    DaviesKDE2006.DavieKDE(args);
-//                    break;
-//                }
-//            }
-//            endTime = cal.getTimeInMillis();
-//            logger.info("Map inference finished, time cost:" + (endTime - startTime) / 1000 + "s");
-//        }
-
+        SHPMapReader reader = new SHPMapReader(BEIJING_RAW_MAP_PATH + "Nbeijing_point.shp", BEIJING_RAW_MAP_PATH + "Rbeijing_polyline.shp");
+        RoadNetworkGraph roadNetworkGraph = reader.readSHP();
+//        CSVMapWriter writer = new CSVMapWriter(roadNetworkGraph, GROUND_TRUTH_MAP_PATH + "beijing_vertices.txt", GROUND_TRUTH_MAP_PATH + "beijing_edges.txt");
+//        writer.writeShapeCSV();
+//        GraphStreamDisplay display = new GraphStreamDisplay();
+//        display.setGroundTruthGraph(roadNetworkGraph);
+//        display.generateGraph().display(false);
+        endTime = System.currentTimeMillis();
+        System.out.println("Task finish, total time spent:" + (endTime - startTime) / 1000 + "seconds");
     }
 }

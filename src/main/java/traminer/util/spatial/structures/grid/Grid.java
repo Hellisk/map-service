@@ -162,9 +162,9 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
             String index = gridModel.search(x, y);
             int pos[] = gridModel.getCellPosition(index);
 
-            if (partitions[pos[0]][pos[1]] == null) {
-                System.err.println("Error partition" + pos[0] + "," + pos[1]);
-            }
+//            if (partitions[pos[0]][pos[1]] == null) {
+//                System.err.println("Error partition" + pos[0] + "," + pos[1]);
+//            }
             return partitions[pos[0]][pos[1]];
         }
 

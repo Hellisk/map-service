@@ -7,6 +7,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import traminer.util.exceptions.SpatialObjectConstructionException;
+import traminer.util.spatial.SpatialUtils;
 
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
@@ -16,49 +18,74 @@ import java.util.List;
 /**
  * Implements a mutable 2D Polygon entity.
  * <p>
- * Internally, a polygon comprises of a list of (x,y) coordinate pairs,
- * where each pair defines a vertex of the polygon, and two successive
+ * Internally, a polygon comprises of a list of (x,y) coordinate pairs, 
+ * where each pair defines a vertex of the polygon, and two successive 
  * pairs are the end-points of a line that is a side of the polygon.
  * Polygon objects may contain both spatial and semantic attributes.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class Polygon extends ComplexSpatialObject<Point> {
+    /**
+     * The actual size of the polygon, number of vertices
+     */
     private int size = 0;
 
-    // auxiliary Polygon from JTS lib
+    /**
+     * Auxiliary Polygon from JTS lib
+     */
     private com.vividsolutions.jts.geom.
             Polygon JTSPolygon = null;
 
     /**
-     * Creates an empty polygon.
+     * Creates a new empty polygon.
      */
     public Polygon() {
     }
 
     /**
-     * Creates a Polygon and add its vertexes in the same
-     * order as in the given points list.
+     * Creates a Polygon from the given list of points/vertices.
+     * Add vertices in the same order as in the given points list.
+     *
+     * @param vertexList The vertices of the polygon.
      */
     public Polygon(List<? extends Point> vertexList) {
+        if (vertexList == null) {
+            throw new NullPointerException("Points list for "
+                    + "polygon construction must not be null.");
+        }
+        if (vertexList.size() < 3) {
+            throw new SpatialObjectConstructionException(
+                    "Polygon objects must have at least 3 points/vertices.");
+        }
         for (Point p : vertexList) {
             this.add(p);
         }
     }
 
     /**
-     * Create a Polygon and add its vertexes in the same
-     * order as in the given vertex list.
+     * Creates a Polygon from the given sequence of points/vertices.
+     * Add vertices in the same order as in the given points sequence.
+     *
+     * @param vertices The vertices of the polygon.
      */
-    public Polygon(Point... vertexes) {
-        for (Point p : vertexes) {
+    public Polygon(Point... vertices) {
+        if (vertices == null) {
+            throw new NullPointerException("Points list for "
+                    + "polygon construction must not be null.");
+        }
+        if (vertices.length < 3) {
+            throw new SpatialObjectConstructionException(
+                    "Polygon objects must have at least 3 points/vertices.");
+        }
+        for (Point p : vertices) {
             this.add(p);
         }
     }
 
     /**
-     * The number of points (vertexes) in this polygon.
+     * @return The number of vertices in this polygon.
      */
     @Override
     public int size() {
@@ -66,15 +93,19 @@ public class Polygon extends ComplexSpatialObject<Point> {
     }
 
     /**
-     * Add the point p to the end of this polygon.
+     * Add a point/vertex to the end of this polygon.
+     *
+     * @param p The point/vertex to add.
+     * @return True if the point was successfully add.
      */
     @Override
     public boolean add(Point p) {
+        if (p == null) return false;
         if (size == 0) {
             super.add(p);
         } else if (size == 1) {
             super.add(p);
-            super.add(this.get(0)); // close polygon
+            super.add(this.get(0)); // close the polygon
         } else {
             super.add(size, p);
         }
@@ -83,18 +114,28 @@ public class Polygon extends ComplexSpatialObject<Point> {
     }
 
     /**
-     * Add point p = (x,y) to the end of this polygon.
+     * Add a point/vertex p = (x,y) to the end of this polygon.
+     *
+     * @param x Vertex X coordinate.
+     * @param y Vertex Y coordinate.
+     * @return True if the point was successfully add.
      */
     public boolean add(double x, double y) {
         return this.add(new Point(x, y));
     }
 
     /**
-     * Add a list of points (vertexes) to the end of this polygon.
+     * Add a list of points/vertices to the end of this polygon.
+     *
+     * @param pointsList The list of points/vertices to add.
+     * @return True if the list of vertices was successfully add.
      */
     @Override
-    public boolean addAll(Collection<? extends Point> list) {
-        for (Point p : list) {
+    public boolean addAll(Collection<? extends Point> pointsList) {
+        if (pointsList == null || pointsList.isEmpty()) {
+            return false;
+        }
+        for (Point p : pointsList) {
             this.add(p);
         }
         return true;
@@ -106,19 +147,19 @@ public class Polygon extends ComplexSpatialObject<Point> {
     }
 
     @Override
-    public List<Edges> getEdges() {
-        List<Edges> list = new ArrayList<Edges>();
+    public List<Segment> getEdges() {
+        List<Segment> list = new ArrayList<Segment>();
         Point pi, pj;
         for (int i = 0; i < size; i++) {
             pi = this.get(i);
             pj = this.get(i + 1);
-            list.add(new Edges(pi.x(), pi.y(), pj.x(), pj.y()));
+            list.add(new Segment(pi.x(), pi.y(), pj.x(), pj.y()));
         }
         return list;
     }
 
     /**
-     * The perimeter of this polygon.
+     * @return The perimeter of this polygon.
      */
     public double perimeter() {
         double sum = 0.0;
@@ -129,7 +170,7 @@ public class Polygon extends ComplexSpatialObject<Point> {
     }
 
     /**
-     * The signed area of this polygon.
+     * @return The area of this polygon.
      */
     public double area() {
         double sum = 0.0;
@@ -137,17 +178,51 @@ public class Polygon extends ComplexSpatialObject<Point> {
             sum = sum + (this.get(i).x() * this.get(i + 1).y()) -
                     (this.get(i).y() * this.get(i + 1).x());
         }
-        return (0.5 * sum);
+
+        return (0.5 * Math.abs(sum));
     }
 
     /**
-     * Check if this Polygon contains the point p.
-     * If p is on boundary then 0 or 1 is returned,
-     * and p is in exactly one point of every partition of plane.
+     * Check if this Polygon contains the point p inside
+     * its perimeter.
      * <p>
-     * Uses ray casting algorithm.
+     * Uses winding number algorithm.
+     *
+     * @param p The point to check.
+     * @return True if the point lies inside the perimeter
+     * of this polygon, false otherwise.
+     */
+    public boolean contains(Point p) {
+        if (p == null) {
+            return false;
+        }
+        int winding = 0;
+        for (int i = 0; i < size; i++) {
+            Point pi = this.get(i);
+            Point pj = this.get(i + 1);
+            int ccw = SpatialUtils.isCCW(pi, pj, p);
+            if (pj.y() > p.y() && p.y() >= pi.y()) // upward crossing
+                if (ccw == +1) winding++;
+            if (pj.y() <= p.y() && p.y() < pi.y())  // downward crossing
+                if (ccw == -1) winding--;
+        }
+        return winding != 0;
+    }
+
+    /**
+     * Check if this Polygon contains the point p inside
+     * its perimeter.
+     * <p> 
+     * Uses ray casting algorithm. 
+     *
+     * @param p The point to check.
+     * @return True if the point lies inside the perimeter 
+     * of this polygon, false otherwise.
      */
     public boolean contains2(Point p) {
+        if (p == null) {
+            return false;
+        }
         int crossings = 0;
         for (int i = 0; i < size; i++) {
             int j = i + 1;
@@ -165,37 +240,19 @@ public class Polygon extends ComplexSpatialObject<Point> {
         return crossings % 2 == 1;
     }
 
-    /**
-     * Check if this Polygon contains the point p.
-     * <p>
-     * Uses winding number algorithm.
-     */
-    public boolean contains(Point p) {
-        int winding = 0;
-        for (int i = 0; i < size; i++) {
-            Point pi = this.get(i);
-            Point pj = this.get(i + 1);
-            int ccw = SpatialObject.isCCW(pi, pj, p);
-            if (pj.y() > p.y() && p.y() >= pi.y()) // upward crossing
-                if (ccw == +1) winding++;
-            if (pj.y() <= p.y() && p.y() < pi.y())  // downward crossing
-                if (ccw == -1) winding--;
-        }
-        return winding != 0;
-    }
-
     @Override
     public boolean isClosed() {
         return size > 1;
     }
 
     /**
-     * Get the Polygon2D (AWT) representation of this polygon.
+     * Convert this polygon object to a AWT Polygon2D object.
+     *
+     * @return The Polygon2D representation of this polygon.
      */
     public Polygon2D toPolygon2D() {
         return new Polygon2D(this.subList(0, size));
     }
-
 
     @Override
     public Polygon clone() {
@@ -257,7 +314,7 @@ public class Polygon extends ComplexSpatialObject<Point> {
 
     @Override
     public void print() {
-        System.out.println("POLYGON " + toString());
+        println("POLYGON " + toString());
     }
 
     @Override
@@ -282,14 +339,24 @@ public class Polygon extends ComplexSpatialObject<Point> {
      * closed Path2D from the java.awt.geom library.
      */
     public static class Polygon2D extends Path2D.Double {
-        public Polygon2D(List<Point> vextexList) {
-            if (vextexList == null || vextexList.isEmpty()) {
+        /**
+         * Creates a AWT Polygon2D from the given list of points/vertices.
+         * Add vertices in the same order as in the given points list.
+         *
+         * @param vertexList The vertices of the polygon.
+         */
+        public Polygon2D(List<Point> vertexList) {
+            if (vertexList == null) {
+                throw new NullPointerException("Vertex list "
+                        + "for Polygon2D must not be null.");
+            }
+            if (vertexList.isEmpty()) {
                 throw new IllegalArgumentException("Vertex list "
                         + "for Polygon2D must not be empty.");
             }
-            this.moveTo(vextexList.get(0).x(), vextexList.get(0).y());
-            for (int i = 1; i < vextexList.size(); i++) {
-                Point p = vextexList.get(i);
+            this.moveTo(vertexList.get(0).x(), vertexList.get(0).y());
+            for (int i = 1; i < vertexList.size(); i++) {
+                Point p = vertexList.get(i);
                 this.lineTo(p.x(), p.y());
             }
             this.closePath();

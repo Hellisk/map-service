@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Build a Voronoi diagram from a set of pivot points (sites).
  * Implements Fortune's algorithm.
- *
+ * 
  * @author Zhenyu Pan, uqdalves
  */
 @SuppressWarnings("serial")
@@ -66,7 +66,7 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     private int PQcount;
     private int PQmin;
     private int PQhashsize;
-    private HalfEdge PQhash[];
+    private HalfEdge PQhash[];    
     private final static int LE = 0;
     private final static int RE = 1;
 
@@ -86,10 +86,10 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     }
 
     /**
-     * Generate the Voronoi Polygons for the given pivot points (sites),
+     * Generate the Voronoi Polygons for the given pivot points (sites), 
      * each polygon is composed by its pivot, edges and a list of adjacent polygons.
      * <br> Uses Fortune's algorithm.
-     *
+     * 
      * @param pointsList The list of generator pivots.
      * @return The list of Voronoi polygons in the diagram.
      */
@@ -129,7 +129,7 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     /**
      * Generate the edges of a Voronoi Polygon for the given pivot points (sites)
      * <br> Uses Fortune's algorithm.
-     *
+     * 
      * @param pointsList The list of generator pivots.
      * @return The list of edges in the Voronoi diagram.
      */
@@ -150,13 +150,14 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     /**
      * Generate the edges of a Voronoi Polygon for the given points (sites).
      * Implements the Fortune's algorithm.
-     *
+     * 
      * @param xValuesIn Array of X values for each site.
      * @param yValuesIn Array of Y values for each site. Must be identical length to yValuesIn
-     * @param minX      The minimum X of the bounding box around the voronoi
-     * @param maxX      The maximum X of the bounding box around the voronoi
-     * @param minY      The minimum Y of the bounding box around the voronoi
-     * @param maxY      The maximum Y of the bounding box around the voronoi
+     * @param minX The minimum X of the bounding box around the voronoi
+     * @param maxX The maximum X of the bounding box around the voronoi
+     * @param minY The minimum Y of the bounding box around the voronoi
+     * @param maxY The maximum Y of the bounding box around the voronoi
+     * 
      * @return The list of edges in the Voronoi diagram.
      */
     private List<VoronoiEdge> buildVoronoi(
@@ -463,7 +464,7 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     }
 
     /**
-     * Get entry from hash table, pruning any deleted nodes
+     * Get entry from hash table, pruning any deleted nodes 
      */
     private HalfEdge ELgethash(int b) {
         HalfEdge he;
@@ -661,7 +662,7 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
     }
 
     /**
-     * Returns 1 if p is to right of halfedge e
+     * Returns 1 if p is to right of halfedge e 
      */
     private boolean right_of(HalfEdge el, Point p) {
         VoronoiSegment e = el.ELedge;

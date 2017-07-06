@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.st.STPoint;
@@ -12,13 +12,13 @@ import java.util.List;
 /**
  * Segments a trajectory based on a length threshold.
  * That is, segments a trajectory such that the length
- * of every sub-trajectory is no greater than a given
+ * of every sub-trajectory is no greater than a given 
  * threshold.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class ByLengthSegmentation extends TrajectorySegmentation {
+public class ByLengthSegmentation implements TrajectorySegmentation {
     private final double lenghtThreshold;
     private final PointDistanceFunction distFunc;
 
@@ -52,7 +52,7 @@ public class ByLengthSegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
         List<Trajectory> result = new ArrayList<Trajectory>();
@@ -64,7 +64,7 @@ public class ByLengthSegmentation extends TrajectorySegmentation {
         for (int i = 1; i < trajectory.size(); i++) {
             STPoint pi = trajectory.get(i);
             STPoint pj = trajectory.get(i - 1);
-            dist = distFunc.pointToPointDistance(pi, pj);
+            dist = distFunc.distance(pi, pj);
             // split
             if (length + dist > lenghtThreshold) {
                 result.add(sub);

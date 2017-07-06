@@ -2,7 +2,7 @@ package traminer.util.map.matching.nearest;
 
 import traminer.util.exceptions.MapMatchingException;
 import traminer.util.map.matching.MapMatchingMethod;
-import traminer.util.map.matching.MatchPair;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -17,13 +17,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Implementation of Nearest-Neighbor of Point-to-Curve map matching.
- * Simply match every trajectory point to its nearest edge in the
+ * Implementation of Nearest-Neighbor of Point-to-Curve map matching. 
+ * Simply match every trajectory point to its nearest edge in the 
  * road network graph.
  * <p>
  * Note that this algorithm does not take the road network edges
  * connectivity into account.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -57,11 +57,11 @@ public class PointToEdgeMatching implements MapMatchingMethod {
             final RoadNetworkGraph roadNetworkGraph) throws MapMatchingException {
         // make sure there is data to match
         if (trajectory == null || trajectory.isEmpty()) {
-            throw new MapMatchingException("EmptyTrajectory",
+            throw new MapMatchingException(
                     "Trajectory for map-matching must not be empty nor null.");
         }
         if (roadNetworkGraph == null || roadNetworkGraph.isEmpty()) {
-            throw new MapMatchingException("EmptyRoadNetworkGraph",
+            throw new MapMatchingException(
                     "Road-Network-Graph for map-matching must not be empty nor null.");
         }
 
@@ -99,21 +99,21 @@ public class PointToEdgeMatching implements MapMatchingMethod {
 
     // nodes list is taken as a sorted list of Way points
     @Override
-    public List<MatchPair> doMatching(
+    public List<PointNodePair> doMatching(
             final Collection<STPoint> pointsList,
             final Collection<RoadNode> nodesList) throws MapMatchingException {
         // make sure there is data to match
         if (pointsList == null || pointsList.isEmpty()) {
-            throw new MapMatchingException("EmptyPointsList",
+            throw new MapMatchingException(
                     "Points list for map-matching must not be empty nor null.");
         }
         if (nodesList == null || nodesList.isEmpty()) {
-            throw new MapMatchingException("EmptyNodesList",
+            throw new MapMatchingException(
                     "Nodes list for map-matching must not be empty nor null.");
         }
 
         // simply match every point to its closest edge
-        List<MatchPair> matchedPairs = new ArrayList<>();
+        List<PointNodePair> matchedPairs = new ArrayList<>();
         double dist, minDist;
         RoadNode nearesti, nearestj;
         Iterator<RoadNode> nodesItr = nodesList.iterator();
@@ -136,8 +136,8 @@ public class PointToEdgeMatching implements MapMatchingMethod {
             }
             // map p to the edge ni -> nj
             if (nearesti != null && nearestj != null) {
-                matchedPairs.add(new MatchPair(p, nearesti.clone()));
-                matchedPairs.add(new MatchPair(p, nearestj.clone()));
+                matchedPairs.add(new PointNodePair(p, nearesti.clone()));
+                matchedPairs.add(new PointNodePair(p, nearestj.clone()));
             }
         }
 

@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.mapinference.io;
 
-import com.sun.istack.internal.Nullable;
 
 import java.io.*;
 import java.util.*;
@@ -38,7 +37,6 @@ public class TrajectoryLoader {
             this.nextPoint = null;
         }
 
-        @Nullable
         public GPSPoint getPointByID(String ID) {
             if (this.ID.equals(ID)) {
                 return this;
@@ -194,8 +192,7 @@ public class TrajectoryLoader {
     }
 
     // change the input path filter here
-    @Nullable
-    public Trajectory readTrajFromFile(File inputFile) {
+    private Trajectory readTrajFromFile(File inputFile) {
 
         // create new trajectory
         Trajectory newTraj = new Trajectory();

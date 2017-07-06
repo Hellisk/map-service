@@ -14,28 +14,31 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Implements a simple 2D point entity, with
- * (x,y) coordinates.
+ * Implements a simple 2D point entity, with (x,y) coordinates.
  * <p>
- * Point objects may contain both spatial and semantic
+ * Point objects may contain both spatial and semantic 
  * attributes. Spatial attributes of simple objects,
  * however, are immutable, that means once a Point object
- * is created its spatial attributes cannot be changed.
- *
+ * is created its spatial attributes cannot be changed. 
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class Point extends SimpleSpatialObject {
+    /**
+     * Point coordinates
+     */
     private final double x;
     private final double y;
 
-    // auxiliary point from JTS lib
+    /**
+     * Auxiliary point from JTS lib
+     */
     private com.vividsolutions.jts.geom.
             Point JTSPoint = null;
 
     /**
-     * Creates an empty Point with default
-     * (0,0,0) coordinates.
+     * Creates an empty Point with default (0,0) coordinates.
      */
     public Point() {
         this.x = 0.0;
@@ -43,34 +46,54 @@ public class Point extends SimpleSpatialObject {
     }
 
     /**
-     * Creates a 2D point with the given
-     * coordinates, and z set as zero.
+     * Creates a 2D point with the given coordinates.
+     *
+     * @param x Point X/Longitude coordinate.
+     * @param y Point Y/Latitude coordinate.
      */
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * @return Point X coordinate.
+     */
     public double x() {
         return x;
     }
 
+    /**
+     * @return Point Y coordinate.
+     */
     public double y() {
         return y;
     }
 
     /**
-     * Returns the default Euclidean distance between
+     * Returns the Euclidean distance between
      * this point and a given point p.
+     *
+     * @param p
+     * @return The Euclidean distance between this point and p.
      */
     public double distance(Point p) {
+        if (p == null) {
+            throw new NullPointerException("Point for distance "
+                    + "calculation must not be null.");
+        }
         return new EuclideanDistanceFunction()
-                .pointToPointDistance(p, this);
+                .distance(p, this);
     }
 
     /**
-     * Returns the default Euclidean distance between
+     * Returns the Euclidean distance between
      * this point and a given point p = (x,y).
+     *
+     * @param x
+     * @param y
+     * @return The Euclidean distance between this point
+     * and p = (x,y).
      */
     public double distance(double x, double y) {
         return new EuclideanDistanceFunction()
@@ -78,27 +101,44 @@ public class Point extends SimpleSpatialObject {
     }
 
     /**
-     * Returns the distance between this point
-     * and a given point p.
+     * Returns the distance between this point and the point p
+     * using the given point distance function.
      *
-     * @param dist The point distance measure to use.
+     * @param p        The point to calculate the distance to.
+     * @param distFunc The point distance function to use.
+     * @return The distance between this point and p, w.r.t distFunc.
      */
-    public double distance(Point p, PointDistanceFunction dist) {
-        return dist.pointToPointDistance(p, this);
+    public double distance(Point p, PointDistanceFunction distFunc) {
+        if (p == null) {
+            throw new NullPointerException("Point for distance "
+                    + "calculation must not be null.");
+        }
+        if (distFunc == null) {
+            throw new NullPointerException("Distance function for "
+                    + "point distance calculation must not be null.");
+        }
+        return distFunc.distance(p, this);
     }
 
     /**
-     * Returns the distance between this point
-     * and a given point p = (x,y).
+     * Returns the distance between this point and the point
+     * p = (x,y) using the given point distance function.
      *
-     * @param dist The point distance measure to use.
+     * @param x
+     * @param y
+     * @param distFunc The point distance function to use.
+     * @return The distance between this point and p = (x,y), w.r.t distFunc.
      */
-    public double distance(double x, double y, PointDistanceFunction dist) {
-        return dist.pointToPointDistance(x, y, this.x, this.y);
+    public double distance(double x, double y, PointDistanceFunction distFunc) {
+        if (distFunc == null) {
+            throw new NullPointerException("Distance function for "
+                    + "point distance calculation must not be null.");
+        }
+        return distFunc.pointToPointDistance(x, y, this.x, this.y);
     }
 
     /**
-     * Get the (x,y,z) coordinates of this Point as an array of doubles.
+     * @return Array containing the [x,y] coordinates of this point.
      */
     public double[] getCoordinate() {
         double[] coord = new double[]{x, y};
@@ -107,14 +147,14 @@ public class Point extends SimpleSpatialObject {
 
     @Override
     public List<Point> getCoordinates() {
-        ArrayList<Point> list = new ArrayList<Point>();
+        ArrayList<Point> list = new ArrayList<Point>(1);
         list.add(this);
         return list;
     }
 
     @Override
-    public List<Edges> getEdges() {
-        return new ArrayList<Edges>();
+    public List<Segment> getEdges() {
+        return new ArrayList<Segment>(0);
     }
 
     @Override
@@ -122,19 +162,21 @@ public class Point extends SimpleSpatialObject {
         return false;
     }
 
-    // TODO add override
     //@Override
     public boolean touches(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point) {
             return false;
         }
-        if (obj instanceof Edges) {
-            return ((Edges) obj).touches(this);
+        if (obj instanceof Segment) {
+            return ((Segment) obj).touches(this);
         }
         if (obj instanceof Circle) {
             return ((Circle) obj).touches(this);
         }
-        for (Edges s : obj.getEdges()) {
+        for (Segment s : obj.getEdges()) {
             if (s.touches(this)) {
                 return true;
             }
@@ -173,7 +215,9 @@ public class Point extends SimpleSpatialObject {
     }
 
     /**
-     * Get the AWT Point2D representation of this point.
+     * Convert this point object to a AWT Point2D object.
+     *
+     * @return The Point2D representation of this point.
      */
     public Point2D toPoint2D() {
         return new Point2D.Double(x, y);
@@ -187,7 +231,7 @@ public class Point extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("POINT (" + toString() + ")");
+        println("POINT (" + toString() + ")");
     }
 
     @Override
@@ -209,14 +253,27 @@ public class Point extends SimpleSpatialObject {
     }
 
     /**
-     * Compare two points by using the given comparator.
+     * Compares these two points for order using the given comparator.
+     *
+     * @param p The point to compare to.
+     * @param comparator The point comparator to use.
+     * @return Returns a negative integer, zero, or a positive integer as this
+     * point is less than, equal to, or greater than the given point p.
      */
     public int compareTo(Point p, Comparator<Point> comparator) {
+        if (p == null) {
+            throw new NullPointerException(
+                    "Point for compareTo must not be null.");
+        }
+        if (comparator == null) {
+            throw new NullPointerException(
+                    "Point comparator must not be null.");
+        }
         return comparator.compare(this, p);
     }
 
     /**
-     * Compare points by X value.
+     * Comparator to compare points by their X value.
      */
     public static final Comparator<Point> X_COMPARATOR =
             new Comparator<Point>() {
@@ -231,7 +288,7 @@ public class Point extends SimpleSpatialObject {
             };
 
     /**
-     * Compare points by Y value.
+     * Comparator to compare points by their Y value.
      */
     public static final Comparator<Point> Y_COMPARATOR =
             new Comparator<Point>() {

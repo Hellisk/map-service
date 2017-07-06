@@ -1,7 +1,6 @@
 package traminer.util.map.matching;
 
 import traminer.util.Pair;
-import traminer.util.map.MapInterface;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.spatial.objects.st.STPoint;
 
@@ -11,14 +10,14 @@ import traminer.util.spatial.objects.st.STPoint;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public final class MatchPair extends Pair<STPoint, RoadNode> implements MapInterface {
+public class PointNodePair extends Pair<STPoint, RoadNode> {
     /**
      * Creates a Point-to-Node match pair object.
      *
      * @param point The match point.
      * @param node  The match node.
      */
-    public MatchPair(STPoint point, RoadNode node) {
+    public PointNodePair(STPoint point, RoadNode node) {
         super(point, node);
     }
 

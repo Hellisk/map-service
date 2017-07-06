@@ -9,13 +9,13 @@ import java.util.List;
 
 /**
  * EDR: Edit Distance on Real sequences.
- * <p>
+ * 
  * </br> Uniform sampling rates only.
  * </br> Spatial dimension only.
  * </br> Cope with local time shift.
  * </br> Not sensitive to noise.
  * </br> Not a metric.
- *
+ * 
  * @author HanSu, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")

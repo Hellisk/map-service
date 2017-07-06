@@ -1,9 +1,9 @@
 package traminer.util.trajectory.distance;
 
 import traminer.util.spatial.distance.PointDistanceFunction;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.Point;
 import traminer.util.spatial.objects.Polygon;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * STLIP: Spatial-Temporal trajectory distance measure.
- *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
@@ -20,8 +20,8 @@ public class STLIPDistanceCalculator extends TrajectoryDistanceFunction {
     private List<Polygon> polygon;
     private List<Double> weight;
     private List<Double> TLIP;
-    double K;
-
+    double K; 
+    
     /**
      * Aux index
      */
@@ -36,14 +36,13 @@ public class STLIPDistanceCalculator extends TrajectoryDistanceFunction {
 
     /**
      * Set default parameter K = 0.5
-     *
+     * 
      * @param dist The points distance measure to use.
      */
     public STLIPDistanceCalculator(PointDistanceFunction dist) {
         super(dist);
         this.K = 0.5;
     }
-
     /**
      * @param k
      * @param dist The points distance measure to use.
@@ -76,9 +75,9 @@ public class STLIPDistanceCalculator extends TrajectoryDistanceFunction {
     private double getLength(List<STPoint> list) {
         double result = 0.0;
         for (int i = 0; i < list.size() - 1; i++) {
-            result += distFunc.pointToPointDistance(list.get(i), list.get(i + 1));
+            result += distFunc.distance(list.get(i), list.get(i + 1));
         }
-        return result;
+        return result;        
     }
 
     private List<Polygon> getPolygon(List<STPoint> r, List<STPoint> s) {
@@ -98,9 +97,9 @@ public class STLIPDistanceCalculator extends TrajectoryDistanceFunction {
         double durationR = r.get(r.size() - 1).time() - r.get(0).time();
         double durationS = s.get(s.size() - 1).time() - s.get(0).time();
 
-        List<Edges> rl = getPolyline(r);
-        List<Edges> sl = getPolyline(s);
-
+        List<Segment> rl = getPolyline(r);
+        List<Segment> sl = getPolyline(s);
+        
         List<STPoint> intersections = new ArrayList<STPoint>();
         List<TwoInt> index = new ArrayList<TwoInt>();
 

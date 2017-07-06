@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.spatial.structures.SpatialIndexModel;
 import traminer.util.trajectory.Trajectory;
@@ -12,11 +12,11 @@ import java.util.List;
 /**
  * Segments a trajectory based on spatial partition boundaries,
  * e.g. grid partitions, quad-tree, kd-tree, etc.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class BySpaceBoundarySegmentation extends TrajectorySegmentation {
+public class BySpaceBoundarySegmentation implements TrajectorySegmentation {
     private final SpatialIndexModel spatialIndex;
     private final boolean relicateBoundary;
 
@@ -41,7 +41,7 @@ public class BySpaceBoundarySegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
         List<Trajectory> result =

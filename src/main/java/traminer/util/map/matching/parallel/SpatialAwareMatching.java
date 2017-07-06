@@ -1,12 +1,12 @@
 package traminer.util.map.matching.parallel;
 
 import traminer.util.exceptions.MapMatchingException;
+import traminer.util.map.MapInterface;
 import traminer.util.map.matching.MapMatchingMethod;
-import traminer.util.map.matching.MatchPair;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
-import traminer.util.spatial.SpatialInterface;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.spatial.structures.SpatialIndexModel;
 import traminer.util.trajectory.Trajectory;
@@ -19,19 +19,19 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Service to perform spatial-aware map-matching.
+ * Service to perform spatial-aware map-matching. 
  * <p>
- * Partition the data space and match every trajectory to the road
- * network graph in parallel.
+ * Partition the data space and match every trajectory to the road 
+ * network graph in parallel. 
  * <p>
- * This method uses a spatial partitioning model to divide
- * the data space, and performs the map-matching in each
- * spatial partition in a parallel fashion.
- *
+ * This method uses a spatial partitioning model to divide 
+ * the data space, and performs the map-matching in each 
+ * spatial partition in a parallel fashion. 
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class SpatialAwareMatching implements SpatialInterface {
+public class SpatialAwareMatching implements MapInterface {
     /**
      * The map-matching method to use
      */
@@ -88,7 +88,7 @@ public class SpatialAwareMatching implements SpatialInterface {
                     "Trajectory stream for map-matching must not be null.");
         }
         if (roadNetworkGraph == null || roadNetworkGraph.isEmpty()) {
-            throw new MapMatchingException("EmptyRoadNetworkGraph",
+            throw new MapMatchingException(
                     "Road-Network-Graph for map-matching must not be empty nor null.");
         }
 
@@ -147,7 +147,7 @@ public class SpatialAwareMatching implements SpatialInterface {
                 .filter(partition -> !(partition == null || partition.isBroken()))
                 // do the matching
                 .flatMap(partition -> {
-                    List<MatchPair> matchNodes = matchingMethod
+                    List<PointNodePair> matchNodes = matchingMethod
                             .doMatching(partition.pointList, partition.nodeList);
                     return matchNodes.stream();
 
@@ -197,7 +197,6 @@ public class SpatialAwareMatching implements SpatialInterface {
 
         /**
          * Add a trajectory point to this partition.
-         *
          * @param point
          */
         public void addPoint(STPoint point) {
@@ -206,7 +205,6 @@ public class SpatialAwareMatching implements SpatialInterface {
 
         /**
          * Add a road node to this partition.
-         *
          * @param node
          */
         public void addNode(RoadNode node) {

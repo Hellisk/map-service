@@ -1,6 +1,6 @@
 package traminer.util.trajectory.segmentation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.st.STPoint;
@@ -14,27 +14,26 @@ import java.util.List;
  * a small region (stationary) for a period longer than a
  * given time threshold.
  * <p>
- * That is, if the moving object moved for a distance with
+ * That is, if the moving object moved for a distance with 
  * length less than the given distance threshold, and during
  * a period of time greater than the time threshold, then the
  * object is taken as stationary, and its trajectory is split.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 // TODO
-class MaxStaySegmentation extends TrajectorySegmentation {
+class MaxStaySegmentation implements TrajectorySegmentation {
     // maximum stay period allowed in milliseconds (default value is 3 minutes)
     private final long timeThreshold;
     private final double distanceThreshold;
     private final PointDistanceFunction distanceFunction;
     // remove the intermediate points?
-
     /**
      * Use the default Euclidean distance function.
      *
-     * @param maxStayTime
-     * @param maxDistanceThreshold
+     * @param timeThreshold
+     * @param distanceThreshold
      */
     public MaxStaySegmentation(long timeThreshold, double distanceThreshold) {
         if (timeThreshold <= 0) {
@@ -51,7 +50,7 @@ class MaxStaySegmentation extends TrajectorySegmentation {
     }
 
     /**
-     * @param maxStayTime
+     * @param timeThreshold
      * @param distanceThreshold
      * @param distFunc
      */
@@ -74,7 +73,7 @@ class MaxStaySegmentation extends TrajectorySegmentation {
     @Override
     public List<Trajectory> doSegmentation(Trajectory trajectory) {
         if (trajectory.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Segmentation error. Trajectory must not be empty.");
         }
 
@@ -98,7 +97,7 @@ class MaxStaySegmentation extends TrajectorySegmentation {
             pj = trajectory.get(i);
             // time and distance between these two points
             time = pj.time() - pi.time();
-            distance = distanceFunction.pointToPointDistance(pi, pj);
+            distance = distanceFunction.distance(pi, pj);
             length += distance;
             duration += time;
             // check stationary

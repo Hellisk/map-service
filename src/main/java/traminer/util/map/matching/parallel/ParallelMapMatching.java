@@ -13,11 +13,11 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Stream;
 
 /**
- * A service to perform map-matching in parallel.
+ * A service to perform map-matching in parallel. 
  * <p>
  * This service broadcasts the road graph and map-matching
  * methods to all threads to avoid concurrency lock.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -67,7 +67,7 @@ public class ParallelMapMatching implements MapInterface {
                     "Trajectory stream for map-matching must not be null.");
         }
         if (roadNetworkGraph == null || roadNetworkGraph.isEmpty()) {
-            throw new MapMatchingException("EmptyRoadNetworkGraph",
+            throw new MapMatchingException(
                     "Road-Network-Graph for map-matching must not be empty nor null.");
         }
 

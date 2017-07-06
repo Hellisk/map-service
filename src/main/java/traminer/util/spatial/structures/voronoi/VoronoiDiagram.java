@@ -9,12 +9,13 @@ import java.util.List;
 
 /**
  * A Voronoi Diagram spatial partitioning data structure.
- * This Voronoi Diagram can hold any type of spatial
+ * This Voronoi Diagram can hold any type of spatial 
  * object in 2D.
  *
- * @param <T> Type of spatial object to store in this partitioning.
- *            Objects must be inserted in a container object, XYObject<T>.
  * @author uqdalves
+ *
+ * @param <T> Type of spatial object to store in this partitioning. 
+ * Objects must be inserted in a container object, XYObject<T>.
  */
 @SuppressWarnings("serial")
 public class VoronoiDiagram<T extends SpatialObject> implements SpatialDataStructure<T> {

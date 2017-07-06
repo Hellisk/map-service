@@ -4,9 +4,9 @@ package traminer.util.map.matching.stmatching;
  * ST-Matching off-line map matching algorithm.
  * <p>
  * Map matching algorithm proposed in the paper:
- * <br> Lou, Yin, et al. "Map-Matching for low-sampling-rate
+ * <br> Lou, Yin, et al. "Map-Matching for low-sampling-rate 
  * GPS trajectories." ACM SIGSPATIAL, 2009.
- *
+ * 
  * @author uqdalves
  */
 public class STMatching {// TODO

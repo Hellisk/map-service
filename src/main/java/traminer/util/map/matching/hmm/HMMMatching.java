@@ -3,7 +3,7 @@ package traminer.util.map.matching.hmm;
 import com.bmw.hmm.SequenceState;
 import com.bmw.hmm.ViterbiAlgorithm;
 import traminer.util.map.matching.MapMatchingMethod;
-import traminer.util.map.matching.MatchPair;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -20,9 +20,9 @@ import java.util.List;
  * Off-line map matching algorithm, using the HMM library.
  * <p>
  * Hidden Markov Model-based map matching from the paper:
- * <br> "Newson, Paul; Krumm, John. Hidden Markov map matching through
+ * <br> "Newson, Paul; Krumm, John. Hidden Markov map matching through 
  * noise and sparseness. In: Proceedings of the 17th ACM SIGSPATIAL, 2009."
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -60,15 +60,15 @@ public class HMMMatching implements MapMatchingMethod {
     }
 
     @Override
-    public List<MatchPair> doMatching(
+    public List<PointNodePair> doMatching(
             final Collection<STPoint> pointsList,
             final Collection<RoadNode> nodesList) {
         List<SequenceState<RoadNode, STPoint, RoadWay>> hmmResult =
                 runHMM(pointsList, nodesList);
         // extract result
-        List<MatchPair> result = new ArrayList<>();
+        List<PointNodePair> result = new ArrayList<>();
         for (SequenceState<RoadNode, STPoint, RoadWay> seq : hmmResult) {
-            result.add(new MatchPair(seq.observation, seq.state));
+            result.add(new PointNodePair(seq.observation, seq.state));
         }
         return result;
     }
@@ -95,7 +95,7 @@ public class HMMMatching implements MapMatchingMethod {
                 computeTransitionProbabilities(prevTimeStep, timeStep);
                 viterbi.nextStep(
                         timeStep.observation, timeStep.candidates,
-                        timeStep.emissionLogProbabilities,
+                        timeStep.emissionLogProbabilities, 
                         timeStep.transitionLogProbabilities,
                         timeStep.roadPaths);
             }
@@ -115,7 +115,7 @@ public class HMMMatching implements MapMatchingMethod {
      * Get candidates nodes within a given radius from the
      * matching point.
      * <p>
-     * For real map matching applications, candidates would be
+     * For real map matching applications, candidates would be 
      * computed using a radius query.
      */
     private Collection<RoadNode> computeCandidates(

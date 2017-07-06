@@ -1,49 +1,88 @@
 package traminer.util.spatial.objects.st;
 
-import traminer.util.spatial.objects.Edges;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.Vector2D;
 
 /**
- * A 2D Spatial-Temporal line segment object with time-stamp.
- * Line segment from coordinate points (x1,y1) to (x2,y2) and
+ * A 2D Spatial-Temporal line segment (segment with temporal features).
+ * Line segment from coordinate points (x1,y1) to (x2,y2) and 
  * a time interval [t1,t2].
  * <p>
- * STSegment objects may contain both spatial-temporal and
+ * STSegment objects may contain both spatial-temporal and 
  * semantic attributes. Spatial-temporal attributes of ST
- * spatial objects, however, are immutable, that means once
- * a STSegment object is created its spatial attributes cannot
+ * spatial objects, however, are immutable, that means once 
+ * a STSegment object is created its spatial attributes cannot 
  * be changed.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class STSegment extends Edges implements SpatialTemporalObject {
+public class STSegment extends Segment implements SpatialTemporalObject {
     /**
      * End points time-stamp. Time interval
      */
     private final long t1, t2;
 
+    /**
+     * Creates a new empty spatial-temporal segment.
+     */
     public STSegment() {
-        super();
+        super(0, 0, 0, 0);
         this.t1 = 0;
         this.t2 = 0;
     }
 
+    /**
+     * Creates a new spatial-temporal segment with the given
+     * coordinates and time-stamp interval.
+     *
+     * @param x1 Start-point X coordinate.
+     * @param y1 Start-point Y coordinate.
+     * @param t1 Start-point time-stamp.
+     * @param x2 End-point X coordinate.
+     * @param y2 End-point Y coordinate.
+     * @param t2 End-point time-stamp.
+     */
     public STSegment(double x1, double y1, long t1,
                      double x2, double y2, long t2) {
         super(x1, y1, x2, y2);
+        if (t1 < 0 || t2 < 0) {
+            throw new IllegalArgumentException("Time-stamp for spatial-temporal"
+                    + "object construction must not be negative.");
+        }
+        if (t2 < t1) {
+            throw new IllegalArgumentException("Initial time-stamp must be "
+                    + "smaller than final time-stamp.");
+        }
         this.t1 = t1;
         this.t2 = t2;
     }
 
+    /**
+     * Creates a new spatial-temporal segment with the given
+     * start and end spatial-temporal points.
+     *
+     * @param p1 Start-point with time-stamp.
+     * @param p2 End-point with time-stamp.
+     */
     public STSegment(STPoint p1, STPoint p2) {
         super(p1.x(), p1.y(), p2.x(), p2.y());
+        if (p1.time() < 0 || p2.time() < 0) {
+            throw new IllegalArgumentException("Time-stamp for spatial-temporal"
+                    + "object construction must not be negative.");
+        }
+        if (p2.time() < p1.time()) {
+            throw new IllegalArgumentException("Initial time-stamp must be "
+                    + "smaller than final time-stamp.");
+        }
         this.t1 = p1.time();
         this.t2 = p2.time();
     }
 
     /**
-     * Get the fist spatial-temporal endpoint (x1,y1,t1).
+     * Get the first/start spatial-temporal point of this STSegment.
+     *
+     * @return The segment's start-point (x1,y1,t1).
      */
     @Override
     public STPoint p1() {
@@ -51,7 +90,9 @@ public class STSegment extends Edges implements SpatialTemporalObject {
     }
 
     /**
-     * Get the second spatial-temporal endpoint (x2,y2,t2).
+     * Get the second/final spatial-temporal point of this STSegment.
+     *
+     * @return The segment's end-point (x2,y2,t2).
      */
     @Override
     public STPoint p2() {
@@ -69,13 +110,25 @@ public class STSegment extends Edges implements SpatialTemporalObject {
     }
 
     /**
-     * Return the point on the this segment for the given time-stamp t.
-     * <br> Note that time t must be s.t1 =< t =< s.t2.
+     * Return the point (position) on the this segment at given
+     * time-stamp t.
+     * <br>
+     * Note that time t must be grater than or equals to zero, and
+     * s.t1 =< t =< s.t2.
+     *
+     * @param t The time to search the position.
+     * @return The spatial-temporal point with time-stamp = t on this
+     * line segment.
      */
     public STPoint getPointByTime(long t) {
-        assert (t1 <= t && t >= t2) :
-                "Time t must be s.t1 <= t <= s.t2";
-
+        if (t < 0) {
+            throw new IllegalArgumentException(
+                    "Time-stamp must not be negative.");
+        }
+        if (t < t1 || t > t2) {
+            throw new IllegalArgumentException("Time-stamp ts for "
+                    + "segment s search must be s.t1 <= ts <= s.t2");
+        }
         boolean isX = (x1() == x2());
         boolean isY = (y1() == y2());
 
@@ -103,10 +156,16 @@ public class STSegment extends Edges implements SpatialTemporalObject {
      * Calculate the projection of the given spatial-temporal point
      * p on to this spatial-temporal line segment.
      *
-     * @return Return the projection with time-stamp.
+     * @param p The spatial-temporal point to project onto this
+     *          spatial-temporal segment.
+     * @return The projection of p onto this spatial-temporal line segment.
      */
-    public STPoint projection(STPoint p) {
-        return projectionWithTime(p.x(), p.y(), p.time(),
+    public STPoint getProjectionWithTime(STPoint p) {
+        if (p == null) {
+            throw new NullPointerException("Point for projection "
+                    + "computation must not be null.");
+        }
+        return pointToSegmentProjectionWithTime(p.x(), p.y(), p.time(),
                 x1(), y1(), t1, x2(), y2(), t2);
     }
 
@@ -114,24 +173,54 @@ public class STSegment extends Edges implements SpatialTemporalObject {
      * Calculate the projection of the given spatial-temporal point
      * p = (x,y,time) on to this spatial-temporal line segment.
      *
-     * @return Return the projection with time-stamp.
+     * @param x
+     * @param y
+     * @param time
+     * @return The projection of p = (x,y,time) onto this spatial-temporal
+     * line segment.
      */
     public STPoint getProjectionWithTime(double x, double y, long time) {
-        return projectionWithTime(x, y, time,
+        if (time < 0) {
+            throw new IllegalArgumentException("Time-stamp for projection "
+                    + "computation must not be negative.");
+        }
+        return pointToSegmentProjectionWithTime(x, y, time,
                 x1(), y1(), t1, x2(), y2(), t2);
     }
 
     /**
      * Calculate the projection with time-stamp of a given
      * spatial-temporal point p = (x,y,t) on to the given
-     * spatial-temporal line segment s = (x1,y1,t1)--(x2,y2,t2).
+     * spatial-temporal line segment s = (x1,y1,t1)(x2,y2,t2).
      *
-     * @return Return the projection of p onto s.
+     * @param x  Point X coordinate.
+     * @param y  Point Y coordinate.
+     * @param t  Point time-stamp.
+     * @param x1 Segment start-point X coordinate.
+     * @param y1 Segment start-point Y coordinate.
+     * @param t1 Segment start-point time-stamp.
+     * @param x2 Segment end-point X coordinate.
+     * @param y2 Segment end-point Y coordinate.
+     * @param t2 Segment end-point time-stamp.
+     * @return The projection of p = (x,y,t) onto the spatial-temporal
+     * line segment s = (x1,y1,t1)(x2,y2,t2).
      */
-    public static STPoint projectionWithTime(
+    public static STPoint pointToSegmentProjectionWithTime(
             double x, double y, long t,
             double x1, double y1, long t1,
             double x2, double y2, long t2) {
+        if (t < 0 || t1 < 0 || t2 < 0) {
+            throw new IllegalArgumentException("Time-stamps for spatial-temporal"
+                    + "projection must not be negative.");
+        }
+        if (t2 < t1) {
+            throw new IllegalArgumentException("Initial time-stamp must be "
+                    + "smaller than final time-stamp.");
+        }
+        if (t < t1 || t > t2) {
+            throw new IllegalArgumentException("Point time-stamp t for "
+                    + "spatial-temporal projection must be t1 <= t <= t2");
+        }
         // segments vector
         double v1x = x2 - x1;
         double v1y = y2 - y1;
@@ -199,14 +288,14 @@ public class STSegment extends Edges implements SpatialTemporalObject {
 
     @Override
     public String toString() {
-        String s = "(";
-        s += String.format("%.3f %.3f", x1(), y1()) + " " + t1 + ", ";
-        s += String.format("%.3f %.3f", x2(), y2()) + " " + t2;
-        return s + ")";
+        String s = "( ";
+        s += String.format("%.5f %.5f", x1(), y1()) + " " + t1 + ", ";
+        s += String.format("%.5f %.5f", x2(), y2()) + " " + t2;
+        return s + " )";
     }
 
     @Override
     public void print() {
-        System.out.println("ST_SEGMENT " + toString());
+        println("ST_SEGMENT " + toString());
     }
 }

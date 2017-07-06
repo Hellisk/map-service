@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * A relation in the road network graph (OSM Relation).
  * <p>
- * The relation object only stores the metadata about
- * its members. Use the attribute 'ref' to retrieve
+ * The relation object only stores the metadata about 
+ * its members. Use the attribute 'ref' to retrieve 
  * the actual object from a RoadNetworkGraph object.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -142,7 +142,7 @@ public class RoadRelation extends RoadNetworkPrimitive {
          *
          * @param role Member's role attribute.
          * @param type Member's type attribute.
-         * @param ref  Member's reference attribute.
+         * @param ref Member's reference attribute.
          */
         public Member(String role, String type, String ref) {
             this.role = role;

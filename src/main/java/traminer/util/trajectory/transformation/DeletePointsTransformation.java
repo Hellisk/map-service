@@ -1,6 +1,6 @@
 package traminer.util.trajectory.transformation;
 
-import traminer.util.exceptions.EmptyTrajectoryException;
+import traminer.util.exceptions.EmptyParameterException;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Delete some points from a given trajectory.
- *
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
@@ -22,7 +22,6 @@ public class DeletePointsTransformation extends TrajectoryTransformation {
     public DeletePointsTransformation() {
         this.deleteRate = 0.25;
     }
-
     /**
      * @param deleteRate Rate of points to delete (0.0 = 0%, 1.0 = 100%)
      */
@@ -37,7 +36,7 @@ public class DeletePointsTransformation extends TrajectoryTransformation {
     @Override
     public Trajectory getTransformation(Trajectory t) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Trajectory for transformation must not be empty.");
         }
         // make sure the original trajectory is unchanged
@@ -53,7 +52,7 @@ public class DeletePointsTransformation extends TrajectoryTransformation {
      */
     public Trajectory getTransformation(Trajectory t, List<STPoint> escapeList) {
         if (t.isEmpty()) {
-            throw new EmptyTrajectoryException(
+            throw new EmptyParameterException(
                     "Trajectory for transformation must not be empty.");
         }
         // make sure the original trajectory is unchanged

@@ -7,13 +7,13 @@ import java.util.List;
 
 /**
  * LCSS: Largest Common Subsequence distance.
- * <p>
+ * 
  * </br> Spatial similarity.
  * </br> Robust to different sampling rates.
  * </br> Robust to noise.
  * </br> Robust to stretching and translation.
  * </br> Not a metric.
- *
+ * 
  * @author uqhsu1, Haozhou, uqdalves
  */
 @SuppressWarnings("serial")

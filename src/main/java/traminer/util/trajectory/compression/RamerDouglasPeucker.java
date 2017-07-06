@@ -8,25 +8,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the Ramer-Douglas-Peucker line
- * simplification algorithm.
- *
+ * Implements the Ramer-Douglas-Peucker line simplification algorithm fro
+ * trajectories.
+ * <p>
+ * Distance threshold should be decided carefully.
+ * 
  * @author uqhsu1, uqdalves
  */
 @SuppressWarnings("serial")
-public class RamerDouglasPeucker extends TrajectoryCompression {
-    //threshold should be decided carefully
-    private double threshold;
+public class RamerDouglasPeucker implements TrajectoryCompression {
+    /**
+     * Ramer-Douglas-Peucker distance threshold
+     */
+    private final double threshold;
 
     /**
-     * Set default distance threshold as 1.0.
+     * Starts a new Ramer-Douglas-Peucker algorithm with default distance
+     * threshold as 1.0.
      */
     public RamerDouglasPeucker() {
         this.threshold = 1.0;
     }
 
     /**
-     * @param threshold Distance threshold
+     * Starts a new Ramer-Douglas-Peucker algorithm with the given distance
+     * threshold.
+     *
+     * @param threshold Distance threshold.
      */
     public RamerDouglasPeucker(double threshold) {
         this.threshold = threshold;
@@ -40,13 +48,16 @@ public class RamerDouglasPeucker extends TrajectoryCompression {
         return result;
     }
 
+    /**
+     * @param points
+     * @return
+     */
     private List<STPoint> getKeyPointsArrayList(List<STPoint> points) {
         List<STPoint> result = new ArrayList<STPoint>();
         double maxDistance = 0.0;
         int index = 0;
         for (int i = 0; i < points.size() - 1; i++) {
-            double distance = perpendicularDistance(
-                    points.get(0), points.get(points.size() - 1), points.get(i));
+            double distance = perpendicularDistance(points.get(0), points.get(points.size() - 1), points.get(i));
             if (distance > maxDistance) {
                 index = i;
                 maxDistance = distance;
@@ -67,6 +78,12 @@ public class RamerDouglasPeucker extends TrajectoryCompression {
         return result;
     }
 
+    /**
+     * @param start
+     * @param end
+     * @param p
+     * @return
+     */
     private double perpendicularDistance(STPoint start, Point end, Point p) {
         double x1 = start.x();
         double y1 = start.y();
@@ -92,6 +109,11 @@ public class RamerDouglasPeucker extends TrajectoryCompression {
         return result;
     }
 
+    /**
+     * @param left
+     * @param right
+     * @return
+     */
     private List<STPoint> mergeResult(List<STPoint> left, List<STPoint> right) {
         List<STPoint> result = new ArrayList<STPoint>();
         for (int i = 0; i < left.size(); i++) {
@@ -104,6 +126,12 @@ public class RamerDouglasPeucker extends TrajectoryCompression {
         return result;
     }
 
+    /**
+     * @param list
+     * @param start
+     * @param length
+     * @return
+     */
     private List<STPoint> getArrayList(List<STPoint> list, int start, int length) {
         List<STPoint> result = new ArrayList<STPoint>();
         for (int i = start; i < start + length; i++) {

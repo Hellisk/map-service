@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A 2D circle, defined by its center (x,y)
- * coordinates and radius.
+ * A 2D circle, defined by its center (x,y) coordinates 
+ * and radius. 
  * <p>
- * Circle objects may contain both spatial and semantic
+ * Circle objects may contain both spatial and semantic 
  * attributes. Spatial attributes of simple objects,
  * however, are immutable, that means once a Circle object
  * is created its spatial attributes cannot be changed.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -25,47 +25,55 @@ public class Circle extends SimpleSpatialObject {
     /**
      * Circle center X coordinate
      */
-    private final double center_x;
+    private final double centerX;
     /**
      * Circle center Y coordinate
      */
-    private final double center_y;
+    private final double centerY;
     /**
      * The radius of this circle
      */
     private final double radius;
 
     /**
-     * Creates an empty circle.
+     * Creates an empty circle, with center (0,0)
+     * and zero radius.
      */
     public Circle() {
-        this.center_x = 0.0;
-        this.center_y = 0.0;
+        this.centerX = 0.0;
+        this.centerY = 0.0;
         this.radius = 0.0;
     }
 
-    public Circle(double center_x, double center_y, double radius) {
-        this.center_x = center_x;
-        this.center_y = center_y;
+    /**
+     * Creates a new circle with the given center and radius.
+     *
+     * @param x      Circle's center X coordinate.
+     * @param y      Circle's center Y coordinate.
+     * @param radius Circle's radius.
+     */
+    public Circle(double x, double y, double radius) {
+        this.centerX = x;
+        this.centerY = y;
         this.radius = radius;
     }
 
     /**
-     * The X coordinates of the center of this circle.
+     * @return The X coordinates of the center of this circle.
      */
     public double x() {
-        return center_x;
+        return centerX;
     }
 
     /**
-     * The Y coordinates of the center of this circle.
+     * @return The Y coordinates of the center of this circle.
      */
     public double y() {
-        return center_y;
+        return centerY;
     }
 
     /**
-     * The radius of this circle.
+     * @return The radius of this circle.
      */
     public double radius() {
         return radius;
@@ -73,15 +81,15 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public List<Point> getCoordinates() {
-        ArrayList<Point> list = new ArrayList<Point>();
+        ArrayList<Point> list = new ArrayList<>(1);
         list.add(center()); // only the center
         return list;
     }
 
     @Override
-    public List<Edges> getEdges() {
+    public List<Segment> getEdges() {
         // no edges in circle
-        return new ArrayList<Edges>();
+        return new ArrayList<Segment>(0);
     }
 
     @Override
@@ -89,31 +97,34 @@ public class Circle extends SimpleSpatialObject {
         return true;
     }
 
+    /**
+     * @return The perimeter of the circle.
+     */
     public double perimeter() {
         return (2 * PI * radius);
     }
 
+    /**
+     * @return The area of the circle.
+     */
     public double area() {
         return (PI * radius * radius);
     }
 
     /**
-     * The center of this circle as a coordinate point.
+     * @return The center of this circle as a coordinate point.
      */
     public Point center() {
-        return new Point(center_x, center_y);
+        return new Point(centerX, centerY);
     }
 
-    /**
-     * Get the Minimum Bounding Rectangle (MBR)
-     * of this circle.
-     */
+    @Override
     public Rectangle mbr() {
-        double min_x = center_x - radius;
-        double min_y = center_y - radius;
-        double max_x = center_x + radius;
-        double max_y = center_y + radius;
-        return new Rectangle(min_x, max_x, min_y, max_y);
+        double minX = centerX - radius;
+        double minY = centerY - radius;
+        double maxX = centerX + radius;
+        double maxY = centerY + radius;
+        return new Rectangle(minX, minY, maxX, maxY);
     }
 
     @Override
@@ -122,8 +133,8 @@ public class Circle extends SimpleSpatialObject {
         if (obj == null) return false;
         if (obj instanceof Circle) {
             Circle c = (Circle) obj;
-            return (c.center_x == center_x &&
-                    c.center_y == center_y &&
+            return (c.centerX == centerX &&
+                    c.centerY == centerY &&
                     c.radius == radius);
         }
         return false;
@@ -131,7 +142,7 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public Circle clone() {
-        Circle clone = new Circle(center_x, center_y, radius);
+        Circle clone = new Circle(centerX, centerY, radius);
         super.cloneTo(clone);
         return clone;
     }
@@ -141,9 +152,9 @@ public class Circle extends SimpleSpatialObject {
         final int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(center_x);
+        temp = Double.doubleToLongBits(centerX);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(center_y);
+        temp = Double.doubleToLongBits(centerY);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(radius);
         result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -152,15 +163,18 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean contains(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point)
             return contains((Point) obj);
-        if (obj instanceof Edges)
-            return contains((Edges) obj);
+        if (obj instanceof Segment)
+            return contains((Segment) obj);
         if (obj instanceof Circle)
             return contains((Circle) obj);
 
         // any other spatial object
-        for (Edges s : obj.getEdges()) {
+        for (Segment s : obj.getEdges()) {
             if (!this.contains(s)) {
                 return false;
             }
@@ -170,9 +184,12 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean within(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point)
             return false;
-        if (obj instanceof Edges)
+        if (obj instanceof Segment)
             return false;
         if (obj instanceof Circle)
             return obj.contains(this);
@@ -196,38 +213,49 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean disjoint(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point)
             return disjoint((Point) obj);
-        if (obj instanceof Edges)
-            return disjoint((Edges) obj);
+        if (obj instanceof Segment)
+            return disjoint((Segment) obj);
         if (obj instanceof Circle)
             return disjoint((Circle) obj);
 
         // any other spatial object
-        for (Edges s : obj.getEdges()) {
+        for (Segment s : obj.getEdges()) {
             if (!this.disjoint(s)) {
                 return false;
             }
         }
-        return !obj.covers(new Point(center_x, center_y));
+
+        // TODO report change from ture to !obj.covers(new Point(centerX, centerY))
+        return !obj.within(this) && this.within(obj);
     }
 
     @Override
     public boolean intersects(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         return !disjoint(obj);
     }
 
     //@Override
     public boolean touches(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point)
             return touches((Point) obj);
-        if (obj instanceof Edges)
-            return touches((Edges) obj);
+        if (obj instanceof Segment)
+            return touches((Segment) obj);
         if (obj instanceof Circle)
             return touches((Circle) obj);
 
         // any other spatial object
-        for (Edges s : obj.getEdges()) {
+        for (Segment s : obj.getEdges()) {
             if (this.touches(s)) {
                 return true;
             }
@@ -237,15 +265,18 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean crosses(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Point)
             return crosses((Point) obj);
-        if (obj instanceof Edges)
-            return crosses((Edges) obj);
+        if (obj instanceof Segment)
+            return crosses((Segment) obj);
         if (obj instanceof Circle)
             return crosses((Circle) obj);
 
         // any other spatial object
-        for (Edges s : obj.getEdges()) {
+        for (Segment s : obj.getEdges()) {
             if (this.crosses(s)) {
                 return true;
             }
@@ -255,6 +286,9 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean overlaps(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Circle)
             return overlaps((Circle) obj);
 
@@ -271,129 +305,177 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public boolean coveredBy(SpatialObject obj) {
+        if (obj == null) {
+            return false;
+        }
         return obj.covers(this);
     }
 
     /**
-     * True is this circle contains the given point inside its perimeter.
-     * Check if the point lies inside the circle area.
+     * Check whether the point lies inside the circle area.
+     *
+     * @param p The point to check.
+     * @return True is this circle contains the given point
+     * inside its perimeter.
      */
     private boolean contains(Point p) {
-        double dist = p.distance(center_x, center_y);
+        double dist = p.distance(centerX, centerY);
         return (dist <= radius);
     }
 
     /**
-     * True is this circle contains the given segment inside its perimeter.
-     * Check if the segment lies inside the circle area.
+     * Check whether the segment lies inside the circle area.
+     *
+     * @param s The segment to check.
+     * @return True is this circle contains the given segment
+     * inside its perimeter.
      */
-    private boolean contains(Edges s) {
-        double dist_p1 = s.p1().distance(center_x, center_y);
-        double dist_p2 = s.p2().distance(center_x, center_y);
-        return (dist_p1 <= radius && dist_p2 <= radius);
+    private boolean contains(Segment s) {
+        double distP1 = s.p1().distance(centerX, centerY);
+        double distP2 = s.p2().distance(centerX, centerY);
+        return (distP1 <= radius && distP2 <= radius);
     }
 
     /**
-     * True is this circle contains the given circle c inside its perimeter.
-     * Check if the circle c lies inside this circle area.
+     * Check whether the circle c lies inside this circle area.
+     *
+     * @param c The circle to check.
+     * @return True is this circle contains the given circle c
+     * inside its perimeter.
      */
     private boolean contains(Circle c) {
-        double dist = c.center().distance(center_x, center_y);
+        double dist = c.center().distance(centerX, centerY);
         return ((dist + c.radius) <= radius);
     }
 
     /**
-     * True if this point and the circle are disjoint.
+     * Check whether this circle and the given point are disjoint.
+     *
+     * @param p The point to check.
+     * @return True if this circle and the point are disjoint.
      */
     private boolean disjoint(Point p) {
-        double dist = p.distance(center_x, center_y);
+        double dist = p.distance(centerX, centerY);
         return (dist > radius);
     }
 
     /**
-     * True if this segment and the circle are disjoint.
+     * Check whether this circle and the given segment are disjoint.
+     *
+     * @param s The segment to check.
+     * @return True if this circle and the segment are disjoint.
      */
-    private boolean disjoint(Edges s) {
+    private boolean disjoint(Segment s) {
         // shortest distance
-        double dist = s.distance(center_x, center_y);
+        double dist = s.distance(centerX, centerY);
         return (dist > radius);
     }
 
     /**
-     * True if these two circles are disjoint.
+     * Check whether these two circles are disjoint.
+     *
+     * @param c The circle to check.
+     * @return True if these two circles are disjoint.
      */
     private boolean disjoint(Circle c) {
-        double dist = c.center().distance(center_x, center_y);
+        double dist = c.center().distance(centerX, centerY);
         return (dist > (c.radius + this.radius));
     }
 
     /**
-     * True if the given point touches this circle (circle perimeter).
+     * Check whether this circle touches the given point.
+     *
+     * @param p The point to check.
+     * @return True if the perimeter of this circle touches
+     * the given point.
      */
     private boolean touches(Point p) {
-        double dist = p.distance(center_x, center_y);
+        double dist = p.distance(centerX, centerY);
         return (dist == radius);
     }
 
     /**
-     * True if the given segment touches this circle (circle perimeter).
+     * Check whether this circle touches the given segment.
+     *
+     * @param s The segment to check.
+     * @return True if the perimeter of this circle touches
+     * the given segment.
      */
-    private boolean touches(Edges s) {
+    private boolean touches(Segment s) {
         // shortest distance
-        double dist = s.distance(center_x, center_y);
+        double dist = s.distance(centerX, centerY);
         return (dist == radius);
     }
 
     /**
-     * True if these two circles touch (circle's perimeter).
+     * Check whether this circle touches the given circle.
+     *
+     * @param c The circle to check.
+     * @return True if the perimeters of these two circles touch.
      */
     private boolean touches(Circle c) {
-        double dist = c.center().distance(center_x, center_y);
+        double dist = c.center().distance(centerX, centerY);
         return (dist == (c.radius + this.radius));
     }
 
     /**
-     * True if this circle crosses this point.
+     * Check whether this circle crosses with this point.
+     *
+     * @param p The point to check.
+     * @return Always false y definition.
      */
     private boolean crosses(Point p) {
         return false;
     }
 
     /**
-     * True if this circle crosses this segment.
+     * Check whether this circle crosses with the given segment.
+     *
+     * @param s The segment to check.
+     * @return True if this circle crosses with this segment.
      */
-    private boolean crosses(Edges s) {
+    private boolean crosses(Segment s) {
         if (this.disjoint(s)) return false;
         return !this.contains(s.p1()) ||
                 !this.contains(s.p2());
     }
 
     /**
-     * True if these two circles cross each other.
+     * Check whether these circles cross each other.
+     *
+     * @param c The circle to check.
+     * @return True if these two circles cross each other.
      */
     private boolean crosses(Circle c) {
         return this.overlaps(c);
     }
 
     /**
-     * True if these two circles overlap.
+     * Check whether these circles overlap.
+     *
+     * @param c The circle to check.
+     * @return True if these two circles overlap.
      */
     private boolean overlaps(Circle c) {
         //return (this.intersects(c) && !this.equals2D(c));
         double dist = this.center().distance(c.center());
         // contains
-        if (radius >= c.radius && dist <= (radius - c.radius)) return false;
+        if (radius >= c.radius && dist <= (radius - c.radius))
+            return false;
         // within
-        if (c.radius >= radius && dist <= (c.radius - radius)) return false;
+        if (c.radius >= radius && dist <= (c.radius - radius))
+            return false;
         // disjoint
         return !(dist > (radius + c.radius));
     }
 
     /**
-     * Get the Circle2D (AWT) representation of this circle.
+     * Convert this circle object to a AWT Circle2D object.
+     *
+     * @return The Circle2D (AWT) representation of this circle.
      */
     public Circle2D toCircle2D() {
-        return new Circle2D(center_x, center_y, radius);
+        return new Circle2D(centerX, centerY, radius);
     }
 
     @Override
@@ -409,28 +491,35 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("CIRCLE " + toString());
+        println("CIRCLE " + toString());
     }
 
     @Override
     public void display() {
         Graph graph = new SingleGraph("Point");
         graph.display(false);
-        graph.addNode("N0").setAttribute("xy", center_x, center_y);
+        graph.addNode("N0").setAttribute("xy", centerX, centerY);
         Graphics2D g = (Graphics2D) graph;
-        int x = (int) (center_x - (radius / 2));
-        int y = (int) (center_y - (radius / 2));
+        int x = (int) (centerX - (radius / 2));
+        int y = (int) (centerY - (radius / 2));
         int r = (int) radius;
         g.fillOval(x, y, r, r);
     }
 
     /**
-     * Auxiliary Circle2D object.
-     * Adaptation of an Ellipse2D from the java.awt.geom geometry library.
+     * Auxiliary Circle2D object. Adaptation of an
+     * Ellipse2D from the java.awt.geom geometry library.
      */
     private static class Circle2D extends Ellipse2D.Double {
-        public Circle2D(double center_x, double center_y, double radius) {
-            super(center_x, center_y, radius, radius);
+        /**
+         * Creates a new Circle2D with the given center and radius.
+         *
+         * @param x      Circle's center X coordinate.
+         * @param y      Circle's center Y coordinate.
+         * @param radius Circle's radius.
+         */
+        public Circle2D(double x, double y, double radius) {
+            super(x, y, radius, radius);
         }
     }
 }

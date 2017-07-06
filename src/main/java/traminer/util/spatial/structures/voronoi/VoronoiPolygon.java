@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements a planar Voronoi polygon object.
+ * Implements a planar Voronoi polygon object. 
  * Each polygon is composed by a list of Voronoi edges,
- * the polygon generator pivot, and a list of adjacent
+ * the polygon generator pivot, and a list of adjacent 
  * polygons.
  * <p>
  * Note: May not be a closed polygon, i.e. border polygons.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -139,9 +139,9 @@ public class VoronoiPolygon extends ComplexSpatialObject<VoronoiEdge> {
     }
 
     @Override
-    public List<Edges> getEdges() {
-        List<Edges> list = new ArrayList<Edges>();
-        for (Edges s : this) {
+    public List<Segment> getEdges() {
+        List<Segment> list = new ArrayList<Segment>();
+        for (Segment s : this) {
             list.add(s);
         }
         return list;

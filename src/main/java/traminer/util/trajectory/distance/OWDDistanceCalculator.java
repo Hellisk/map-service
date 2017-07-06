@@ -1,8 +1,8 @@
 package traminer.util.trajectory.distance;
 
 import traminer.util.spatial.distance.PointDistanceFunction;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.Point;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -37,7 +37,7 @@ public class OWDDistanceCalculator extends TrajectoryDistanceFunction {
     }
 
     private double getOWD(List<STPoint> t, List<STPoint> tt) {
-        List<Edges> ttl = getPolyline(tt);
+        List<Segment> ttl = getPolyline(tt);
 
         double owd = 0;
         for (int i = 0; i < t.size(); i++) {
@@ -47,10 +47,10 @@ public class OWDDistanceCalculator extends TrajectoryDistanceFunction {
         return owd / t.size();
     }
 
-    private double minDistance(Point p, List<STPoint> t, List<Edges> l) {
-        double min = distFunc.pointToPointDistance(p, t.get(0));
+    private double minDistance(Point p, List<STPoint> t, List<Segment> l) {
+        double min = distFunc.distance(p, t.get(0));
         for (int i = 0; i < t.size(); i++) {
-            double temp = distFunc.pointToPointDistance(p, t.get(i));
+            double temp = distFunc.distance(p, t.get(i));
             if (temp < min) {
                 min = temp;
             }

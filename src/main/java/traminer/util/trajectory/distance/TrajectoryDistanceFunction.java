@@ -2,8 +2,8 @@ package traminer.util.trajectory.distance;
 
 import traminer.util.spatial.SpatialInterface;
 import traminer.util.spatial.distance.PointDistanceFunction;
-import traminer.util.spatial.objects.Edges;
 import traminer.util.spatial.objects.Point;
+import traminer.util.spatial.objects.Segment;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.spatial.objects.st.STSegment;
 import traminer.util.trajectory.Trajectory;
@@ -13,8 +13,9 @@ import java.util.List;
 
 /**
  * Base interface for distance functions between trajectories.
- *
+ * 
  * @author uqdalves
+ *
  */
 @SuppressWarnings("serial")
 public abstract class TrajectoryDistanceFunction implements SpatialInterface {
@@ -42,17 +43,17 @@ public abstract class TrajectoryDistanceFunction implements SpatialInterface {
      * Return a polyline (list of segments) for the given
      * list of points.
      */
-    protected List<Edges> getPolyline(List<? extends Point> list) {
-        List<Edges> polyline = new ArrayList<Edges>();
+    protected List<Segment> getPolyline(List<? extends Point> list) {
+        List<Segment> polyline = new ArrayList<Segment>();
         if (list.size() < 2) {
             return polyline;
         }
-        Edges tempLine;
+        Segment tempLine;
         Point pi, pj;
         for (int i = 0; i < list.size() - 1; i++) {
             pi = list.get(i);
             pj = list.get(i + 1);
-            tempLine = new Edges(pi.x(), pi.y(), pj.x(), pj.y());
+            tempLine = new Segment(pi.x(), pi.y(), pj.x(), pj.y());
             polyline.add(tempLine);
         }
         return polyline;

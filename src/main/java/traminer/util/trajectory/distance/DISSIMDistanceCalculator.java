@@ -9,14 +9,14 @@ import java.util.List;
 
 /**
  * DISSIM: Dissimilarity distance measure.
- * <p>
+ * 
  * </br> Uniform and non-uniform sampling rates.
  * </br> Spatial and temporal dimensions.
  * </br> Discrete and continuous trajectories (uses integrate).
  * </br> Not robust for trajectories with different speeds.
  * </br> Not a metric.
  * </br> Euclidean space only.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

@@ -4,42 +4,65 @@ import traminer.util.spatial.SpatialInterface;
 import traminer.util.spatial.objects.Point;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
- * A basic spatial cluster entity, cluster of spatial Points
+ * A spatial cluster entity. Cluster of spatial Points
  * returned from the clustering algorithms.
- *
+ *  
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class SpatialCluster extends ArrayList<Point> implements SpatialInterface {
+    /**
+     * Cluster id
+     */
     private final String id;
-    private boolean noise = false;
+    /**
+     * Flag if this cluster is a noise
+     */
+    private boolean isNoise = false;
+    /**
+     * The center/centroid of this cluster
+     */
     private Point center;
 
+    /**
+     * Creates a new empty cluster with the given id.
+     *
+     * @param id The cluster id.
+     */
     public SpatialCluster(String id) {
-        super();
-        this.id = id;
-    }
-
-    public SpatialCluster(String id, Collection<? extends Point> collection) {
-        super(collection);
+        super(1);
         this.id = id;
     }
 
     /**
-     * Initial capacity
+     * Creates a new cluster with the given id
+     * and initial list of points.
+     *
+     * @param id         The cluster id.
+     * @param pointsList Initial list of points in this cluster.
      */
-    public SpatialCluster(String id, int size) {
-        super(size);
+    public SpatialCluster(String id, List<? extends Point> pointsList) {
+        super(pointsList);
         this.id = id;
     }
 
+    /**
+     * @return The id of this cluster.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the center/centroid point of this cluster.
+     * If the center was not already set, this method will
+     * calculate and return the centroid of this cluster.
+     *
+     * @return The center point of this cluster.
+     */
     public Point getCenter() {
         if (center == null) {
             // get mean x, y and z
@@ -56,19 +79,37 @@ public class SpatialCluster extends ArrayList<Point> implements SpatialInterface
         return center;
     }
 
+    /**
+     * @param center The center/centroid point of this cluster.
+     */
     public void setCenter(Point center) {
         this.center = center;
     }
 
+    /**
+     * Set the coordinates of the center/centroid point of this cluster.
+     *
+     * @param x Center X coordinate.
+     * @param y Center Y coordinate.
+     */
     public void setCenter(double x, double y) {
         this.center = new Point(x, y);
     }
 
+    /**
+     * Check whether this cluster is a noise.
+     *
+     * @return True if this cluster is a noise,
+     * false otherwise.
+     */
     public boolean isNoise() {
-        return noise;
+        return isNoise;
     }
 
+    /**
+     * @param noise Whether this cluster is a noise.
+     */
     public void setNoise(boolean noise) {
-        this.noise = noise;
+        this.isNoise = noise;
     }
 }

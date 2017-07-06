@@ -1,268 +1,338 @@
 package traminer.util;
 
+import traminer.util.math.Decimal;
+
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
- * Service to compress/de-compress a list of elements using Delta encoding.
+ * Service to compress/decompress a list of elements using Delta encoding.
+ *
+ * @test Unit test passed.
  *
  * @author uqdalves
  */
 @SuppressWarnings("serial")
 public final class DeltaEncoder implements Serializable {
-    private static final String ERR_MSG =
-            "List for delta encode/decode must not be empty nor null.";
+    // default error message
+    private static final String ERR_MSG = "List of values for "
+            + "delta encode/decode must not be null.";
 
     /**
-     * Compress an array of double using delta encoding.
+     * Compress an array of double numbers using delta encoding.
      *
-     * @throws IllegalArgumentException if the values list is either empty or null.
+     * @param values The array of numbers to compress.
+     * @return A copy of the given array after delta-encoding.
+     * @throws NullPointerException If the values list is null.
      */
     public static double[] deltaEncode(double[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
         }
-        if (values.length == 1)
-            return values;
+        if (values.length <= 1) {
+            return values.clone();
+        }
 
-        double last = values[0];
-        double current, delta;
+        double result[] = new double[values.length];
+        Decimal previous = new Decimal(values[0]);
+        Decimal current, delta;
         for (int i = 1; i < values.length; i++) {
-            current = values[i];
-            delta = current - last;
-            values[i] = delta;
-            last = current;
+            current = new Decimal(values[i]);
+            delta = current.sub(previous);
+            result[i] = delta.value();
+            previous = current;
         }
+        result[0] = values[0];
 
-        return values;
-    }
-
-    /**
-     * Compress an array of long using delta encoding.
-     *
-     * @throws IllegalArgumentException if the values list is either empty or null.
-     */
-    public static long[] deltaEncode(long[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
-        }
-        if (values.length == 1)
-            return values;
-
-        long last = values[0];
-        long current, delta;
-        for (int i = 1; i < values.length; i++) {
-            current = values[i];
-            delta = current - last;
-            values[i] = delta;
-            last = current;
-        }
-        return values;
-    }
-
-    /**
-     * Compress an array of numbers represented as a String using delta
-     * encoding.
-     * <p>
-     * Note: Values in the string array must be able to be parsed to numbers.
-     *
-     * @return Return the delta compressed array of values.
-     * @throws IllegalArgumentException if the values list is either empty or null.
-     */
-    public static String[] deltaEncode(String[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
-        }
-        if (values.length == 1)
-            return values;
-
-        BigDecimal last = new BigDecimal(values[0]);
-        BigDecimal current, delta;
-        for (int i = 1; i < values.length; i++) {
-            current = new BigDecimal(values[i]);
-            delta = current.subtract(last);
-            values[i] = delta.toString();
-            last = current;
-        }
-        return values;
-    }
-
-    /**
-     * Compress an array of byte values using delta encoding.
-     *
-     * @return Return the delta compressed array of bytes.
-     * @throws IllegalArgumentException if the values list is either empty or null.
-     */
-    public static byte[] deltaEncode(byte[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
-        }
-        if (values.length == 1)
-            return values;
-
-        byte last = values[0];
-        byte current, delta;
-        for (int i = 1; i < values.length; i++) {
-            current = values[i];
-            delta = (byte) (current - last);
-            values[i] = delta;
-            last = current;
-        }
-        return values;
-    }
-
-    /**
-     * Compress an array of numbers represented as a String using delta
-     * encoding.
-     * <p>
-     * Note: Values in the string array must be able to be parsed to double.
-     *
-     * @return The delta compressed array of values as an array of double.
-     * @throws IllegalArgumentException if the values list is either empty or null.
-     */
-    public static double[] deltaEncodeAsDouble(String[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
-        }
-        BigDecimal last = new BigDecimal(values[0]);
-        double[] result = new double[values.length];
-        result[0] = last.doubleValue();
-        if (values.length == 1)
-            return result;
-
-        BigDecimal current, delta;
-        for (int i = 1; i < values.length; i++) {
-            current = new BigDecimal(values[i]);
-            delta = current.subtract(last);
-            result[i] = delta.doubleValue();
-            last = current;
-        }
         return result;
     }
 
     /**
-     * De-compress an array of doubles using delta decoding.
+     * Compress an array of long numbers using delta encoding.
      *
-     * @throws IllegalArgumentException if the values list is either empty or null.
+     * @param values The array of numbers to compress.
+     * @return A copy of the given array after delta-encoding.
+     * @throws NullPointerException If the values list is null.
+     */
+    public static long[] deltaEncode(long[] values) {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
+        }
+        if (values.length <= 1) {
+            return values.clone();
+        }
+
+        long result[] = new long[values.length];
+        long previous = values[0];
+        long current, delta;
+        for (int i = 1; i < values.length; i++) {
+            current = values[i];
+            delta = current - previous;
+            result[i] = delta;
+            previous = current;
+        }
+        result[0] = values[0];
+
+        return result;
+    }
+
+    /**
+     * Compress an array of String numbers using delta encoding.
+     *
+     * @param values The array of String numbers to compress.
+     * @return A copy of the given array after delta-encoding.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
+     */
+    public static String[] deltaEncode(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
+        }
+        if (values.length <= 1) {
+            return values.clone();
+        }
+
+        String result[] = new String[values.length];
+        Decimal previous = new Decimal(values[0]);
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            current = new Decimal(values[i]);
+            delta = current.sub(previous);
+            result[i] = delta.toString();
+            previous = current;
+        }
+        result[0] = values[0];
+
+        return result;
+    }
+
+    /**
+     * Compress an array of String numbers using delta encoding.
+     *
+     * @param values The array of String numbers to compress.
+     * @return A copy of the given array after delta-encoding
+     * and parsing the String numbers to double values.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
+     */
+    public static double[] deltaEncodeAsDouble(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
+        }
+        double result[] = new double[values.length];
+        if (values.length <= 1) {
+            for (int i = 0; i < values.length; i++) {
+                result[i] = Double.parseDouble(values[i]);
+            }
+            return result;
+        }
+
+        Decimal previous = new Decimal(values[0]);
+        result[0] = previous.value();
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            current = new Decimal(values[i]);
+            delta = current.sub(previous);
+            result[i] = delta.value();
+            previous = current;
+        }
+
+        return result;
+    }
+
+    /**
+     * Compress an array of String numbers using delta encoding.
+     *
+     * @param values The array of String numbers to compress.
+     * @return A copy of the given array after delta-encoding
+     * and parsing the String numbers to Decimal values.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
+     */
+    public static Decimal[] deltaEncodeAsDecimal(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
+        }
+        Decimal result[] = new Decimal[values.length];
+        if (values.length <= 1) {
+            for (int i = 0; i < values.length; i++) {
+                result[i] = new Decimal(values[i]);
+            }
+            return result;
+        }
+
+        Decimal previous = new Decimal(values[0]);
+        result[0] = previous;
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            current = new Decimal(values[i]);
+            delta = current.sub(previous);
+            result[i] = delta;
+            previous = current;
+        }
+
+        return result;
+    }
+
+    /**
+     * Decompress an array of double numbers from delta encoding.
+     *
+     * @param values The array of numbers to decompress.
+     * @return A copy of the given array after delta-decoding.
+     * @throws NullPointerException If the values list is null.
      */
     public static double[] deltaDecode(double[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
         }
-        if (values.length == 1)
-            return values;
+        if (values.length <= 1) {
+            return values.clone();
+        }
 
-        double last = 0.0;
-        double current, delta;
-        for (int i = 0; i < values.length; i++) {
-            delta = values[i];
-            current = last + delta;
-            values[i] = current;
-            last = current;
+        double result[] = new double[values.length];
+        Decimal previous = new Decimal(values[0]);
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            delta = new Decimal(values[i]);
+            current = previous.sum(delta);
+            result[i] = current.value();
+            previous = current;
         }
-        return values;
+        result[0] = values[0];
+
+        return result;
     }
 
     /**
-     * De-compress an array of longs using delta decoding.
+     * Decompress an array of long numbers from delta encoding.
      *
-     * @throws IllegalArgumentException if the values list is either empty or null.
+     * @param values The array of numbers to decompress.
+     * @return A copy of the given array after delta-decoding.
+     *
+     * @throws NullPointerException If the values list is null.
      */
     public static long[] deltaDecode(long[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
         }
-        if (values.length == 1)
-            return values;
+        if (values.length <= 1) {
+            return values.clone();
+        }
 
-        long last = 0;
+        long result[] = new long[values.length];
+        long previous = values[0];
         long current, delta;
-        for (int i = 0; i < values.length; i++) {
+        for (int i = 1; i < values.length; i++) {
             delta = values[i];
-            current = last + delta;
-            values[i] = current;
-            last = current;
+            current = previous + delta;
+            result[i] = current;
+            previous = current;
         }
-        return values;
+        result[0] = values[0];
+
+        return result;
     }
 
     /**
-     * Decompress an array of number represented as a String using delta
-     * decoding.
-     * <p>
-     * Note: Values in the string array must be able to be parsed to double.
+     * Decompress an array of String numbers from delta encoding.
      *
-     * @return Return the de-compressed array of values.
-     * @throws IllegalArgumentException if the values list is either empty or null.
+     * @param values The array of String numbers to decompress.
+     * @return A copy of the given array after delta-decoding.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
      */
-    public static String[] deltaDecode(String[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
+    public static String[] deltaDecode(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
         }
-        if (values.length == 1)
-            return values;
+        if (values.length <= 1) {
+            return values.clone();
+        }
 
-        BigDecimal last = new BigDecimal(0);
-        BigDecimal current, delta;
-        for (int i = 0; i < values.length; i++) {
-            delta = new BigDecimal(values[i]);
-            current = last.add(delta);
-            values[i] = current.toString();
-            last = current;
+        String result[] = new String[values.length];
+        Decimal previous = new Decimal(values[0]);
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            delta = new Decimal(values[i]);
+            current = previous.sum(delta);
+            result[i] = current.toString();
+            previous = current;
         }
-        return values;
+        result[0] = values[0];
+
+        return result;
     }
 
     /**
-     * De-compress an array of byte values using delta dencoding.
+     * Decompress an array of String numbers from delta encoding.
      *
-     * @return Return the delta de-compressed array of bytes.
-     * @throws IllegalArgumentException if the values list is either empty or null.
+     * @param values The array of String numbers to decompress.
+     * @return A copy of the given array after delta-decoding
+     * and parsing the String numbers to double values.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
      */
-    public static byte[] deltaDecode(byte[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
+    public static double[] deltaDecodeAsDouble(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
         }
-        if (values.length == 1)
-            return values;
-
-        byte last = 0;
-        byte delta, current;
-        for (int i = 0; i < values.length; i++) {
-            delta = values[i];
-            current = (byte) (last + delta);
-            values[i] = current;
-            last = current;
-        }
-        return values;
-    }
-
-    /**
-     * De-compress an array of number represented as a String using delta
-     * decoding.
-     * <p>
-     * Note: Values in the string array must be able to be parsed to double.
-     *
-     * @return The de-compressed array of values as an array of double.
-     * @throws IllegalArgumentException if the values list is either empty or null.
-     */
-    public static double[] deltaDecodeAsDouble(String[] values) {
-        if (values == null || values.length <= 0) {
-            throw new IllegalArgumentException(ERR_MSG);
-        }
-        double[] result = new double[values.length];
-        result[0] = new BigDecimal(values[0]).doubleValue();
-        if (values.length == 1)
+        double result[] = new double[values.length];
+        if (values.length <= 1) {
+            for (int i = 0; i < values.length; i++) {
+                result[i] = Double.parseDouble(values[i]);
+            }
             return result;
-
-        BigDecimal last = new BigDecimal(0);
-        BigDecimal current, delta;
-        for (int i = 0; i < values.length; i++) {
-            delta = new BigDecimal(values[i]);
-            current = last.add(delta);
-            result[i] = current.doubleValue();
-            last = current;
         }
+
+        Decimal previous = new Decimal(values[0]);
+        result[0] = previous.value();
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            delta = new Decimal(values[i]);
+            current = previous.sum(delta);
+            result[i] = current.value();
+            previous = current;
+        }
+
+        return result;
+    }
+
+    /**
+     * Decompress an array of String numbers from delta encoding.
+     *
+     * @param values The array of String numbers to decompress.
+     * @return A copy of the given array after delta-decoding
+     * and parsing the String numbers to Decimal values.
+     * @throws NullPointerException  If the values list is null.
+     * @throws NumberFormatException If any value in the values list
+     *                               cannot be parsed to a number.
+     */
+    public static Decimal[] deltaDecodeAsDecimal(String[] values) throws NumberFormatException {
+        if (values == null) {
+            throw new NullPointerException(ERR_MSG);
+        }
+        Decimal result[] = new Decimal[values.length];
+        if (values.length <= 1) {
+            for (int i = 0; i < values.length; i++) {
+                result[i] = new Decimal(values[i]);
+            }
+            return result;
+        }
+
+        Decimal previous = new Decimal(values[0]);
+        result[0] = previous;
+        Decimal current, delta;
+        for (int i = 1; i < values.length; i++) {
+            delta = new Decimal(values[i]);
+            current = previous.sum(delta);
+            result[i] = current;
+            previous = current;
+        }
+
         return result;
     }
 }

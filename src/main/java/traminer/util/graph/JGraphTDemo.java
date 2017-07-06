@@ -24,7 +24,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class JGraphTDemo extends JApplet implements GraphInterface {
     private static final Color DEFAULT_BG_COLOR = Color.decode("#FAFBFF");
-    private static final java.awt.Dimension DEFAULT_SIZE = new java.awt.Dimension(530, 320);
+    private static final Dimension DEFAULT_SIZE = new Dimension(530, 320);
 
     @SuppressWarnings("rawtypes")
     private JGraphModelAdapter m_jgAdapter;
@@ -89,7 +89,7 @@ public class JGraphTDemo extends JApplet implements GraphInterface {
         Rectangle2D b = GraphConstants.getBounds(attr);
 
         Rectangle r = new Rectangle(new Point(x, y),
-                new java.awt.Dimension((int) b.getWidth(), (int) b.getHeight()));
+                new Dimension((int) b.getWidth(), (int) b.getHeight()));
         GraphConstants.setBounds(attr, r);
 
         Map cellAttr = new HashMap();
