@@ -40,10 +40,10 @@ public class SHPMapReader {
         this.shpEdgesPath = shpEdgePath;
 
         // preset bounds to reduce the map size
-        this.roadGraph.setMaxLat(40.00);
-        this.roadGraph.setMinLat(39.84);
-        this.roadGraph.setMaxLon(116.47);
-        this.roadGraph.setMinLon(116.3);
+        this.roadGraph.setMaxLat(39.95);
+        this.roadGraph.setMinLat(39.895);
+        this.roadGraph.setMaxLon(116.44);
+        this.roadGraph.setMinLon(116.35);
     }
 
     /**
@@ -147,6 +147,7 @@ public class SHPMapReader {
                             for (int i = intermediateNode.size() - 1; i >= 0; i--) {
                                 reverseRoad.addNode(intermediateNode.get(i));
                             }
+                            roadWayList.add(reverseRoad);
                             doubleDirectionCount++;
                             break;
                         case "2":
@@ -156,7 +157,7 @@ public class SHPMapReader {
                         case "3":
                             for (int i = intermediateNode.size() - 1; i >= 0; i--) {
                                 newRoadWay.addNode(intermediateNode.get(i));
-                                newRoadWay.setId("-" + edgeID);
+                                newRoadWay.setId(edgeID);
                             }
                             roadWayList.add(newRoadWay);
                             break;

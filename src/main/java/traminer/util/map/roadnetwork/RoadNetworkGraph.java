@@ -233,8 +233,8 @@ public class RoadNetworkGraph implements MapInterface {
         // create one graph edge for every edge in the road ways
         for (RoadWay way : getWays()) {
             for (int i = 0; i < way.size() - 1; i++) {
-                RoadNode nodei = way.getNodes().get(i);
-                RoadNode nodej = way.getNodes().get(i + 1);
+                RoadNode nodei = way.getNode(i);
+                RoadNode nodej = way.getNode(i + 1);
                 graph.addEdge(way.getId() + "_E" + i, nodei.getId(), nodej.getId());
             }
         }

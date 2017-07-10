@@ -21,7 +21,7 @@ public class AllPairsShortestPathFile {
     private EuclideanDistanceFunction distanceFunction = new EuclideanDistanceFunction();
     private int matrixSize = 0;
     private int[][][] shortestPathMatrix;
-    private double[][] distanceMatrix;
+    private float[][] distanceMatrix;
 
 
     public AllPairsShortestPathFile(String cityName, String inputMapPath, boolean isShpFile) throws JDOMException, IOException {
@@ -37,7 +37,7 @@ public class AllPairsShortestPathFile {
         matrixSize = roadNodeRegistration(roadNetworkGraph);
         System.out.println("Matrix size is:" + matrixSize);
         shortestPathMatrix = new int[matrixSize][matrixSize][2];
-        distanceMatrix = new double[matrixSize][matrixSize];
+        distanceMatrix = new float[matrixSize][matrixSize];
 
         // initialize distances to infinity, and shortest path lists
         for (int v = 0; v < matrixSize; v++) {
@@ -50,7 +50,7 @@ public class AllPairsShortestPathFile {
                 } else {
                     shortestPathMatrix[v][w][0] = -1;
                     shortestPathMatrix[v][w][1] = -1;
-                    distanceMatrix[v][w] = Double.POSITIVE_INFINITY;
+                    distanceMatrix[v][w] = Float.POSITIVE_INFINITY;
                 }
             }
         }
@@ -63,7 +63,7 @@ public class AllPairsShortestPathFile {
         matrixSize = roadNodeRegistration(roadNetworkGraph);
         System.out.println("Matrix size is:" + matrixSize);
         shortestPathMatrix = new int[matrixSize][matrixSize][2];
-        distanceMatrix = new double[matrixSize][matrixSize];
+        distanceMatrix = new float[matrixSize][matrixSize];
 
         // initialize distances to infinity, and shortest path lists
         for (int v = 0; v < matrixSize; v++) {
@@ -76,7 +76,7 @@ public class AllPairsShortestPathFile {
                 } else {
                     shortestPathMatrix[v][w][0] = -1;
                     shortestPathMatrix[v][w][1] = -1;
-                    distanceMatrix[v][w] = Double.POSITIVE_INFINITY;
+                    distanceMatrix[v][w] = Float.POSITIVE_INFINITY;
                 }
             }
         }
@@ -142,6 +142,7 @@ public class AllPairsShortestPathFile {
         }
         shortestPathReader.close();
         System.out.println("Shortest path files imported");
+
         // read shortest distance file
         BufferedReader shortestDistanceReader = new BufferedReader(new FileReader(inputFilePath + "shortestDistances.txt"));
         line = shortestDistanceReader.readLine();
@@ -149,9 +150,9 @@ public class AllPairsShortestPathFile {
             String[] elements = line.split(",");
             if (elements.length == 3) {
                 if (elements[2].equals("Infinity")) {
-                    distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Double.POSITIVE_INFINITY;
+                    distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Float.POSITIVE_INFINITY;
                 } else
-                    distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Double.parseDouble(elements[2]);
+                    distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Float.parseFloat(elements[2]);
             } else {
                 System.out.println("Error line with shortest distance file with" + elements.length + "elements:" + line);
             }
@@ -217,7 +218,7 @@ public class AllPairsShortestPathFile {
     private void roadWayRegistration(RoadNetworkGraph inputMap) {
         // add vertex distance for every edge in the road ways
         for (RoadWay way : inputMap.getWays()) {
-            double distance = 0;
+            float distance = 0;
             for (int i = 0; i < way.size() - 1; i++) {
                 distance += distanceFunction.distance(way.getNode(i).toPoint(), way.getNode(i + 1).toPoint());
             }
@@ -237,7 +238,7 @@ public class AllPairsShortestPathFile {
                     shortestPathMatrix[endPointB][endPointA][1] = endPointA;
                     idPairRoadMap.put(endPointA + "_" + endPointB, way);
                 }
-            } else System.out.println("RoadNode doesn't exist");
+            } else System.out.println("RoadNode doesn't exist:" + way.getNode(0).lon() + "_" + way.getNode(0).lat());
         }
         System.out.println("Navigate map created");
     }
@@ -253,14 +254,13 @@ public class AllPairsShortestPathFile {
 
     public RoadWay getShortestPath(String startCoordinate, String endCoordinate) {
         if (getShortestDistance(startCoordinate, endCoordinate) == Double.POSITIVE_INFINITY) {
-            System.out.println("No shortest path avaliable:" + startCoordinate + "," + endCoordinate);
+            System.out.println("No shortest path available:" + startCoordinate + "," + endCoordinate);
             return null;
         }
         int startPoint = vertexIDMap.get(startCoordinate);
         int endPoint = vertexIDMap.get(endCoordinate);
         Stack<Integer> path = new Stack<>();
         path.push(endPoint);
-        int[] test = shortestPathMatrix[startPoint][endPoint];
         for (int[] e = shortestPathMatrix[startPoint][endPoint]; e[0] != startPoint; e = shortestPathMatrix[startPoint][e[0]]) {
             path.push(e[0]);
         }
@@ -270,7 +270,7 @@ public class AllPairsShortestPathFile {
         RoadWay result = new RoadWay("");
         int size = path.size();
         int prevPoint = -1;
-        int currPoint = -1;
+        int currPoint;
         for (int i = 0; i < size - 1; i++) {
             if (prevPoint == -1) {
                 prevPoint = path.pop();

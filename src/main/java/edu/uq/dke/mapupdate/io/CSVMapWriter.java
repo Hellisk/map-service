@@ -50,7 +50,7 @@ public class CSVMapWriter implements SpatialInterface {
         for (RoadWay w : roadGraph.getWays()) {
             bwEdges.write(w.getId());
             for (RoadNode n : w.getNodes()) {
-                bwEdges.write("\\|" + n.getId() + "," + n.lon() + "," + n.lat());
+                bwEdges.write("|" + n.getId() + "," + n.lon() + "," + n.lat());
             }
             bwEdges.write("\n");
         }

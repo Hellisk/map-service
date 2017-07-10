@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -27,12 +28,12 @@ public class CSVTrajectoryWriter {
                     f.delete();
                 }
             }
-
+            DecimalFormat df = new DecimalFormat(".00000");
             for (RoadWay w : roadWayList) {
                 try {
-                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder + "matchedtrip_" + w.getId().substring(w.getId().indexOf("M")) + ".txt"));
+                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder + "matchedtrip_" + w.getId() + ".txt"));
                     for (RoadNode p : w.getNodes()) {
-                        bwMatchedTrajectory.write(p.lon() + " " + p.lat() + " " + 0 + "\n");
+                        bwMatchedTrajectory.write(df.format(p.lon()) + " " + df.format(p.lat()) + " " + 0 + " " + p.getId() + "\n");
                     }
                     tripCount += 1;
                     bwMatchedTrajectory.close();
@@ -41,7 +42,7 @@ public class CSVTrajectoryWriter {
                 }
             }
         } else System.err.println("Trajectory out path is incorrect:" + outputTrajectoryFolder);
-        System.out.println("Road ways written, total files:" + tripCount);
+        System.out.println("Matched road ways written, total files:" + tripCount);
     }
 
     public static void trajectoryWriter(List<Trajectory> trajectoryList, String outputTrajectoryFolder) {

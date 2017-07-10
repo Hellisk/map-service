@@ -153,9 +153,24 @@ public class CSVMapReader implements SpatialInterface {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
                         RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
+
+                        // update the map boarder
+                        if (maxLon < Double.parseDouble(roadWayPoint[1])) {
+                            maxLon = Double.parseDouble(roadWayPoint[1]);
+                        }
+                        if (minLon > Double.parseDouble(roadWayPoint[1])) {
+                            minLon = Double.parseDouble(roadWayPoint[1]);
+                        }
+                        if (maxLat < Double.parseDouble(roadWayPoint[2])) {
+                            maxLat = Double.parseDouble(roadWayPoint[2]);
+                        }
+                        if (minLat > Double.parseDouble(roadWayPoint[2])) {
+                            minLat = Double.parseDouble(roadWayPoint[2]);
+                        }
+
                         intermediateNodes.add(newNode);
                     } else {
-                        System.out.println("Wrong road node:" + roadWayPoint.length);
+                        System.err.println("Wrong road node:" + roadWayPoint.length);
                         isCompleteRoad = false;
                         break;
                     }
@@ -180,4 +195,6 @@ public class CSVMapReader implements SpatialInterface {
 
         return roadGraph;
     }
+
+
 }

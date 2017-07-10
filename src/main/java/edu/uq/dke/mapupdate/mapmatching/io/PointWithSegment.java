@@ -5,7 +5,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.*;
 
@@ -92,30 +91,11 @@ public class PointWithSegment extends SimpleSpatialObject {
     /**
      * Add an adjacent segment to this point
      *
-     * @param segment
-     * @return true if added successfully, otherwise false
+     * @param segment add a segment into the adajcentList
      */
 
-    public boolean addAdjacentSegment(Segment segment) {
-        return this.adjacentSegments.add(segment);
-    }
-
-    /**
-     * Returns the default Euclidean distance between
-     * this point and a given point p.
-     */
-    public double distance(PointWithSegment p) {
-        return new EuclideanDistanceFunction()
-                .distance(p.getPoint(), this.getPoint());
-    }
-
-    /**
-     * Returns the default Euclidean distance between
-     * this point and a given point p = (x,y).
-     */
-    public double distance(double x, double y) {
-        return new EuclideanDistanceFunction()
-                .pointToPointDistance(x, y, this.x, this.y);
+    public void addAdjacentSegment(Segment segment) {
+        this.adjacentSegments.add(segment);
     }
 
     /**
@@ -147,14 +127,14 @@ public class PointWithSegment extends SimpleSpatialObject {
 
     @Override
     public List<Point> getCoordinates() {
-        ArrayList<Point> list = new ArrayList<Point>();
+        ArrayList<Point> list = new ArrayList<>();
         list.add(this.getPoint());
         return list;
     }
 
     @Override
     public List<Segment> getEdges() {
-        return new ArrayList<Segment>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -228,8 +208,7 @@ public class PointWithSegment extends SimpleSpatialObject {
 
     @Override
     public String toString() {
-        String s = String.format("%.5f %.5f", x, y);
-        return s;
+        return String.format("%.5f %.5f", x, y);
     }
 
     @Override
