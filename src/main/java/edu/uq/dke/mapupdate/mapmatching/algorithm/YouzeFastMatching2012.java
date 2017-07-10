@@ -3,9 +3,6 @@ package edu.uq.dke.mapupdate.mapmatching.algorithm;
 import edu.uq.dke.mapupdate.io.CSVMapReader;
 import edu.uq.dke.mapupdate.io.CSVTrajectoryReader;
 import edu.uq.dke.mapupdate.io.CSVTrajectoryWriter;
-import edu.uq.dke.mapupdate.visualisation.GraphStreamDisplay;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
 import org.jdom2.JDOMException;
 import traminer.util.Pair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
@@ -22,7 +19,7 @@ import java.util.List;
  * Created by uqpchao on 23/05/2017.
  */
 public class YouzeFastMatching2012 {
-    public static List<Trajectory> YouzeFastMatching(String cityName, String inputTrajPath, String groundTruthMapPath, String outputTrajPath, String inputShortestPathFile, String groundTruthMatchingPath, String outputUnmatchedTrajPath, boolean isUpdate) throws JDOMException, IOException {
+    public static List<Trajectory> YouzeFastMatching(String cityName, String inputTrajPath, String groundTruthMapPath, String outputTrajPath, boolean isUpdate) throws JDOMException, IOException {
 
         // read ground truth map
         String inputVertexPath = groundTruthMapPath + cityName + "_vertices.txt";
@@ -56,7 +53,7 @@ public class YouzeFastMatching2012 {
 //            segmentLookup.put(r.getId(), false);
 //        }
 //        int roadMatchCount = 0;
-//        int unmatchCount = 0;
+//        int unmatchedCount = 0;
 //
 //        List<String> unmatchedRoadwayList = new ArrayList<>();
 //
@@ -66,7 +63,7 @@ public class YouzeFastMatching2012 {
 //                if (segmentLookup.containsKey(id)) {
 //                    roadMatchCount++;
 //                } else {
-//                    unmatchCount++;
+//                    unmatchedCount++;
 //                    if (!unmatchedRoadwayList.contains(r.getId())) {
 //                        unmatchedRoadwayList.add(r.getId());
 //                    }
@@ -76,7 +73,7 @@ public class YouzeFastMatching2012 {
 //        }
 //
 //        System.out.println("unmatchedRoadwayList.size() = " + unmatchedRoadwayList.size());
-//        System.out.println("Road match:" + roadMatchCount + ", unmatched count:" + unmatchCount);
+//        System.out.println("Road match:" + roadMatchCount + ", unmatched count:" + unmatchedCount);
 
 //        // remove the trajectories that matched to outer roads
 //        File trajFolder = new File(inputTrajPath);
@@ -103,7 +100,7 @@ public class YouzeFastMatching2012 {
 
         // start the matching process sequentially
         GPSDistanceFunction distFunc = new GPSDistanceFunction();
-        PointBasedFastMatching matching = new PointBasedFastMatching(roadNetworkGraph, distFunc, 64, inputShortestPathFile, isUpdate);
+        PointBasedFastMatching matching = new PointBasedFastMatching(roadNetworkGraph, distFunc, 64, isUpdate);
 
 //        // stream read trajectories
 //        Stream<Trajectory> trajectoryStream = csvTrajectoryReader.readTrajectoryFiles(inputTrajPath);
@@ -121,10 +118,10 @@ public class YouzeFastMatching2012 {
 //        }
 
         // list read trajectories
-//        Trajectory t = trajectoryList.get(21);
+//        Trajectory t = trajectoryList.get(26);
         for (Trajectory t : trajectoryList) {
             originalTrajList.add(t);
-            Pair<RoadWay, List<Trajectory>> trajMatchResult = matching.doMatching(t, roadNetworkGraph);
+            Pair<RoadWay, List<Trajectory>> trajMatchResult = matching.doMatching(t);
             matchedResultList.add(trajMatchResult._1());
             unmatchedTrajList.addAll(trajMatchResult._2());
             if (matchedResultList.size() % (trajectoryList.size() / 10) == 0) {
@@ -132,18 +129,18 @@ public class YouzeFastMatching2012 {
             }
         }
 
-        // graph stream display
-        GraphStreamDisplay display = new GraphStreamDisplay();
-        display.setGroundTruthGraph(roadNetworkGraph);
-        display.setRawTrajectories(originalTrajList);
-        display.setMatchedTrajectories(matchedResultList);
-        display.setCentralPoint(originalTrajList.get(0).getPoints().get(0));
-        Viewer viewer = display.generateGraph().display(false);
-        if (display.getCentralPoint() != null) {
-            View view = viewer.getDefaultView();
-            view.getCamera().setViewCenter(display.getCentralPoint().x(), display.getCentralPoint().y(), 0);
-            view.getCamera().setViewPercent(0.15);
-        }
+//        // graph stream display
+//        GraphStreamDisplay display = new GraphStreamDisplay();
+//        display.setGroundTruthGraph(roadNetworkGraph);
+//        display.setRawTrajectories(originalTrajList);
+//        display.setMatchedTrajectories(matchedResultList);
+//        display.setCentralPoint(originalTrajList.get(0).getPoints().get(0));
+//        Viewer viewer = display.generateGraph().display(false);
+//        if (display.getCentralPoint() != null) {
+//            View view = viewer.getDefaultView();
+//            view.getCamera().setViewCenter(display.getCentralPoint().x(), display.getCentralPoint().y(), 0);
+//            view.getCamera().setViewPercent(1);
+//        }
         CSVTrajectoryWriter.matchedTrajectoryWriter(matchedResultList, outputTrajPath);
         return unmatchedTrajList;
     }

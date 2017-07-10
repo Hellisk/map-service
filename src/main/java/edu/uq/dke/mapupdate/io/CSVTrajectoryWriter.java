@@ -19,6 +19,7 @@ public class CSVTrajectoryWriter {
     public static void matchedTrajectoryWriter(List<RoadWay> roadWayList, String outputTrajectoryFolder) {
         File outputFolder = new File(outputTrajectoryFolder);
         int tripCount = 0;
+        int trajPointCount = 0;
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
@@ -37,17 +38,19 @@ public class CSVTrajectoryWriter {
                     }
                     tripCount += 1;
                     bwMatchedTrajectory.close();
+                    trajPointCount += w.getNodes().size();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Trajectory out path is incorrect:" + outputTrajectoryFolder);
-        System.out.println("Matched road ways written, total files:" + tripCount);
+        } else System.err.println("Matched trajectory output path is incorrect:" + outputTrajectoryFolder);
+        System.out.println("Matched road ways written, total files:" + tripCount + ", total trajectory points:" + trajPointCount);
     }
 
     public static void trajectoryWriter(List<Trajectory> trajectoryList, String outputTrajectoryFolder) {
         File outputFolder = new File(outputTrajectoryFolder);
         int tripCount = 0;
+        int trajPointCount = 0;
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
@@ -60,17 +63,18 @@ public class CSVTrajectoryWriter {
 
             for (Trajectory w : trajectoryList) {
                 try {
-                    BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder + "trip_" + w.getId().substring(w.getId().indexOf("T") + 1) + ".txt"));
+                    BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder + "trip_" + w.getId() + ".txt"));
                     for (STPoint p : w.getPoints()) {
                         bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + "\n");
                     }
-                    tripCount += 1;
+                    tripCount++;
                     bwTrajectory.close();
+                    trajPointCount += w.getCoordinates().size();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Trajectory out path is incorrect:" + outputTrajectoryFolder);
-        System.out.println("Road ways written, total files:" + tripCount);
+        } else System.err.println("Trajectory output path is incorrect:" + outputTrajectoryFolder);
+        System.out.println("Trajectories written, total files:" + tripCount + ", total trajectory points:" + trajPointCount);
     }
 }

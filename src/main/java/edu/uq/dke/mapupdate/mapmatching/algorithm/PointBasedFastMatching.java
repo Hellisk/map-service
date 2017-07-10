@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.mapmatching.algorithm;
 
-import edu.uq.dke.mapupdate.io.AllPairsShortestPathFile;
 import edu.uq.dke.mapupdate.mapmatching.io.PointWithSegment;
 import edu.uq.dke.mapupdate.visualisation.GraphStreamDisplay;
 import org.graphstream.ui.view.View;
@@ -33,7 +32,8 @@ public class PointBasedFastMatching {
     private static final double C_A = 4;
     private static final double C_D = 1.4;
     private static final int K = 50;    // k nearest neighbour
-    private static final int T = 2;     // number of intermediate points between two unmatched points, at least 2
+    private static final int EXTRA_POINT = 1;     // number of extra points for every unmatched trajectory segment
+    private static final int NOISE_POINT = 1;     // number of extra points for every unmatched trajectory segment
 
     private Grid<PointWithSegment> grid;
     private final PointDistanceFunction distanceFunction;
@@ -46,16 +46,12 @@ public class PointBasedFastMatching {
 
     private GraphStreamDisplay gridDisplay = new GraphStreamDisplay();
 
-    private AllPairsShortestPathFile shortestPathFile;
 
-    public PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, String inputShortestPathFile, boolean isUpdate) throws IOException {
+    public PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, boolean isUpdate) throws IOException {
         this.distanceFunction = distFunc;
         this.isUpdate = isUpdate;
         buildGridIndex(inputMap, avgNodePerGrid);
         gridDisplay.setGroundTruthGraph(inputMap);
-//        // read shortest path files
-//        shortestPathFile = new AllPairsShortestPathFile(inputMap);
-//        shortestPathFile.readShortestPathFiles(inputShortestPathFile);
     }
 
     private void buildGridIndex(RoadNetworkGraph inputMap, int avgNodePerGrid) {
@@ -121,10 +117,8 @@ public class PointBasedFastMatching {
         System.out.println("Grid index build successfully, total number of points:" + pointCount);
     }
 
-    public Pair<RoadWay, List<Trajectory>> doMatching(Trajectory trajectory, RoadNetworkGraph roadNetworkGraph) throws MapMatchingException {
+    public Pair<RoadWay, List<Trajectory>> doMatching(Trajectory trajectory) throws MapMatchingException {
 
-        // generate candidate segment set for every point in trajectory
-//        HashMap<String, List<Segment>> candidateSegmentList = new HashMap<>();
         Point prevPoint = new Point();
         List<Segment> prevCandidateSegments = new ArrayList<>();
         List<Pair<Point, List<PointWithSegment>>> candidatePointList = new ArrayList<>();
@@ -147,8 +141,8 @@ public class PointBasedFastMatching {
             }
 
             List<Segment> filteredSegment = candidateSegmentFilter(trajectory.get(i), prevPoint, candidateSegments, prevCandidateSegments);
+//            System.out.println("filteredSegment.size() = " + filteredSegment.size());
 
-            System.out.println("The size of filtered candidate set:" + filteredSegment.size());
             if (filteredSegment.isEmpty()) {
                 if (isUpdate) {
                     unmatchedPointList.add(i);
@@ -170,7 +164,6 @@ public class PointBasedFastMatching {
                             filteredSegment.add(edgeScore.get(j)._1());
                         }
                     } else {
-                        System.out.println("Max score is negative");
                         if (edgeScore.get(j)._2() < maxScore / 0.8) {
                             edgeScore.remove(j);
                             j--;
@@ -184,7 +177,6 @@ public class PointBasedFastMatching {
                 }
             }
 
-            System.out.println("The size of final filtered candidate set:" + filteredSegment.size());
             List<PointWithSegment> representativePointList = new ArrayList<>(filteredSegment.size());
             for (Segment e : filteredSegment) {
                 PointWithSegment representPoint = representativePointGen(trajectory.get(i), e);
@@ -217,16 +209,16 @@ public class PointBasedFastMatching {
             Trajectory newTraj = new Trajectory();
             for (int i = 0; i < unmatchedPointList.size(); i++) {
                 if (i == 0) {
+                    if (unmatchedPointList.get(i) != 0) {
+                        for (int j = EXTRA_POINT; j > 0; j--) {
+                            newTraj.add(trajectory.get(unmatchedPointList.get(i) - j));
+                        }
+                    }
                     newTraj.add(trajectory.get(unmatchedPointList.get(i)));
                     newTraj.setId(trajectory.getId() + "_" + trajCount);
                     trajCount++;
-                } else if (i == unmatchedPointList.size() - 1) {
-                    newTraj.add(trajectory.get(unmatchedPointList.get(i)));
-                    Trajectory tempTraj = new Trajectory(newTraj.getId());
-                    tempTraj.addAll(newTraj.getPoints());
-                    unmatchedTrajList.add(tempTraj);
-                } else if (unmatchedPointList.get(i - 1) + T < unmatchedPointList.get(i)) {
-                    for (int j = 1; j <= T; j++) {
+                } else if (unmatchedPointList.get(i - 1) + 2 * EXTRA_POINT < unmatchedPointList.get(i)) {
+                    for (int j = 1; j <= EXTRA_POINT; j++) {
                         newTraj.add(trajectory.get(unmatchedPointList.get(i - 1) + j));
                     }
                     Trajectory tempTraj = new Trajectory(newTraj.getId());
@@ -234,12 +226,31 @@ public class PointBasedFastMatching {
                     unmatchedTrajList.add(tempTraj);
                     newTraj.clear();
                     newTraj.setId(trajectory.getId() + "_" + trajCount);
+                    for (int j = EXTRA_POINT; j > 0; j--) {
+                        newTraj.add(trajectory.get(unmatchedPointList.get(i) - j));
+                    }
                     newTraj.add(trajectory.get(unmatchedPointList.get(i)));
                     trajCount++;
-                } else {
-                    for (int j = 1; unmatchedPointList.get(i - 1) + j == unmatchedPointList.get(i); j++) {
-                        newTraj.add(trajectory.get(unmatchedPointList.get(i + j)));
+                    if (i == unmatchedPointList.size() - 1) {
+                        if (unmatchedPointList.get(i) != trajectory.getCoordinates().size() - 1) {
+                            for (int j = 1; j <= EXTRA_POINT; j++) {
+                                newTraj.add(trajectory.get(unmatchedPointList.get(i) + j));
+                            }
+                        }
+                        Trajectory finalTraj = new Trajectory(newTraj.getId());
+                        finalTraj.addAll(newTraj.getPoints());
+                        unmatchedTrajList.add(finalTraj);
                     }
+                } else {
+                    for (int j = 1; unmatchedPointList.get(i - 1) + j <= unmatchedPointList.get(i); j++) {
+                        newTraj.add(trajectory.get(unmatchedPointList.get(i - 1) + j));
+                    }
+                }
+            }
+            for (int i = 0; i < unmatchedTrajList.size(); i++) {
+                if (unmatchedTrajList.get(i).getCoordinates().size() - 2 * EXTRA_POINT <= NOISE_POINT) {
+                    unmatchedTrajList.remove(unmatchedTrajList.get(i));
+                    i--;
                 }
             }
         }
@@ -294,8 +305,8 @@ public class PointBasedFastMatching {
     /**
      * filter out the candidate roads that are less likely to be matched according to three principles:
      * distance between edge and trajectory point is more than DEFAULT_DISTANCE
-     * not appeared in the candidate edge set of ancester of current point
-     * not share any endpoint of the candidate edge of ancester of current point
+     * not appeared in the candidate edge set of ancestor of current point
+     * not share any endpoint of the candidate edge of ancestor of current point
      *
      * @param currPoint       current trajectory point
      * @param prevPoint       the ancestor of current point
@@ -311,7 +322,6 @@ public class PointBasedFastMatching {
         }
         List<Segment> filteredSegment = new ArrayList<>();
         filteredSegment.addAll(currSegmentList);
-        int testCount = 0;
 
 //        System.out.println("Current angle is " + angleTrajectoryEdge);
         for (int i = 0; i < filteredSegment.size(); i++) {
@@ -320,13 +330,10 @@ public class PointBasedFastMatching {
 //            System.out.println("Distance is:" + dist.pointToSegmentDistance(currPoint, filteredSegment.get(i)));
             Segment currSegment = filteredSegment.get(i);
             if (dist.pointToSegmentDistance(currPoint, currSegment) <= DEFAULT_DISTANCE) {
-                testCount++;
                 boolean connected = false;
                 // check if any of the previous candidate edge connect the current one or is same as current one
                 for (Segment e : prevSegmentList) {
 
-//                    boolean test1 = e.getCoordinates().get(0).equals2D(currSegment.getCoordinates().get(1));
-//                    boolean test2 = segmentRoadWayMap.get(e.x1() + "_" + e.y1() + "," + e.x2() + "_" + e.y2()).equals(segmentRoadWayMap.get(currSegment.x1() + "_" + currSegment.y1() + "," + currSegment.x2() + "_" + currSegment.y2()));
                     if (e.getCoordinates().get(1).equals2D(currSegment.getCoordinates().get(0)) || segmentRoadWayMap.get(e.x1() + "_" + e.y1() + "," + e.x2() + "_" + e.y2()).equals(segmentRoadWayMap.get(currSegment.x1() + "_" + currSegment.y1() + "," + currSegment.x2() + "_" + currSegment.y2()))) {
                         connected = true;
                         break;
@@ -349,7 +356,6 @@ public class PointBasedFastMatching {
                 i--;
             }
         }
-//        System.out.println("The number of close segments:" + testCount);
         return filteredSegment;
     }
 
@@ -416,7 +422,7 @@ public class PointBasedFastMatching {
                         }
                         bestRouteGraph.addAdjacency(k, new Vertex(idCount + j, distance));
                     }
-                    bestRouteGraph.addVertex(idCount + j, new ArrayList<Vertex>());
+                    bestRouteGraph.addVertex(idCount + j, new ArrayList<>());
                     bestRouteGraph.addVertexInfo(idCount + j, new Vertex(idCount + j, 0, currCandidatePoint.x(), currCandidatePoint.y()));
                     IDCandidatePointMap.put(idCount + j, currCandidatePoint);
                     counter = j;
@@ -430,7 +436,6 @@ public class PointBasedFastMatching {
         List<Integer> finalPathID = bestRouteGraph.getShortestPath(0, prevLevelStartID);
 
         // remove the final point and reverse the list
-        counter = 0;
         RoadWay finalRoute = new RoadWay();
         Point prevPoint = new Point();
         Point startPoint;
@@ -553,60 +558,60 @@ public class PointBasedFastMatching {
         return finalRoute;
     }
 
-    // calculate the distance between to points on the road map
-    private double roadMapDistanceCal(PointWithSegment ancestorPoint, PointWithSegment currentPoint) {
-
-        List<Point> ancestorEndPoints = ancestorPoint.getAdjacentSegments().get(0).getCoordinates();
-        List<Point> currentEndPoints = currentPoint.getAdjacentSegments().get(0).getCoordinates();
-        String ancestorID0 = ancestorEndPoints.get(0).x() + "_" + ancestorEndPoints.get(0).y();
-        String ancestorID1 = ancestorEndPoints.get(1).x() + "_" + ancestorEndPoints.get(1).y();
-        String currentPointID0 = currentEndPoints.get(0).x() + "_" + currentEndPoints.get(0).y();
-        String currentPointID1 = currentEndPoints.get(1).x() + "_" + currentEndPoints.get(1).y();
-        boolean ancestorChanged = false;
-        boolean currentChanged = false;
-        double minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID0);
-        if (minDistance == Double.POSITIVE_INFINITY) {
-            System.out.println("Error infinite distance");
-            List<PointWithSegment> pointList = new ArrayList<>();
-            pointList.add(ancestorPoint);
-            pointList.add(currentPoint);
-            gridDisplay.setCandidatePoints(pointList);
-            Viewer viewer = gridDisplay.generateGraph().display(false);
-            View view = viewer.getDefaultView();
-            view.getCamera().setViewCenter(ancestorPoint.x(), ancestorPoint.y(), 0);
-            view.getCamera().setViewPercent(0.15);
-            return minDistance;
-        } else {
-            double actualDistance = 0;
-            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID0) < minDistance) {
-                ancestorChanged = true;
-                currentChanged = false;
-                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID0);
-            }
-            if (shortestPathFile.getShortestDistance(ancestorID0, currentPointID1) < minDistance) {
-                ancestorChanged = false;
-                currentChanged = true;
-                minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID1);
-            }
-            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID1) < minDistance) {
-                ancestorChanged = true;
-                currentChanged = true;
-                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID1);
-            }
-            actualDistance = minDistance;
-            if (ancestorChanged) {
-                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(1));
-            } else {
-                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(0));
-            }
-            if (currentChanged) {
-                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(1));
-            } else {
-                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(0));
-            }
-            return actualDistance;
-        }
-    }
+//    // calculate the distance between to points on the road map
+//    private double roadMapDistanceCal(PointWithSegment ancestorPoint, PointWithSegment currentPoint) {
+//
+//        List<Point> ancestorEndPoints = ancestorPoint.getAdjacentSegments().get(0).getCoordinates();
+//        List<Point> currentEndPoints = currentPoint.getAdjacentSegments().get(0).getCoordinates();
+//        String ancestorID0 = ancestorEndPoints.get(0).x() + "_" + ancestorEndPoints.get(0).y();
+//        String ancestorID1 = ancestorEndPoints.get(1).x() + "_" + ancestorEndPoints.get(1).y();
+//        String currentPointID0 = currentEndPoints.get(0).x() + "_" + currentEndPoints.get(0).y();
+//        String currentPointID1 = currentEndPoints.get(1).x() + "_" + currentEndPoints.get(1).y();
+//        boolean ancestorChanged = false;
+//        boolean currentChanged = false;
+//        double minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID0);
+//        if (minDistance == Double.POSITIVE_INFINITY) {
+//            System.out.println("Error infinite distance");
+//            List<PointWithSegment> pointList = new ArrayList<>();
+//            pointList.add(ancestorPoint);
+//            pointList.add(currentPoint);
+//            gridDisplay.setCandidatePoints(pointList);
+//            Viewer viewer = gridDisplay.generateGraph().display(false);
+//            View view = viewer.getDefaultView();
+//            view.getCamera().setViewCenter(ancestorPoint.x(), ancestorPoint.y(), 0);
+//            view.getCamera().setViewPercent(0.15);
+//            return minDistance;
+//        } else {
+//            double actualDistance = 0;
+//            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID0) < minDistance) {
+//                ancestorChanged = true;
+//                currentChanged = false;
+//                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID0);
+//            }
+//            if (shortestPathFile.getShortestDistance(ancestorID0, currentPointID1) < minDistance) {
+//                ancestorChanged = false;
+//                currentChanged = true;
+//                minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID1);
+//            }
+//            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID1) < minDistance) {
+//                ancestorChanged = true;
+//                currentChanged = true;
+//                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID1);
+//            }
+//            actualDistance = minDistance;
+//            if (ancestorChanged) {
+//                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(1));
+//            } else {
+//                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(0));
+//            }
+//            if (currentChanged) {
+//                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(1));
+//            } else {
+//                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(0));
+//            }
+//            return actualDistance;
+//        }
+//    }
 
     // test whether the knn search works fine
     public void knnSearchTest(Trajectory trajectory, RoadNetworkGraph roadNetworkGraph) {
