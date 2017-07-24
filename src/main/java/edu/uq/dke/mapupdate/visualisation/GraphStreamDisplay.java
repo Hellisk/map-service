@@ -98,7 +98,7 @@ public class GraphStreamDisplay {
                 nodeIDMap.put(node.lon() + "_" + node.lat(), node.getId());
             }
             // create one graph edge for every edge in the road ways
-            for (RoadWay way : groundTruthGraph.getWays()) {
+            for (RoadWay way : roadNetworkGraph.getWays()) {
                 for (int i = 0; i < way.size() - 1; i++) {
                     RoadNode nodeI = way.getNode(i);
                     RoadNode nodeJ = way.getNode(i + 1);
@@ -126,7 +126,7 @@ public class GraphStreamDisplay {
                             graph.addNode(idJ + "_RNN").setAttribute("xy", nodeJ.lon(), nodeJ.lat());
                             nodeIDMap.put(nodeJ.lon() + "_" + nodeJ.lat(), idJ);
                         }
-                        if (graph.getEdge(way.getId() + "_ME" + i) == null) {
+                        if (graph.getEdge(way.getId() + "_RNE" + i) == null) {
                             // TODO avoid the exception in the future
                             graph.addEdge(way.getId() + "_RNE" + i, idI + "_RNN", idJ + "_RNN").addAttribute("ui.class", "rawtrajectory");
                         }

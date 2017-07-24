@@ -16,6 +16,13 @@ import java.util.List;
  * Created by uqpchao on 23/05/2017.
  */
 public class CSVTrajectoryWriter {
+
+    /**
+     * writer for writing matching result
+     *
+     * @param roadWayList            matching result
+     * @param outputTrajectoryFolder folder for storing matching result
+     */
     public static void matchedTrajectoryWriter(List<RoadWay> roadWayList, String outputTrajectoryFolder) {
         File outputFolder = new File(outputTrajectoryFolder);
         int tripCount = 0;
@@ -47,6 +54,12 @@ public class CSVTrajectoryWriter {
         System.out.println("Matched road ways written, total files:" + tripCount + ", total trajectory points:" + trajPointCount);
     }
 
+    /**
+     * writer for writing raw trajectories
+     *
+     * @param trajectoryList         output trajectories
+     * @param outputTrajectoryFolder folder for output
+     */
     public static void trajectoryWriter(List<Trajectory> trajectoryList, String outputTrajectoryFolder) {
         File outputFolder = new File(outputTrajectoryFolder);
         int tripCount = 0;

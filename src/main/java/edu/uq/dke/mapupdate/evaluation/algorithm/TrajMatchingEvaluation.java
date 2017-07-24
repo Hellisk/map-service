@@ -9,7 +9,7 @@ import java.util.*;
  * Created by uqpchao on 10/07/2017.
  */
 public class TrajMatchingEvaluation {
-    public void trajectoryMatchingEvaluation(List<RoadWay> matchedResult, List<RoadWay> groundTruthResult) {
+    public void precisionRecallCalc(List<RoadWay> matchedResult, List<RoadWay> groundTruthResult) {
         // insert all ground truth road match into globalCompareList
         Map<String, List<String>> globalCompareList = new HashMap<>();
         for (RoadWay w : groundTruthResult) {
@@ -35,16 +35,17 @@ public class TrajMatchingEvaluation {
                 }
             }
 
-            // check the coverage of the roads found in our match
             int foundCount = 0;
+            int unmatchCount = 0;
+            // check the coverage of the roads found in our match
             List<String> groundTruthIDList = globalCompareList.get(w.getId());
             for (String s : groundTruthIDList) {
                 if (uniqueIDList.contains(s)) {
                     foundCount++;
-                }
+                } else unmatchCount++;
             }
             totalHitCount += foundCount;
-            totalMissCount += groundTruthIDList.size() - foundCount;
+            totalMissCount += unmatchCount;
             wrongMatchCount += uniqueIDList.size() - foundCount;
         }
 

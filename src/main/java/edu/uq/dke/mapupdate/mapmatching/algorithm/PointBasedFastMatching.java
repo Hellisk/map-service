@@ -1,5 +1,6 @@
 package edu.uq.dke.mapupdate.mapmatching.algorithm;
 
+import edu.uq.dke.mapupdate.io.AllPairsShortestPathFile;
 import edu.uq.dke.mapupdate.mapmatching.io.PointWithSegment;
 import edu.uq.dke.mapupdate.visualisation.GraphStreamDisplay;
 import org.graphstream.ui.view.View;
@@ -33,25 +34,29 @@ public class PointBasedFastMatching {
     private static final double C_D = 1.4;
     private static final int K = 50;    // k nearest neighbour
     private static final int EXTRA_POINT = 1;     // number of extra points for every unmatched trajectory segment
-    private static final int NOISE_POINT = 1;     // number of extra points for every unmatched trajectory segment
+    private static final int NOISE_POINT = 1;     // number of matched points between two consecutive unmatched trajectory segment
 
     private Grid<PointWithSegment> grid;
     private final PointDistanceFunction distanceFunction;
+    AllPairsShortestPathFile allPairSP;
     private boolean isUpdate = false;
 
     // for graph navigation
     private Graph navigateGraph = new Graph();
     private Map<String, Integer> vertexIDMap = new HashMap<>();
-    private Map<String, String> segmentRoadWayMap = new HashMap<>();
+    private Map<String, RoadWay> segmentRoadWayMap = new HashMap<>();
 
     private GraphStreamDisplay gridDisplay = new GraphStreamDisplay();
 
 
-    public PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, boolean isUpdate) throws IOException {
+    PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, String allPairSPFilePath, boolean isUpdate) throws IOException {
         this.distanceFunction = distFunc;
         this.isUpdate = isUpdate;
         buildGridIndex(inputMap, avgNodePerGrid);
         gridDisplay.setGroundTruthGraph(inputMap);
+
+        allPairSP = new AllPairsShortestPathFile(inputMap);
+        allPairSP.readShortestPathFiles(allPairSPFilePath);
     }
 
     private void buildGridIndex(RoadNetworkGraph inputMap, int avgNodePerGrid) {
@@ -99,7 +104,11 @@ public class PointBasedFastMatching {
                     adjacentList.get(t.getNode(i + 1).lon() + "_" + t.getNode(i + 1).lat()).add(t.getEdges().get(i));
                 }
 
-                this.segmentRoadWayMap.put(t.getNode(i).lon() + "_" + t.getNode(i).lat() + "," + t.getNode(i + 1).lon() + "_" + t.getNode(i + 1).lat(), t.getId());
+                if (!this.segmentRoadWayMap.containsKey(t.getNode(i).lon() + "_" + t.getNode(i).lat() + "," + t.getNode(i + 1).lon() + "_" + t.getNode(i + 1).lat())) {
+                    this.segmentRoadWayMap.put(t.getNode(i).lon() + "_" + t.getNode(i).lat() + "," + t.getNode(i + 1).lon() + "_" + t.getNode(i + 1).lat(), t);
+                } else {
+                    System.out.println("Same segment on different road ways:" + this.segmentRoadWayMap.get(t.getNode(i).lon() + "_" + t.getNode(i).lat() + "," + t.getNode(i + 1).lon() + "_" + t.getNode(i + 1).lat()).getId() + "," + t.getId());
+                }
             }
         }
 
@@ -180,17 +189,6 @@ public class PointBasedFastMatching {
             List<PointWithSegment> representativePointList = new ArrayList<>(filteredSegment.size());
             for (Segment e : filteredSegment) {
                 PointWithSegment representPoint = representativePointGen(trajectory.get(i), e);
-
-//                // test
-//                double distance0 = Math.sqrt(Math.pow(representPoint.x() - p.x(), 2) + Math.pow(representPoint.y() - p.y(), 2));
-//                Point representPointWithoutAlign = representativePointGen2(p, e);
-//                double distance1 = Math.sqrt(Math.pow(representPointWithoutAlign.x() - p.x(), 2) + Math.pow(representPointWithoutAlign.y() - p.y(), 2));
-//                GPSDistanceFunction dist = new GPSDistanceFunction();
-//                double distance2 = dist.distance(representPoint, p);
-//                double distance3 = dist.distance(p,e.getCoordinates().get(0));
-//                double distance4 = dist.distance(p,e.getCoordinates().get(1));
-//                double distance5 = dist.pointToSegmentDistance(p, e);
-
                 representativePointList.add(representPoint);
             }
 
@@ -240,6 +238,7 @@ public class PointBasedFastMatching {
                         Trajectory finalTraj = new Trajectory(newTraj.getId());
                         finalTraj.addAll(newTraj.getPoints());
                         unmatchedTrajList.add(finalTraj);
+                        trajCount++;
                     }
                 } else {
                     for (int j = 1; unmatchedPointList.get(i - 1) + j <= unmatchedPointList.get(i); j++) {
@@ -334,7 +333,7 @@ public class PointBasedFastMatching {
                 // check if any of the previous candidate edge connect the current one or is same as current one
                 for (Segment e : prevSegmentList) {
 
-                    if (e.getCoordinates().get(1).equals2D(currSegment.getCoordinates().get(0)) || segmentRoadWayMap.get(e.x1() + "_" + e.y1() + "," + e.x2() + "_" + e.y2()).equals(segmentRoadWayMap.get(currSegment.x1() + "_" + currSegment.y1() + "," + currSegment.x2() + "_" + currSegment.y2()))) {
+                    if (e.getCoordinates().get(1).equals2D(currSegment.getCoordinates().get(0)) || e.getId().equals(currSegment.getId())) {
                         connected = true;
                         break;
                     }
@@ -409,18 +408,19 @@ public class PointBasedFastMatching {
             } else {
                 for (int j = 0; j < candidatePoints.get(i)._2().size(); j++) {
                     PointWithSegment currCandidatePoint = candidatePoints.get(i)._2().get(j);
-                    PointWithSegment ancestorCandidatePoint;
+                    PointWithSegment prevCandidatePoint;
                     for (int k = prevLevelStartID; k < idCount; k++) {
-                        ancestorCandidatePoint = IDCandidatePointMap.get(k);
-                        // use the score(pi,e) as the distance
-//                        double distance = roadMapDistanceCal(ancestorCandidatePoint, prevPoint);
+                        prevCandidatePoint = IDCandidatePointMap.get(k);
                         // the weight should be the reverse of score.
-                        double distance = -scoreCalculation(currCandidatePoint.toPoint(), ancestorCandidatePoint.toPoint(), rawTraj.get(i), rawTraj.get(i - 1), currCandidatePoint.getAdjacentSegments().get(0));
+//                        double distance = -scoreCalculation(currCandidatePoint.toPoint(), prevCandidatePoint.toPoint(), rawTraj.get(i), rawTraj.get(i - 1), currCandidatePoint.getAdjacentSegments().get(0));
+                        // or the shortest distance between two vertex
+                        double distance = distanceCalculation(currCandidatePoint, prevCandidatePoint);
                         // in case negative score
                         if (distance < 0) {
-                            distance = 0;
+                            System.out.println("Negative distance score");
+                        } else if (distance != Double.POSITIVE_INFINITY) {
+                            bestRouteGraph.addAdjacency(k, new Vertex(idCount + j, distance));
                         }
-                        bestRouteGraph.addAdjacency(k, new Vertex(idCount + j, distance));
                     }
                     bestRouteGraph.addVertex(idCount + j, new ArrayList<>());
                     bestRouteGraph.addVertexInfo(idCount + j, new Vertex(idCount + j, 0, currCandidatePoint.x(), currCandidatePoint.y()));
@@ -437,23 +437,24 @@ public class PointBasedFastMatching {
 
         // remove the final point and reverse the list
         RoadWay finalRoute = new RoadWay();
-        Point prevPoint = new Point();
-        Point startPoint;
-        Point endPoint;
+        Segment prevSegment = new Segment();
+        PointWithSegment currSegment;
         // finalPathID.size = trajectory.size + 1, finalPathID[0] = last virtual point
         for (int i = finalPathID.size() - 1; i > 0; i--) {
             if (i == finalPathID.size() - 1) {
                 // the first segment start from the last representative point
-                Segment currMatchedSegment = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0);
-                String roadWayID = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
-                startPoint = IDCandidatePointMap.get(finalPathID.get(i)).getPoint();
-                finalRoute.addNode(new RoadNode(roadWayID, startPoint.x(), startPoint.y()));
+                currSegment = IDCandidatePointMap.get(finalPathID.get(i));
+                Segment currMatchedSegment = currSegment.getAdjacentSegments().get(0);
+                RoadWay currRoadWay = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
+                String roadWayID = currRoadWay.getId();
+                // add the start point of the matched path to the list
+                finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
                 // if the representative point is not the endpoint, then add the end point to the final route
-                endPoint = currMatchedSegment.getCoordinates().get(1);
-                if (!IDCandidatePointMap.get(finalPathID.get(i)).equals2D(endPoint)) {
-                    finalRoute.addNode(new RoadNode(roadWayID, endPoint.x(), endPoint.y()));
+                if (!currSegment.getPoint().equals2D(currMatchedSegment.p2())) {
+                    finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x2(), currMatchedSegment.y2()));
                 }
-                prevPoint = endPoint;
+                currMatchedSegment.setId(roadWayID);
+                prevSegment = currMatchedSegment;
 //                List<Point> curEndPoints = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0).getCoordinates();
 //                Point nextEndPoints = IDCandidatePointMap.get(finalPathID.get(i - 1)).getAdjacentSegments().get(0).getCoordinates().get(0);
 //                // check which end point is closer to the rest points
@@ -472,75 +473,87 @@ public class PointBasedFastMatching {
 //                if (secondLastPoint == IDCandidatePointMap.get(finalPathID.get(i - 1)).getAdjacentSegments().get(0).getCoordinates().get(1)) {
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
-//                    prevPoint = secondLastPoint;
+//                    prevSegment = secondLastPoint;
 //                } else {
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
-//                    prevPoint = lastPoint;
+//                    prevSegment = lastPoint;
 //                }
             } else if (i == 1) {
                 // the last segment before the virtual end point
-                Segment currMatchedSegment = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0);
-                String roadWayID = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
-                startPoint = currMatchedSegment.getCoordinates().get(0);
-                if (!startPoint.equals2D(prevPoint)) {
-                    finalRoute.addNode(new RoadNode(roadWayID, startPoint.x(), startPoint.y()));
-                }
-
-                if (IDCandidatePointMap.get(finalPathID.get(i)).equals2D(prevPoint)) {
-                    System.out.println("two consecutive points are matched to the same point.");
-                } else if (!IDCandidatePointMap.get(finalPathID.get(i)).equals2D(startPoint)) {
-                    finalRoute.addNode(new RoadNode(roadWayID, IDCandidatePointMap.get(finalPathID.get(i)).x(), IDCandidatePointMap.get(finalPathID.get(i)).y()));
+                currSegment = IDCandidatePointMap.get(finalPathID.get(i));
+                Segment currMatchedSegment = currSegment.getAdjacentSegments().get(0);
+                RoadWay currRoadWay = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
+                String roadWayID = currRoadWay.getId();
+                if (!currMatchedSegment.equals2D(prevSegment)) {
+                    if (roadWayID.equals(prevSegment.getId())) {
+                        finalRoute.addNodes(addIntermediateNodes(prevSegment.p2(), currMatchedSegment.p1(), currRoadWay));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.p1().x(), currMatchedSegment.p1().y()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
+                    } else {
+                        finalRoute.addNodes(allPairSP.getShortestPath(prevSegment, currMatchedSegment));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x1(), currMatchedSegment.y1()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
+                    }
+                } else {
+                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
+                    finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
                 }
 
 //                List<Point> nextEndPoints = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0).getCoordinates();
-//                double distance0 = shortestPathFile.getShortestDistance(prevPoint.x() + "_" + prevPoint.y(), nextEndPoints.get(0).x() + "_" + nextEndPoints.get(0).y());
-//                double distance1 = shortestPathFile.getShortestDistance(prevPoint.x() + "_" + prevPoint.y(), nextEndPoints.get(1).x() + "_" + nextEndPoints.get(1).y());
+//                double distance0 = shortestPathFile.getShortestDistance(prevSegment.x() + "_" + prevSegment.y(), nextEndPoints.get(0).x() + "_" + nextEndPoints.get(0).y());
+//                double distance1 = shortestPathFile.getShortestDistance(prevSegment.x() + "_" + prevSegment.y(), nextEndPoints.get(1).x() + "_" + nextEndPoints.get(1).y());
 //                RoadWay currRoadWay;
 //                if (distance0 < distance1) {
-//                    currRoadWay = shortestPathFile.getShortestPath(prevPoint.x() + "_" + prevPoint.y(), nextEndPoints.get(0).x() + "_" + nextEndPoints.get(0).y());
+//                    currRoadWay = shortestPathFile.getShortestPath(prevSegment.x() + "_" + prevSegment.y(), nextEndPoints.get(0).x() + "_" + nextEndPoints.get(0).y());
 //                } else {
-//                    currRoadWay = shortestPathFile.getShortestPath(prevPoint.x() + "_" + prevPoint.y(), nextEndPoints.get(1).x() + "_" + nextEndPoints.get(1).y());
+//                    currRoadWay = shortestPathFile.getShortestPath(prevSegment.x() + "_" + prevSegment.y(), nextEndPoints.get(1).x() + "_" + nextEndPoints.get(1).y());
 //                }
 //                finalRoute.addNodes(currRoadWay.getNodes());
 //                finalRoute.addNode(new RoadNode("", IDCandidatePointMap.get(finalPathID.get(i - 1)).x(), IDCandidatePointMap.get(finalPathID.get(i - 1)).y()));
 //
             } else {
                 // points between first and last representative points
-                Segment currMatchedSegment = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0);
-                String roadWayID = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
-                startPoint = currMatchedSegment.getCoordinates().get(0);
-                Point matchedPoint = IDCandidatePointMap.get(finalPathID.get(i)).toPoint();
-                endPoint = currMatchedSegment.getCoordinates().get(1);
-                if (!startPoint.equals2D(prevPoint)) {
-                    finalRoute.addNode(new RoadNode(roadWayID, startPoint.x(), startPoint.y()));
-                }
-                if (!matchedPoint.equals2D(startPoint)) {
-                    if (!matchedPoint.equals2D(endPoint)) {
-                        finalRoute.addNode(new RoadNode(roadWayID, matchedPoint.x(), matchedPoint.y()));
+                currSegment = IDCandidatePointMap.get(finalPathID.get(i));
+                Segment currMatchedSegment = currSegment.getAdjacentSegments().get(0);
+                RoadWay currRoadWay = segmentRoadWayMap.get(currMatchedSegment.x1() + "_" + currMatchedSegment.y1() + "," + currMatchedSegment.x2() + "_" + currMatchedSegment.y2());
+                String roadWayID = currRoadWay.getId();
+                if (!currMatchedSegment.equals2D(prevSegment)) {
+                    if (roadWayID.equals(prevSegment.getId())) {
+                        // the current segment is on the same road way as the previous one
+                        finalRoute.addNodes(addIntermediateNodes(prevSegment.p2(), currMatchedSegment.p1(), currRoadWay));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x1(), currMatchedSegment.y1()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x2(), currMatchedSegment.y2()));
                     } else {
-                        finalRoute.addNode(new RoadNode(roadWayID, endPoint.x(), endPoint.y()));
+                        finalRoute.addNodes(allPairSP.getShortestPath(prevSegment, currMatchedSegment));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x1(), currMatchedSegment.y1()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
+                        finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x2(), currMatchedSegment.y2()));
                     }
+                } else {
+                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
+                    finalRoute.addNode(new RoadNode(roadWayID, currSegment.x(), currSegment.y()));
+                    finalRoute.addNode(new RoadNode(roadWayID, currMatchedSegment.x2(), currMatchedSegment.y2()));
                 }
-                // add end point to the point list
-                finalRoute.addNode(new RoadNode(roadWayID, endPoint.x(), endPoint.y()));
-                prevPoint = endPoint;
+                currMatchedSegment.setId(roadWayID);
+                prevSegment = currMatchedSegment;
 
 //                List<Point> currEndPoints = IDCandidatePointMap.get(finalPathID.get(i)).getAdjacentSegments().get(0).getCoordinates();
-//                if (!currEndPoints.get(0).equals2D(prevPoint) && currEndPoints.get(1).equals2D(prevPoint)) {
-//                    System.out.println("Unmatched current end point:" + prevPoint.x() + "_" + prevPoint.y() + "," + currEndPoints.get(0).x() + "_" + currEndPoints.get(0).y() + "," + currEndPoints.get(1).x() + "_" + currEndPoints.get(1).y());
-//                    gridDisplay.setSelectPoint(prevPoint);
+//                if (!currEndPoints.get(0).equals2D(prevSegment) && currEndPoints.get(1).equals2D(prevSegment)) {
+//                    System.out.println("Unmatched current end point:" + prevSegment.x() + "_" + prevSegment.y() + "," + currEndPoints.get(0).x() + "_" + currEndPoints.get(0).y() + "," + currEndPoints.get(1).x() + "_" + currEndPoints.get(1).y());
+//                    gridDisplay.setSelectPoint(prevSegment);
 //                    List<PointWithSegment> pointList = new ArrayList<>();
 //                    pointList.add(new PointWithSegment(currEndPoints.get(0).x(), currEndPoints.get(0).y()));
 //                    pointList.add(new PointWithSegment(currEndPoints.get(1).x(), currEndPoints.get(1).y()));
 //                    gridDisplay.setCandidatePoints(pointList);
 //                    Viewer viewer = gridDisplay.generateGraph().display(false);
 //                    View view = viewer.getDefaultView();
-//                    view.getCamera().setViewCenter(prevPoint.x(), prevPoint.y(), 0);
+//                    view.getCamera().setViewCenter(prevSegment.x(), prevSegment.y(), 0);
 //                    view.getCamera().setViewPercent(0.15);
 //                }
 //                Point nextEndPoint = IDCandidatePointMap.get(finalPathID.get(i - 1)).getAdjacentSegments().get(0).getCoordinates().get(0);
 //
-//                RoadWay currRoadWay = shortestPathFile.getShortestPath(prevPoint.x() + "_" + prevPoint.y(), nextEndPoint.x() + "_" + nextEndPoint.y());
+//                RoadWay currRoadWay = shortestPathFile.getShortestPath(prevSegment.x() + "_" + prevSegment.y(), nextEndPoint.x() + "_" + nextEndPoint.y());
 //                finalRoute.addNodes(currRoadWay.getNodes());
 //                Point lastPoint = finalRoute.getNode(finalRoute.getNodes().size() - 1).toPoint();
 //                // check whether the other end point of the destination segment is included in the shortest path as well, if so, remove the more remote point
@@ -548,70 +561,51 @@ public class PointBasedFastMatching {
 //                if (secondLastPoint == IDCandidatePointMap.get(finalPathID.get(i - 1)).getAdjacentSegments().get(0).getCoordinates().get(1)) {
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
-//                    prevPoint = secondLastPoint;
+//                    prevSegment = secondLastPoint;
 //                } else {
 //                    finalRoute.getNodes().remove(finalRoute.getNodes().size() - 1);
-//                    prevPoint = lastPoint;
+//                    prevSegment = lastPoint;
 //                }
             }
         }
         return finalRoute;
     }
 
-//    // calculate the distance between to points on the road map
-//    private double roadMapDistanceCal(PointWithSegment ancestorPoint, PointWithSegment currentPoint) {
-//
-//        List<Point> ancestorEndPoints = ancestorPoint.getAdjacentSegments().get(0).getCoordinates();
-//        List<Point> currentEndPoints = currentPoint.getAdjacentSegments().get(0).getCoordinates();
-//        String ancestorID0 = ancestorEndPoints.get(0).x() + "_" + ancestorEndPoints.get(0).y();
-//        String ancestorID1 = ancestorEndPoints.get(1).x() + "_" + ancestorEndPoints.get(1).y();
-//        String currentPointID0 = currentEndPoints.get(0).x() + "_" + currentEndPoints.get(0).y();
-//        String currentPointID1 = currentEndPoints.get(1).x() + "_" + currentEndPoints.get(1).y();
-//        boolean ancestorChanged = false;
-//        boolean currentChanged = false;
-//        double minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID0);
-//        if (minDistance == Double.POSITIVE_INFINITY) {
-//            System.out.println("Error infinite distance");
-//            List<PointWithSegment> pointList = new ArrayList<>();
-//            pointList.add(ancestorPoint);
-//            pointList.add(currentPoint);
-//            gridDisplay.setCandidatePoints(pointList);
-//            Viewer viewer = gridDisplay.generateGraph().display(false);
-//            View view = viewer.getDefaultView();
-//            view.getCamera().setViewCenter(ancestorPoint.x(), ancestorPoint.y(), 0);
-//            view.getCamera().setViewPercent(0.15);
-//            return minDistance;
-//        } else {
-//            double actualDistance = 0;
-//            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID0) < minDistance) {
-//                ancestorChanged = true;
-//                currentChanged = false;
-//                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID0);
-//            }
-//            if (shortestPathFile.getShortestDistance(ancestorID0, currentPointID1) < minDistance) {
-//                ancestorChanged = false;
-//                currentChanged = true;
-//                minDistance = shortestPathFile.getShortestDistance(ancestorID0, currentPointID1);
-//            }
-//            if (shortestPathFile.getShortestDistance(ancestorID1, currentPointID1) < minDistance) {
-//                ancestorChanged = true;
-//                currentChanged = true;
-//                minDistance = shortestPathFile.getShortestDistance(ancestorID1, currentPointID1);
-//            }
-//            actualDistance = minDistance;
-//            if (ancestorChanged) {
-//                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(1));
-//            } else {
-//                actualDistance += distanceFunction.distance(ancestorPoint.toPoint(), ancestorEndPoints.get(0));
-//            }
-//            if (currentChanged) {
-//                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(1));
-//            } else {
-//                actualDistance += distanceFunction.distance(currentPoint.toPoint(), currentEndPoints.get(0));
-//            }
-//            return actualDistance;
-//        }
-//    }
+    // add the intermediate nodes between two mini node as actual path, the last node excluded
+    private List<RoadNode> addIntermediateNodes(Point prevEndPoint, Point currStartPoint, RoadWay currRoadWay) {
+        List<RoadNode> intermediateNodeList = new ArrayList<>();
+        boolean startTracking = false;
+        for (RoadNode n : currRoadWay.getNodes()) {
+            if (n.toPoint().equals2D(prevEndPoint)) {
+                if (n.toPoint().equals2D(currStartPoint)) {
+                    break;
+                }
+                startTracking = true;
+            } else if (n.toPoint().equals2D(currStartPoint)) {
+                if (!startTracking)
+                    System.out.println("Add intermediate node error: last point appears first");
+                break;
+            } else if (startTracking) {
+                intermediateNodeList.add(new RoadNode(currRoadWay.getId(), n.lon(), n.lat()));
+            }
+        }
+        return intermediateNodeList;
+    }
+
+    // calculate the distance between to points on the road map
+    private double distanceCalculation(PointWithSegment currPoint, PointWithSegment prevPoint) {
+        Segment currentSegment = currPoint.getAdjacentSegments().get(0);
+        Segment prevSegment = prevPoint.getAdjacentSegments().get(0);
+        if (currentSegment.equals2D(prevSegment)) {
+            return distanceFunction.distance(currPoint.getPoint(), prevPoint.getPoint());
+        } else {
+            double distance = allPairSP.getShortestDistance(prevSegment, currentSegment);
+            // plus the distance between representative point to the end points
+            distance += distanceFunction.distance(prevPoint.toPoint(), prevSegment.p2());
+            distance += distanceFunction.distance(currentSegment.p1(), currPoint.toPoint());
+            return distance;
+        }
+    }
 
     // test whether the knn search works fine
     public void knnSearchTest(Trajectory trajectory, RoadNetworkGraph roadNetworkGraph) {

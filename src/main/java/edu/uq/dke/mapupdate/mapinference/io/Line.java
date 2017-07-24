@@ -160,7 +160,7 @@ public class Line {
      * @return a double[2] containing two intersection points or null when they don't intersect.
      */
 
-    public double[] pIntersection(Vertex p, double eps, boolean precisionCompromise) {
+    private double[] pIntersection(Vertex p, double eps, boolean precisionCompromise) {
 
     /*
      * Line 1: x1+(x2-x1)*t = x; x1+xdiff*t = x y1+(y2-y1)*t = y; y1+ydiff*t = y
@@ -224,7 +224,7 @@ public class Line {
      * points on this line and next two corresponds to intersections with lines[0] and
      * lines[1] respectively.
      */
-    public double[] getIntervals(Line[] lines) {
+    private double[] getIntervals(Line[] lines) {
         double cIntervalStart;
         double cIntervalEnd;
         double neighborhoodStart;
@@ -281,12 +281,12 @@ public class Line {
     /**
      * Sets curveStart, curveEnd, edgeStart and edgeEnd on edge.
      */
-    public void setIntervalOnEdge(Edge e,
-                                  double eps,
-                                  double cIntervalStart,
-                                  double cIntervalEnd,
-                                  double vstart,
-                                  double vend) {
+    private void setIntervalOnEdge(Edge e,
+                                   double eps,
+                                   double cIntervalStart,
+                                   double cIntervalEnd,
+                                   double vstart,
+                                   double vend) {
         // compute intersection points on the edge
 
         double interval[] = new double[2];
@@ -602,7 +602,7 @@ public class Line {
      * @param vline the original segment
      * @return Line[2] containing two lines
      */
-    public static Line[] getEpsilonNeighborhood(Line vline, double eps) {
+    private static Line[] getEpsilonNeighborhood(Line vline, double eps) {
         // compute the equations of boundaries of eps-region around the line
         Line lines[] = new Line[2];
 
@@ -640,7 +640,7 @@ public class Line {
      */
     public double distance(Vertex p) {
 
-        double distance = 0;
+        double distance;
 
         if (this.xdiff != 0) {
             distance =
@@ -743,10 +743,6 @@ public class Line {
      */
     public boolean onLine(Vertex v) {
 
-        if (this.xdiff == 0 && v.getX() == this.p1.getX()) {
-            return true;
-        } else {
-            return (v.getY() - this.m * v.getX() - this.c) == 0;
-        }
+        return this.xdiff == 0 && v.getX() == this.p1.getX() || (v.getY() - this.m * v.getX() - this.c) == 0;
     }
 }

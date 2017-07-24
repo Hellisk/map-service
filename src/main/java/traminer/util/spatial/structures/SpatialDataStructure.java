@@ -146,19 +146,37 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
         // find the nearest neighbor in the partition containing the object
         double minDistance = INFINITY;
+        double maxDistance = 0;
         double distance;
         XYObject<T> nearest = null;
-        for (XYObject<T> obj : firstPartition.getObjectsList()) {
-            distance = distFunc.pointToPointDistance(x, y, obj.x(), obj.y());
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = obj;
+        if (firstPartition != null) {
+            for (XYObject<T> obj : firstPartition.getObjectsList()) {
+                distance = distFunc.pointToPointDistance(x, y, obj.x(), obj.y());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = obj;
+                }
+            }
+        } else {
+            List<Point> boundaryPointList = new ArrayList<>();
+            boundaryPointList.addAll(getModel().getBoundary().getCoordinates());
+            List<Pair<Point, Double>> boundaryPointDistanceList = new ArrayList<>();
+            for (Point p : boundaryPointList) {
+                distance = distFunc.pointToPointDistance(x, y, p.x(), p.y());
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
             }
         }
 
         // build a circle made of the query object as center, and the distance
         // from the query object to its nearest neighbor in the partition as radius
-        Circle range = new Circle(x, y, minDistance);
+        Circle range;
+        if (maxDistance == 0) {
+            range = new Circle(x, y, minDistance);
+        } else {
+            range = new Circle(x, y, maxDistance);
+        }
 
         // get all partitions intersecting the circle region
         List<? extends SpatialPartition> partitionsList = rangePartitionSearch(range);
@@ -168,8 +186,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             return nearest;
         }
 
-        // search in the other partitions
-        partitionsList.remove(firstPartition);
+        // search all partitions
         for (SpatialPartition<XYObject<T>> partition : partitionsList) {
             for (XYObject<T> obj : partition.getObjectsList()) {
                 distance = distFunc.pointToPointDistance(x, y, obj.x(), obj.y());
@@ -179,7 +196,9 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
                 }
             }
         }
-
+        if (nearest == null) {
+            System.out.println("Nearest neighbour is too far away.");
+        }
         return nearest;
     }
 

@@ -26,13 +26,10 @@ package edu.uq.dke.mapupdate.mapinference.algorithm;
  * Author: Mahmuda Ahmed Filename: AhmedTraceMerge2012.java
  */
 
-import edu.uq.dke.mapupdate.io.CSVMapReader;
 import edu.uq.dke.mapupdate.mapinference.io.Edge;
 import edu.uq.dke.mapupdate.mapinference.io.Line;
 import edu.uq.dke.mapupdate.mapinference.io.PoseFile;
 import edu.uq.dke.mapupdate.mapinference.io.Vertex;
-import edu.uq.dke.mapupdate.visualisation.GraphStreamDisplay;
-import org.graphstream.ui.view.Viewer;
 import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
@@ -57,6 +54,15 @@ public class AhmedTraceMerge2012 {
 
     private static Logger logger = Logger.getLogger("MapUpdate");
 
+    /* parameters for Ahmed 2012 */
+    public static double AHMED_EPSILON = 0.0020;
+    // if input file has altitude information
+    public static boolean HAS_ALTITUDE = false;
+    // minimum altitude difference in meters between two streets
+    public static double MIN_ALT_EPS = 4.0;
+
+    // whether the coordinate is lon/lat or x/y
+    public static boolean isGPSLocation = false;
     /**
      * Writes the constructed map into files.
      */
@@ -419,7 +425,8 @@ public class AhmedTraceMerge2012 {
         } else {
             siblings1 = new ArrayList<Edge>();
         }
-        if (siblingMap.containsKey(key1)) {
+        // TODO check change key1 to key2
+        if (siblingMap.containsKey(key2)) {
             siblings2 = siblingMap.get(key2);
         } else {
             siblings2 = new ArrayList<Edge>();
@@ -427,6 +434,7 @@ public class AhmedTraceMerge2012 {
 
         if (siblings1.size() == 0 && siblings2.size() == 0) {
             siblingMap.put(key1, new ArrayList<Edge>());
+            // TODO confused why only key1 is added
             siblingMap.get(key1).add(edge);
         } else if (siblings1.size() != 0) {
             siblings1.add(edge);
@@ -684,22 +692,15 @@ public class AhmedTraceMerge2012 {
         return constructedMap;
     }
 
-    public static void AhmedTraceMerge(String cityName, String inputPath, String inputMapPath, String outputPath, double epsilon, boolean hasAltitude, double altEps) throws JDOMException, IOException {
+    public static RoadNetworkGraph AhmedTraceMerge(String cityName, String inputPath) throws JDOMException, IOException {
         AhmedTraceMerge2012 mapConstruction = new AhmedTraceMerge2012();
+
+        if (cityName.equals("beijing"))
+            isGPSLocation = true;
         HashMap<Integer, RoadNode> idNodeMap = new HashMap<>();
-
-        GraphStreamDisplay graphDisplay = new GraphStreamDisplay();
-
-        // read ground truth map
-        String inputVertexPath = inputMapPath + cityName + "_vertices_osm.txt";
-        String inputEdgePath = inputMapPath + cityName + "_edges_osm.txt";
-        CSVMapReader csvMapReader = new CSVMapReader(inputVertexPath, inputEdgePath);
-        RoadNetworkGraph groundTruthGraph = csvMapReader.readCSV();
-
-
         List<Vertex> constructedMap = mapConstruction.constructMapMain(
-                mapConstruction.readAllFiles(new File(inputPath), hasAltitude),
-                epsilon, altEps);
+                mapConstruction.readAllFiles(new File(inputPath), HAS_ALTITUDE),
+                AHMED_EPSILON, MIN_ALT_EPS);
 
         RoadNetworkGraph roadNetworkGraph = new RoadNetworkGraph();
 
@@ -721,16 +722,7 @@ public class AhmedTraceMerge2012 {
                 }
             }
         }
-        System.out.println("Totoal vertices in map:" + constructedMap.size() + ", total edges:" + count);
-        graphDisplay.setGroundTruthGraph(groundTruthGraph);
-        graphDisplay.setRoadNetworkGraph(roadNetworkGraph);
-        Viewer viewer = graphDisplay.generateGraph().display(false);
-//        if (graphDisplay.getCentralPoint() != null) {
-//            View view = viewer.getDefaultView();
-//            view.getCamera().setViewCenter(graphDisplay.getCentralPoint().x(), graphDisplay.getCentralPoint().y(), 0);
-//            view.getCamera().setViewPercent(0.50);
-//        }
-
-        AhmedTraceMerge2012.writeToFile(constructedMap, outputPath);
+        System.out.println("Total vertices in map:" + constructedMap.size() + ", total edges:" + count);
+        return roadNetworkGraph;
     }
 }

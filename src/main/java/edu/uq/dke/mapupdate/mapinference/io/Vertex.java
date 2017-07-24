@@ -27,6 +27,10 @@ package edu.uq.dke.mapupdate.mapinference.io;
  */
 
 
+import traminer.util.spatial.distance.GPSDistanceFunction;
+import traminer.util.spatial.distance.PointDistanceFunction;
+import traminer.util.spatial.objects.Point;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +62,7 @@ public class Vertex {
     // TODO(Mahmuda): Better to have static factory methods instead of constructor overloading.
 
     public Vertex() {
-        this.adjacencyList = new ArrayList<Integer>();
+        this.adjacencyList = new ArrayList<>();
         this.done = false;
     }
 
@@ -116,11 +120,11 @@ public class Vertex {
         return this.alt;
     }
 
-    public double norm() {
+    double norm() {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
     }
 
-    public static double dotProd(Vertex vector1, Vertex vector2) {
+    static double dotProd(Vertex vector1, Vertex vector2) {
         return vector1.getX() * vector2.getX() + vector1.getY() * vector2.getY() + vector1.getZ() * vector2.getZ();
     }
 
@@ -152,12 +156,12 @@ public class Vertex {
      */
     public void addElementAdjList(int v) {
         for (int i = 0; i < this.getDegree(); i++) {
-            if (this.adjacencyList.get(i).intValue() == v) {
+            if (this.adjacencyList.get(i) == v) {
                 return;
             }
         }
 
-        this.adjacencyList.add(new Integer(v));
+        this.adjacencyList.add(v);
     }
 
     /**
@@ -178,7 +182,7 @@ public class Vertex {
      */
 
     public int getAdjacentElementAt(int k) {
-        return this.adjacencyList.get(k).intValue();
+        return this.adjacencyList.get(k);
     }
 
     /**
@@ -201,7 +205,11 @@ public class Vertex {
      */
 
     public double dist(Vertex v2) {
-        return Math.sqrt(Math.pow(this.x - v2.x, 2) + Math.pow(this.y - v2.y, 2));
+        double distance;
+        PointDistanceFunction distanceFunction = new GPSDistanceFunction();
+        distance = distanceFunction.distance(this.toPoint(), v2.toPoint());
+//        distance = Math.sqrt(Math.pow(this.x - v2.x, 2) + Math.pow(this.y - v2.y, 2));
+        return distance;
     }
 
     /**
@@ -210,6 +218,10 @@ public class Vertex {
 
     public void reset() {
         done = false;
+    }
+
+    public Point toPoint() {
+        return new Point(x, y);
     }
 
     @Override
@@ -225,9 +237,7 @@ public class Vertex {
                 new Vertex(this.lat, this.lng, this.alt, this.x, this.y, this.z, this.timestamp);
         vertex.done = this.done;
 
-        for (int i = 0; i < this.adjacencyList.size(); i++) {
-            vertex.adjacencyList.add(this.adjacencyList.get(i).intValue());
-        }
+        vertex.adjacencyList.addAll(this.adjacencyList);
         return vertex;
     }
 
