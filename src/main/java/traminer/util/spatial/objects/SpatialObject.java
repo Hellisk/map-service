@@ -34,6 +34,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
 
     /**
      * Set the  of the parent of this spatial object (if any).
+     * Default value is NULL.
      *
      * @param parentId Parent object identifier.
      */

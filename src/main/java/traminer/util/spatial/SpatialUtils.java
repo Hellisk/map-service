@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Implementation of miscellaneous utilities functions.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -82,7 +82,7 @@ public abstract class SpatialUtils implements Serializable {
 
     /**
      * Check whether the points a--b--c are collinear.
-     *
+     * 
      * @param a
      * @param b
      * @param c

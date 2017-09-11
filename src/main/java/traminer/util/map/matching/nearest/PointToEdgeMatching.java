@@ -51,8 +51,14 @@ public class PointToEdgeMatching implements MapMatchingMethod {
         this.distanceFunction = distFunc;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * In point-to-node match, each trajectory point is assigned to
+     * exactly two connected nodes (edge).
+     */
     @Override
-    public RoadWay doMatching(
+    public List<PointNodePair> doMatching(
             final Trajectory trajectory,
             final RoadNetworkGraph roadNetworkGraph) throws MapMatchingException {
         // make sure there is data to match
@@ -66,11 +72,11 @@ public class PointToEdgeMatching implements MapMatchingMethod {
         }
 
         // find the closest road edge from p
-        RoadWay resultWay = new RoadWay(trajectory.getId());
+        List<PointNodePair> result = new ArrayList<>(trajectory.size());
         double dist, minDist;
         RoadNode nearesti, nearestj;
         for (STPoint p : trajectory) {
-            minDist = INFINITY;
+            dist = minDist = INFINITY;
             nearesti = nearestj = null;
             for (RoadWay way : roadNetworkGraph.getWays()) {
                 // get road way edges
@@ -89,14 +95,21 @@ public class PointToEdgeMatching implements MapMatchingMethod {
             }
             // map p to the edge ni -> nj
             if (nearesti != null && nearestj != null) {
-                resultWay.addNode(nearesti);
-                resultWay.addNode(nearestj);
+                // make sure it returns a copy of the objects
+                result.add(new PointNodePair(p.clone(), nearesti.clone(), dist));
+                result.add(new PointNodePair(p.clone(), nearestj.clone(), dist));
             }
         }
 
-        return resultWay;
+        return result;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * In point-to-node match, each trajectory point is assigned to
+     * exactly two connected nodes (edge).
+     */
     // nodes list is taken as a sorted list of Way points
     @Override
     public List<PointNodePair> doMatching(
@@ -118,7 +131,7 @@ public class PointToEdgeMatching implements MapMatchingMethod {
         RoadNode nearesti, nearestj;
         Iterator<RoadNode> nodesItr = nodesList.iterator();
         for (STPoint p : pointsList) {
-            minDist = INFINITY;
+            dist = minDist = INFINITY;
             nearesti = nearestj = null;
             // get road edges
             RoadNode ni, nj;
@@ -136,8 +149,8 @@ public class PointToEdgeMatching implements MapMatchingMethod {
             }
             // map p to the edge ni -> nj
             if (nearesti != null && nearestj != null) {
-                matchedPairs.add(new PointNodePair(p, nearesti.clone()));
-                matchedPairs.add(new PointNodePair(p, nearestj.clone()));
+                matchedPairs.add(new PointNodePair(p, nearesti.clone(), dist));
+                matchedPairs.add(new PointNodePair(p, nearestj.clone(), dist));
             }
         }
 

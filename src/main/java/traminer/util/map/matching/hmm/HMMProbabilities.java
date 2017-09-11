@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
  * Author: Stefan Holder (stefan.holder@bmw.de)
  *
@@ -16,12 +16,15 @@
  */
 package traminer.util.map.matching.hmm;
 
+import java.io.Serializable;
+
 /**
  * Based on Newson, Paul, and John Krumm. "Hidden Markov map matching through noise and sparseness."
  * Proceedings of the 17th ACM SIGSPATIAL International Conference on Advances in Geographic
  * Information Systems. ACM, 2009.
  */
-class HMMProbabilities {
+@SuppressWarnings("serial")
+class HMMProbabilities implements Serializable {
     private final double sigma;
     private final double beta;
 
@@ -82,11 +85,10 @@ class HMMProbabilities {
      */
     private double normalizedTransitionMetric(double routeLength, double linearDistance,
                                               double timeDiff) {
-        /*if (timeDiff < 0.0) {
+        if (timeDiff < 0.0) {
             throw new IllegalStateException(
                     "Time difference between subsequent location measurements must be >= 0.");
-        }*/
+        }
         return Math.abs(linearDistance - routeLength) / (timeDiff * timeDiff);
     }
-
 }

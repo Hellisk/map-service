@@ -5,7 +5,7 @@ import traminer.util.spatial.SpatialUtils;
 
 /**
  * The Cosine distance between two N-Dimensional vectors.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

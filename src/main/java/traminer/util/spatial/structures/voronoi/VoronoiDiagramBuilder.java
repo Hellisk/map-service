@@ -463,7 +463,7 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
         he.deleted = true;
     }
 
-    /**
+    /** 
      * Get entry from hash table, pruning any deleted nodes 
      */
     private HalfEdge ELgethash(int b) {

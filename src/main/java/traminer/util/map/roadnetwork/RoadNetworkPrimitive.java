@@ -7,9 +7,9 @@ import java.util.Map;
 
 /**
  * Superclass for road map (OSM) primitives.
- * 
- * @see "http://wiki.openstreetmap.org/wiki/OSM_XML"
  *
+ * @see http://wiki.openstreetmap.org/wiki/OSM_XML
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -110,8 +110,22 @@ public abstract class RoadNetworkPrimitive implements MapInterface, Cloneable {
      */
     public abstract void print();
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        RoadNetworkPrimitive other = (RoadNetworkPrimitive) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
     /**
-     * All primitives are hash-coded by their Id.
+     * Primitives are hash-coded by their Id by default.
      */
     @Override
     public int hashCode() {

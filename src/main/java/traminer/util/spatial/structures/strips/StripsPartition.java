@@ -8,11 +8,12 @@ import traminer.util.spatial.structures.SpatialPartition;
 /**
  * Object representing a partition in a Strips diagram.
  * <p>
- * Each partition is represented by its its boundary rectangle,
+ * Each partition is represented by its its boundary rectangle, 
  * and contains the list of spatial objects in the partition.
+ * 
+ * @author uqdalves
  *
  * @param <T> Type of spatial object to store in this partition.
- * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class StripsPartition<T extends SpatialObject> extends SpatialPartition<XYObject<T>> {

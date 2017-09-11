@@ -23,7 +23,7 @@ public class VoronoiEdge extends Segment {
 
     /**
      * Creates a Voronoi edge with the given end-points.
-     *
+     * 
      * @param x1 First end-point X coordinate.
      * @param y1 First end-point Y coordinate.
      * @param x2 Second end-point X coordinate.

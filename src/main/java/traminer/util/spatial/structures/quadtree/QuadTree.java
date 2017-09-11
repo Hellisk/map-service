@@ -9,18 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Quadtree is a tree data structure in which each internal node
- * has exactly four children. Quadtrees partition a two-dimensional
+ * A Quadtree is a tree data structure in which each internal node 
+ * has exactly four children. Quadtrees partition a two-dimensional 
  * space by recursively subdividing it into four quadrants or regions.
  * <p>
- * This class implements a Point-region (PR) Quadtree, in which  a
- * spatial object is stored in the leaf node that intersects the object.
- * The leaf nodes of a PR quadtree store a list of XY spatial Objects that
+ * This class implements a Point-region (PR) Quadtree, in which  a 
+ * spatial object is stored in the leaf node that intersects the object. 
+ * The leaf nodes of a PR quadtree store a list of XY spatial Objects that 
  * exist within the node.
  *
- * @param <T> Type of spatial object to store in this tree. Objects must be
- *            inserted in a container object, XYObject<T>.
  * @author uqdalves
+ *
+ * @param <T> Type of spatial object to store in this tree. Objects must be 
+ * inserted in a container object, XYObject<T>.
  */
 @SuppressWarnings("serial")
 public class QuadTree<T extends SpatialObject> implements SpatialDataStructure<T> {

@@ -7,13 +7,13 @@ import java.util.HashSet;
 
 /**
  * Interface for spatial indexes.
- *
+ * 
  * @author uqdalves
  */
 public interface SpatialIndexModel extends SpatialInterface {
     /**
-     * Return the index of the partition that intersects with the spatial object
-     * in the position (x,y).
+     * Search and return the index of the partition that intersects
+     * with the spatial object in the position (x,y).
      *
      * @param x The X coordinate to search.
      * @param y The Y coordinate to search.
@@ -23,10 +23,13 @@ public interface SpatialIndexModel extends SpatialInterface {
     String search(double x, double y);
 
     /**
+     * Search and Return the indexes of all partitions intersecting
+     * with the given spatial object.
+     *
      * @param obj The spatial object to do the search.
-     * @return Return the indexes of all partitions intersecting with this
-     * spatial object. The An empty set if the object is out of the
-     * boundaries of this index model.
+     * @return The indexes of all partitions intersecting with this
+     *         spatial object. An empty set if the object is out of the
+     *         boundaries of this index model.
      */
     HashSet<String> rangeSearch(SpatialObject obj);
 
@@ -41,7 +44,7 @@ public interface SpatialIndexModel extends SpatialInterface {
 
     /**
      * @return Returns the spatial object representing the boundaries of this
-     * spatial model.
+     *         spatial model.
      */
     SpatialObject getBoundary();
 

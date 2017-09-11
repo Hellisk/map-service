@@ -19,7 +19,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * @param s 2D line segment S.
      * @param r 2D line segment R.
      * @return Distance between S and R.
-     * @throws DistanceFunctionException
+     * @throws DistanceMeasurementException
      */
     double distance(Segment s, Segment r) throws DistanceFunctionException;
 
@@ -27,15 +27,17 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * Distance between a spatial point and a segment
      * (shortest distance) given by their coordinates.
      *
-     * @param x   The point X coordinate.
-     * @param y   The point Y coordinate.
+     * @param x The point X coordinate.
+     * @param y The point Y coordinate.
      * @param sx1 The segment's start X coordinate.
      * @param sy1 The segment's start Y coordinate.
      * @param sx2 The segment's end X coordinate.
      * @param sy2 The segment's end Y coordinate.
+     *
      * @return The distance between the point (x1, y1) and
-     * the segment (sx1, sy1)(sx2, sy2).
-     * @throws DistanceFunctionException
+     * 			the segment (sx1, sy1)(sx2, sy2).
+     *
+     * @throws DistanceMeasurementException
      */
     double pointToSegmentDistance(
             double x, double y, double sx1, double sy1, double sx2, double sy2)
@@ -47,8 +49,10 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      *
      * @param p
      * @param s
+     *
      * @return The distance between the point p and the segment s.
-     * @throws DistanceFunctionException
+     *
+     * @throws DistanceMeasurementException
      */
     double pointToSegmentDistance(Point p, Segment s)
             throws DistanceFunctionException;
@@ -69,7 +73,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * @return The distance between line segments S (sx1, sy1)(sx2, sy2)
      * 		and R (rx1, sry1)(rx2, ry2).
      *
-     * @throws DistanceFunctionException
+     * @throws DistanceMeasurementException
      */
     double segmentToSegmentDistance(
             double sx1, double sy1, double sx2, double sy2,

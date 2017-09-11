@@ -5,7 +5,6 @@ import traminer.util.map.matching.MapMatchingMethod;
 import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
-import traminer.util.map.roadnetwork.RoadWay;
 import traminer.util.spatial.distance.EuclideanDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.st.STPoint;
@@ -51,7 +50,7 @@ public class PointToNodeMatching implements MapMatchingMethod {
     }
 
     @Override
-    public RoadWay doMatching(
+    public List<PointNodePair> doMatching(
             final Trajectory trajectory,
             final RoadNetworkGraph roadNetworkGraph) throws MapMatchingException {
         // make sure there is data to match
@@ -65,11 +64,11 @@ public class PointToNodeMatching implements MapMatchingMethod {
         }
 
         // find the closest road node from p
-        RoadWay resultWay = new RoadWay(trajectory.getId());
+        List<PointNodePair> result = new ArrayList<>(trajectory.size());
         double dist, minDist;
         RoadNode nearestNode;
         for (STPoint p : trajectory) {
-            minDist = INFINITY;
+            dist = minDist = INFINITY;
             nearestNode = null;
             for (RoadNode node : roadNetworkGraph.getNodes()) {
                 dist = distanceFunction.pointToPointDistance(
@@ -79,13 +78,13 @@ public class PointToNodeMatching implements MapMatchingMethod {
                     nearestNode = node;
                 }
             }
-            // make sure it returns a copy of the node
+            // make sure it returns a copy of the objects
             if (nearestNode != null) {
-                resultWay.addNode(nearestNode.clone());
+                result.add(new PointNodePair(p.clone(), nearestNode.clone(), dist));
             }
         }
 
-        return resultWay;
+        return result;
     }
 
     @Override
@@ -107,7 +106,7 @@ public class PointToNodeMatching implements MapMatchingMethod {
         double dist, minDist;
         RoadNode nearestNode;
         for (STPoint p : pointsList) {
-            minDist = INFINITY;
+            dist = minDist = INFINITY;
             nearestNode = null;
             for (RoadNode node : nodesList) {
                 dist = distanceFunction.pointToPointDistance(
@@ -117,9 +116,9 @@ public class PointToNodeMatching implements MapMatchingMethod {
                     nearestNode = node;
                 }
             }
-            // make sure it returns a copy of the node
+            // make sure it returns a copy of the objects
             if (nearestNode != null) {
-                matchedPairs.add(new PointNodePair(p, nearestNode.clone()));
+                matchedPairs.add(new PointNodePair(p.clone(), nearestNode.clone(), dist));
             }
         }
 

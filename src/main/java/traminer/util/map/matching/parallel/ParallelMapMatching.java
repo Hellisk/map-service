@@ -3,10 +3,11 @@ package traminer.util.map.matching.parallel;
 import traminer.util.exceptions.MapMatchingException;
 import traminer.util.map.MapInterface;
 import traminer.util.map.matching.MapMatchingMethod;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
-import traminer.util.map.roadnetwork.RoadWay;
 import traminer.util.trajectory.Trajectory;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -52,12 +53,12 @@ public class ParallelMapMatching implements MapInterface {
      * @param trajectories     The stream of trajectories to match.
      * @param roadNetworkGraph The road network graph to match to.
      * @param numThreads       Number of parallel threads.
-     * @return A Stream of road ways, the ID of each way
-     * is the ID of its corresponding trajectory.
+     * @return A Stream with the lists of road nodes that best
+     * matches each point of the trajectories.
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public Stream<RoadWay> doMatching(
+    public Stream<List<PointNodePair>> doMatching(
             Stream<Trajectory> trajectories,
             RoadNetworkGraph roadNetworkGraph,
             final int numThreads) throws InterruptedException, ExecutionException, MapMatchingException {
@@ -72,26 +73,24 @@ public class ParallelMapMatching implements MapInterface {
         }
 
         ForkJoinPool forkJoinPool = new ForkJoinPool(numThreads);
-        ForkJoinTask<Stream<RoadWay>> taskResult =
+        ForkJoinTask<Stream<List<PointNodePair>>> taskResult =
                 forkJoinPool.submit(() -> {
                     matchingMethodThread.set(matchingMethod);
                     roadGraphThread.set(roadNetworkGraph);
-                    Stream<RoadWay> matchWays =
+                    Stream<List<PointNodePair>> matchPairsStream =
                             trajectories.parallel().map(trajectory -> {
-                                RoadWay matchWay = matchingMethodThread.get()
+                                List<PointNodePair> matchPairs = matchingMethodThread.get()
                                         .doMatching(trajectory, roadGraphThread.get());
-                                matchWay.setId(trajectory.getId());
                                 try {
                                     Thread.sleep(5);
                                 } catch (InterruptedException e) {
                                 }
-                                return matchWay;
+                                return matchPairs;
                             });
-                    return matchWays;
+                    return matchPairsStream;
                 });
 
-        Stream<RoadWay> result = null;
-        result = taskResult.get();
+        Stream<List<PointNodePair>> result = taskResult.get();
 
         return result;
     }

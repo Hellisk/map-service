@@ -76,10 +76,6 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         return list;
     }
 
-    public List<STPoint> getPoints() {
-        return this;
-    }
-
     @Override
     public List<Segment> getEdges() {
         List<Segment> list = new ArrayList<Segment>();
@@ -428,17 +424,29 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         return false;
     }
 
-    @Override
-    public boolean equalsST(SpatialTemporalObject obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (obj instanceof Trajectory) {
-            Trajectory t = (Trajectory) obj;
-            if (t.timeStart() != this.timeStart() ||
-                    t.timeFinal() != this.timeFinal()) return false;
-            return this.equals2D(t);
+    /**
+     * Check whether these two trajectories are spatially and temporally
+     * equivalents, that is,  whether they have the same spatial-temporal
+     * coordinate points. This method verifies if every coordinate of the
+     * two trajectories are the same in the exact order they are declared.
+     *
+     * @param t The trajectory to compare,
+     * @return True if these two trajectories are spatially and temporally
+     * equivalents.
+     */
+    public boolean equalsST(Trajectory t) {
+        if (t == null) return false;
+        if (t.size() != this.size()) return false;
+        if (t.timeStart() != this.timeStart() ||
+                t.timeFinal() != this.timeFinal()) {
+            return false;
         }
-        return false;
+        for (int i = 0; i < size(); i++) {
+            if (!this.get(i).equals(t.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

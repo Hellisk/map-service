@@ -55,14 +55,15 @@ public class AhmedTraceMerge2012 {
     private static Logger logger = Logger.getLogger("MapUpdate");
 
     /* parameters for Ahmed 2012 */
-    public static double AHMED_EPSILON = 0.0020;
+    public static double AHMED_EPSILON = 0.0005;
     // if input file has altitude information
     public static boolean HAS_ALTITUDE = false;
     // minimum altitude difference in meters between two streets
-    public static double MIN_ALT_EPS = 4.0;
+    public static double MIN_ALT_EPS = 2.0;
 
     // whether the coordinate is lon/lat or x/y
     public static boolean isGPSLocation = false;
+
     /**
      * Writes the constructed map into files.
      */
@@ -92,7 +93,6 @@ public class AhmedTraceMerge2012 {
                     }
                 }
             }
-
 
             bwedges.close();
             bvertex.close();
@@ -438,7 +438,7 @@ public class AhmedTraceMerge2012 {
             siblingMap.get(key1).add(edge);
         } else if (siblings1.size() != 0) {
             siblings1.add(edge);
-        } else if (siblings2.size() != 0) {
+        } else {
             siblings2.add(edge);
         }
     }

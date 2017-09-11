@@ -36,16 +36,16 @@ public class TrajMatchingEvaluation {
             }
 
             int foundCount = 0;
-            int unmatchCount = 0;
+            int unmatchedCount = 0;
             // check the coverage of the roads found in our match
             List<String> groundTruthIDList = globalCompareList.get(w.getId());
             for (String s : groundTruthIDList) {
                 if (uniqueIDList.contains(s)) {
                     foundCount++;
-                } else unmatchCount++;
+                } else unmatchedCount++;
             }
             totalHitCount += foundCount;
-            totalMissCount += unmatchCount;
+            totalMissCount += unmatchedCount;
             wrongMatchCount += uniqueIDList.size() - foundCount;
         }
 

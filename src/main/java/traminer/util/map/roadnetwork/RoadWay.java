@@ -357,7 +357,9 @@ public class RoadWay extends RoadNetworkPrimitive {
         if (!(obj instanceof RoadWay))
             return false;
         RoadWay other = (RoadWay) obj;
-        return this.size() == other.size() && this.getId().equals(other.getId());
+        if (this.size() != other.size())
+            return false;
+        return this.getId().equals(other.getId());
     }
 
     /**

@@ -4,7 +4,6 @@ import traminer.util.exceptions.MapMatchingException;
 import traminer.util.map.MapInterface;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
-import traminer.util.map.roadnetwork.RoadWay;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
 
@@ -23,10 +22,11 @@ public interface MapMatchingMethod extends MapInterface {
      *
      * @param trajectory       The trajectory to match.
      * @param roadNetwrokGraph The road network graph to find the match.
-     * @return A road network way that best matches the trajectory.
+     * @return A list containing the road nodes that best
+     * matches each point of the given trajectory.
      * @throws MapMatchingException
      */
-    RoadWay doMatching(
+    List<PointNodePair> doMatching(
             final Trajectory trajectory,
             final RoadNetworkGraph roadNetwrokGraph) throws MapMatchingException;
 
@@ -35,9 +35,10 @@ public interface MapMatchingMethod extends MapInterface {
      * road network nodes.
      *
      * @param pointsList The spatial points to match.
-     * @param nodesList  The road network nodes to find the match.
+     * @param nodesList The road network nodes to find the match.
+     *
      * @return A list containing the road nodes that best
-     * matches each point in the given collection.
+     * 		matches each point in the given collection.
      * @throws MapMatchingException
      */
     List<PointNodePair> doMatching(

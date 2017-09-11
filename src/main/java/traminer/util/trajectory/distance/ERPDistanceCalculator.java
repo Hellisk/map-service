@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * ERP: Edit distance with Real Penalty.
- *
+ * 
  * </br> Discrete 1D time series only.  
  * </br> Uniform sampling rates only.
  * </br> Sensitive to noise.

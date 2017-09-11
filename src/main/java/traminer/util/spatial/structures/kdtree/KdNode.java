@@ -11,13 +11,14 @@ import java.util.Collections;
 /**
  * A spatial partition representing a node in a k-d Tree.
  * <p>
- * Each node is represented by its boundary rectangle, the node
+ * Each node is represented by its boundary rectangle, the node 
  * capacity, depth, and two references to its children nodes (if any).
  * <p>
  * Each node contains the list of objects in the partition.
+ * 
+ * @author uqdalves
  *
  * @param <T> Type of spatial object to store in this node.
- * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T>> {
@@ -46,21 +47,17 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
      * The partition that originated this partition/node
      */
     private KdNode<T> parentNode = null;
-    /**
-     * Left|bottom child partition/node
-     */
+    /** Left|bottom child partition/node */
     private KdNode<T> nodeInferior = null;
-    /**
-     * Right|top child partition/node
-     */
+    /** Right|top child partition/node */
     private KdNode<T> nodeSuperior = null;
 
     /**
-     * Creates a new node in the given tree depth,
+     * Creates a new node in the given tree depth, 
      * and given initial boundary.
      *
-     * @param nodeId       The id of this partition/node.
-     * @param depth        The depth of this node.
+     * @param nodeId The id of this partition/node.
+     * @param depth The depth of this node.
      * @param nodeBoundary The spatial boundaries of this partition/node.
      */
     public KdNode(String nodeId, int depth, Rectangle nodeBoundary) {
@@ -76,7 +73,7 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
         this.boundary = nodeBoundary;
         this.depth = depth;
     }
-
+        
     /**
      * @return The partition that originated this partition/node.
      */
@@ -132,7 +129,7 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
      * @return True if this is a leaf partition/node.
      */
     public boolean isLeaf() {
-        return (nodeInferior == null || nodeSuperior == null);
+        return (nodeInferior == null || nodeSuperior==null);
     }
 
     /**
@@ -180,7 +177,7 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
             // single assignment
             insertIntoChild(obj);
         }
-
+        
         return true;
     }
 
@@ -196,22 +193,22 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
         if (nodeInferior.insert(obj)) return;
         if (nodeSuperior.insert(obj)) return;
     }
-
+    
     /**
      * Insert the object in whichever children nodes accept it.
      * Use multiple assignment of boundary points.
-     *
+     * 
      * @param obj The spatial object to add.
      */
     private void insertIntoChildren(XYObject<T> obj) {
         nodeInferior.insert(obj);
         nodeSuperior.insert(obj);
-    }
+    } 
 
     /**
      * {@inheritDoc}
      * <br>
-     * This method will merge children into self if it
+     * This method will merge children into self if it 
      * can without overflowing the maxCapacity param.
      */
     @Override
@@ -256,8 +253,8 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
     }
 
     /**
-     * Divide this node into two balanced child nodes,
-     * that is, each child node has the same quantity
+     * Divide this node into two balanced child nodes, 
+     * that is, each child node has the same quantity 
      * of objects.
      */
     private void subdivide() {
@@ -315,14 +312,14 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
     }
 
     /**
-     * This method will merge children into self if it
+     * This method will merge children into self if it 
      * can without overflowing the maxCapacity of this node.
-     *
+     * 
      * @return True if the partition was successfully merged
      */
     private boolean merge() {
         // if the children aren't leafs, you cannot merge
-        if (!nodeInferior.isLeaf() || !nodeSuperior.isLeaf())
+        if (!nodeInferior.isLeaf() || !nodeSuperior.isLeaf()) 
             return false;
 
         // children and leafs, see if you can remove 
@@ -339,7 +336,7 @@ public class KdNode<T extends SpatialObject> extends SpatialPartition<XYObject<T
             // clear and null all child nodes of this node
             setAsLeaf();
         }
-
+        
         return true;
     }
 }

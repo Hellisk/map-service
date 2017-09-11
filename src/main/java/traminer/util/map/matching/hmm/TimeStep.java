@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
  * Author: Stefan Holder (stefan.holder@bmw.de)
  *
@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package traminer.util.map.matching.hmm;
 
-import com.bmw.hmm.Transition;
-
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,9 @@ import java.util.Map;
  * @param <O> location measurement type, which corresponds to the HMM observation.
  * @param <D> road path object
  */
-class TimeStep<S, O, D> {
+@SuppressWarnings("serial")
+class TimeStep<S, O, D> implements Serializable {
+
     /**
      * Observation made at this time step.
      */

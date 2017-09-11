@@ -12,7 +12,7 @@ import traminer.util.spatial.structures.SpatialPartition;
  * in the partition.
  * 
  * @author uqdalves
- *
+ * 
  * @param <T> Type of spatial object to store in this partition.
  */
 @SuppressWarnings("serial")

@@ -4,7 +4,7 @@ import traminer.util.exceptions.DistanceFunctionException;
 
 /**
  * The Chi-Square distance between two N-Dimensional vectors.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

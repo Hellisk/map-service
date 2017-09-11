@@ -15,13 +15,14 @@ import java.util.List;
  * multidimensional search key (e.g. range searches and nearest neighbor
  * searches). k-d trees are a special case of binary space partitioning trees.
  * <p>
- * This class implements a 2D region k-d Tree, in which spatial objects
- * are stored in the leaf nodes that intersects the objects. The leaf nodes
+ * This class implements a 2D region k-d Tree, in which spatial objects 
+ * are stored in the leaf nodes that intersects the objects. The leaf nodes  
  * of the k-d Tree store a list of XY spatial Objects that exist within the node.
  *
- * @param <T> Type of spatial object to store in this tree. Objects must be
- *            inserted in a container object, XYObject<T>.
  * @author uqdalves
+ *
+ * @param <T> Type of spatial object to store in this tree. Objects must be 
+ * inserted in a container object, XYObject<T>.
  */
 @SuppressWarnings("serial")
 public class KdTree<T extends SpatialObject> implements SpatialDataStructure<T> {

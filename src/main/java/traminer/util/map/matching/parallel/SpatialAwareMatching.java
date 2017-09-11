@@ -96,8 +96,7 @@ public class SpatialAwareMatching implements MapInterface {
         roadNetworkGraph.getNodes().parallelStream()
                 .filter(node -> (node != null))
                 .forEach(node -> {
-                    String index = spatialModel
-                            .search(node.lon(), node.lat());
+                    String index = spatialModel.search(node.lon(), node.lat());
                     // adds the node to its partition. Creates the
                     // partition if it doesn't exist.
                     synchronized (partitionMap) {
@@ -120,8 +119,7 @@ public class SpatialAwareMatching implements MapInterface {
                 .filter(trajectory -> !(trajectory == null || trajectory.isEmpty()))
                 .forEach(trajectory -> {
                     for (STPoint p : trajectory) {
-                        String index = spatialModel.
-                                search(p.x(), p.y());
+                        String index = spatialModel.search(p.x(), p.y());
                         p.setParentId(trajectory.getId());
                         // adds the point to its partition. Creates the
                         // partition if it doesn't exist.
@@ -190,9 +188,7 @@ public class SpatialAwareMatching implements MapInterface {
          * List of trajectory points in this partition
          */
         public List<STPoint> pointList = new ArrayList<>();
-        /**
-         * List of road nodes in this partition
-         */
+        /** List of road nodes in this partition */
         public List<RoadNode> nodeList = new ArrayList<>();
 
         /**

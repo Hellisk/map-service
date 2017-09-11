@@ -14,14 +14,14 @@ import java.util.List;
 /**
  * A RTree index model.
  * <p>
- * This RTree model is build  either by loading a list of
- * rectangles, or by loading partitions from a RTree packing
+ * This RTree model is build  either by loading a list of 
+ * rectangles, or by loading partitions from a RTree packing 
  * algorithm (e.g. STRTree).
  * <p>
- * RTree using the JSI library based on the algorithm:
+ * RTree using the JSI library based on the algorithm: 
  * <br> Guttman, A. (1984). "R-Trees: A Dynamic Index Structure
  * for Spatial Searching". In ACM SIGMOD '84.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

@@ -105,30 +105,11 @@ public class EuclideanDistanceFunction implements
     @Override
     public double pointToSegmentDistance(double x, double y,
                                          double sx1, double sy1, double sx2, double sy2) {
-
-        double k = ((sy2 - sy1) * (x - sx1) - (sx2 - sx1) * (y - sy1)) / (Math.pow((sy2 - sy1), 2) + (Math.pow(sx2 - sx1, 2)));
-
-        double px = x - k * (sy2 - sy1);
-        double py = y + k * (sx2 - sx1);
-
-        // check whether the perpendicular point is outside the segment
-        if (sx1 < sx2) {
-            if (px < sx1) {
-                px = sx1;
-                py = sy1;
-            } else if (px > sx2) {
-                px = sx2;
-                py = sy2;
-            }
-        } else if (px < sx2) {
-            px = sx2;
-            py = sy2;
-        } else if (px > sx1) {
-            px = sx1;
-            py = sy1;
-        }
-
-        return Math.sqrt(Math.pow(px - x, 2) + Math.pow(py - y, 2));
+        // triangle height
+        double num = (sy2 - sy1) * x - (sx2 - sx1) * y + sx2 * sy1 - sy2 * sx1;
+        double den = (sy2 - sy1) * (sy2 - sy1) + (sx2 - sx1) * (sx2 - sx1);
+        double dist = Math.abs(num) / Math.sqrt(den);
+        return dist;
     }
 
     /**

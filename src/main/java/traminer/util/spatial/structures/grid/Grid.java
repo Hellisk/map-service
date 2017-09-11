@@ -135,7 +135,7 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
         if (partitions[i][j] == null) {
             partitions[i][j] = new GridPartition<>(index, gridModel.get(i, j));
         }
-        return partitions[pos[0]][pos[1]].insert(obj);
+        return partitions[i][j].insert(obj);
     }
 
     @Override

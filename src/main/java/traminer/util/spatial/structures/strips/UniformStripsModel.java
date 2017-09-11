@@ -14,9 +14,9 @@ import java.util.HashSet;
  * <p>
  * Strips construction can be either Horizontal (X axis)
  * or Vertical (Y axis) defined by the StripsSplitPolicy.
- * <p>
+ * <p> 
  * Strips index position ranges from i = [0...n-1].
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

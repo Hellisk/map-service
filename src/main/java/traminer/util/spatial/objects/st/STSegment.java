@@ -275,7 +275,7 @@ public class STSegment extends Segment implements SpatialTemporalObject {
     }
 
     @Override
-    public boolean equalsST(SpatialTemporalObject obj) {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (obj instanceof STSegment) {

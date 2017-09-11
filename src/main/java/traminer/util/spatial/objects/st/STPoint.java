@@ -4,7 +4,7 @@ import traminer.util.spatial.objects.Point;
 
 import java.util.Comparator;
 
-/**
+/** 
  * Implements a simple Spatial-Temporal point (point with time-stamp), 
  * with (x,y) coordinates and time-stamp. 
  * <p>
@@ -80,7 +80,7 @@ public class STPoint extends Point implements SpatialTemporalObject {
     }
 
     @Override
-    public boolean equalsST(SpatialTemporalObject obj) {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (obj instanceof STPoint) {

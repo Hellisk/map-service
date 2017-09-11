@@ -12,18 +12,6 @@ import java.util.Comparator;
  */
 public interface SpatialTemporalObject extends SpatialObject {
     /**
-     * Check whether these two spatial objects are of the same kind,
-     * and whether they have the same 2D spatial coordinates and temporal
-     * attributes. That is, check weather they are spatial-temporally
-     * equivalents.
-     *
-     * @param obj The spatial-temporal object to compare.
-     * @return True if these two spatial objects are
-     * spatial-temporally equivalent.
-     */
-    boolean equalsST(SpatialTemporalObject obj);
-
-    /**
      * @return The initial/start time of this spatial-temporal object.
      */
     long timeStart();

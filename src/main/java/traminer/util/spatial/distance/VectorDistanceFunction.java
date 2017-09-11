@@ -5,7 +5,7 @@ import traminer.util.spatial.SpatialInterface;
 
 /**
  * Interface for distance functions between N-dimensional vectors.
- *
+ * 
  * @author uqdalves
  */
 public interface VectorDistanceFunction extends SpatialInterface {
@@ -18,8 +18,8 @@ public interface VectorDistanceFunction extends SpatialInterface {
      * @param v N-dimensional vector V.
      * @param u N-dimensional vector U.
      * @return Distance between U and V.
-     * @throws DistanceFunctionException If vectors U and V
-     *                                   do not have the same dimensions.
+     * @throws DistanceMeasurementException If vectors U and V
+     *                                      do not have the same dimensions.
      */
     double distance(double[] v, double[] u)
             throws DistanceFunctionException;

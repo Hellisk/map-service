@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * A list of geographic location on Earth. For referential purposes.
- *
+ * 
  * @author uqdalves
  */
 public enum GeographicLocation implements Serializable {

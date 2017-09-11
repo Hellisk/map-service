@@ -7,7 +7,7 @@ import traminer.util.spatial.objects.Point;
  * based on a referential point (clock center).
  * <p>
  * Order starts from the Y+ X+ axis.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

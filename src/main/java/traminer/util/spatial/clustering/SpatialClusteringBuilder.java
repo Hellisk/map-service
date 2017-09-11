@@ -315,5 +315,5 @@ public class SpatialClusteringBuilder implements ClusteringInterface {
 		
 	    return result;
 	}
-	 */
+	 */	
 }

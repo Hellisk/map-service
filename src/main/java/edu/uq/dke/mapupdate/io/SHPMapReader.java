@@ -125,12 +125,12 @@ public class SHPMapReader {
                 MultiLineString edges = (MultiLineString) feature.getAttribute(0);
                 String edgeID = feature.getAttribute(2).toString();
                 RoadWay newRoadWay = new RoadWay(edgeID);
-                List<RoadNode> intermediateNode = new ArrayList<>();
+                List<RoadNode> miniNode = new ArrayList<>();
                 int currPointID = roadWayPointID;
                 boolean isIncluded = true;
                 for (Coordinate e : edges.getCoordinates()) {
                     if (isInside(e.x, e.y, roadGraph)) {
-                        intermediateNode.add(new RoadNode(roadWayPointID + "", e.x, e.y));
+                        miniNode.add(new RoadNode(roadWayPointID + "", e.x, e.y));
                         roadWayPointID++;
                     } else {
                         isIncluded = false;
@@ -141,22 +141,22 @@ public class SHPMapReader {
                     switch (feature.getAttribute(6).toString()) {
                         case "0":
                         case "1":
-                            newRoadWay.addNodes(intermediateNode);
+                            newRoadWay.addNodes(miniNode);
                             roadWayList.add(newRoadWay);
                             RoadWay reverseRoad = new RoadWay("-" + edgeID);
-                            for (int i = intermediateNode.size() - 1; i >= 0; i--) {
-                                reverseRoad.addNode(intermediateNode.get(i));
+                            for (int i = miniNode.size() - 1; i >= 0; i--) {
+                                reverseRoad.addNode(miniNode.get(i));
                             }
                             roadWayList.add(reverseRoad);
                             doubleDirectionCount++;
                             break;
                         case "2":
-                            newRoadWay.addNodes(intermediateNode);
+                            newRoadWay.addNodes(miniNode);
                             roadWayList.add(newRoadWay);
                             break;
                         case "3":
-                            for (int i = intermediateNode.size() - 1; i >= 0; i--) {
-                                newRoadWay.addNode(intermediateNode.get(i));
+                            for (int i = miniNode.size() - 1; i >= 0; i--) {
+                                newRoadWay.addNode(miniNode.get(i));
                                 newRoadWay.setId(edgeID);
                             }
                             roadWayList.add(newRoadWay);

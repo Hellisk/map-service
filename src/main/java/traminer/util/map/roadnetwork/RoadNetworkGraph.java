@@ -88,7 +88,7 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * Adds the given Way to this road network graph.
      *
-     * @param way The road way to add.
+     * @param node The road way to add.
      */
     public void addWay(RoadWay way) {
         if (way != null) waysList.put(way.getId(), way);
@@ -127,7 +127,7 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * Adds the given Relation to this road network graph.
      *
-     * @param relation The road relation to add.
+     * @param node The road relation to add.
      */
     public void addRelation(RoadRelation relation) {
         if (relation != null) relationsList.put(relation.getId(), relation);
@@ -233,8 +233,8 @@ public class RoadNetworkGraph implements MapInterface {
         // create one graph edge for every edge in the road ways
         for (RoadWay way : getWays()) {
             for (int i = 0; i < way.size() - 1; i++) {
-                RoadNode nodei = way.getNode(i);
-                RoadNode nodej = way.getNode(i + 1);
+                RoadNode nodei = way.getNodes().get(i);
+                RoadNode nodej = way.getNodes().get(i + 1);
                 graph.addEdge(way.getId() + "_E" + i, nodei.getId(), nodej.getId());
             }
         }

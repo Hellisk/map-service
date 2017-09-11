@@ -46,7 +46,7 @@ public class STEDDistanceCalculator extends TrajectoryDistanceFunction {
         }
 
         double calculateTimeInterval = duration / 1000;
-
+        
         List<STSegment> r3d = getSTPolyLine(r);
         List<STSegment> s3d = getSTPolyLine(s);
         long rStartTime = r.get(0).time();

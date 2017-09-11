@@ -16,12 +16,15 @@
  */
 package traminer.util.map.matching.hmm;
 
+import java.io.Serializable;
+
 import static java.lang.Math.*;
 
 /**
  * Implements various probability distributions.
  */
-class Distributions {
+@SuppressWarnings("serial")
+class Distributions implements Serializable {
 
     /**
      * Normal/Gaussian distribution

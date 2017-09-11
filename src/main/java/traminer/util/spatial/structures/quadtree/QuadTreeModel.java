@@ -9,10 +9,10 @@ import java.util.HashSet;
 /**
  * A spatial index model representing a QuadTree partitioning structure.
  * <p>
- * A Quadtree is a tree data structure in which each internal node
- * has exactly four children. Quadtrees partition a two-dimensional
+ * A Quadtree is a tree data structure in which each internal node 
+ * has exactly four children. Quadtrees partition a two-dimensional 
  * space by recursively subdividing it into four quadrants or regions.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -37,25 +37,19 @@ public class QuadTreeModel implements SpatialIndexModel {
      * North-East child node
      */
     private QuadTreeModel nodeNE = null;
-    /**
-     * South-West child node
-     */
+    /** South-West child node */
     private QuadTreeModel nodeSW = null;
-    /**
-     * South-East child node
-     */
+    /** South-East child node */
     private QuadTreeModel nodeSE = null;
 
     /**
-     * Creates an empty Quadtree model.
+     * Creates an empty Quadtree model. 
      */
-    public QuadTreeModel() {
-    }
-
+    private QuadTreeModel() {}
     /**
      * Builds a QuadTree model from the given QuadTree partitioning.
      *
-     * @param quadtree The Quadtree partitioning used to build this model.
+     * @param quadtree The Quadtree partitioning used to build this model. 
      */
     @SuppressWarnings("rawtypes")
     public QuadTreeModel(QuadTree quadtree) {
@@ -116,8 +110,8 @@ public class QuadTreeModel implements SpatialIndexModel {
     public QuadTreeModel getNodeSE() {
         return nodeSE;
     }
-
-    /**
+ 
+	/**
      * @return True if this node is a leaf node.
      */
     public boolean isLeaf() {
@@ -125,6 +119,11 @@ public class QuadTreeModel implements SpatialIndexModel {
                 nodeSE == null && nodeSW == null);
     }
 
+    /**
+     * Build the model recursively.
+     *
+     * @param node Current node in the recursion.
+     */
     @SuppressWarnings("rawtypes")
     private void build(QuadNode node) {
         this.boundary = node.getBoundary();
@@ -207,6 +206,7 @@ public class QuadTreeModel implements SpatialIndexModel {
         // found one partition
         if (node.isLeaf()) {
             idList.add(node.getNodeId());
+            return; // finish search in this branch
         }
         // tree search
         if (node.getNodeNW().getBoundary().intersects(obj)) { // NW

@@ -14,7 +14,7 @@ import java.util.HashSet;
  * useful data structure for several applications, such as searches involving a
  * multidimensional search key (e.g. range searches and nearest neighbor
  * searches). k-d trees are a special case of binary space partitioning trees.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
@@ -43,15 +43,15 @@ public class KdTreeModel implements SpatialIndexModel {
     /**
      * Creates an empty k-d Tree.
      */
-    public KdTreeModel() {
+    private KdTreeModel() {
     }
 
     /**
-     * Creates a k-d Tree model from the given
+     * Creates a k-d Tree model from the given 
      * k-d Tree partitioning.
      *
-     * @param tree The k-d Tree partitioning to build
-     *             the index from.
+     * @param tree The k-d Tree partitioning to build 
+     * the index from.
      */
     @SuppressWarnings("rawtypes")
     public KdTreeModel(KdTree tree) {
@@ -80,7 +80,7 @@ public class KdTreeModel implements SpatialIndexModel {
     public String getNodeId() {
         return nodeId;
     }
-
+	    
     /**
      * @return The tree that originates this tree/node.
      */

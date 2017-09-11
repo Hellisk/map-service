@@ -33,12 +33,13 @@ public class PointBasedFastMatching {
     private static final double C_A = 4;
     private static final double C_D = 1.4;
     private static final int K = 50;    // k nearest neighbour
-    private static final int EXTRA_POINT = 1;     // number of extra points for every unmatched trajectory segment
+    private static final int CONSECUTIVE_POINT = 4;     // number of consecutive points that required for every unmatched trajectory segment
+    private static final int EXTRA_POINT = 1;     // extra points on every road end
     private static final int NOISE_POINT = 1;     // number of matched points between two consecutive unmatched trajectory segment
 
     private Grid<PointWithSegment> grid;
     private final PointDistanceFunction distanceFunction;
-    AllPairsShortestPathFile allPairSP;
+    private AllPairsShortestPathFile allPairSP;
     private boolean isUpdate = false;
 
     // for graph navigation
@@ -49,14 +50,13 @@ public class PointBasedFastMatching {
     private GraphStreamDisplay gridDisplay = new GraphStreamDisplay();
 
 
-    PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, String allPairSPFilePath, boolean isUpdate) throws IOException {
+    PointBasedFastMatching(RoadNetworkGraph inputMap, PointDistanceFunction distFunc, int avgNodePerGrid, AllPairsShortestPathFile allPairSPFile, boolean isUpdate) throws IOException {
         this.distanceFunction = distFunc;
         this.isUpdate = isUpdate;
         buildGridIndex(inputMap, avgNodePerGrid);
         gridDisplay.setGroundTruthGraph(inputMap);
 
-        allPairSP = new AllPairsShortestPathFile(inputMap);
-        allPairSP.readShortestPathFiles(allPairSPFilePath);
+        allPairSP = allPairSPFile;
     }
 
     private void buildGridIndex(RoadNetworkGraph inputMap, int avgNodePerGrid) {
@@ -166,14 +166,14 @@ public class PointBasedFastMatching {
 
                 for (int j = 0; j < edgeScore.size(); j++) {
                     if (maxScore >= 0) {
-                        if (edgeScore.get(j)._2() < 0.8 * maxScore) {
+                        if (edgeScore.get(j)._2() < 0.6 * maxScore) {
                             edgeScore.remove(j);
                             j--;
                         } else {
                             filteredSegment.add(edgeScore.get(j)._1());
                         }
                     } else {
-                        if (edgeScore.get(j)._2() < maxScore / 0.8) {
+                        if (edgeScore.get(j)._2() < maxScore / 0.6) {
                             edgeScore.remove(j);
                             j--;
                         } else {
@@ -204,57 +204,49 @@ public class PointBasedFastMatching {
         if (isUpdate) {
             Collections.sort(unmatchedPointList);
             int trajCount = 0;
+            int consecutiveCount = 0;
             Trajectory newTraj = new Trajectory();
-            for (int i = 0; i < unmatchedPointList.size(); i++) {
-                if (i == 0) {
-                    if (unmatchedPointList.get(i) != 0) {
-                        for (int j = EXTRA_POINT; j > 0; j--) {
-                            newTraj.add(trajectory.get(unmatchedPointList.get(i) - j));
+            boolean startTracing = false;
+            int remainingNoise = NOISE_POINT;
+            for (int i = CONSECUTIVE_POINT - 1; i < unmatchedPointList.size(); i++) {
+                if (!startTracing) {
+                    if (unmatchedPointList.get(i) - unmatchedPointList.get(i - CONSECUTIVE_POINT + 1) <= remainingNoise + CONSECUTIVE_POINT) {
+                        for (int e = EXTRA_POINT; e > 0; e--) {
+                            if (unmatchedPointList.get(i - CONSECUTIVE_POINT + 1) - e >= 0) {
+                                newTraj.add(trajectory.get(unmatchedPointList.get(i - CONSECUTIVE_POINT + 1) - e));
+                            }
+                        }
+                        for (int j = i - CONSECUTIVE_POINT + 1; j < i; j++) {
+                            newTraj.add(trajectory.get(unmatchedPointList.get(j)));
+                        }
+                        newTraj.setId(trajectory.getId() + "_" + trajCount);
+                        startTracing = true;
+                        remainingNoise = NOISE_POINT - (unmatchedPointList.get(i) - unmatchedPointList.get(0) - CONSECUTIVE_POINT);
+                        trajCount++;
+                    }
+                } else if (unmatchedPointList.get(i - 1) + remainingNoise < unmatchedPointList.get(i)) {
+                    Trajectory tempTraj = new Trajectory(newTraj.getId() + "_" + trajCount);
+                    newTraj.add(trajectory.get(unmatchedPointList.get(i - 1)));
+                    for (int e = 1; e <= EXTRA_POINT; e++) {
+                        if (unmatchedPointList.get(i - 1) + e < unmatchedPointList.size()) {
+                            newTraj.add(trajectory.get(unmatchedPointList.get(i - 1) + e));
                         }
                     }
-                    newTraj.add(trajectory.get(unmatchedPointList.get(i)));
-                    newTraj.setId(trajectory.getId() + "_" + trajCount);
-                    trajCount++;
-                } else if (unmatchedPointList.get(i - 1) + 2 * EXTRA_POINT < unmatchedPointList.get(i)) {
-                    for (int j = 1; j <= EXTRA_POINT; j++) {
-                        newTraj.add(trajectory.get(unmatchedPointList.get(i - 1) + j));
-                    }
-                    Trajectory tempTraj = new Trajectory(newTraj.getId());
                     tempTraj.addAll(newTraj.getPoints());
                     unmatchedTrajList.add(tempTraj);
                     newTraj.clear();
-                    newTraj.setId(trajectory.getId() + "_" + trajCount);
-                    for (int j = EXTRA_POINT; j > 0; j--) {
-                        newTraj.add(trajectory.get(unmatchedPointList.get(i) - j));
-                    }
-                    newTraj.add(trajectory.get(unmatchedPointList.get(i)));
-                    trajCount++;
-                    if (i == unmatchedPointList.size() - 1) {
-                        if (unmatchedPointList.get(i) != trajectory.getCoordinates().size() - 1) {
-                            for (int j = 1; j <= EXTRA_POINT; j++) {
-                                newTraj.add(trajectory.get(unmatchedPointList.get(i) + j));
-                            }
-                        }
-                        Trajectory finalTraj = new Trajectory(newTraj.getId());
-                        finalTraj.addAll(newTraj.getPoints());
-                        unmatchedTrajList.add(finalTraj);
-                        trajCount++;
+                    remainingNoise = NOISE_POINT;
+                    startTracing = false;
+                    if (i + EXTRA_POINT + CONSECUTIVE_POINT - 1 < unmatchedPointList.size()) {
+                        i += EXTRA_POINT + CONSECUTIVE_POINT - 2;
                     }
                 } else {
-                    for (int j = 1; unmatchedPointList.get(i - 1) + j <= unmatchedPointList.get(i); j++) {
-                        newTraj.add(trajectory.get(unmatchedPointList.get(i - 1) + j));
-                    }
-                }
-            }
-            for (int i = 0; i < unmatchedTrajList.size(); i++) {
-                if (unmatchedTrajList.get(i).getCoordinates().size() - 2 * EXTRA_POINT <= NOISE_POINT) {
-                    unmatchedTrajList.remove(unmatchedTrajList.get(i));
-                    i--;
+                    newTraj.add(trajectory.get(unmatchedPointList.get(i - 1)));
+                    remainingNoise = remainingNoise - unmatchedPointList.get(i) - unmatchedPointList.get(i - 1) + 1;
                 }
             }
         }
         return new Pair<>(resultWay, unmatchedTrajList);
-
     }
 
     private PointWithSegment representativePointGen(Point trajectoryPoint, Segment candidateSegment) {
@@ -571,7 +563,14 @@ public class PointBasedFastMatching {
         return finalRoute;
     }
 
-    // add the intermediate nodes between two mini node as actual path, the last node excluded
+    /**
+     * add the intermediate nodes between two mini node as actual path, the last node excluded
+     *
+     * @param prevEndPoint   the last point of preceding matched segment
+     * @param currStartPoint the first point of current matched segment
+     * @param currRoadWay    the current road way that contains both segments
+     * @return the mini nodes to be added to final matching result
+     */
     private List<RoadNode> addIntermediateNodes(Point prevEndPoint, Point currStartPoint, RoadWay currRoadWay) {
         List<RoadNode> intermediateNodeList = new ArrayList<>();
         boolean startTracking = false;
@@ -583,7 +582,7 @@ public class PointBasedFastMatching {
                 startTracking = true;
             } else if (n.toPoint().equals2D(currStartPoint)) {
                 if (!startTracking)
-                    System.out.println("Add intermediate node error: last point appears first");
+//                    System.out.println("Add intermediate node error: last point appears first");
                 break;
             } else if (startTracking) {
                 intermediateNodeList.add(new RoadNode(currRoadWay.getId(), n.lon(), n.lat()));

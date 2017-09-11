@@ -2,7 +2,7 @@ package traminer.util.spatial.objects.st;
 
 import traminer.util.spatial.objects.Rectangle;
 
-/**
+/** 
  * A 2D Spatial-Temporal Rectangle (rectangle with temporal features), 
  * Composed by a spatial region (rectangle) and a time interval [t1,t2].
  * <p>
@@ -76,7 +76,7 @@ public class STRectangle extends Rectangle implements SpatialTemporalObject {
     }
 
     @Override
-    public boolean equalsST(SpatialTemporalObject obj) {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (obj instanceof STRectangle) {

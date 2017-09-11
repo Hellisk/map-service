@@ -1,4 +1,4 @@
-package traminer.util.map.matching.hmm;
+package traminer.util.map.matching.ghopper;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.matching.EdgeMatch;
@@ -22,9 +22,9 @@ import java.util.List;
  * Off-line map matching algorithm, using the Graphhopper library.
  * <p>
  * The map matching algorithm mainly follows the approach described in:
- * <br> "Newson, Paul; Krumm, John. Hidden Markov map matching through 
+ * <br> "Newson, Paul; Krumm, John. Hidden Markov map matching through
  * noise and sparseness. In: Proceedings of the 17th ACM SIGSPATIAL, 2009."
- * 
+ *
  * @author uqdalves
  */
 @SuppressWarnings("serial")

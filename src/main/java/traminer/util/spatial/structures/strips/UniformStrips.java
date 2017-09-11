@@ -16,12 +16,13 @@ import java.util.List;
  * <p>
  * Strips construction can be either Horizontal (X axis)
  * or Vertical (Y axis) defined by the StripsSplitPolicy.
- * <p>
+ * <p> 
  * Strips index position ranges from i = [0...n-1].
  *
- * @param <T> Type of spatial object to store in this partitioning.
- *            Objects must be inserted in a container object, XYObject<T>.
  * @author uqdalves
+ *
+ * @param <T> Type of spatial object to store in this partitioning. 
+ * Objects must be inserted in a container object, XYObject<T>.
  */
 @SuppressWarnings("serial")
 public class UniformStrips<T extends SpatialObject> implements SpatialDataStructure<T> {
@@ -200,7 +201,7 @@ public class UniformStrips<T extends SpatialObject> implements SpatialDataStruct
      * Return the adjacent strips partitions from the
      * strip in the given position [i].
      *
-     * @param i Strips index position ranges from i = [0...n-1]
+     * @param index Strips index position ranges from i = [0...n-1]
      * @return A list of adjacent strips, or an empty set
      * if the cell has no adjacent cells.
      */

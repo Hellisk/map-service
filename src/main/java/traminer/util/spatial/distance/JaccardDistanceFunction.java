@@ -4,7 +4,7 @@ import traminer.util.exceptions.DistanceFunctionException;
 
 /**
  * The Jaccard distance between two N-Dimensional vectors.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")

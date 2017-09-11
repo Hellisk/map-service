@@ -32,8 +32,9 @@ import java.util.List;
  * Elki library adapter. Bridge the compatibility between the methods
  * and objects of this library, and the Elki library functionalities.
  *
+ * @see http://elki.dbs.ifi.lmu.de/
+ *
  * @author uqdalves
- * @see "http://elki.dbs.ifi.lmu.de/"
  */
 @SuppressWarnings("serial")
 final class ElkiAdapter implements ClusteringInterface {

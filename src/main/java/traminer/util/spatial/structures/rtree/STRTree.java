@@ -11,27 +11,28 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Implements a 2D Sort-Tile-Recursive (STR) partitioning method
- * for R-Tree packing, as proposed in:
- * <p>
- * <br> Leutenegger, Scott T., Mario A. Lopez, and Jeffrey Edgington.
- * "STR: A simple and efficient algorithm for R-Tree packing." ICDE, 1997.
- * <p>
- * <p> STRTree constructs the RTree partitions by bulk-loading a
- * list of spatial object, thus, once the tree is constructed the
- * insertion or removal of additional object will have no affect
- * to the tree model.
- * <p>
- * <p> Each node of the STRTree stores a maximum number of entries.
- * For nodes at the leaf level, R is the bounding box of the objects
- * in the node. Leaf nodes may also have a maximum "fill rate" to ensure
- * the nodes will no be filled with more than a rate of the maximum node
- * capacity when the tree is constructed. This is particularly useful if
- * later insertions are intended.
+ *  Implements a 2D Sort-Tile-Recursive (STR) partitioning method
+ *  for R-Tree packing, as proposed in:
  *
- * @param <T> Type of spatial object to store in this tree. Objects must be
- *            inserted in a container object, XYObject<T>.
+ *  <br> Leutenegger, Scott T., Mario A. Lopez, and Jeffrey Edgington. 
+ *  "STR: A simple and efficient algorithm for R-Tree packing." ICDE, 1997.
+ *
+ *  <p> STRTree constructs the RTree partitions by bulk-loading a 
+ *  list of spatial object, thus, once the tree is constructed the
+ *  insertion or removal of additional object will have no affect
+ *  to the tree model.
+ *
+ *  <p> Each node of the STRTree stores a maximum number of entries.
+ *  For nodes at the leaf level, R is the bounding box of the objects 
+ *  in the node. Leaf nodes may also have a maximum "fill rate" to ensure
+ *  the nodes will no be filled with more than a rate of the maximum node
+ *  capacity when the tree is constructed. This is particularly useful if
+ *  later insertions are intended.
+ *
  * @author uqdalves
+ *
+ * @param <T> Type of spatial object to store in this tree. Objects must be 
+ * inserted in a container object, XYObject<T>.
  */
 @SuppressWarnings("serial")
 public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T> {

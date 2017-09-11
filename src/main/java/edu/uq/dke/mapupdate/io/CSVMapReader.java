@@ -16,7 +16,7 @@ import java.util.*;
  * Created by uqpchao on 22/05/2017.
  */
 public class CSVMapReader implements SpatialInterface {
-    private final RoadNetworkGraph roadGraph;
+    private RoadNetworkGraph roadGraph;
     private final String csvVerticesPath;
     private final String csvEdgesPath;
 
@@ -85,8 +85,9 @@ public class CSVMapReader implements SpatialInterface {
             if (idNodeMapping.containsKey(edgeInfo[1]) && idNodeMapping.containsKey(edgeInfo[2])) {
 
                 RoadWay newWay = new RoadWay(edgeInfo[0], distFunc, idNodeMapping.get(edgeInfo[1]), idNodeMapping.get(edgeInfo[2]));
-                nodeUpdate(nodes, newWay, locIndexMapping);
-                ways.add(newWay);
+                if (nodeUpdate(nodes, newWay, locIndexMapping)) {
+                    ways.add(newWay);
+                }
             }
         }
 
@@ -144,7 +145,7 @@ public class CSVMapReader implements SpatialInterface {
         BufferedReader brEdges = new BufferedReader(new FileReader(csvEdgesPath));
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = new RoadWay();
-            List<RoadNode> intermediateNodes = new ArrayList<>();
+            List<RoadNode> miniNode = new ArrayList<>();
             String[] edgeInfo = line.split("\\|");
             if (!edgeInfo[0].contains(",")) {
                 boolean isCompleteRoad = true;
@@ -167,7 +168,7 @@ public class CSVMapReader implements SpatialInterface {
                             minLat = Double.parseDouble(roadWayPoint[2]);
                         }
 
-                        intermediateNodes.add(newNode);
+                        miniNode.add(newNode);
                     } else {
                         System.err.println("Wrong road node:" + roadWayPoint.length);
                         isCompleteRoad = false;
@@ -176,15 +177,25 @@ public class CSVMapReader implements SpatialInterface {
                 }
                 if (isCompleteRoad) {
                     newWay.setId(edgeInfo[0]);
-                    newWay.setNodes(intermediateNodes);
-                    nodeUpdate(nodes, newWay, locIndexMapping);
-                    ways.add(newWay);
+                    newWay.setNodes(miniNode);
+                    if (nodeUpdate(nodes, newWay, locIndexMapping)) {
+                        ways.add(newWay);
+                    }
                 }
             } else {
                 System.out.println("Wrong road id info:" + edgeInfo[0]);
             }
         }
         brEdges.close();
+
+        List<RoadNode> removedRoadNodeList = new ArrayList<>();
+        for (RoadNode n : nodes) {
+            if (n.getDegree() == 0) {
+                removedRoadNodeList.add(n);
+            }
+        }
+        nodes.removeAll(removedRoadNodeList);
+        System.out.println("Total removed nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size());
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);
         roadGraph.setMaxLat(maxLat);
@@ -264,8 +275,9 @@ public class CSVMapReader implements SpatialInterface {
                 if (isCompleteRoad) {
                     newWay.setId(edgeInfo[0]);
                     newWay.setNodes(intermediateNodes);
-                    nodeUpdate(nodes, newWay, locIndexMapping);
-                    ways.add(newWay);
+                    if (nodeUpdate(nodes, newWay, locIndexMapping)) {
+                        ways.add(newWay);
+                    }
                 }
             } else {
                 System.out.println("Wrong road id info:" + edgeInfo[0]);
@@ -273,6 +285,15 @@ public class CSVMapReader implements SpatialInterface {
         }
 
         brEdges.close();
+
+        List<RoadNode> removedRoadNodeList = new ArrayList<>();
+        for (RoadNode n : nodes) {
+            if (n.getDegree() == 0) {
+                removedRoadNodeList.add(n);
+            }
+        }
+        nodes.removeAll(removedRoadNodeList);
+        System.out.println("Total removed nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size());
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);
         roadGraph.setMaxLat(maxLat);
@@ -285,11 +306,19 @@ public class CSVMapReader implements SpatialInterface {
         return roadGraph;
     }
 
-    private void nodeUpdate(List<RoadNode> nodeList, RoadWay roadWay, Map<String, Integer> mapping) {
+    private boolean nodeUpdate(List<RoadNode> nodeList, RoadWay roadWay, Map<String, Integer> mapping) {
         // find the corresponding end points
         RoadNode startPoint = roadWay.getNode(0);
         RoadNode endPoint = roadWay.getNode(roadWay.size() - 1);
+        startPoint.setToNonMiniNode();
+        endPoint.setToNonMiniNode();
 
+        for (RoadNode n : roadWay.getNodes()) {
+            if (n.isMiniNode() && mapping.containsKey(n.lon() + "_" + n.lat())) {
+                System.out.println("Error! mini node is an intersection as well:" + mapping.get(n.lon() + "_" + n.lat()));
+                return false;
+            }
+        }
         RoadNode startNode = nodeList.get(mapping.get(startPoint.lon() + "_" + startPoint.lat()));
         RoadNode endNode = nodeList.get(mapping.get(endPoint.lon() + "_" + endPoint.lat()));
         if (startNode.lon() == startPoint.lon() && startNode.lat() == startPoint.lat() && endNode.lon() == endNode.lon() && endNode.lat() == endNode.lat()) {
@@ -299,8 +328,7 @@ public class CSVMapReader implements SpatialInterface {
             System.out.println("Wrong node match");
         }
 
-        startPoint.setToNonMiniNode();
-        endPoint.setToNonMiniNode();
+        return true;
     }
 
     public void mapCompletenessCheck(RoadNetworkGraph roadGraph) {

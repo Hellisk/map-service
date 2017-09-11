@@ -32,8 +32,8 @@ class MaxStaySegmentation implements TrajectorySegmentation {
     /**
      * Use the default Euclidean distance function.
      *
-     * @param timeThreshold
-     * @param distanceThreshold
+     * @param maxStayTime
+     * @param maxDistanceThreshold
      */
     public MaxStaySegmentation(long timeThreshold, double distanceThreshold) {
         if (timeThreshold <= 0) {
@@ -50,7 +50,7 @@ class MaxStaySegmentation implements TrajectorySegmentation {
     }
 
     /**
-     * @param timeThreshold
+     * @param maxStayTime
      * @param distanceThreshold
      * @param distFunc
      */

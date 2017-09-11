@@ -231,7 +231,7 @@ public class Circle extends SimpleSpatialObject {
         }
 
         // TODO report change from ture to !obj.covers(new Point(centerX, centerY))
-        return !obj.within(this) && this.within(obj);
+        return !obj.covers(new Point(centerX, centerY));
     }
 
     @Override

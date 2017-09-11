@@ -9,6 +9,7 @@ import traminer.util.map.roadnetwork.RoadWay;
 import traminer.util.spatial.structures.SpatialIndexModel;
 import traminer.util.trajectory.Trajectory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -44,23 +45,22 @@ public final class MapMatchingService implements MapInterface {
      *
      * @param trajectories     The stream of trajectories to match.
      * @param roadNetworkGraph The road network graph to match to.
-     * @return A Stream of road ways, the ID of each way is the ID of
-     * its corresponding trajectory.
+     * @return A Stream with the lists of road nodes that best
+     * match each trajectory.
      */
-    public Stream<RoadWay> doMatching(
+    public Stream<List<PointNodePair>> doMatching(
             final Stream<Trajectory> trajectories,
             final RoadNetworkGraph roadNetworkGraph) {
-        Stream<RoadWay> matchWays =
-                trajectories.sequential().map(new Function<Trajectory, RoadWay>() {
+        Stream<List<PointNodePair>> matchNodes =
+                trajectories.sequential().map(new Function<Trajectory, List<PointNodePair>>() {
                     @Override
-                    public RoadWay apply(Trajectory trajectory) {
-                        RoadWay matchWay = matchingMethod.doMatching(
+                    public List<PointNodePair> apply(Trajectory trajectory) {
+                        List<PointNodePair> matchPairs = matchingMethod.doMatching(
                                 trajectory, roadNetworkGraph);
-                        matchWay.setId(trajectory.getId());
-                        return matchWay;
+                        return matchPairs;
                     }
                 });
-        return matchWays;
+        return matchNodes;
     }
 
     /**
@@ -70,17 +70,17 @@ public final class MapMatchingService implements MapInterface {
      * @param trajectories     The stream of trajectories to match.
      * @param roadNetworkGraph The road network graph to match to.
      * @param numThreads       Number of parallel threads.
-     * @return A Stream of road ways, the ID of each way
-     * is the ID of its corresponding trajectory.
+     * @return A Stream with the lists of road nodes that best
+     * match each trajectory.
      */
-    public Stream<RoadWay> doParallelMatching(
+    public Stream<List<PointNodePair>> doParallelMatching(
             final Stream<Trajectory> trajectories,
             final RoadNetworkGraph roadNetworkGraph,
             final int numThreads) {
         ParallelMapMatching mapMatching =
                 new ParallelMapMatching(matchingMethod);
         try {
-            Stream<RoadWay> result = mapMatching
+            Stream<List<PointNodePair>> result = mapMatching
                     .doMatching(trajectories, roadNetworkGraph, numThreads);
             return result;
         } catch (InterruptedException | ExecutionException e) {

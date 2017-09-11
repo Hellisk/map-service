@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.io;
 
-import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -15,6 +14,8 @@ import java.util.List;
 import java.util.Stack;
 
 /**
+ * shortest path file reader and writer
+ * <p>
  * Created by uqpchao on 28/06/2017.
  */
 public class AllPairsShortestPathFile {
@@ -26,113 +27,57 @@ public class AllPairsShortestPathFile {
     private int matrixSize = 0;
     private int[][][] shortestPathMatrix;
     private double[][] distanceMatrix;
-
-
-    public AllPairsShortestPathFile(String cityName, String inputMapPath, boolean isShpFile) throws JDOMException, IOException {
-        RoadNetworkGraph roadNetworkGraph;
-        String inputVertexPath = inputMapPath + cityName + "_vertices.txt";
-        String inputEdgePath = inputMapPath + cityName + "_edges.txt";
-        CSVMapReader csvMapReader = new CSVMapReader(inputVertexPath, inputEdgePath);
-        if (isShpFile) {
-            roadNetworkGraph = csvMapReader.readShapeCSV();
-        } else {
-            roadNetworkGraph = csvMapReader.readCSV();
-        }
-        matrixSize = roadNodeRegistration(roadNetworkGraph);
-        System.out.println("Matrix size is:" + matrixSize);
-        shortestPathMatrix = new int[matrixSize][matrixSize][2];
-        distanceMatrix = new double[matrixSize][matrixSize];
-
-        // initialize distances to infinity, and shortest path lists
-        for (int v = 0; v < matrixSize; v++) {
-            for (int w = 0; w < matrixSize; w++) {
-                if (v == w) {
-                    shortestPathMatrix[v][w][0] = v;
-                    shortestPathMatrix[v][w][1] = w;
-                    distanceMatrix[v][w] = 0;
-
-                } else {
-                    shortestPathMatrix[v][w][0] = -1;
-                    shortestPathMatrix[v][w][1] = -1;
-                    distanceMatrix[v][w] = Double.POSITIVE_INFINITY;
-                }
-            }
-        }
-        // register initial edges
-        roadWayRegistration(roadNetworkGraph);
-        System.out.println("Initialisation is done");
-    }
+    private int iteration = 0;
+    private RoadNetworkGraph roadNetworkGraph;
 
     public AllPairsShortestPathFile(RoadNetworkGraph roadNetworkGraph) {
-        matrixSize = roadNodeRegistration(roadNetworkGraph);
+        this.roadNetworkGraph = isolatedNodeRemoval(roadNetworkGraph);
+        matrixSize = roadNodeRegistration();
         System.out.println("Matrix size is:" + matrixSize);
         shortestPathMatrix = new int[matrixSize][matrixSize][2];
         distanceMatrix = new double[matrixSize][matrixSize];
-
-        // initialize distances to infinity, and shortest path lists
-        for (int v = 0; v < matrixSize; v++) {
-            for (int w = 0; w < matrixSize; w++) {
-                if (v == w) {
-                    shortestPathMatrix[v][w][0] = v;
-                    shortestPathMatrix[v][w][1] = w;
-                    distanceMatrix[v][w] = 0;
-
-                } else {
-                    shortestPathMatrix[v][w][0] = -1;
-                    shortestPathMatrix[v][w][1] = -1;
-                    distanceMatrix[v][w] = Double.POSITIVE_INFINITY;
-                }
-            }
-        }
-
-        // maintain ID pair and road way mapping
-        for (RoadWay way : roadNetworkGraph.getWays()) {
-            if (vertexIDMap.containsKey(way.getNode(0).lon() + "_" + way.getNode(0).lat()) && vertexIDMap.containsKey(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat())) {
-                int endPointA = vertexIDMap.get(way.getNode(0).lon() + "_" + way.getNode(0).lat());
-                int endPointB = vertexIDMap.get(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
-                if (endPointA == endPointB) {
-                    System.out.println("Self loop edge occurred.");
-                } else {
-                    idPairRoadMap.put(endPointA + "_" + endPointB, way);
-                }
-            } else System.out.println("RoadNode doesn't exist");
-            for (Segment s : way.getEdges()) {
-                if (!segmentRoadMap.containsKey(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y())) {
-                    segmentRoadMap.put(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y(), way);
-                } else {
-                    System.out.println("Same segment on different road ways");
-                }
-            }
-        }
-        System.out.println("Initialisation is done");
+        System.out.println("Matrices space created");
     }
 
+    /**
+     * input a road network and generate an all pair file from it
+     *
+     * @param roadNetworkGraph the current road network file
+     * @param iteration        the number of current iteration, used in creating the folder
+     */
+    public AllPairsShortestPathFile(RoadNetworkGraph roadNetworkGraph, int iteration) {
+        this.roadNetworkGraph = isolatedNodeRemoval(roadNetworkGraph);
+        this.iteration = iteration;
+        matrixSize = roadNodeRegistration();
+        System.out.println("Matrix size is:" + matrixSize);
+        shortestPathMatrix = new int[matrixSize][matrixSize][2];
+        distanceMatrix = new double[matrixSize][matrixSize];
+        System.out.println("Matrices space created");
+    }
+
+    /**
+     * calculate all-pair shortest paths and store them into files
+     *
+     * @param outputFilePath folder of output shortest path file and shortest distance file
+     * @throws IOException BufferedWriter exception
+     */
     public void writeShortestPathFiles(String outputFilePath) throws IOException {
+        // initialize shortest path matrices
+        matrixInit();
 
         // Calculate all pairs shortest paths
         floydWarshallUpdate();
 
-        // check whether there is an isolated point inside
-        for (int i = 0; i < matrixSize; i++) {
-            boolean isIsolated = true;
-            for (int j = 0; j < matrixSize; j++) {
-                if (distanceMatrix[i][j] != 0) {
-                    isIsolated = false;
-                    break;
-                }
-            }
-            if (isIsolated) {
-                System.out.println("Isolated point found:" + i);
-            }
-        }
         // shortest path output
         System.out.println("Start writing shortest path files.");
         File outputFolder = new File(outputFilePath);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
-        BufferedWriter shortestPathWriter = new BufferedWriter(new FileWriter(outputFilePath + "shortestPaths.txt"));
-        BufferedWriter shortestDistanceWriter = new BufferedWriter(new FileWriter(outputFilePath + "shortestDistances.txt"));
+        BufferedWriter shortestPathWriter;
+        BufferedWriter shortestDistanceWriter;
+        shortestPathWriter = new BufferedWriter(new FileWriter(outputFilePath + this.iteration + "_shortestPaths.txt"));
+        shortestDistanceWriter = new BufferedWriter(new FileWriter(outputFilePath + this.iteration + "_shortestDistances.txt"));
         int infinityCount = 0;
         DecimalFormat df = new DecimalFormat("0.0000");
         for (int i = 0; i < matrixSize; i++) {
@@ -144,15 +89,27 @@ public class AllPairsShortestPathFile {
                 shortestPathWriter.write(i + "," + j + "," + shortestPathMatrix[i][j][0] + "," + shortestPathMatrix[i][j][1] + "\n");
             }
         }
-        System.out.println("Number of infinity value:" + infinityCount);
+        System.out.println("Number of infinity value in iteration " + this.iteration + ":" + infinityCount);
         shortestPathWriter.close();
         shortestDistanceWriter.close();
     }
 
+    /**
+     * read shortest path information from existing shortest path files
+     *
+     * @param inputFilePath folder of shortest path files
+     * @throws IOException BufferedReader exception
+     */
     public void readShortestPathFiles(String inputFilePath) throws IOException {
+        // register the road ways into the hash maps
+        roadWayRegistration();
+
         // read shortest path file
         System.out.println("Start reading shortest path files");
-        BufferedReader shortestPathReader = new BufferedReader(new FileReader(inputFilePath + "shortestPaths.txt"));
+        BufferedReader shortestPathReader;
+        BufferedReader shortestDistanceReader;
+        shortestPathReader = new BufferedReader(new FileReader(inputFilePath + this.iteration + "_shortestPaths.txt"));
+        shortestDistanceReader = new BufferedReader(new FileReader(inputFilePath + this.iteration + "_shortestDistances.txt"));
         String line = shortestPathReader.readLine();
         while (line != null) {
             String[] elements = line.split(",");
@@ -166,16 +123,16 @@ public class AllPairsShortestPathFile {
             line = shortestPathReader.readLine();
         }
         shortestPathReader.close();
-        System.out.println("Shortest path files imported");
 
         // read shortest distance file
-        BufferedReader shortestDistanceReader = new BufferedReader(new FileReader(inputFilePath + "shortestDistances.txt"));
         line = shortestDistanceReader.readLine();
+        int infiniteCount = 0;
         while (line != null) {
             String[] elements = line.split(",");
             if (elements.length == 3) {
                 if (elements[2].equals("∞")) {
                     distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Double.POSITIVE_INFINITY;
+                    infiniteCount++;
                 } else
                     distanceMatrix[Integer.parseInt(elements[0])][Integer.parseInt(elements[1])] = Double.parseDouble(elements[2]);
             } else {
@@ -183,8 +140,92 @@ public class AllPairsShortestPathFile {
             }
             line = shortestDistanceReader.readLine();
         }
+        System.out.println("Shortest path files imported, infinite value count:" + infiniteCount);
     }
 
+    /**
+     * initialize the shortest path matrix and shortest distance matrix
+     */
+    private void matrixInit() {
+        // initialize distances to infinity, and shortest path lists
+        for (int v = 0; v < matrixSize; v++) {
+            for (int w = 0; w < matrixSize; w++) {
+                if (v == w) {
+                    shortestPathMatrix[v][w][0] = v;
+                    shortestPathMatrix[v][w][1] = w;
+                    distanceMatrix[v][w] = 0;
+
+                } else {
+                    shortestPathMatrix[v][w][0] = -1;
+                    shortestPathMatrix[v][w][1] = -1;
+                    distanceMatrix[v][w] = Double.POSITIVE_INFINITY;
+                }
+            }
+        }
+        System.out.println("Matrix initialisation is done");
+
+        // add vertex distance for every edge to the road ways
+        for (RoadWay way : this.roadNetworkGraph.getWays()) {
+            double distance = 0;
+            if (way.getDistance() == 0) {
+                System.out.println("The road way doesn't contain distance.");
+                for (int i = 0; i < way.size() - 1; i++) {
+                    distance += distanceFunction.distance(way.getNode(i).toPoint(), way.getNode(i + 1).toPoint());
+                }
+            } else distance = way.getDistance();
+            if (vertexIDMap.containsKey(way.getNode(0).lon() + "_" + way.getNode(0).lat()) && vertexIDMap.containsKey(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat())) {
+                int endPointA = vertexIDMap.get(way.getNode(0).lon() + "_" + way.getNode(0).lat());
+                int endPointB = vertexIDMap.get(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
+                if (endPointA == endPointB) {
+                    System.out.println("Self loop edge occurred.");
+                } else {
+                    distanceMatrix[endPointA][endPointB] = distance;
+                    shortestPathMatrix[endPointA][endPointB][0] = endPointA;
+                    shortestPathMatrix[endPointA][endPointB][1] = endPointB;
+
+//                    // TODO test undirected part
+//                    distanceMatrix[endPointB][endPointA] = distance;
+//                    shortestPathMatrix[endPointB][endPointA][0] = endPointB;
+//                    shortestPathMatrix[endPointB][endPointA][1] = endPointA;
+                }
+            } else
+                System.out.println("Road node pair doesn't exist:" + way.getNode(0).lon() + "_" + way.getNode(0).lat() + "," + way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
+        }
+        System.out.println("The existing road ways are imported");
+    }
+
+    /**
+     * remove all road nodes that have no edge connected
+     *
+     * @param roadNetworkGraph input road network
+     * @return road network after removing all isolated nodes
+     */
+    private RoadNetworkGraph isolatedNodeRemoval(RoadNetworkGraph roadNetworkGraph) {
+        int maxDegree = 0;
+        int nodeRemoveCount = 0;
+
+        // eliminate the road nodes that have no edges
+        List<RoadNode> removedRoadNodeList = new ArrayList<>();
+        for (RoadNode n : roadNetworkGraph.getNodes()) {
+            if (n.getDegree() == 0) {
+                removedRoadNodeList.add(n);
+                nodeRemoveCount++;
+            }
+            if (maxDegree < n.getDegree())
+                maxDegree = n.getDegree();
+        }
+        for (RoadNode n : removedRoadNodeList) {
+            roadNetworkGraph.getNodes().remove(n);
+        }
+
+        System.out.println("All pair file: Number of isolated road nodes = " + nodeRemoveCount);
+        System.out.println("All pair file: max degree = " + maxDegree);
+        return roadNetworkGraph;
+    }
+
+    /**
+     * calculate shortest path between every vertex pair using Floyd-Warshall algorithm. The complexity is O(v^3)
+     */
     private void floydWarshallUpdate() {
         // Floyd-Warshall updates
         for (int i = 0; i < matrixSize; i++) {
@@ -212,65 +253,76 @@ public class AllPairsShortestPathFile {
         }
     }
 
-    private int roadNodeRegistration(RoadNetworkGraph inputMap) {
+    /**
+     * give every road node an index id, which will be used to find the position
+     *
+     * @return road node count
+     */
+    private int roadNodeRegistration() {
         int idCount = 0;
         // create one graph node per road network node.
-        for (RoadNode node : inputMap.getNodes()) {
+        for (RoadNode node : this.roadNetworkGraph.getNodes()) {
             if (node.getDegree() != 0) {
                 if (!vertexIDMap.containsKey(node.lon() + "_" + node.lat())) {
                     vertexIDMap.put(node.lon() + "_" + node.lat(), idCount);
                     idCount++;
-                } else System.out.println("Duplicated roadNode:" + node.getId());
+                } else
+                    System.out.println("Duplicated roadNode:" + node.getId() + ", the road network should guarantee the uniqueness of every road node");
             }
         }
+        int totalNodeCount = idCount;
+        for (RoadWay w : this.roadNetworkGraph.getWays()) {
+            for (RoadNode n : w.getNodes()) {
+                totalNodeCount++;
+            }
+        }
+        System.out.println("totalNodeCount = " + totalNodeCount);
         return idCount;
     }
 
-    private int roadWayNodeRegistration(RoadNetworkGraph inputMap, int idCount) {
-
-        // create one graph node per road network node.
-        for (RoadWay way : inputMap.getWays()) {
-            for (int i = 0; i < way.size() - 1; i++) {
-                if (!vertexIDMap.containsKey(way.getNode(i).lon() + "_" + way.getNode(i).lat())) {
-                    vertexIDMap.put(way.getNode(i).lon() + "_" + way.getNode(i).lat(), idCount);
-                    idCount++;
-                } else {
-                    System.out.println("Duplicated roadWayNode:" + way.getNode(i).getId());
-                }
-            }
-        }
-        return idCount;
-    }
-
-    private void roadWayRegistration(RoadNetworkGraph inputMap) {
-        // add vertex distance for every edge in the road ways
-        for (RoadWay way : inputMap.getWays()) {
-            double distance = 0;
-            if (way.getDistance() == 0) {
-                for (int i = 0; i < way.size() - 1; i++) {
-                    distance += distanceFunction.distance(way.getNode(i).toPoint(), way.getNode(i + 1).toPoint());
-                }
-            } else distance = way.getDistance();
+    /**
+     * register all existing connections to hash maps
+     */
+    private void roadWayRegistration() {
+        for (RoadWay way : this.roadNetworkGraph.getWays()) {
             if (vertexIDMap.containsKey(way.getNode(0).lon() + "_" + way.getNode(0).lat()) && vertexIDMap.containsKey(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat())) {
                 int endPointA = vertexIDMap.get(way.getNode(0).lon() + "_" + way.getNode(0).lat());
                 int endPointB = vertexIDMap.get(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
-                if (endPointA == endPointB) {
-                    System.out.println("Self loop edge occurred.");
+                idPairRoadMap.put(endPointA + "_" + endPointB, way);
+            } else
+                System.out.println("Road node pair doesn't exist:" + way.getNode(0).lon() + "_" + way.getNode(0).lat() + "," + way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
+            for (Segment s : way.getEdges()) {
+                if (!this.segmentRoadMap.containsKey(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y())) {
+                    this.segmentRoadMap.put(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y(), way);
                 } else {
-                    distanceMatrix[endPointA][endPointB] = distance;
-                    shortestPathMatrix[endPointA][endPointB][0] = endPointA;
-                    shortestPathMatrix[endPointA][endPointB][1] = endPointB;
-
-                    // undirected graph
-                    distanceMatrix[endPointB][endPointA] = distance;
-                    shortestPathMatrix[endPointB][endPointA][0] = endPointB;
-                    shortestPathMatrix[endPointB][endPointA][1] = endPointA;
-                    idPairRoadMap.put(endPointA + "_" + endPointB, way);
+                    System.out.println("Same segment on different road ways");
                 }
-            } else System.out.println("RoadNode doesn't exist:" + way.getNode(0).lon() + "_" + way.getNode(0).lat());
+            }
         }
-        System.out.println("Navigate map created");
     }
+
+
+//    public void roadMapRegistration() {
+//        // maintain ID pair and road way mapping
+//        for (RoadWay way : this.roadNetworkGraph.getWays()) {
+//            if (this.vertexIDMap.containsKey(way.getNode(0).lon() + "_" + way.getNode(0).lat()) && this.vertexIDMap.containsKey(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat())) {
+//                int endPointA = this.vertexIDMap.get(way.getNode(0).lon() + "_" + way.getNode(0).lat());
+//                int endPointB = this.vertexIDMap.get(way.getNode(way.size() - 1).lon() + "_" + way.getNode(way.size() - 1).lat());
+//                if (endPointA == endPointB) {
+//                    System.out.println("Self loop edge occurred.");
+//                } else {
+//                    this.idPairRoadMap.put(endPointA + "_" + endPointB, way);
+//                }
+//            } else System.out.println("Road node doesn't exist");
+//            for (Segment s : way.getEdges()) {
+//                if (!this.segmentRoadMap.containsKey(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y())) {
+//                    this.segmentRoadMap.put(s.p1().x() + "_" + s.p1().y() + "," + s.p2().x() + "_" + s.p2().y(), way);
+//                } else {
+//                    System.out.println("Same segment on different road ways");
+//                }
+//            }
+//        }
+//    }
 
     public double getShortestDistance(Segment startSegment, Segment endSegment) {
         if (vertexIDMap.containsKey(startSegment.p2().x() + "_" + startSegment.p2().y()) && vertexIDMap.containsKey(endSegment.p1().x() + "_" + endSegment.p1().y())) {
@@ -332,7 +384,7 @@ public class AllPairsShortestPathFile {
                 startTracking = true;
                 prevPointLoc = currPointLoc;
             } else if (currPointLoc.equals(endCoordinate)) {
-                if (prevPointLoc.equals("")) {
+                if (!startTracking) {
                     distance = Double.POSITIVE_INFINITY;
                     break;
                 } else {
@@ -379,6 +431,9 @@ public class AllPairsShortestPathFile {
                 Stack<Integer> path = new Stack<>();
                 path.push(endPoint);
                 for (int[] e = shortestPathMatrix[startPoint][endPoint]; e[0] != startPoint; e = shortestPathMatrix[startPoint][e[0]]) {
+                    if (e[0] == -1) {
+                        System.out.println("test");
+                    }
                     path.push(e[0]);
                 }
                 if (startPoint != endPoint) {
@@ -406,7 +461,7 @@ public class AllPairsShortestPathFile {
                         }
                     } else {
                         // TODO find the reason why it happens
-//                        System.out.println("No edge between point pair:" + prevPoint + "," + currPoint);
+                        System.out.println("No edge between point pair:" + prevPoint + "," + currPoint);
                     }
                     prevPoint = currPoint;
                 }
@@ -431,7 +486,7 @@ public class AllPairsShortestPathFile {
             } else if (currPointLoc.equals(endPoint)) {
                 if (!startTracking)
                     // TODO find the reason why it happens
-                    System.out.println("Add intermediate node to shortest path error: last point appears first");
+//                    System.out.println("Add intermediate node to shortest path error: last point appears first");
                 break;
             } else if (startTracking) {
                 intermediateNodeList.add(new RoadNode(currRoadWay.getId(), n.lon(), n.lat()));

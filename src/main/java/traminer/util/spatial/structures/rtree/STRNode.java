@@ -8,11 +8,12 @@ import traminer.util.spatial.structures.SpatialPartition;
 /**
  * A spatial partition representing a node in a STRTree.
  * <p>
- * Each node is represented by its boundary rectangle,
+ * Each node is represented by its boundary rectangle, 
  * and contains the list of spatial objects in the node.
+ * 
+ * @author uqdalves
  *
  * @param <T> Type of spatial object to store in this node.
- * @author uqdalves
  */
 @SuppressWarnings("serial")
 public class STRNode<T extends SpatialObject> extends SpatialPartition<XYObject<T>> {

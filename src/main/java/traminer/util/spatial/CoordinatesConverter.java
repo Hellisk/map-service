@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Service to convert latitude and longitude coordinates
  * to Cartesian/Mercator coordinates, and vice-versa.
- *
+ * 
  * @author uqdalves
  */
 @SuppressWarnings("serial")
