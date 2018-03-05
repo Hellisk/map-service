@@ -93,7 +93,7 @@ public class CSVMapWriter implements SpatialInterface {
                 // remove one road way from the corresponding end points
                 if (nodeRemovalCount.containsKey(w.getNode(0).getId())) {
                     nodeRemovalCount.replace(w.getNode(0).getId(), nodeRemovalCount.get(w.getNode(0).getId()) + 1);
-                } else nodeRemovalCount.put(w.getNode(0).lon() + "_" + w.getNode(0).lat(), 1);
+                } else nodeRemovalCount.put(w.getNode(0).getId(), 1);
                 if (nodeRemovalCount.containsKey(w.getNode(w.size() - 1).getId())) {
                     nodeRemovalCount.replace(w.getNode(w.size() - 1).getId(), nodeRemovalCount.get(w.getNode(w.size() - 1).getId()) + 1);
                 } else nodeRemovalCount.put(w.getNode(w.size() - 1).getId(), 1);

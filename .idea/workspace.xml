@@ -1,309 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" line="59" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" line="61" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c03661cd-a46a-4293-97de-353991ff76b0" name="Default" comment="Unfolding maps visualization completed. map-matching evaluation checked, data input format changed. Poor precision-recall still.&#10;&#10;TODO: Check the map-matching algorithm.">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/JMapViewer.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/JMapViewer_src.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_googlecode_gentyref_gentyref_1_1_0.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_imglib2_imglib2_4_2_1.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bushe_eventbus_1_4.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_1_3_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_android_arm_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_android_x86_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_linux_armhf_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_linux_ppc64le_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_linux_x86_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_linux_x86_64_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_macosx_x86_64_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_platform_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_windows_x86_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_artoolkitplus_windows_x86_64_2_3_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_android_arm_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_android_x86_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_linux_armhf_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_linux_ppc64le_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_linux_x86_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_linux_x86_64_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_macosx_x86_64_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_platform_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_windows_x86_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_ffmpeg_windows_x86_64_3_2_1_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_android_arm_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_android_x86_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_linux_armhf_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_linux_ppc64le_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_linux_x86_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_linux_x86_64_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_macosx_x86_64_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_platform_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_windows_x86_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flandmark_windows_x86_64_1_07_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_linux_armhf_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_linux_x86_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_linux_x86_64_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_platform_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_windows_x86_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_flycapture_windows_x86_64_2_9_3_43_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_linux_armhf_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_linux_ppc64le_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_linux_x86_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_linux_x86_64_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_macosx_x86_64_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_platform_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_windows_x86_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libdc1394_windows_x86_64_2_2_4_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect2_0_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect2_linux_x86_0_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect2_linux_x86_64_0_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect2_platform_0_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_linux_armhf_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_linux_ppc64le_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_linux_x86_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_linux_x86_64_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_macosx_x86_64_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_platform_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_windows_x86_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_libfreenect_windows_x86_64_0_5_3_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_librealsense_1_9_6_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_librealsense_linux_x86_1_9_6_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_librealsense_linux_x86_64_1_9_6_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_librealsense_platform_1_9_6_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_android_arm_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_android_x86_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_linux_armhf_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_linux_ppc64le_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_linux_x86_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_linux_x86_64_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_macosx_x86_64_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_platform_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_windows_x86_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_opencv_windows_x86_64_3_2_0_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_videoinput_0_200_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_videoinput_platform_0_200_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_videoinput_windows_x86_0_200_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacpp_presets_videoinput_windows_x86_64_0_200_1_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacv_1_3_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_bytedeco_javacv_platform_1_3_3.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_scijava_parsington_1_0_0.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_scijava_scijava_common_2_65_0.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace-gs625-5092.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/JMapViewer.jar" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/JMapViewer_Demo.jar" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/JMapViewer_src.jar" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingResult.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/PointProjection.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/SpatialFunc.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/MinPriorityQueue.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/Demo.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapmatching/algorithm/PointBasedFastMatching.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBCAN.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBRCAN.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBSCAN.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Factory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Filter.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/KState.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Sample.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateCandidate.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateMemory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateTransition.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Benchmark.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Matcher.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherCandidate.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherFactory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherKState.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherSample.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherServer.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherTransition.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Minset.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/ServerControl.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BaseRoad.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BfmapReader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BfmapWriter.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/Heading.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/PostGISReader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/RoadReader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/RoadWriter.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Distance.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Loader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Road.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/RoadMap.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/RoadPoint.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Route.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Time.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/TimePriority.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Group.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Scheduler.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/StaticScheduler.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Task.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Worker.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Geography.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Intercept.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Intersect.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/QuadTreeIndex.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/SpatialIndex.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/SpatialOperator.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Vector.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/AbstractEdge.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Cost.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Dijkstra.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Edge.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Graph.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Path.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Point.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Router.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TemporaryMemory.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TrackerControl.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TrackerServer.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/AbstractServer.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/PostgresSource.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Quadruple.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Quintuple.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/SampleReader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Sextuple.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/SourceException.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Stopwatch.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/TimedSampleReader.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Triple.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Tuple.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/package-info.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/main/resources/logback.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBCANTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBRCANTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBSCANTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/NYCSample.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/FilterTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/KStateTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/StateTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherExample.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherKStateTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherSampleTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MinsetTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/ServerTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/road/BfmapReaderTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/road/PostGISReaderTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadMapTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadPointTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RouteTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/Testmap.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/GeographyTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/QuadTreeIndexTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/SpatialExample.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/DijkstraBenchmark.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/DijkstraTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/EdgeTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/GraphTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/PathTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/tracker/TemporaryMemoryTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/tracker/TrackerServerTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/util/AbstractServerTest.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/analysis/xba96de419e711691b9445d6a6307c170.csv" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-001.geojson" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-001.json" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-015.geojson" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-015.json" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/test/src/test/resources/logback.xml" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/Hellisk.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/Hellisk.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/uqpchao.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/uqpchao.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/MapUpdate.iml" afterPath="$PROJECT_DIR$/MapUpdate.iml" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/algorithm/AhmedFrechetEvaluation2013.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/AhmedFrechetEvaluation2013.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/algorithm/AhmedHausdorffEvaluation2013.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/AhmedHausdorffEvaluation2013.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/algorithm/MapMatchingEvaluation.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/MapMatchingEvaluation.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/algorithm/TrajMatchingEvaluation.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/Edge.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/Edge.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/GeneratePaths.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/GeneratePaths.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/IntervalComparator.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/IntervalComparator.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/IntervalComparatorEdge.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/IntervalComparatorEdge.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/Line.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/Line.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/MapMatching.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/MapMatching.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/PathLabelComparator.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/PathLabelComparator.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/ReadFiles.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/ReadFiles.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/io/Vertex.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/io/Vertex.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/AllPairsShortestPathFile.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/AllPairsShortestPathFile.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/lib/HausdorffDistance.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/HausdorffDistance.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/lib/SpatialFunc.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/SpatialFunc.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/algorithm/AhmedTraceMerge2012.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/algorithm/AhmedTraceMerge2012.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/algorithm/DaviesKDE2006.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/algorithm/DaviesKDE2006.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/io/Edge.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/io/Edge.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/io/Line.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/io/Line.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/io/PoseFile.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/io/PoseFile.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/io/TrajectoryLoader.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/io/TrajectoryLoader.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/io/Vertex.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapinference/io/Vertex.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/algorithm/NewsonHMM2009.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/algorithm/PointBasedFastMatching.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/algorithm/YouzeFastMatching2012.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapmatching/algorithm/YouzeFastMatching2012.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/io/PointWithSegment.java" afterPath="$PROJECT_DIR$/src/main/test/oldversion/mapmatching/io/PointWithSegment.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmerge/SPBasedRoadWayFiltering.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmerge/SPBasedRoadWayFiltering.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/GraphStreamDisplay.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/GraphStreamDisplay.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/UnfoldingMapDemo.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/MapMatchingMethod.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/MapMatchingMethod.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointNodePair.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointNodePair.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/Distributions.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/Distributions.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/ForwardBackwardAlgorithm.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ForwardBackwardAlgorithm.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/HMMMapMatching.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/HMMProbabilities.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMProbabilities.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/HMMUtils.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMUtils.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/RoadPath.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/SequenceState.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/SequenceState.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/TimeStep.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/TimeStep.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/Transition.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/Transition.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/hmm/ViterbiAlgorithm.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/nearest/PointToEdgeMatching.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/nearest/PointToNodeMatching.java" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/parallel/SpatialAwareMatching.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/parallel/SpatialAwareMatching.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadWay.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadWay.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/GPSDistanceFunction.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/GreatCircleDistanceFunction.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/PointDistanceFunction.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/PointDistanceFunction.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/SegmentDistanceFunction.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/SegmentDistanceFunction.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/LineString.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/LineString.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Point.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Point.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Rectangle.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Rectangle.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Segment.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Segment.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiPolygon.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiPolygon.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -324,6 +35,7 @@
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
     <option name="GROUP_SCHEMA" value="true" />
     <option name="GROUP_CONTENTS" value="false" />
     <option name="SORT_POSITIONED" value="false" />
@@ -338,99 +50,90 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2635">
-              <caret line="158" column="15" lean-forward="false" selection-start-line="158" selection-start-column="15" selection-end-line="158" selection-end-column="15" />
-              <folding>
-                <marker date="1520214554476" expanded="true" signature="12162:12665" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CSVMapWriter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="99" column="9" lean-forward="false" selection-start-line="99" selection-start-column="9" selection-end-line="99" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="32" column="0" lean-forward="true" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SHPMapReader.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2380">
-              <caret line="156" column="0" lean-forward="false" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-              <folding>
-                <marker date="1520175785000" expanded="true" signature="7928:7965" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RawFileOperation.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="850">
-              <caret line="52" column="29" lean-forward="false" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RoadWay.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadWay.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="561">
-              <caret line="45" column="11" lean-forward="false" selection-start-line="45" selection-start-column="11" selection-end-line="45" selection-end-column="11" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RoadNode.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNode.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4165">
-              <caret line="260" column="16" lean-forward="false" selection-start-line="260" selection-start-column="16" selection-end-line="260" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CSVMapReader.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1836">
-              <caret line="120" column="0" lean-forward="false" selection-start-line="120" selection-start-column="0" selection-end-line="120" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CSVTrajectoryReader.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1309">
-              <caret line="91" column="28" lean-forward="false" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
+            <state relative-caret-position="119">
+              <caret line="19" column="24" lean-forward="true" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1520135290000" expanded="true" signature="3908:3983" ph="{...}" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UnfoldingGraphDisplay.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="442">
+              <caret line="74" column="85" lean-forward="false" selection-start-line="74" selection-start-column="85" selection-end-line="74" selection-end-column="85" />
+              <folding>
+                <element signature="e#9744#9745#0" expanded="true" />
+                <element signature="e#9770#9771#0" expanded="true" />
+                <element signature="e#9799#9800#0" expanded="true" />
+                <element signature="e#9868#9869#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Graph.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4675">
+              <caret line="286" column="23" lean-forward="false" selection-start-line="286" selection-start-column="23" selection-end-line="286" selection-end-column="23" />
+              <folding>
+                <element signature="e#14536#14537#0" expanded="true" />
+                <element signature="e#14564#14565#0" expanded="true" />
+                <element signature="e#14597#14598#0" expanded="true" />
+                <element signature="e#14629#14630#0" expanded="true" />
+                <element signature="e#14661#14662#0" expanded="true" />
+                <element signature="e#14689#14690#0" expanded="true" />
+                <element signature="e#14722#14723#0" expanded="true" />
+                <element signature="e#14754#14755#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="25" column="7" lean-forward="true" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MiniRoadSegment.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="272">
+              <caret line="16" column="51" lean-forward="true" selection-start-line="16" selection-start-column="51" selection-end-line="16" selection-end-column="51" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#601#602#0" expanded="true" />
+                <element signature="e#635#636#0" expanded="true" />
+                <element signature="e#690#691#0" expanded="true" />
+                <element signature="e#736#737#0" expanded="true" />
+                <element signature="e#772#773#0" expanded="true" />
+                <element signature="e#804#805#0" expanded="true" />
+                <element signature="e#854#855#0" expanded="true" />
+                <element signature="e#896#897#0" expanded="true" />
+                <element signature="e#939#940#0" expanded="true" />
+                <element signature="e#997#998#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HMMMapMatching.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="196">
+              <caret line="337" column="32" lean-forward="false" selection-start-line="337" selection-start-column="32" selection-end-line="337" selection-end-column="32" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -447,17 +150,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>outputFolder</find>
-      <find>trajPointCount</find>
-      <find>OUTPUT_FOLDER</find>
-      <find>GroundTruth</find>
-      <find>Shortest path</find>
-      <find>20</find>
-      <find>(20)</find>
-      <find>matching finished</find>
-      <find>Broken</find>
-      <find>true</find>
-      <find>setBroken</find>
       <find>broken</find>
       <find>isBroken</find>
       <find>breakPoints</find>
@@ -477,10 +169,19 @@
       <find>getResult|observation</find>
       <find>nodeIndexMapping</find>
       <find>ways</find>
+      <find>Shortest</find>
+      <find>way.getNode(i+1)</find>
+      <find>Shortest distance calculation failed</find>
+      <find>old node</find>
+      <find>random road</find>
+      <find>isolate nodes</find>
+      <find>nodeRemovalCount</find>
+      <find>timediff</find>
+      <find>equals</find>
+      <find>Matching result size is not equal to trajectory size</find>
+      <find>outputMap</find>
     </findStrings>
     <replaceStrings>
-      <replace>edu.uq.dke.mapupd</replace>
-      <replace>import edu.uq.dke.traminer</replace>
       <replace>edu.uq.dke.traminer</replace>
       <replace>import edu.uq.dke.traminer.util</replace>
       <replace>import edu.uq.dke.mapupdate.util</replace>
@@ -509,6 +210,8 @@
       <replace>p2y</replace>
       <replace>p2x</replace>
       <replace>p1y</replace>
+      <replace>startNode</replace>
+      <replace>endNode</replace>
     </replaceStrings>
     <dirStrings>
       <dir>F:\OneDrive\code\github\MapUpdate\src\main\java\edu\uq\dke\mapupd\util\map</dir>
@@ -537,8 +240,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/MapMatchingMethod.java" />
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/PointDistanceFunction.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/SegmentDistanceFunction.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/GreatCircleDistanceFunction.java" />
@@ -552,7 +253,6 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/Node.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/DijkstraShortestPath.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/Graph.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/TimeStep.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java" />
@@ -572,9 +272,7 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" />
         <option value="$PROJECT_DIR$/src/main/test/oldversion/mapmatching/algorithm/PointBasedFastMatching.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/visualization/Demo.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" />
@@ -582,12 +280,17 @@
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/Demo.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/UnfoldingMapDemo.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingMapDemo.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
       </list>
     </option>
   </component>
@@ -774,6 +477,33 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="kde" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="hmm" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
               <item name="visualisation" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -792,6 +522,90 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="util" type="462c0819:PsiDirectoryNode" />
               <item name="map" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="bmwcarit" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="bmwcarit" type="462c0819:PsiDirectoryNode" />
+              <item name="barefoot" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="bmwcarit" type="462c0819:PsiDirectoryNode" />
+              <item name="barefoot" type="462c0819:PsiDirectoryNode" />
+              <item name="markov" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
@@ -1585,7 +1399,7 @@
       <workItem from="1520129975984" duration="980000" />
       <workItem from="1520131343775" duration="38636000" />
       <workItem from="1520178043568" duration="102000" />
-      <workItem from="1520209515846" duration="5122000" />
+      <workItem from="1520209515846" duration="41130000" />
     </task>
     <task id="LOCAL-00001" summary="The first version with simple file read">
       <created>1491923396625</created>
@@ -1640,7 +1454,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1558420000" />
+    <option name="totallyTimeSpent" value="1594428000" />
   </component>
   <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
@@ -1655,27 +1469,29 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3365801" sideWeight="0.49403816" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3365801" sideWeight="0.48773986" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32009345" sideWeight="0.46389496" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.49573562" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.4914712" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32792208" sideWeight="0.5021322" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3073593" sideWeight="0.5788913" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298887" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32792208" sideWeight="0.4978678" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3084112" sideWeight="0.4336248" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271028" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32792208" sideWeight="0.49573562" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3073593" sideWeight="0.42110875" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32683983" sideWeight="0.4914712" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17643923" sideWeight="0.49562362" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298887" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32942432" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32398754" sideWeight="0.45747218" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21224165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26477024" sideWeight="0.50437635" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3792835" sideWeight="0.5822734" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37878788" sideWeight="0.57196164" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1683,11 +1499,9 @@
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32009345" sideWeight="0.46389496" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" x="92" y="92" width="2376" height="1216" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32942432" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32398754" sideWeight="0.45747218" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Learn" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1778,22 +1592,22 @@
           <option name="timeStamp" value="390" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java</url>
-          <line>26</line>
+          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java</url>
+          <line>128</line>
           <properties />
-          <option name="timeStamp" value="400" />
+          <option name="timeStamp" value="436" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java</url>
-          <line>120</line>
+          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
+          <line>337</line>
           <properties />
-          <option name="timeStamp" value="430" />
+          <option name="timeStamp" value="441" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="432" />
+      <option name="time" value="442" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -1815,49 +1629,11 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/io/scif/scifio/0.33.0/scifio-0.33.0.jar!/io/scif/img/ImgOpener.class" />
-    <entry file="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp-presets/opencv/3.2.0-1.3/opencv-3.2.0-1.3-sources.jar!/org/bytedeco/javacpp/opencv_core.java" />
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-algorithm/0.8.1/imglib2-algorithm-0.8.1.jar!/net/imglib2/algorithm/morphology/Closing.class" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/Skeleton.java" />
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3927">
-          <caret line="231" column="27" lean-forward="false" selection-start-line="231" selection-start-column="27" selection-end-line="231" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp-presets/opencv/3.2.0-1.3/opencv-3.2.0-1.3-sources.jar!/org/bytedeco/javacpp/opencv_imgproc.java" />
-    <entry file="file://$PROJECT_DIR$/hs_err_pid2016.log" />
-    <entry file="file://$PROJECT_DIR$/hs_err_pid9088.log" />
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_162/src.zip!/java/awt/Frame.java" />
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_162/src.zip!/javax/swing/JFrame.java" />
     <entry file="file://$PROJECT_DIR$/src/main/test/oldversion/mapmatching/algorithm/PointBasedFastMatching.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
           <caret line="30" column="46" lean-forward="false" selection-start-line="30" selection-start-column="46" selection-end-line="30" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="125" column="0" lean-forward="false" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="15" column="64" lean-forward="false" selection-start-line="15" selection-start-column="64" selection-end-line="15" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="16" column="31" lean-forward="false" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1896,13 +1672,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="17" column="31" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/ComplexSpatialObject.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="147">
@@ -1938,61 +1707,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="281" column="40" lean-forward="false" selection-start-line="281" selection-start-column="40" selection-end-line="281" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="28" column="6" lean-forward="false" selection-start-line="28" selection-start-column="6" selection-end-line="28" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="234" column="74" lean-forward="false" selection-start-line="234" selection-start-column="74" selection-end-line="234" selection-end-column="74" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6194">
-          <caret line="340" column="70" lean-forward="false" selection-start-line="340" selection-start-column="59" selection-end-line="340" selection-end-column="70" />
-          <folding>
-            <element signature="e#27811#27812#0" expanded="false" />
-            <element signature="e#27857#27858#0" expanded="false" />
-            <element signature="e#27896#27897#0" expanded="false" />
-            <element signature="e#27934#27935#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/Pair.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
           <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="10" column="11" lean-forward="false" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -2015,14 +1734,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
           <caret line="10" column="0" lean-forward="true" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="27" column="27" lean-forward="false" selection-start-line="27" selection-start-column="27" selection-end-line="27" selection-end-column="27" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2050,14 +1761,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadWay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="45" column="11" lean-forward="false" selection-start-line="45" selection-start-column="11" selection-end-line="45" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4165">
@@ -2066,67 +1769,289 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="17" column="5" lean-forward="false" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="15" column="64" lean-forward="false" selection-start-line="15" selection-start-column="64" selection-end-line="15" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1649">
+          <caret line="125" column="0" lean-forward="false" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-561">
+          <caret line="55" column="82" lean-forward="true" selection-start-line="55" selection-start-column="82" selection-end-line="55" selection-end-column="82" />
+          <folding>
+            <element signature="e#331#332#0" expanded="false" />
+            <element signature="e#376#377#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1309">
-          <caret line="91" column="28" lean-forward="false" selection-start-line="91" selection-start-column="28" selection-end-line="91" selection-end-column="28" />
+        <state relative-caret-position="504">
+          <caret line="89" column="28" lean-forward="false" selection-start-line="89" selection-start-column="28" selection-end-line="89" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadWay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="521">
+          <caret line="297" column="40" lean-forward="false" selection-start-line="297" selection-start-column="35" selection-end-line="297" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1520135290000" expanded="true" signature="3908:3983" ph="{...}" />
+            <element signature="e#911#912#0" expanded="true" />
+            <element signature="e#939#940#0" expanded="true" />
+            <element signature="e#975#976#0" expanded="true" />
+            <element signature="e#1006#1007#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="489">
+          <caret line="154" column="28" lean-forward="true" selection-start-line="154" selection-start-column="28" selection-end-line="154" selection-end-column="28" />
+          <folding>
+            <marker date="1520227991003" expanded="true" signature="7971:8008" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+          <folding>
+            <element signature="e#1221#1222#0" expanded="false" />
+            <element signature="e#1255#1256#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1836">
-          <caret line="120" column="0" lean-forward="false" selection-start-line="120" selection-start-column="0" selection-end-line="120" selection-end-column="0" />
+        <state relative-caret-position="369">
+          <caret line="128" column="35" lean-forward="false" selection-start-line="128" selection-start-column="35" selection-end-line="128" selection-end-column="35" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2380">
-          <caret line="156" column="0" lean-forward="false" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-          <folding>
-            <marker date="1520175785000" expanded="true" signature="7928:7965" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="52" column="29" lean-forward="false" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2635">
-          <caret line="158" column="15" lean-forward="false" selection-start-line="158" selection-start-column="15" selection-end-line="158" selection-end-column="15" />
-          <folding>
-            <marker date="1520214554476" expanded="true" signature="12162:12665" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="99" column="9" lean-forward="false" selection-start-line="99" selection-start-column="9" selection-end-line="99" selection-end-column="9" />
+        <state relative-caret-position="544">
+          <caret line="93" column="46" lean-forward="false" selection-start-line="93" selection-start-column="46" selection-end-line="93" selection-end-column="46" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingResult.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="32" column="0" lean-forward="true" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+        <state relative-caret-position="102">
+          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding>
+            <element signature="e#728#729#0" expanded="false" />
+            <element signature="e#772#773#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="26" column="58" lean-forward="false" selection-start-line="26" selection-start-column="58" selection-end-line="26" selection-end-column="58" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="253" column="40" lean-forward="false" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
+          <folding>
+            <element signature="e#4692#4693#0" expanded="false" />
+            <element signature="e#4719#4720#0" expanded="false" />
+            <element signature="e#5550#5551#0" expanded="false" />
+            <element signature="e#5580#5581#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/KState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateTransition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="36" column="22" lean-forward="false" selection-start-line="36" selection-start-column="22" selection-end-line="36" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/Distributions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="59" column="25" lean-forward="false" selection-start-line="59" selection-start-column="25" selection-end-line="59" selection-end-column="25" />
+          <folding>
+            <element signature="e#2110#2111#0" expanded="false" />
+            <element signature="e#2161#2162#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMProbabilities.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="489">
+          <caret line="74" column="45" lean-forward="true" selection-start-line="74" selection-start-column="45" selection-end-line="74" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/TimeStep.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="47" column="0" lean-forward="true" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="40" column="14" lean-forward="true" selection-start-line="40" selection-start-column="14" selection-end-line="40" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/Transition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="316">
+          <caret line="47" column="25" lean-forward="true" selection-start-line="47" selection-start-column="25" selection-end-line="47" selection-end-column="25" />
+          <folding>
+            <element signature="e#1511#1541#1" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Segment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="62" column="11" lean-forward="false" selection-start-line="62" selection-start-column="11" selection-end-line="62" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="51" lean-forward="true" selection-start-line="16" selection-start-column="51" selection-end-line="16" selection-end-column="51" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#601#602#0" expanded="true" />
+            <element signature="e#635#636#0" expanded="true" />
+            <element signature="e#690#691#0" expanded="true" />
+            <element signature="e#736#737#0" expanded="true" />
+            <element signature="e#772#773#0" expanded="true" />
+            <element signature="e#804#805#0" expanded="true" />
+            <element signature="e#854#855#0" expanded="true" />
+            <element signature="e#896#897#0" expanded="true" />
+            <element signature="e#939#940#0" expanded="true" />
+            <element signature="e#997#998#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="7" lean-forward="true" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="337" column="32" lean-forward="false" selection-start-line="337" selection-start-column="32" selection-end-line="337" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4675">
+          <caret line="286" column="23" lean-forward="false" selection-start-line="286" selection-start-column="23" selection-end-line="286" selection-end-column="23" />
+          <folding>
+            <element signature="e#14536#14537#0" expanded="true" />
+            <element signature="e#14564#14565#0" expanded="true" />
+            <element signature="e#14597#14598#0" expanded="true" />
+            <element signature="e#14629#14630#0" expanded="true" />
+            <element signature="e#14661#14662#0" expanded="true" />
+            <element signature="e#14689#14690#0" expanded="true" />
+            <element signature="e#14722#14723#0" expanded="true" />
+            <element signature="e#14754#14755#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="74" column="85" lean-forward="false" selection-start-line="74" selection-start-column="85" selection-end-line="74" selection-end-column="85" />
+          <folding>
+            <element signature="e#9744#9745#0" expanded="true" />
+            <element signature="e#9770#9771#0" expanded="true" />
+            <element signature="e#9799#9800#0" expanded="true" />
+            <element signature="e#9868#9869#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="19" column="24" lean-forward="true" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

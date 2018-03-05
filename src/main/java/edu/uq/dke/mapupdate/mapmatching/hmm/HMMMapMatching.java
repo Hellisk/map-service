@@ -124,7 +124,7 @@ public class HMMMapMatching implements MapMatchingMethod {
         boolean[] hasCandidate = new boolean[trajectory.size()];
         for (int i = 0; i < hasCandidate.length; i++)
             hasCandidate[i] = true;
-        int missingCandidateCount = 0;
+//        int missingCandidateCount = 0;
         // build the lattice
         for (int i = 0; i < trajectory.size(); i++) {
             Collection<MatchingPoint> candidates;
@@ -532,6 +532,8 @@ public class HMMMapMatching implements MapMatchingMethod {
                 timeStep.observation.x(), timeStep.observation.y());
         final double timeDiff = (timeStep.observation.time() - prevTimeStep.observation.time());
         double maxDistance = 0;
+
+        // TODO check correctness
         if (timeDiff > 30 && linearDistance > 1) {
             maxDistance = (50 * timeDiff) < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8;
         } else

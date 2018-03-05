@@ -1,14 +1,15 @@
 package edu.uq.dke.mapupdate.main;
 
 import edu.uq.dke.mapupdate.datatype.MatchingResult;
+import edu.uq.dke.mapupdate.evaluation.TrajMatchingEvaluation;
 import edu.uq.dke.mapupdate.io.*;
 import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
 import edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay;
+import traminer.util.Pair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.trajectory.Trajectory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 //import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
@@ -16,26 +17,27 @@ import java.util.List;
 
 public class Main {
 
+    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
+    private final static int PERCENTAGE = 5;     // percentage of removed road ways (max = 100)
+    private final static boolean OLD_GT_ABANDONED = true; // use broken map as input
     // global parameters
-//    private static String ROOT_PATH = "C:/data/trajectorydata/";    // the root folder of all data
-    private final static String ROOT_PATH = "F:/data/trajectorydata/";
-    private final static int PERCENTAGE = 0;     // percentage of removed road ways (max = 100)
-    private final static boolean IS_BROKEN_MAP = true; // use broken map as input
+    private static String ROOT_PATH = "C:/data/trajectorydata/";    // the root folder of all data
 
     // paths for different datasets
     private final static String RAW_MAP = ROOT_PATH + "raw/map/";
     private final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
     private final static String GT_MAP = ROOT_PATH + "groundTruth/map/";  // ground-truth road network
     private final static String GT_MATCHING_RESULT = ROOT_PATH + "groundTruth/matchingResult/";   // the map-matched trajectory dataset
+    private final static String GT_GENERATED_RESULT = ROOT_PATH + "groundTruth/generatedResult/";   // the map-matched trajectory dataset
     private final static String INPUT_MAP = ROOT_PATH + "input/map/"; // the map with removed roads
     private final static String INPUT_TRAJECTORY = ROOT_PATH + "input/trajectory/";    // input trajectory dataset
     private final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
-    private final static String OUTPUT_MAP = ROOT_PATH + "output/map/";
+//    private final static String OUTPUT_MAP = ROOT_PATH + "output/map/";
 
 //    // log-related settings
 //    private static String LOG_PATH = ROOT_PATH + "log/";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         long startTime = System.currentTimeMillis();
         long endTime;
@@ -58,34 +60,26 @@ public class Main {
 //        logger.info("Map Update Algorithm v 0.1.0");
 
         // set all path parameters according to the map type
-        String inputMap = "";
-        String outputMap = OUTPUT_MAP;
-        String matchingResult = OUTPUT_FOLDER;
-        if (IS_BROKEN_MAP) {
-            inputMap = INPUT_MAP;
-        } else {
-            inputMap = GT_MAP;
-        }
 
         // preprocess the data
-//        dataProcessing();
-//        endTime = System.currentTimeMillis();
-//        System.out.println("Initialisation done, start the iteration:" + (endTime - startTime) / 1000 + "seconds");
-//        startTime = endTime;
+        dataProcessing();
+        endTime = System.currentTimeMillis();
+        System.out.println("Initialisation done, start the iteration:" + (endTime - startTime) / 1000 + "seconds");
+        startTime = endTime;
 //
-//        // read input map and trajectories
-//        CSVMapReader csvMapReader = new CSVMapReader(inputMap);
-//        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
-//        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-//        List<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
-//
-////        double costFunction = 2;
-//
-//        // iteration 0 calculate the first matching result
-//        List<MatchingResult> initialMatchingResults = startMapmatching(initialTrajectoryList, initialMap);
-//        endTime = System.currentTimeMillis();
-//        System.out.println("Map matching finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
-//        startTime = endTime;
+        // read input map and trajectories
+        CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
+        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
+        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
+        List<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
+
+//        double costFunction = 2;
+
+        // iteration 0 calculate the first matching result
+        List<MatchingResult> initialMatchingResults = startMapmatching(initialTrajectoryList, initialMap);
+        endTime = System.currentTimeMillis();
+        System.out.println("Map matching finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
+        startTime = endTime;
 
         // iteration start
 //        while (costFunction > 0) {
@@ -120,7 +114,7 @@ public class Main {
 //            GraphStreamDisplay graphDisplay = new GraphStreamDisplay();
 ////
 //            // inferred map reader
-//            CSVMapReader manipulatedMapReader = new CSVMapReader(outputMap + i + "/" + CITY_NAME + "_vertices.txt", outputMap + i + "/" + CITY_NAME + "_edges.txt");
+//            CSVMapReader manipulatedMapReader = new CSVMapReader(OUTPUT_MAP + i + "/" + CITY_NAME + "_vertices.txt", OUTPUT_MAP + i + "/" + CITY_NAME + "_edges.txt");
 //            RoadNetworkGraph inferenceMap = manipulatedMapReader.readMap();
 //            graphDisplay.setRoadNetworkGraph(inferenceMap);   // inferred map
 //            String removedEdgesPath = initialMap + CITY_NAME + "_removed_edges.txt";
@@ -162,12 +156,12 @@ public class Main {
 //        }
 
         // evaluation
-//        // evaluation: map matching evaluation
-//        CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-////        List<MatchingResult> initialMatchingResults = groundTruthMatchingResultReader.readMatchingResult(OUTPUT_FOLDER);
-//        List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
-//        TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-//        trajMatchingEvaluation.precisionRecallCalc(initialMatchingResults, gtMatchingResult);
+        // evaluation: map matching evaluation
+        CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
+//        List<MatchingResult> initialMatchingResults = groundTruthMatchingResultReader.readMatchingResult(OUTPUT_FOLDER);
+        List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+        TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
+        trajMatchingEvaluation.precisionRecallCalc(initialMatchingResults, gtMatchingResult);
 
         UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
         graphDisplay.display();
@@ -198,7 +192,7 @@ public class Main {
     }
 
     private static List<MatchingResult> startMapmatching(List<Trajectory> initialTrajectoryList, RoadNetworkGraph initialMap) {
-        List<Trajectory> unmatchedTraj = new ArrayList<>();
+        List<Trajectory> unmatchedTraj;
         NewsonHMM2009 mapMatching = new NewsonHMM2009();
         List<MatchingResult> initialMatchingResults = mapMatching.mapMatchingProcess(initialTrajectoryList, initialMap);
         unmatchedTraj = mapMatching.getUnmatchedTraj();
@@ -216,10 +210,6 @@ public class Main {
         RoadNetworkGraph roadNetworkGraph = shpReader.readSHP();
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
         rawGTMapWriter.writeMap(0);
-        CSVMapReader reader = new CSVMapReader(GT_MAP);
-        RoadNetworkGraph cleanedGTMap = reader.readMap(0);
-        CSVMapWriter cleanedGTMapWriter = new CSVMapWriter(cleanedGTMap, GT_MAP);
-        cleanedGTMapWriter.writeMap(0);
 
         // preprocessing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of road map
         RawFileOperation trajFilter = new RawFileOperation(100);

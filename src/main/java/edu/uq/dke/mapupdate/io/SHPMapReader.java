@@ -130,7 +130,8 @@ public class SHPMapReader {
                         roadWayList.add(newRoadWay);
                         RoadWay reverseRoad = new RoadWay("-" + edgeID);
                         for (int i = miniNode.size() - 1; i >= 0; i--) {
-                            RoadNode reverseNode = new RoadNode(miniNode.get(i).getId(), miniNode.get(i).lon(), miniNode.get(i).lat());
+                            RoadNode reverseNode = new RoadNode(roadWayPointID + "-", miniNode.get(i).lon(), miniNode.get(i).lat());
+                            roadWayPointID++;
                             reverseRoad.addNode(reverseNode);
                         }
                         reverseRoad.getNode(0).setId((String) feature.getAttribute(11));

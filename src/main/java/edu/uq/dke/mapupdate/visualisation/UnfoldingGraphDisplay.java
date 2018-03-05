@@ -10,6 +10,7 @@ import edu.uq.dke.mapupdate.datatype.MatchingResult;
 import edu.uq.dke.mapupdate.io.CSVMapReader;
 import edu.uq.dke.mapupdate.io.CSVTrajectoryReader;
 import processing.core.PApplet;
+import traminer.util.Pair;
 import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
@@ -19,6 +20,7 @@ import traminer.util.trajectory.Trajectory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -29,12 +31,12 @@ import java.util.List;
 //http://unfoldingmaps.org/
 public class UnfoldingGraphDisplay extends PApplet {
 
-    private final static String ROOT_PATH = "F:/data/trajectorydata/";
-    //    private final static String ROOT_PATH = "C:/data/trajectorydata/";
-    private final static int PERCENTAGE = 0;    // remove percentage for map display
+    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
+    private String ROOT_PATH = "C:/data/trajectorydata/";
+    private int PERCENTAGE = 0;    // remove percentage for map display
     private UnfoldingMap map;
-    private int options = 2;    // 0=nothing, 1= points(undone), 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
-    private String trajID = "46";
+    private int options = 2346;    // 0=nothing, 1= points(undone), 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
+    private String trajID = "5";
 
     public static void main(String args[]) {
         PApplet.main(new String[]{"edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay"});
@@ -58,8 +60,9 @@ public class UnfoldingGraphDisplay extends PApplet {
                     case 1: {
                         break;
                     }
+                    // raw map
                     case 2: {
-                        CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + "input/map/");
+                        CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + (PERCENTAGE == 0 ? "groundTruth/map/" : "input/map/"));
                         RoadNetworkGraph roadNetworkGraph = csvMapReader.readMap(PERCENTAGE);
                         List<Marker> linesMarkers = new ArrayList<>();
                         for (RoadWay w : roadNetworkGraph.getWays()) {
@@ -69,13 +72,14 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(154, 156, 157));  // color silver
+                            marker.setColor(color(240, 255, 255));  // color sky blue
                             marker.setStrokeWeight(2);
                             linesMarkers.add(marker);
                         }
                         map.addMarkers(linesMarkers);
                     }
                     break;
+                    // raw trajectory
                     case 3: {
                         CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
                         List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(ROOT_PATH + "input/trajectory/");
@@ -96,6 +100,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                         map.addMarkers(linesMarkers);
                         break;
                     }
+                    // matching result
                     case 4: {
                         CSVTrajectoryReader matchingResultReader = new CSVTrajectoryReader();
                         List<MatchingResult> matchedTrajectoryList = matchingResultReader.readMatchingResult(ROOT_PATH + "output/");
@@ -116,6 +121,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                         map.addMarkers(linesMarkers);
                         break;
                     }
+                    // unmatched trajectory
                     case 5: {
                         CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
                         List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(ROOT_PATH + "output/unmatchedTraj/");
@@ -131,6 +137,37 @@ public class UnfoldingGraphDisplay extends PApplet {
                             marker.setStrokeWeight(4);
                             map.addMarker(marker);
                             linesMarkers.add(marker);
+                        }
+                        map.addMarkers(linesMarkers);
+                        break;
+                    }
+                    // ground truth mapping result
+                    case 6: {
+                        CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + "groundTruth/map/");
+                        RoadNetworkGraph roadNetworkGraph = csvMapReader.readMap(0);
+                        HashMap<String, RoadWay> idRoadWayMapping = new HashMap<>();
+                        for (RoadWay w : roadNetworkGraph.getWays()) {
+                            idRoadWayMapping.put(w.getId(), w);
+                        }
+                        CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
+                        List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(ROOT_PATH + "groundTruth/matchingResult/");
+                        List<Marker> linesMarkers = new ArrayList<>();
+                        for (Pair<Integer, List<String>> r : gtMatchingResult) {
+                            if (r._1() == Integer.parseInt(trajID)) {
+                                for (String s : r._2()) {
+                                    if (idRoadWayMapping.containsKey(s)) {
+                                        List<Location> locationList = new ArrayList<>();
+                                        for (RoadNode n : idRoadWayMapping.get(s).getNodes()) {
+                                            Location pointLocation = new Location(n.lat(), n.lon());
+                                            locationList.add(pointLocation);
+                                        }
+                                        SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                                        marker.setColor(color(0, 255, 255));  // color light blue
+                                        marker.setStrokeWeight(4);
+                                        linesMarkers.add(marker);
+                                    }
+                                }
+                            }
                         }
                         map.addMarkers(linesMarkers);
                         break;
