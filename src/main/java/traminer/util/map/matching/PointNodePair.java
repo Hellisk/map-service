@@ -1,7 +1,7 @@
 package traminer.util.map.matching;
 
+import edu.uq.dke.mapupdate.datatype.MatchingPoint;
 import traminer.util.Pair;
-import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.spatial.objects.st.STPoint;
 
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import java.util.Comparator;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class PointNodePair extends Pair<STPoint, RoadNode> {
+public class PointNodePair extends Pair<STPoint, MatchingPoint> {
     /**
      * The distance between the point and the node.
      */
@@ -23,10 +23,10 @@ public class PointNodePair extends Pair<STPoint, RoadNode> {
      * Set default distance as zero.
      *
      * @param point The match point.
-     * @param node  The match node.
+     * @param matchingPoint  The match matchingPoint.
      */
-    public PointNodePair(STPoint point, RoadNode node) {
-        super(point, node);
+    public PointNodePair(STPoint point, MatchingPoint matchingPoint) {
+        super(point, matchingPoint);
         this.distance = 0.0;
     }
 
@@ -37,7 +37,7 @@ public class PointNodePair extends Pair<STPoint, RoadNode> {
      * @param node     The match node.
      * @param distance The distance between the point and the node.
      */
-    public PointNodePair(STPoint point, RoadNode node, double distance) {
+    public PointNodePair(STPoint point, MatchingPoint node, double distance) {
         super(point, node);
         this.distance = distance;
     }
@@ -52,7 +52,7 @@ public class PointNodePair extends Pair<STPoint, RoadNode> {
     /**
      * @return The match node.
      */
-    public RoadNode getNode() {
+    public MatchingPoint getMatchingPoint() {
         return _2();
     }
 

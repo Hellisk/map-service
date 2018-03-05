@@ -11,6 +11,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="JMapViewer" level="project" />
+    <orderEntry type="library" name="JMapViewer_src" level="project" />
     <orderEntry type="library" name="Maven: org.graphstream:gs-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
@@ -296,5 +298,94 @@
     <orderEntry type="library" name="Maven: org.jogamp.gluegen:gluegen-rt:natives-windows-i586:2.3.2" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20170516" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacv-platform:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacv:1.3.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect2:0.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:librealsense:1.9.6-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:0.200-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv-platform:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:android-arm:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:android-x86:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86_64:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-armhf:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-ppc64le:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:macosx-x86_64:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:windows-x86:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:windows-x86_64:3.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg-platform:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:android-arm:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:android-x86:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-x86:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-x86_64:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-armhf:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-ppc64le:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:macosx-x86_64:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:windows-x86:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:windows-x86_64:3.2.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture-platform:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:linux-x86:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:linux-x86_64:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:linux-armhf:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:windows-x86:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:windows-x86_64:2.9.3.43-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394-platform:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-x86:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-x86_64:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-armhf:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-ppc64le:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:macosx-x86_64:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:windows-x86:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:windows-x86_64:2.2.4-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect-platform:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-x86:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-x86_64:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-armhf:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-ppc64le:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:macosx-x86_64:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:windows-x86:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:windows-x86_64:0.5.3-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect2-platform:0.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect2:linux-x86:0.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect2:linux-x86_64:0.2.0-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:librealsense-platform:1.9.6-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:librealsense:linux-x86:1.9.6-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:librealsense:linux-x86_64:1.9.6-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput-platform:0.200-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:windows-x86:0.200-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:windows-x86_64:0.200-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus-platform:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:android-arm:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:android-x86:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-x86:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-x86_64:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-armhf:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-ppc64le:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:macosx-x86_64:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:windows-x86:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:windows-x86_64:2.3.1-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark-platform:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:android-arm:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:android-x86:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-x86:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-x86_64:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-armhf:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-ppc64le:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:macosx-x86_64:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:windows-x86:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:windows-x86_64:1.07-1.3" level="project" />
+    <orderEntry type="library" name="Maven: net.imglib2:imglib2:4.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scijava:scijava-common:2.65.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scijava:parsington:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.googlecode.gentyref:gentyref:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.bushe:eventbus:1.4" level="project" />
   </component>
 </module>

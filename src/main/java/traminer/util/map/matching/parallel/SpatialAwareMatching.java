@@ -155,7 +155,7 @@ public class SpatialAwareMatching implements MapInterface {
                     // the trajectory this point belongs to
                     String parentId = matchPair.getPoint().getParentId();
                     // the node matched to this point
-                    RoadNode node = matchPair.getNode();
+                    RoadNode node = new RoadNode(matchPair.getMatchingPoint().getRoadID(), matchPair.getMatchingPoint().lon(), matchPair.getMatchingPoint().lat());
                     synchronized (partitionMap) {
                         // group nodes by trajectory id
                         if (resultWays.containsKey(parentId)) {

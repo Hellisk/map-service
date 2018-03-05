@@ -25,7 +25,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class LineString extends ComplexSpatialObject<Segment> {
     /**
-     * Auxiliary LineString from JTS lib
+     * Auxiliary LineString from JTS oldversion
      */
     private com.vividsolutions.jts.geom.
             LineString JTSLineString = null;

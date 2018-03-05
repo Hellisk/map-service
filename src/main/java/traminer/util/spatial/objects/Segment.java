@@ -36,7 +36,7 @@ public class Segment extends SimpleSpatialObject {
     private final double x2, y2;
 
     /**
-     * Auxiliary LineSegment from JTS lib
+     * Auxiliary LineSegment from JTS oldversion
      */
     private
     LineSegment JTSLineSegment = null;

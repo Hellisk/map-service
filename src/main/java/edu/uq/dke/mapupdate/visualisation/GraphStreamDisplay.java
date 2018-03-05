@@ -1,10 +1,8 @@
 package edu.uq.dke.mapupdate.visualisation;
 
-import edu.uq.dke.mapupdate.mapmatching.io.PointWithSegment;
-import org.graphstream.graph.EdgeRejectedException;
-import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.graph.implementations.MultiGraph;
+import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -12,9 +10,8 @@ import traminer.util.spatial.objects.Point;
 import traminer.util.trajectory.Trajectory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by uqpchao on 21/06/2017.
@@ -24,117 +21,81 @@ public class GraphStreamDisplay {
     private RoadNetworkGraph groundTruthGraph = new RoadNetworkGraph();
     private RoadNetworkGraph roadNetworkGraph = new RoadNetworkGraph();
     private List<Trajectory> rawTrajectories = new ArrayList<>();
-    private List<RoadWay> matchedTrajectories = new ArrayList<>();
-    private List<PointWithSegment> indexNode = new ArrayList<>();
+    private List<List<PointNodePair>> matchedTrajectories = new ArrayList<>();
+    private List<Point> indexNode = new ArrayList<>();
     private Point selectPoint = null;
-    private List<PointWithSegment> candidatePoints = new ArrayList<>();
+    private List<Point> candidatePoints = new ArrayList<>();
     private Point CentralPoint = null;
 
     public Graph generateGraph() {
 
-        Graph graph = new SingleGraph("TrajectoryOnMap");
+        Graph graph = new MultiGraph("TrajectoryOnMap");
         graph.addAttribute("ui.stylesheet", "node {size: 1px;fill-color: #777;text-mode: hidden;z-index: 0;} node.rawtrajectory{size: 6px;fill-color: red;text-mode: hidden;z-index: 0;} node.matchtrajectory{size: 6px;fill-color: green;text-mode: hidden;z-index: 0;} edge {shape: line;fill-color: #222;arrow-size: 4px, 4px;} edge.rawtrajectory {shape: line;fill-color: red;arrow-size: 2px, 2px;} edge.matchtrajectory {shape: line;fill-color: green;arrow-size: 2px, 2px;}");
 
         // display the base map
         if (!groundTruthGraph.isEmpty()) {
-            Map<String, String> nodeIDMap = new HashMap<>();
+            HashSet<String> nodeIDMap = new HashSet<>();
             // create one graph node per road network node.
             for (RoadNode node : groundTruthGraph.getNodes()) {
-                graph.addNode(node.getId() + "_MN")
+                String id = node.lon() + "_" + node.lat();
+                graph.addNode(id + "_G")
                         .setAttribute("xy", node.lon(), node.lat());
-                nodeIDMap.put(node.lon() + "_" + node.lat(), node.getId());
+                nodeIDMap.add(id);
             }
             // create one graph edge for every edge in the road ways
             for (RoadWay way : groundTruthGraph.getWays()) {
                 for (int i = 0; i < way.size() - 1; i++) {
                     RoadNode nodeI = way.getNode(i);
                     RoadNode nodeJ = way.getNode(i + 1);
-                    String idI = nodeI.getId();
-                    String idJ = nodeJ.getId();
-                    try {
-                        if (nodeIDMap.containsKey(nodeI.lon() + "_" + nodeI.lat())) {
-                            if (!nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat()).equals(idI)) {
-//                                System.out.println("Same pointID with different coordinates:"+nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat())+","+ idI);
-//                                continue;
-                                idI = nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat());
-                            }
-                        } else {
-                            graph.addNode(idI + "_MN").setAttribute("xy", nodeI.lon(), nodeI.lat());
-                            nodeIDMap.put(nodeI.lon() + "_" + nodeI.lat(), idI);
-                        }
-
-                        if (nodeIDMap.containsKey(nodeJ.lon() + "_" + nodeJ.lat())) {
-                            if (!nodeIDMap.get(nodeJ.lon() + "_" + nodeJ.lat()).equals(idJ)) {
-//                                System.out.println("Same pointID with different coordinates:"+nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat())+","+ idI);
-//                                continue;
-                                idJ = nodeIDMap.get(nodeJ.lon() + "_" + nodeJ.lat());
-                            }
-                        } else {
-                            graph.addNode(idJ + "_MN").setAttribute("xy", nodeJ.lon(), nodeJ.lat());
-                            nodeIDMap.put(nodeJ.lon() + "_" + nodeJ.lat(), idJ);
-                        }
-
-
-                        if (graph.getEdge(way.getId() + "_ME" + i) == null) {
-                            // TODO avoid the exception in the future
-                            graph.addEdge(way.getId() + "_ME" + i, idI + "_MN", idJ + "_MN");
-                        } else System.out.println(way.getId());
-                    } catch (EdgeRejectedException e) {
-//                        System.out.println("fail");
-                    } catch (ElementNotFoundException f) {
-                        System.out.println("missing");
+                    String idI = nodeI.lon() + "_" + nodeI.lat();
+                    String idJ = nodeJ.lon() + "_" + nodeJ.lat();
+                    if (!nodeIDMap.contains(idI)) {
+                        graph.addNode(idI + "_G").setAttribute("xy", nodeI.lon(), nodeI.lat());
+                        nodeIDMap.add(idI);
                     }
+                    if (!nodeIDMap.contains(idJ)) {
+                        graph.addNode(idJ + "_G").setAttribute("xy", nodeJ.lon(), nodeJ.lat());
+                        nodeIDMap.add(idJ);
+                    }
+
+                    if (graph.getEdge(way.getId() + "_GE" + i) == null) {
+                        graph.addEdge(way.getId() + "_GE" + i, idI + "_G", idJ + "_G");
+                    } else System.out.println(way.getId());
                 }
             }
         }
 
         if (!roadNetworkGraph.isEmpty()) {
-            Map<String, String> nodeIDMap = new HashMap<>();
+            HashSet<String> nodeIDSet = new HashSet<>();
             // create one graph node per road network node.
             for (RoadNode node : roadNetworkGraph.getNodes()) {
-                graph.addNode(node.getId() + "_RNN")
+                String id = node.lon() + "_" + node.lat();
+                graph.addNode(id + "_R")
                         .setAttribute("xy", node.lon(), node.lat());
-                graph.getNode(node.getId() + "_RNN").addAttribute("ui.class", "rawtrajectory");
-                nodeIDMap.put(node.lon() + "_" + node.lat(), node.getId());
+                graph.getNode(id + "_R").addAttribute("ui.class", "rawtrajectory");
+                nodeIDSet.add(id);
             }
             // create one graph edge for every edge in the road ways
-            for (RoadWay way : roadNetworkGraph.getWays()) {
+            for (RoadWay way : groundTruthGraph.getWays()) {
                 for (int i = 0; i < way.size() - 1; i++) {
                     RoadNode nodeI = way.getNode(i);
                     RoadNode nodeJ = way.getNode(i + 1);
-                    String idI = nodeI.getId();
-                    String idJ = nodeJ.getId();
-                    try {
-                        if (nodeIDMap.containsKey(nodeI.lon() + "_" + nodeI.lat())) {
-                            if (!nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat()).equals(idI)) {
-//                                System.out.println("Same pointID with different coordinates");
-//                                continue;
-                                idI = nodeIDMap.get(nodeI.lon() + "_" + nodeI.lat());
-                            }
-                        } else {
-                            graph.addNode(idI + "_RNN").setAttribute("xy", nodeI.lon(), nodeI.lat());
-                            nodeIDMap.put(nodeI.lon() + "_" + nodeI.lat(), idI);
-                        }
-
-                        if (nodeIDMap.containsKey(nodeJ.lon() + "_" + nodeJ.lat())) {
-                            if (!nodeIDMap.get(nodeJ.lon() + "_" + nodeJ.lat()).equals(idJ)) {
-//                                System.out.println("Same pointID with different coordinates");
-//                                continue;
-                                idI = nodeIDMap.get(nodeJ.lon() + "_" + nodeJ.lat());
-                            }
-                        } else {
-                            graph.addNode(idJ + "_RNN").setAttribute("xy", nodeJ.lon(), nodeJ.lat());
-                            nodeIDMap.put(nodeJ.lon() + "_" + nodeJ.lat(), idJ);
-                        }
-                        if (graph.getEdge(way.getId() + "_RNE" + i) == null) {
-                            // TODO avoid the exception in the future
-                            graph.addEdge(way.getId() + "_RNE" + i, idI + "_RNN", idJ + "_RNN").addAttribute("ui.class", "rawtrajectory");
-                        }
-                    } catch (EdgeRejectedException e) {
-//                        System.out.println("fail");
-                    } catch (ElementNotFoundException f) {
-                        System.out.println("missing");
+                    String idI = nodeI.lon() + "_" + nodeI.lat();
+                    String idJ = nodeJ.lon() + "_" + nodeJ.lat();
+                    if (!nodeIDSet.contains(idI)) {
+                        graph.addNode(idI + "_R").setAttribute("xy", nodeI.lon(), nodeI.lat());
+                        graph.getNode(idI + "_R").addAttribute("ui.class", "rawtrajectory");
+                        nodeIDSet.add(idI);
                     }
+                    if (!nodeIDSet.contains(idJ)) {
+                        graph.addNode(idJ + "_R").setAttribute("xy", nodeJ.lon(), nodeJ.lat());
+                        graph.getNode(idJ + "_R").addAttribute("ui.class", "rawtrajectory");
+                        nodeIDSet.add(idJ);
+                    }
+
+                    if (graph.getEdge(way.getId() + "_RE" + i) == null) {
+                        graph.addEdge(way.getId() + "_RE" + i, idI + "_R", idJ + "_R").addAttribute("ui.class", "rawtrajectory");
+                    } else System.out.println(way.getId());
                 }
             }
         }
@@ -146,16 +107,10 @@ public class GraphStreamDisplay {
                 if (!traj.getCoordinates().isEmpty() && !traj.getEdges().isEmpty()) {
                     int pointID = 0;
                     for (Point point : traj.getCoordinates()) {
-                        graph.addNode(trajID + "_" + pointID + "_RN").setAttribute("xy", point.x(), point.y());
-                        graph.getNode(trajID + "_" + pointID + "_RN").addAttribute("ui.class", "rawtrajectory");
+                        graph.addNode(trajID + "_" + pointID + "_RT").setAttribute("xy", point.x(), point.y());
+                        graph.getNode(trajID + "_" + pointID + "_RT").addAttribute("ui.class", "rawtrajectory");
                         if (pointID != 0) {
-                            try {
-                                // TODO avoid the exception in the future
-                                graph.addEdge(trajID + "_" + (pointID - 1) + "_RE", trajID + "_" + (pointID - 1) + "_RN", trajID + "_" + pointID + "_RN").addAttribute("ui.class", "rawtrajectory");
-                            } catch (EdgeRejectedException e) {
-                                System.out.println("fail");
-                            }
-
+                            graph.addEdge(trajID + "_" + (pointID - 1) + "_RTE", trajID + "_" + (pointID - 1) + "_RT", trajID + "_" + pointID + "_RT").addAttribute("ui.class", "rawtrajectory");
                         }
                         pointID++;
                     }
@@ -167,20 +122,19 @@ public class GraphStreamDisplay {
         // display the raw trajectories
         if (!matchedTrajectories.isEmpty()) {
             int trajID = 0;
-            for (RoadWay traj : matchedTrajectories) {
-                if (!traj.getNodes().isEmpty() && !traj.getEdges().isEmpty()) {
+            for (List<PointNodePair> traj : matchedTrajectories) {
+                if (!traj.isEmpty()) {
                     int pointID = 0;
-                    for (RoadNode point : traj.getNodes()) {
-                        graph.addNode(trajID + "_" + pointID + "_MAN").setAttribute("xy", point.lon(), point.lat());
-                        graph.getNode(trajID + "_" + pointID + "_MAN").addAttribute("ui.class", "matchtrajectory");
+                    for (PointNodePair point : traj) {
+                        graph.addNode(trajID + "_" + pointID + "_MTL").setAttribute("xy", point.getMatchingPoint().getMatchedSegment().x1(), point.getMatchingPoint().getMatchedSegment().y1());
+                        graph.getNode(trajID + "_" + pointID + "_MTL").addAttribute("ui.class", "matchtrajectory");
+                        graph.addNode(trajID + "_" + pointID + "_MTR").setAttribute("xy", point.getMatchingPoint().getMatchedSegment().x2(), point.getMatchingPoint().getMatchedSegment().y2());
+                        graph.getNode(trajID + "_" + pointID + "_MTR").addAttribute("ui.class", "matchtrajectory");
                         if (pointID != 0) {
-                            try {
-                                // TODO avoid the exception in the future
-                                graph.addEdge(trajID + "_" + (pointID - 1) + "_MAE", trajID + "_" + (pointID - 1) + "_MAN", trajID + "_" + pointID + "_MAN").addAttribute("ui.class", "matchtrajectory");
-                            } catch (EdgeRejectedException e) {
-//                                System.out.println("fail");
-                            }
-
+                            graph.addEdge(trajID + "_" + pointID + "_MTE1", trajID + "_" + (pointID - 1) + "_MTR", trajID + "_" + pointID + "_MTL").addAttribute("ui.class", "matchtrajectory");
+                            graph.addEdge(trajID + "_" + pointID + "_MTE2", trajID + "_" + pointID + "_MTL", trajID + "_" + pointID + "_MTR").addAttribute("ui.class", "matchtrajectory");
+                        } else {
+                            graph.addEdge(trajID + "_" + pointID + "_MTE2", trajID + "_" + pointID + "_MTL", trajID + "_" + pointID + "_MTR").addAttribute("ui.class", "matchtrajectory");
                         }
                         pointID++;
                     }
@@ -192,7 +146,7 @@ public class GraphStreamDisplay {
         if (!indexNode.isEmpty()) {
             // create one graph node per road network node.
             int i = 0;
-            for (PointWithSegment node : indexNode) {
+            for (Point node : indexNode) {
                 graph.addNode(i + "_INDEXN")
                         .setAttribute("xy", node.x(), node.y());
                 i++;
@@ -208,7 +162,7 @@ public class GraphStreamDisplay {
         if (!candidatePoints.isEmpty()) {
             int i = 0;
             // create one graph node per road network node.
-            for (PointWithSegment node : candidatePoints) {
+            for (Point node : candidatePoints) {
                 graph.addNode(i + "_CANN")
                         .setAttribute("xy", node.x(), node.y());
                 graph.getNode(i + "_CANN").addAttribute("ui.class", "matchtrajectory");
@@ -231,19 +185,19 @@ public class GraphStreamDisplay {
         this.rawTrajectories = rawTrajectories;
     }
 
-    public void setMatchedTrajectories(List<RoadWay> matchedTrajectories) {
+    public void setMatchedTrajectories(List<List<PointNodePair>> matchedTrajectories) {
         this.matchedTrajectories = matchedTrajectories;
     }
 
-    public void setIndexNodes(List<PointWithSegment> indexNode) {
+    public void setIndexNodes(List<Point> indexNode) {
         this.indexNode = indexNode;
     }
 
-    public void setCandidatePoints(List<PointWithSegment> candidatePoints) {
+    public void setCandidatePoints(List<Point> candidatePoints) {
         this.candidatePoints = candidatePoints;
     }
 
-    public void addCandidatePoints(List<PointWithSegment> candidatePoints) {
+    public void addCandidatePoints(List<Point> candidatePoints) {
         this.candidatePoints.addAll(candidatePoints);
     }
 

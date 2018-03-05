@@ -31,7 +31,7 @@ public class PointND extends SimpleSpatialObject {
     private final double[] coordinates;
 
     /**
-     * Auxiliary point from JTS lib
+     * Auxiliary point from JTS oldversion
      */
     private com.vividsolutions.jts.geom.
             Point JTSPoint = null;

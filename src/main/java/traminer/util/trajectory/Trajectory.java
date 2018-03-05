@@ -28,7 +28,7 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class Trajectory extends ComplexSpatialObject<STPoint> implements SpatialTemporalObject {
-    // auxiliary LineString from JTS lib
+    // auxiliary LineString from JTS oldversion
     private com.vividsolutions.jts.geom.
             LineString JTSLineString = null;
 
@@ -71,6 +71,14 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     public List<Point> getCoordinates() {
         List<Point> list = new ArrayList<Point>(size());
         for (Point p : this) {
+            list.add(p);
+        }
+        return list;
+    }
+
+    public List<STPoint> getSTPoints() {
+        List<STPoint> list = new ArrayList<>(size());
+        for (STPoint p : this) {
             list.add(p);
         }
         return list;

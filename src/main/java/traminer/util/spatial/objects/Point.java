@@ -32,7 +32,7 @@ public class Point extends SimpleSpatialObject {
     private final double y;
 
     /**
-     * Auxiliary point from JTS lib
+     * Auxiliary point from JTS oldversion
      */
     private com.vividsolutions.jts.geom.
             Point JTSPoint = null;

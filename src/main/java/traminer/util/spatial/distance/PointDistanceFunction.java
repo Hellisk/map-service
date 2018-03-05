@@ -17,7 +17,7 @@ public interface PointDistanceFunction extends SpatialInterface {
      * @param p1 Spatial point P1.
      * @param p2 Spatial point P2.
      * @return Distance between P1 and P2.
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double distance(Point p1, Point p2)
             throws DistanceFunctionException;
@@ -32,7 +32,7 @@ public interface PointDistanceFunction extends SpatialInterface {
      *
      * @return The distance between points (x1, y1) and (x2, y2).
      *
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double pointToPointDistance(double x1, double y1, double x2, double y2)
             throws DistanceFunctionException;

@@ -2,7 +2,7 @@ package traminer.util.map.roadnetwork;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import traminer.util.spatial.distance.GPSDistanceFunction;
+import traminer.util.spatial.distance.GreatCircleDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.LineString;
 import traminer.util.spatial.objects.Segment;
@@ -35,7 +35,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      * Creates a new empty road way.
      */
     public RoadWay() {
-        this.distFunc = new GPSDistanceFunction();
+        this.distFunc = new GreatCircleDistanceFunction();
     }
 
     /**
@@ -45,7 +45,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public RoadWay(String wayId) {
         super(wayId);
-        this.distFunc = new GPSDistanceFunction();
+        this.distFunc = new GreatCircleDistanceFunction();
     }
 
     /**
@@ -56,7 +56,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public RoadWay(String wayId, String timeStamp) {
         super(wayId, timeStamp);
-        this.distFunc = new GPSDistanceFunction();
+        this.distFunc = new GreatCircleDistanceFunction();
     }
 
     /**
@@ -71,7 +71,7 @@ public class RoadWay extends RoadNetworkPrimitive {
             throw new NullPointerException("Road nodes list cannot be null.");
         }
         this.nodeList = new ArrayList<>(nodeList);
-        this.distFunc = new GPSDistanceFunction();
+        this.distFunc = new GreatCircleDistanceFunction();
         for (int i = 1; i < this.nodeList.size(); i++) {
             this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
         }
@@ -92,7 +92,7 @@ public class RoadWay extends RoadNetworkPrimitive {
         for (RoadNode node : nodes) {
             if (node != null) this.nodeList.add(node);
         }
-        this.distFunc = new GPSDistanceFunction();
+        this.distFunc = new GreatCircleDistanceFunction();
         for (int i = 1; i < this.nodeList.size(); i++) {
             this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
         }

@@ -2,22 +2,15 @@ package edu.uq.dke.mapupdate.io;
 
 import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
-import traminer.util.map.roadnetwork.RoadWay;
 
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by uqpchao on 5/07/2017.
  */
 public class RawFileOperation {
-    private int totalRecordCount;
-
-    public RawFileOperation() {
-        this.totalRecordCount = 20000;
-    }
+    private int totalRecordCount = 20000;
 
     public RawFileOperation(int count) {
         this.totalRecordCount = count;
@@ -26,26 +19,26 @@ public class RawFileOperation {
     /**
      * read raw trajectories and filter them with a given size map, all trajectories that are completely inside the map bounds are outputted
      *
-     * @param roadMapInputPath                   input path for given map
-     * @param inputRawTrajectoryPath             input path for raw trajectorie
-     * @param outputTrajectoryFolder             folder for output trajectories
+     * @param groundTruthMap                     input path for given map
+     * @param rawTrajectories                    input path for raw trajectorie
+     * @param initialTrajectories                folder for output trajectories
      * @param outputGroundTruthMatchResultFolder folder for all corresponding ground truth trajectory match result
      * @throws IOException   IO exception
      * @throws JDOMException unchecked exception
      */
-    public void RawTrajectoryParser(String roadMapInputPath, String inputRawTrajectoryPath, String outputTrajectoryFolder, String outputGroundTruthMatchResultFolder) throws IOException, JDOMException {
-        CSVMapReader map = new CSVMapReader(roadMapInputPath + "beijing_vertices.txt", roadMapInputPath + "beijing_edges.txt");
-        RoadNetworkGraph roadGraph = map.readShapeCSV();
-        BufferedReader brTrajectory = new BufferedReader(new FileReader(inputRawTrajectoryPath + "beijingTrajectory"));
-        Set<String> segmentLookup = new HashSet<>();
+    public void RawTrajectoryParser(String groundTruthMap, String rawTrajectories, String initialTrajectories, String outputGroundTruthMatchResultFolder) throws IOException {
+        CSVMapReader map = new CSVMapReader(groundTruthMap);
+        RoadNetworkGraph roadGraph = map.readMap(0);
+        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
+//        Set<String> segmentLookup = new HashSet<>();
 
-        // maintain a road way list of given map area for filtering the match result
-        for (RoadWay r : roadGraph.getWays()) {
-            segmentLookup.add(r.getId());
-        }
+//        // maintain a road way list of given map area for filtering the match result
+//        for (RoadWay r : roadGraph.getWays()) {
+//            segmentLookup.add(r.getId());
+//        }
 
         // create folders for further writing
-        File createFolder = new File(outputTrajectoryFolder);
+        File createFolder = new File(initialTrajectories);
         cleanPath(createFolder);
         createFolder = new File(outputGroundTruthMatchResultFolder);
         cleanPath(createFolder);
@@ -55,7 +48,7 @@ public class RawFileOperation {
         while ((line = brTrajectory.readLine()) != null && tripID < totalRecordCount) {
             String[] trajectoryInfo = line.split(",");
             String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-            BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder + "trip_" + tripID + ".txt"));
+            BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(initialTrajectories + "trip_" + tripID + ".txt"));
             boolean isInsideTrajectory = true;
             double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
             double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
@@ -80,28 +73,36 @@ public class RawFileOperation {
 
             if (isInsideTrajectory) {
                 BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt"));
-                String[] matchLines = trajectoryInfo[29].split("\\|");
-                boolean isInsideMatchedTrajectory = true;
-                for (String l : matchLines) {
-                    String[] matchPointInfo = l.split(":");
-                    if (!segmentLookup.contains(matchPointInfo[0])) {
-                        isInsideMatchedTrajectory = false;
-                        break;
-                    } else {
-                        bwMatchedTrajectory.write(matchPointInfo[3] + " " + matchPointInfo[4] + " " + matchPointInfo[5] + " " + matchPointInfo[0] + "\n");
-                    }
-                }
+                String[] matchLines = trajectoryInfo[4].split("\\|");
+
+                for (String l : matchLines)
+                    bwMatchedTrajectory.write(l + "\n");
+
                 bwMatchedTrajectory.close();
-                if (isInsideMatchedTrajectory) {
-                    tripID++;
-                } else {
-                    File currTrajFile = new File(outputTrajectoryFolder + "trip_" + tripID + ".txt");
-                    File currMatchedTrajFile = new File(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt");
-                    currTrajFile.delete();
-                    currMatchedTrajFile.delete();
-                }
+                tripID++;
+
+//                boolean isInsideMatchedTrajectory = true;
+//                for (String l : matchLines) {
+//                    String[] matchPointInfo = l.split(":");
+//                    if (!segmentLookup.contains(matchPointInfo[0])) {
+//                        isInsideMatchedTrajectory = false;
+//                        break;
+//                    } else {
+//                        bwMatchedTrajectory.write(matchPointInfo[3] + " " + matchPointInfo[4] + " " + matchPointInfo[5] + " " + matchPointInfo[0] + "\n");
+//                    }
+//                }
+//                bwMatchedTrajectory.close();
+//                if (isInsideMatchedTrajectory) {
+//                    tripID++;
+//                } else {
+//                    File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
+//                    File currMatchedTrajFile = new File(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt");
+//                    currTrajFile.delete();
+//                    currMatchedTrajFile.delete();
+//                }
+
             } else {
-                File currTrajFile = new File(outputTrajectoryFolder + "trip_" + tripID + ".txt");
+                File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
                 currTrajFile.delete();
             }
         }
@@ -118,18 +119,6 @@ public class RawFileOperation {
                 }
             }
         }
-    }
-
-    public void trajectoryFilter(String inputFilePath, int recordCount) throws IOException {
-        this.totalRecordCount = recordCount;
-        BufferedReader brTrajectory = new BufferedReader(new FileReader(inputFilePath));
-        BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(inputFilePath + "-" + recordCount));
-        for (int i = 0; i < recordCount; i++) {
-            String line = brTrajectory.readLine();
-            bwTrajectory.write(line + "\n");
-        }
-        brTrajectory.close();
-        bwTrajectory.close();
     }
 
     private boolean isInside(double pointX, double pointY, RoadNetworkGraph roadGraph) {

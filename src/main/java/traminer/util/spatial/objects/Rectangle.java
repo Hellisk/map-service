@@ -45,7 +45,7 @@ public class Rectangle extends SimpleSpatialObject {
     private final double maxY;
 
     /**
-     * Auxiliary Polygon from JTS lib
+     * Auxiliary Polygon from JTS oldversion
      */
     private com.vividsolutions.jts.geom.
             Polygon JTSPolygon = null;

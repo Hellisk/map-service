@@ -1,10 +1,8 @@
 package edu.uq.dke.mapupdate.mapmerge;
 
-import edu.uq.dke.mapupdate.mapmatching.io.PointWithSegment;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
-import traminer.util.spatial.structures.grid.Grid;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +14,6 @@ public class SPBasedRoadWayFiltering {
     private RoadNetworkGraph inferenceGraph = new RoadNetworkGraph();
     private RoadNetworkGraph removedGraph = new RoadNetworkGraph();
     private Map<String, RoadWay> locPairRoadWayMap = new HashMap<>();
-    private Grid<PointWithSegment> grid;
     private int avgNodePerGrid = 64;
 
     public SPBasedRoadWayFiltering(RoadNetworkGraph originalGraph, RoadNetworkGraph inferenceGraph, RoadNetworkGraph removedGraph, int avgNodePerGrid) {
@@ -46,7 +43,7 @@ public class SPBasedRoadWayFiltering {
         }
         cellNum = nodeCount / avgNodePerGrid;
         rowNum = (int) Math.ceil(Math.sqrt(cellNum));
-        this.grid = new Grid<>(rowNum, rowNum, originalGraph.getMinLon(), originalGraph.getMinLat(), originalGraph.getMaxLon(), originalGraph.getMaxLat());
+//        this.grid = new Grid<>(rowNum, rowNum, originalGraph.getMinLon(), originalGraph.getMinLat(), originalGraph.getMaxLon(), originalGraph.getMaxLat());
 
         System.out.println("Total number of nodes in grid index:" + originalGraph.getNodes().size());
         System.out.println("The grid contains " + rowNum + "rows and columns");

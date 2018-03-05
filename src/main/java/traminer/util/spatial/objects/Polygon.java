@@ -33,7 +33,7 @@ public class Polygon extends ComplexSpatialObject<Point> {
     private int size = 0;
 
     /**
-     * Auxiliary Polygon from JTS lib
+     * Auxiliary Polygon from JTS oldversion
      */
     private com.vividsolutions.jts.geom.
             Polygon JTSPolygon = null;

@@ -4,10 +4,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import traminer.util.map.MapInterface;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A Road Network Graph object, based on OpenStreetMap (OSM) data model.
@@ -77,6 +74,14 @@ public class RoadNetworkGraph implements MapInterface {
         return waysList.values();
     }
 
+    public List<RoadNode> getAllPoints() {
+        List<RoadNode> pointList = new ArrayList<>();
+        pointList.addAll(this.getNodes());
+        for (RoadWay w : this.getWays()) {
+            pointList.addAll(w.getNodes());
+        }
+        return pointList;
+    }
     /**
      * @param wayId Way Id to search.
      * @return Return the road way with the given Id.
@@ -88,7 +93,7 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * Adds the given Way to this road network graph.
      *
-     * @param node The road way to add.
+     * @param way The road way to add.
      */
     public void addWay(RoadWay way) {
         if (way != null) waysList.put(way.getId(), way);
@@ -127,7 +132,7 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * Adds the given Relation to this road network graph.
      *
-     * @param node The road relation to add.
+     * @param relation The road relation to add.
      */
     public void addRelation(RoadRelation relation) {
         if (relation != null) relationsList.put(relation.getId(), relation);

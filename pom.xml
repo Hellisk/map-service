@@ -183,7 +183,7 @@
             <systemPath>${project.basedir}/lib/unfolding.0.9.6.jar</systemPath>
         </dependency>
 
-        <!-- JSI RTree lib dependencies -->
+        <!-- JSI RTree oldversion dependencies -->
         <dependency>
             <groupId>net.sourceforge.jsi</groupId>
             <artifactId>jsi</artifactId>
@@ -227,19 +227,31 @@
             <version>20170516</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.bytedeco/javacv -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.imglib2/imglib2 -->
+        <dependency>
+            <groupId>net.imglib2</groupId>
+            <artifactId>imglib2</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.scijava/scijava-common -->
+        <dependency>
+            <groupId>org.scijava</groupId>
+            <artifactId>scijava-common</artifactId>
+            <version>2.65.0</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

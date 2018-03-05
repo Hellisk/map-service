@@ -19,7 +19,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * @param s 2D line segment S.
      * @param r 2D line segment R.
      * @return Distance between S and R.
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double distance(Segment s, Segment r) throws DistanceFunctionException;
 
@@ -37,7 +37,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * @return The distance between the point (x1, y1) and
      * 			the segment (sx1, sy1)(sx2, sy2).
      *
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double pointToSegmentDistance(
             double x, double y, double sx1, double sy1, double sx2, double sy2)
@@ -52,7 +52,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      *
      * @return The distance between the point p and the segment s.
      *
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double pointToSegmentDistance(Point p, Segment s)
             throws DistanceFunctionException;
@@ -73,7 +73,7 @@ public interface SegmentDistanceFunction extends SpatialInterface {
      * @return The distance between line segments S (sx1, sy1)(sx2, sy2)
      * 		and R (rx1, sry1)(rx2, ry2).
      *
-     * @throws DistanceMeasurementException
+     * @throws DistanceFunctionException
      */
     double segmentToSegmentDistance(
             double sx1, double sy1, double sx2, double sy2,

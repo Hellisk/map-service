@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Interface for map-matching algorithms.
- * 
+ *
  * @author uqdalves
  */
 public interface MapMatchingMethod extends MapInterface {
@@ -21,24 +21,23 @@ public interface MapMatchingMethod extends MapInterface {
      * road network graph.
      *
      * @param trajectory       The trajectory to match.
-     * @param roadNetwrokGraph The road network graph to find the match.
+     * @param roadNetworkGraph The road network graph to find the match.
      * @return A list containing the road nodes that best
      * matches each point of the given trajectory.
      * @throws MapMatchingException
      */
     List<PointNodePair> doMatching(
             final Trajectory trajectory,
-            final RoadNetworkGraph roadNetwrokGraph) throws MapMatchingException;
+            final RoadNetworkGraph roadNetworkGraph) throws MapMatchingException;
 
     /**
      * Matches the given list of spatial points to the
      * road network nodes.
      *
      * @param pointsList The spatial points to match.
-     * @param nodesList The road network nodes to find the match.
-     *
+     * @param nodesList  The road network nodes to find the match.
      * @return A list containing the road nodes that best
-     * 		matches each point in the given collection.
+     * matches each point in the given collection.
      * @throws MapMatchingException
      */
     List<PointNodePair> doMatching(

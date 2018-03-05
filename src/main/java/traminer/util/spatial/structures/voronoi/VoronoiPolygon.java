@@ -34,7 +34,7 @@ public class VoronoiPolygon extends ComplexSpatialObject<VoronoiEdge> {
      */
     private List<String> adjacentList;
 
-    // auxiliary Polygon from JTS lib
+    // auxiliary Polygon from JTS oldversion
     private com.vividsolutions.jts.geom.
             Polygon JTSPolygon = null;
 
