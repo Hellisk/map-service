@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Graph {
-    private HashMap<Integer, String> nodeIDIndex = new HashMap<>();  // node ID and its location
     private HashMap<String, Integer> oldNodeIDMapping = new HashMap<>();    // the mapping between node id in RoadNetworkGraph(random) and Graph(Sequence)
     //    private HashMap<Integer, String> edgeIDOwner = new HashMap<>();    // the mapping between the mini edge id and its corresponding roadway id
     private HashMap<MiniRoadSegment, Integer> findMiniEdgeIndex = new HashMap<>();  // find the mini road index using the coordinates and road way id
@@ -50,10 +49,6 @@ public class Graph {
             if (oldNodeIDMapping.containsKey(node.getId()))
                 System.err.println("Error: Old node ID already exists!");
             oldNodeIDMapping.put(node.getId(), noOfNodes);
-            if (!nodeIDIndex.containsKey(noOfNodes)) {
-                nodeIDIndex.put(noOfNodes, node.lon() + "_" + node.lat());
-            } else
-                System.err.println("Error: Duplicated nodes!");
             noOfNodes++;
         }
         for (RoadWay way : roadNetwork.getWays()) {
@@ -66,10 +61,6 @@ public class Graph {
                     if (oldNodeIDMapping.containsKey(startNode.getId()))
                         System.err.println("Error: Old node ID already exists!");
                     oldNodeIDMapping.put(startNode.getId(), noOfNodes);
-                    if (!nodeIDIndex.containsKey(noOfNodes)) {
-                        nodeIDIndex.put(noOfNodes, startNode.lon() + "_" + startNode.lat());
-                    } else
-                        System.err.println("Error: Duplicated nodes!");
                     noOfNodes++;
                 }
             }

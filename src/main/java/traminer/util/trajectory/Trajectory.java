@@ -17,6 +17,7 @@ import traminer.util.spatial.objects.st.SpatialTemporalObject;
 
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -48,9 +49,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     public Trajectory(STPoint... points) {
         super(points.length);
-        for (STPoint p : points) {
-            this.add(p);
-        }
+        this.addAll(Arrays.asList(points));
     }
 
     public Trajectory(String id, List<STPoint> pointList) {
@@ -62,9 +61,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     public Trajectory(String id, STPoint... points) {
         super(points.length);
         this.setId(id);
-        for (STPoint p : points) {
-            this.add(p);
-        }
+        this.addAll(Arrays.asList(points));
     }
 
     @Override

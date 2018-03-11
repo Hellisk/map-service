@@ -21,7 +21,7 @@ public class PointEdgePair extends Pair<STPoint, Segment> {
      * Set default distance as zero.
      *
      * @param point The match point.
-     * @param node  The match edge.
+     * @param edge  The match edge.
      */
     public PointEdgePair(STPoint point, Segment edge) {
         super(point, edge);
@@ -32,7 +32,7 @@ public class PointEdgePair extends Pair<STPoint, Segment> {
      * Creates a Point-to-Edge match pair object.
      *
      * @param point The match point.
-     * @param node  The match edge.
+     * @param edge  The match edge.
      */
     public PointEdgePair(STPoint point, Segment edge, double distance) {
         super(point, edge);

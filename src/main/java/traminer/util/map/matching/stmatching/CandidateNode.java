@@ -62,8 +62,7 @@ class CandidateNode implements Serializable {
     public boolean equals(CandidateNode nodeToCompare) {
         if (this.lat == nodeToCompare.lat &&
                 this.lon == nodeToCompare.lon) {
-            if (this.respondingGPSFix.equals(nodeToCompare.respondingGPSFix))
-                return true;
+            return this.respondingGPSFix.equals(nodeToCompare.respondingGPSFix);
         }
         return false;
     }

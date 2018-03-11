@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by uqpchao on 23/05/2017.
@@ -41,12 +42,12 @@ public class CSVTrajectoryWriter {
         }
         if (matchedResultFolder.isDirectory() && nextInputMatchedResultFolder.isDirectory()) {
             if (matchedResultFolder.listFiles() != null) {
-                for (File f : matchedResultFolder.listFiles()) {
+                for (File f : Objects.requireNonNull(matchedResultFolder.listFiles())) {
                     f.delete();
                 }
             }
             if (nextInputMatchedResultFolder.listFiles() != null) {
-                for (File f : nextInputMatchedResultFolder.listFiles()) {
+                for (File f : Objects.requireNonNull(nextInputMatchedResultFolder.listFiles())) {
                     f.delete();
                 }
             }

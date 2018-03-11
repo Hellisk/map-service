@@ -1,10 +1,5 @@
 package edu.uq.dke.mapupdate.mapinference.kde;
 
-import traminer.util.map.roadnetwork.RoadNetworkGraph;
-import traminer.util.trajectory.Trajectory;
-
-import java.util.List;
-
 public class BiagioniKDE2012 {
     KDEMapInference mapinference;
 
@@ -16,8 +11,8 @@ public class BiagioniKDE2012 {
         this.mapinference = new KDEMapInference(cellSize, blur);
     }
 
-    public void KDEMapInferenceProcess(List<Trajectory> trajList, RoadNetworkGraph currMap, String outputMapPath) {
+    public void KDEMapInferenceProcess() {
         KDEMapInference mapinference = new KDEMapInference();
-        mapinference.createKDEWithTrajectories(trajList, currMap, outputMapPath);
+        mapinference.startMapInference();
     }
 }

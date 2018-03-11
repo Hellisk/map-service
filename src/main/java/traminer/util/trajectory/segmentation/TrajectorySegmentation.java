@@ -16,9 +16,9 @@ public interface TrajectorySegmentation extends SpatialInterface {
     /**
      * Segments the given trajectory into multiple sub-trajectories.
      *
-     * @param t The trajectory to segment.
+     * @param trajectory The trajectory to segment.
      * @return A list of sub-trajectories.
-     * @throws EmptyTrajectoryException If input trajectory is empty.
+     * @throws EmptyParameterException If input trajectory is empty.
      */
     List<Trajectory> doSegmentation(Trajectory trajectory)
             throws EmptyParameterException;

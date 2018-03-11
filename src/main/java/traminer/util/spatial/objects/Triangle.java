@@ -620,11 +620,9 @@ public class Triangle extends SimpleSpatialObject {
         if (obj == null) return false;
         if (obj instanceof Triangle) {
             Triangle t = (Triangle) obj;
-            if (v1x == t.v1x && v1y == t.v1y &&
+            return v1x == t.v1x && v1y == t.v1y &&
                     v2x == t.v2x && v2y == t.v2y &&
-                    v3x == t.v3x && v3y == t.v3y) {
-                return true;
-            }
+                    v3x == t.v3x && v3y == t.v3y;
         }
         return false;
     }

@@ -12,6 +12,7 @@ import traminer.util.spatial.SpatialUtils;
 
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -79,9 +80,7 @@ public class Polygon extends ComplexSpatialObject<Point> {
             throw new SpatialObjectConstructionException(
                     "Polygon objects must have at least 3 points/vertices.");
         }
-        for (Point p : vertices) {
-            this.add(p);
-        }
+        this.addAll(Arrays.asList(vertices));
     }
 
     /**

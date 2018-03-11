@@ -201,7 +201,7 @@ public class UniformStrips<T extends SpatialObject> implements SpatialDataStruct
      * Return the adjacent strips partitions from the
      * strip in the given position [i].
      *
-     * @param index Strips index position ranges from i = [0...n-1]
+     * @param i Strips index position ranges from i = [0...n-1]
      * @return A list of adjacent strips, or an empty set
      * if the cell has no adjacent cells.
      */

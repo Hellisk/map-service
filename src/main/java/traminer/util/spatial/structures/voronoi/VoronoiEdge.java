@@ -83,9 +83,8 @@ public class VoronoiEdge extends Segment {
             if (this.x1() == e.x1() && this.x2() == e.x2() &&
                     this.y1() == e.y1() && this.y2() == e.y2())
                 return true;
-            if (this.x1() == e.x2() && this.x2() == e.x1() &&
-                    this.y1() == e.y2() && this.y2() == e.y1())
-                return true;
+            return this.x1() == e.x2() && this.x2() == e.x1() &&
+                    this.y1() == e.y2() && this.y2() == e.y1();
         }
         return false;
     }

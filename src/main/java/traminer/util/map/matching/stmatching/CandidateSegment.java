@@ -32,9 +32,7 @@ class CandidateSegment {
 
     public boolean equals(CandidateSegment AnotherSegment) {
         if (this.startNode.equals(AnotherSegment.getStartNode())) {
-            if (this.endNode.equals(AnotherSegment.getEndNode())) {
-                return true;
-            }
+            return this.endNode.equals(AnotherSegment.getEndNode());
         }
         return false;
     }

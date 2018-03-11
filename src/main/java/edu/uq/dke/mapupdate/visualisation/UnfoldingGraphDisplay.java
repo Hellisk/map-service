@@ -35,8 +35,8 @@ public class UnfoldingGraphDisplay extends PApplet {
     private String ROOT_PATH = "C:/data/trajectorydata/";
     private int PERCENTAGE = 0;    // remove percentage for map display
     private UnfoldingMap map;
-    private int options = 2346;    // 0=nothing, 1= points(undone), 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
-    private String trajID = "5";
+    private int options = 25;    // 0=nothing, 1= points(undone), 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
+    private String trajID = "11";
 
     public static void main(String args[]) {
         PApplet.main(new String[]{"edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay"});

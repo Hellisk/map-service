@@ -199,7 +199,7 @@ public class VoronoiDiagramModel implements SpatialIndexModel {
      * Search all Voronoi polygons that intersects with
      * the given line string.
      *
-     * @param r The line string to do the search.
+     * @param ls The line string to do the search.
      * @return A list of polygon IDs.
      */
     public HashSet<String> rangeSearch(LineString ls) {

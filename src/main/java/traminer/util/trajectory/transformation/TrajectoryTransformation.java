@@ -62,9 +62,7 @@ public abstract class TrajectoryTransformation implements SpatialInterface {
         }
         int[] allSizeList = sort(valueList);
 
-        for (int i = 0; i < N; i++) {
-            result[i] = allSizeList[i];
-        }
+        System.arraycopy(allSizeList, 0, result, 0, N);
 
         for (int i = 0; i < N; i++) {
             int min = result[i];
@@ -88,9 +86,7 @@ public abstract class TrajectoryTransformation implements SpatialInterface {
         
         int[] allSizeList = sort(valueList);
 
-        for (int i = 0; i < N; i++) {
-            result[i] = allSizeList[i];
-        }
+        System.arraycopy(allSizeList, 0, result, 0, N);
 
         for (int i = 0; i < N; i++) {
             int min = result[i];

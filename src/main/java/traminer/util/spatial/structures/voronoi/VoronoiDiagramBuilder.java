@@ -210,11 +210,9 @@ public class VoronoiDiagramBuilder implements SpatialInterface {
 
     private void qsort(Point[] sites) {
         List<Point> listSites = new ArrayList<Point>(sites.length);
-        for (Point s : sites) {
-            listSites.add(s);
-        }
+        listSites.addAll(Arrays.asList(sites));
 
-        Collections.sort(listSites, new Comparator<Point>() {
+        listSites.sort(new Comparator<Point>() {
             public final int compare(Point p1, Point p2) {
                 if (p1.y() < p2.y()) {
                     return (-1);

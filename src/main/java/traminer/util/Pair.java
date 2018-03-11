@@ -65,10 +65,7 @@ public class Pair<T, S> implements Serializable {
         } else if (!_1.equals(other._1))
             return false;
         if (_2 == null) {
-            if (other._2 != null)
-                return false;
-        } else if (!_2.equals(other._2))
-            return false;
-        return true;
+            return other._2 == null;
+        } else return _2.equals(other._2);
     }
 }

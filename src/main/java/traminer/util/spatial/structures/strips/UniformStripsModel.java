@@ -161,7 +161,7 @@ public class UniformStripsModel implements SpatialIndexModel {
      * Return the indexes of all strip cells adjacent
      * from the cell in the given position [i].
      *
-     * @param index Strips index position ranges from i = [0...n-1]
+     * @param i Strips index position ranges from i = [0...n-1]
      * @return An adjacent cells index set, or an empty set
      * if the cell has no adjacent cells.
      */

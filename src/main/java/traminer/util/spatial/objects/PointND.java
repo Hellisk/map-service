@@ -110,9 +110,7 @@ public class PointND extends SimpleSpatialObject {
     public PointND clone() {
         // deep copy
         PointND clone = new PointND(this.getDimension());
-        for (int i = 0; i < this.getDimension(); i++) {
-            clone.coordinates[i] = this.coordinates[i];
-        }
+        System.arraycopy(this.coordinates, 0, clone.coordinates, 0, this.getDimension());
         super.cloneTo(clone);
         return clone;
     }
