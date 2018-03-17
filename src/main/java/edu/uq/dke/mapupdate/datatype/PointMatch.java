@@ -3,12 +3,12 @@ package edu.uq.dke.mapupdate.datatype;
 import traminer.util.spatial.objects.Point;
 import traminer.util.spatial.objects.Segment;
 
-public class MatchingPoint {
+public class PointMatch {
     private Point matchPoint;
     private Segment matchedSegment;
     private String roadID;
 
-    public MatchingPoint(Point matchingPoint, Segment matchedSegment, String roadID) {
+    public PointMatch(Point matchingPoint, Segment matchedSegment, String roadID) {
         this.matchPoint = new Point(matchingPoint.x(), matchingPoint.y());
         this.matchedSegment = matchedSegment;
         this.roadID = roadID;
@@ -46,8 +46,8 @@ public class MatchingPoint {
         return this.matchPoint.y();
     }
 
-    public MatchingPoint clone() {
-        return new MatchingPoint(this.matchPoint, this.matchedSegment, this.roadID);
+    public PointMatch clone() {
+        return new PointMatch(this.matchPoint, this.matchedSegment, this.roadID);
     }
 
 }

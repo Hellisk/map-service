@@ -1,61 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" line="59" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="c03661cd-a46a-4293-97de-353991ff76b0" name="Default" comment="Integrated python map inference and changed the paths.&#10;&#10;TODO: Modify the map matching to provide runnable input for map inference and implement map merge">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/other.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/MapInference.iml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/gpsmatcher.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/graph_extract.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/graphdb_matcher.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/graphdb_matcher_run.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/kde.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/location.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/mathfunclib.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/process_map_matches.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/pylibs/__init__.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/pylibs/mathfunclib.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/pylibs/spatialfunclib.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/pylibs/spatialfunclib_accel.pyx" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/refine_topology.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/skeleton.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/spatialfunclib.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/streetmap.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/subiterations.pyx" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/python/viterbi.py" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+    <list default="true" id="c03661cd-a46a-4293-97de-353991ff76b0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/MapUpdate.iml" afterPath="$PROJECT_DIR$/MapUpdate.iml" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/PointMatch.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingResult.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/TrajectoryMatchResult.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/Pair.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/Pair.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/graph/path/Vertex.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/graph/path/Vertex.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointEdgePair.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointEdgePair.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/stmatching/CandidateNode.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/stmatching/CandidateNode.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/stmatching/CandidateSegment.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/stmatching/CandidateSegment.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/VectorDistanceFunction.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/VectorDistanceFunction.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Triangle.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Triangle.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStrips.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStrips.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStripsModel.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStripsModel.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramBuilder.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramModel.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramModel.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiEdge.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiEdge.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/MaxStaySegmentation.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/MaxStaySegmentation.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/TrajectorySegmentation.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/TrajectorySegmentation.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/transformation/TrajectoryTransformation.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/transformation/TrajectoryTransformation.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointNodePair.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointNodePair.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" afterPath="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/kde.py" afterPath="$PROJECT_DIR$/src/main/python/kde.py" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/skeleton.py" afterPath="$PROJECT_DIR$/src/main/python/skeleton.py" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBCAN.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBRCAN.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/DBSCAN.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/analysis/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Factory.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Filter.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/KState.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/Sample.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateCandidate.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateMemory.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateTransition.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Benchmark.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Matcher.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherCandidate.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherFactory.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherKState.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherSample.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherServer.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/MatcherTransition.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/Minset.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/ServerControl.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/matcher/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BaseRoad.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BfmapReader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/BfmapWriter.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/Heading.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/PostGISReader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/RoadReader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/RoadWriter.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/road/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Distance.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Loader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Road.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/RoadMap.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/RoadPoint.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Route.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/Time.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/TimePriority.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/roadmap/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Group.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Scheduler.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/StaticScheduler.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Task.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/scheduler/Worker.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Geography.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Intercept.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Intersect.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/QuadTreeIndex.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/SpatialIndex.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/SpatialOperator.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/Vector.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/spatial/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/AbstractEdge.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Cost.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Dijkstra.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Edge.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Graph.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Path.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Point.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/Router.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/topology/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TemporaryMemory.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TrackerControl.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/TrackerServer.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/tracker/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/AbstractServer.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/PostgresSource.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Quadruple.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Quintuple.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/SampleReader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Sextuple.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/SourceException.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Stopwatch.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/TimedSampleReader.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Triple.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/Tuple.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/util/package-info.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/main/resources/logback.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBCANTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBRCANTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/DBSCANTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/analysis/NYCSample.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/FilterTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/KStateTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/markov/StateTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherExample.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherKStateTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherSampleTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MatcherTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/MinsetTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/matcher/ServerTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/road/BfmapReaderTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/road/PostGISReaderTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadMapTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadPointTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RoadTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/RouteTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/roadmap/Testmap.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/GeographyTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/QuadTreeIndexTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/spatial/SpatialExample.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/DijkstraBenchmark.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/DijkstraTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/EdgeTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/GraphTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/topology/PathTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/tracker/TemporaryMemoryTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/tracker/TrackerServerTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/java/com/bmwcarit/barefoot/util/AbstractServerTest.java" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/analysis/xba96de419e711691b9445d6a6307c170.csv" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-001.geojson" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-001.json" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-015.geojson" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/com/bmwcarit/barefoot/matcher/x0001-015.json" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/main/test/src/test/resources/logback.xml" afterPath="" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -92,137 +175,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="HMMMapMatching.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3990">
+              <caret line="225" column="56" lean-forward="false" selection-start-line="225" selection-start-column="56" selection-end-line="225" selection-end-column="56" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CSVTrajectoryReader.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="836">
+              <caret line="57" column="100" lean-forward="false" selection-start-line="57" selection-start-column="100" selection-end-line="57" selection-end-column="100" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CSVTrajectoryWriter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="31" column="16" lean-forward="false" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UnfoldingGraphDisplay.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2451">
+              <caret line="150" column="63" lean-forward="false" selection-start-line="150" selection-start-column="63" selection-end-line="150" selection-end-column="63" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-931">
-              <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BiagioniKDE2012.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="13" column="39" lean-forward="false" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
-              <folding>
-                <element signature="e#143#144#0" expanded="true" />
-                <element signature="e#200#201#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="KDEMapInference.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="35" column="70" lean-forward="false" selection-start-line="35" selection-start-column="70" selection-end-line="35" selection-end-column="70" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ForwardBackwardAlgorithm.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ForwardBackwardAlgorithm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-399">
-              <caret line="31" column="6" lean-forward="false" selection-start-line="31" selection-start-column="6" selection-end-line="31" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="subiterations.pyx" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/python/subiterations.pyx">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RoadNetworkPrimitive.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="process_map_matches.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/python/process_map_matches.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="554">
-              <caret line="322" column="62" lean-forward="false" selection-start-line="322" selection-start-column="62" selection-end-line="322" selection-end-column="62" />
-              <folding>
-                <marker date="1520808456728" expanded="true" signature="3675:3753" ph="CREATE TABLE... nodes" />
-                <marker date="1520808456728" expanded="true" signature="3777:3857" ph="CREATE TABLE... edges" />
-                <marker date="1520808456728" expanded="true" signature="3881:3930" ph="CREATE TABLE... segments" />
-                <marker date="1520808456728" expanded="true" signature="3954:3998" ph="CREATE TABLE... intersections" />
-                <marker date="1520808456728" expanded="true" signature="4169:4295" ph="INSERT INTO segments... " />
-                <marker date="1520808456728" expanded="true" signature="4563:4718" ph="INSERT INTO edges... " />
-                <marker date="1520808456728" expanded="true" signature="4874:5018" ph="INSERT INTO nodes... " />
-                <marker date="1520808456728" expanded="true" signature="5107:5162" ph="INSERT INTO intersections... " />
-                <marker date="1520808456728" expanded="true" signature="10838:10916" ph="CREATE TABLE... nodes" />
-                <marker date="1520808456728" expanded="true" signature="10940:11020" ph="CREATE TABLE... edges" />
-                <marker date="1520808456728" expanded="true" signature="11044:11093" ph="CREATE TABLE... segments" />
-                <marker date="1520808456728" expanded="true" signature="11117:11161" ph="CREATE TABLE... intersections" />
-                <marker date="1520808456728" expanded="true" signature="11493:11623" ph="INSERT INTO segments... " />
-                <marker date="1520808456728" expanded="true" signature="11703:11866" ph="INSERT INTO edges... " />
-                <marker date="1520808456728" expanded="true" signature="12030:12174" ph="INSERT INTO nodes... " />
-                <marker date="1520808456728" expanded="true" signature="12263:12318" ph="INSERT INTO intersections... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="streetmap.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/python/streetmap.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="592">
-              <caret line="760" column="49" lean-forward="false" selection-start-line="760" selection-start-column="49" selection-end-line="760" selection-end-column="49" />
-              <folding>
-                <marker date="1520808452278" expanded="true" signature="5092:5122" ph="select id, l... nodes" />
-                <marker date="1520808452278" expanded="true" signature="5578:5608" ph="select id, t... ways" />
-                <marker date="1520808452278" expanded="true" signature="9580:9629" ph="select id, l... nodes" />
-                <marker date="1520808452278" expanded="true" signature="10099:10146" ph="select id, i... edges" />
-                <marker date="1520808452278" expanded="true" signature="11641:11674" ph="select id, e... segments" />
-                <marker date="1520808452278" expanded="true" signature="12322:12355" ph="select node_... intersections" />
-                <marker date="1520808452278" expanded="true" signature="12541:12609" ph="select trans... transitions" />
-                <marker date="1520808452278" expanded="true" signature="13760:13796" ph="select disti... shapes" />
-                <marker date="1520808452278" expanded="true" signature="14512:14648" ph="select shape... shapes" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="kde.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/python/kde.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2532">
-              <caret line="17" column="10" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="10" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="graphdb_matcher_run.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/python/graphdb_matcher_run.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="131" column="42" lean-forward="false" selection-start-line="131" selection-start-column="42" selection-end-line="131" selection-end-column="42" />
+            <state relative-caret-position="475">
+              <caret line="35" column="32" lean-forward="false" selection-start-line="35" selection-start-column="32" selection-end-line="35" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -240,21 +237,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>roadPosition</find>
-      <find>prevTimeStep = null</find>
-      <find>hasCandidate</find>
-      <find>roadPositions</find>
-      <find>roadPositions.add</find>
-      <find>roadPositions.get</find>
-      <find>getMatchingPoint</find>
-      <find>segmentLookup</find>
-      <find>match</find>
-      <find>getResult</find>
-      <find>getResult|observation</find>
-      <find>nodeIndexMapping</find>
-      <find>ways</find>
-      <find>Shortest</find>
-      <find>way.getNode(i+1)</find>
       <find>Shortest distance calculation failed</find>
       <find>old node</find>
       <find>random road</find>
@@ -270,9 +252,23 @@
       <find>save</find>
       <find>output_filename</find>
       <find>min_lat</find>
+      <find>remove</find>
+      <find>computeTransitions</find>
+      <find>computetransition</find>
+      <find>findEndPointIndicesOfEdge.get</find>
+      <find>currBreakPointIndex</find>
+      <find>matchedNextInput</find>
+      <find>matchedtrip</find>
+      <find>matchingPointFile</find>
+      <find>matchedRoadID</find>
+      <find>shortest path graph</find>
+      <find>isolatedNodeCount</find>
+      <find>sta</find>
+      <find>Error: Old node ID already exists!</find>
+      <find>GT</find>
+      <find>ground</find>
     </findStrings>
     <replaceStrings>
-      <replace>edu.uq.dke.traminer</replace>
       <replace>import edu.uq.dke.traminer.util</replace>
       <replace>import edu.uq.dke.mapupdate.util</replace>
       <replace>private</replace>
@@ -302,6 +298,7 @@
       <replace>p1y</replace>
       <replace>startNode</replace>
       <replace>endNode</replace>
+      <replace>matchedRoadID</replace>
     </replaceStrings>
     <dirStrings>
       <dir>F:\OneDrive\code\github\MapUpdate\src\main\java\edu\uq\dke\mapupd\util\map</dir>
@@ -330,30 +327,14 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/test/oldversion/mapmatching/algorithm/PointBasedFastMatching.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/visualization/Demo.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/RawFileOperation.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/Demo.java" />
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/UnfoldingMapDemo.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingMapDemo.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/SHPMapReader.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/test.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/SpatialDataStructure.java" />
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointEdgePair.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/VectorDistanceFunction.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStrips.java" />
@@ -365,22 +346,38 @@
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/transformation/TrajectoryTransformation.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java" />
-        <option value="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramBuilder.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/MapMatchingEvaluation.java" />
-        <option value="$PROJECT_DIR$/src/main/python/skeleton.py" />
         <option value="$PROJECT_DIR$/src/main/python/graph_extract.py" />
-        <option value="$PROJECT_DIR$/src/main/python/kde.py" />
         <option value="$PROJECT_DIR$/src/main/python/refine_topology.py" />
         <option value="$PROJECT_DIR$/src/main/python/graphdb_matcher_run.py" />
         <option value="$PROJECT_DIR$/src/main/python/process_map_matches.py" />
         <option value="$PROJECT_DIR$/src/main/python/streetmap.py" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" />
         <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java" />
         <option value="$PROJECT_DIR$/src/main/python/subiterations.pyx" />
+        <option value="$PROJECT_DIR$/src/main/python/skeleton.py" />
+        <option value="$PROJECT_DIR$/src/main/python/kde.py" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingResult.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
+        <option value="$PROJECT_DIR$/../TraMiner/traminer-util-lib/src/main/java/traminer/util/map/matching/hmm/HMMMapMatching.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/TrajectoryMatchResult.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/PointMatch.java" />
+        <option value="$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
       </list>
     </option>
   </component>
@@ -528,15 +525,103 @@
           <expand>
             <path>
               <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="hmm" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="mapupdate" type="462c0819:PsiDirectoryNode" />
+              <item name="visualisation" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="oldversion" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MapUpdate" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="oldversion" type="462c0819:PsiDirectoryNode" />
+              <item name="mapinference" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="AndroidView" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -546,13 +631,14 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.25862068" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupd" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/python" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../TraMiner/traminer-util-lib/src/main/java/traminer/util/map/matching/hmm/ViterbiAlgorithm.java" />
     <property name="settings.editor.selected.configurable" value="pyconsole" />
     <property name="SearchEverywhereHistoryKey" value="nearest&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java&#10;scif&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/.idea/libraries/Maven__io_scif_scifio_0_30_0.xml&#10;RoadNetwor&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java&#10;checkCompl&#9;PSI&#9;JAVA://edu.uq.dke.mapupdate.io.CSVMapReader#checkCompleteness&#10;GPS&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/traminer/util/spatial/distance/GPSDistanceFunction.java&#10;GPSD&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/traminer/util/spatial/distance/GPSDistanceFunction.java&#10;roadWay&#9;PSI&#9;JAVA://traminer.util.map.roadnetwork.RoadWay&#10;CSV&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/edu/uq/dke/mapupdate/io/CSVMapWriter.java&#10;kneares&#9;PSI&#9;JAVA://traminer.util.spatial.structures.SpatialQuery#kNearestNeighborsSearch&#10;grid&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/traminer/util/spatial/structures/grid/Grid.java&#10;circle&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/traminer/util/spatial/objects/Circle.java&#10;rangepartitionsearch&#9;PSI&#9;JAVA://traminer.util.spatial.structures.voronoi.VoronoiDiagram#rangePartitionSearch&#10;spatialobjec&#9;PSI&#9;JAVA://traminer.util.spatial.objects.SpatialObject&#10;tojts&#9;PSI&#9;JAVA://traminer.util.spatial.objects.SpatialObject#toJTSGeometry&#10;jts&#9;PSI&#9;JAVA://traminer.util.spatial.objects.factory.JTSGeometries&#10;todo&#9;ACTION&#9;ActivateTODOToolWindow&#10;gridmod&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/edu/uq/dke/mapupdate/util/spatial/structures/grid/GridModel.java&#10;trajectory&#9;PSI&#9;JAVA://edu.uq.dke.mapupdate.util.trajectory.Trajectory&#10;traminer.util&#9;null&#9;null&#10;startWithInitialStateProbabilities&#9;PSI&#9;JAVA://com.bmw.hmm.ViterbiAlgorithm#startWithInitialStateProbabilities&#10;startWithInitialStateProbabilities()&#9;null&#9;null&#10;traminer&#9;null&#9;null" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="dynamic.classpath" value="true" />
     <property name="jdk.selected.PYTHON_MODULE" value="Python 2.7" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../TraMiner/traminer-util-lib/src/main/java/traminer/util/map/matching/hmm/ViterbiAlgorithm.java" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -1150,19 +1236,18 @@
       <envs />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.graph_extract" />
-      <item index="1" class="java.lang.String" itemvalue="Python.graphdb_matcher_run" />
-      <item index="2" class="java.lang.String" itemvalue="Python.process_map_matches" />
-      <item index="3" class="java.lang.String" itemvalue="Python.refine_topology" />
+      <item index="0" class="java.lang.String" itemvalue="Application.UnfoldingMapDemo" />
+      <item index="1" class="java.lang.String" itemvalue="Python.graph_extract" />
+      <item index="2" class="java.lang.String" itemvalue="Python.graphdb_matcher_run" />
+      <item index="3" class="java.lang.String" itemvalue="Python.process_map_matches" />
       <item index="4" class="java.lang.String" itemvalue="Application.Main" />
     </list>
     <recent_temporary>
-      <list size="5">
+      <list size="4">
         <item index="0" class="java.lang.String" itemvalue="Application.Main" />
-        <item index="1" class="java.lang.String" itemvalue="Python.refine_topology" />
-        <item index="2" class="java.lang.String" itemvalue="Python.process_map_matches" />
-        <item index="3" class="java.lang.String" itemvalue="Python.graphdb_matcher_run" />
-        <item index="4" class="java.lang.String" itemvalue="Python.graph_extract" />
+        <item index="1" class="java.lang.String" itemvalue="Python.process_map_matches" />
+        <item index="2" class="java.lang.String" itemvalue="Python.graphdb_matcher_run" />
+        <item index="3" class="java.lang.String" itemvalue="Python.graph_extract" />
       </list>
     </recent_temporary>
   </component>
@@ -1370,7 +1455,19 @@
       <workItem from="1520560252415" duration="15473000" />
       <workItem from="1520645021501" duration="435000" />
       <workItem from="1520645482211" duration="6726000" />
-      <workItem from="1520728281589" duration="27985000" />
+      <workItem from="1520728281589" duration="28099000" />
+      <workItem from="1520811916679" duration="24257000" />
+      <workItem from="1520853697839" duration="10424000" />
+      <workItem from="1520910026324" duration="4219000" />
+      <workItem from="1520991085161" duration="3287000" />
+      <workItem from="1520996616251" duration="13144000" />
+      <workItem from="1521016057771" duration="375000" />
+      <workItem from="1521016491694" duration="15470000" />
+      <workItem from="1521070753405" duration="24164000" />
+      <workItem from="1521106110356" duration="15140000" />
+      <workItem from="1521161057476" duration="6766000" />
+      <workItem from="1521176584090" duration="3053000" />
+      <workItem from="1521213659257" duration="1503000" />
     </task>
     <task id="LOCAL-00001" summary="The first version with simple file read">
       <created>1491923396625</created>
@@ -1428,11 +1525,18 @@
       <option name="project" value="LOCAL" />
       <updated>1520267342482</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Integrated python map inference and changed the paths.&#10;&#10;TODO: Modify the map matching to provide runnable input for map inference and implement map merge">
+      <created>1520808861382</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1520808861382</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1677329000" />
+    <option name="totallyTimeSpent" value="1799245000" />
   </component>
   <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
@@ -1447,31 +1551,29 @@
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31853583" sideWeight="0.540938" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298887" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32942432" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21224165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37850466" sideWeight="0.57034975" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3365801" sideWeight="0.48773986" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31853583" sideWeight="0.459062" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Java Enterprise" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.4914712" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32790142" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" x="92" y="92" width="2376" height="1216" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37616822" sideWeight="0.4498934" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24324325" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" x="92" y="92" width="2376" height="1216" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298887" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32792208" sideWeight="0.49573562" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3068536" sideWeight="0.47655007" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3051948" sideWeight="0.45469084" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.326324" sideWeight="0.4900636" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21462639" sideWeight="0.49562362" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23966613" sideWeight="0.49562362" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32942432" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="SciView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Concurrent Activities Diagram" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32943925" sideWeight="0.49682036" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21224165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26477024" sideWeight="0.50437635" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37662336" sideWeight="0.5501066" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1479,10 +1581,12 @@
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.4978678" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31853583" sideWeight="0.459062" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32942432" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32398754" sideWeight="0.45747218" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32320872" sideWeight="0.44952306" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Learn" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Concurrent Activities Diagram" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32943925" sideWeight="0.49682036" order="13" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1550,50 +1654,50 @@
     <MESSAGE value="Integrated python map inference and changed the paths.&#10;&#10;TODO: Modify the map matching to provide runnable input for map inference and implement map merge" />
     <option name="LAST_COMMIT_MESSAGE" value="Integrated python map inference and changed the paths.&#10;&#10;TODO: Modify the map matching to provide runnable input for map inference and implement map merge" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
-    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
-          <line>373</line>
-          <properties />
-          <option name="timeStamp" value="382" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
-          <line>377</line>
-          <properties />
-          <option name="timeStamp" value="383" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
-          <line>408</line>
-          <properties />
-          <option name="timeStamp" value="390" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java</url>
-          <line>128</line>
+          <line>191</line>
           <properties />
-          <option name="timeStamp" value="436" />
+          <option name="timeStamp" value="455" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
-          <line>337</line>
+          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java</url>
+          <line>298</line>
           <properties />
-          <option name="timeStamp" value="441" />
+          <option name="timeStamp" value="468" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java</url>
+          <line>186</line>
+          <properties />
+          <option name="timeStamp" value="471" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java</url>
+          <line>244</line>
+          <properties />
+          <option name="timeStamp" value="477" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java</url>
+          <line>138</line>
+          <properties />
+          <option name="timeStamp" value="483" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="444" />
+      <option name="time" value="484" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
-        <watch expression="w.nodeList" />
+        <watch expression="findIndicesOfEdgeEndPoint" language="JAVA" />
+        <watch expression="((Graph)this).findEndPointIndicesOfEdge" custom="edu.uq.dke.mapupdate.util.dijkstra.Graph" />
       </configuration>
     </watches-manager>
   </component>
@@ -1611,255 +1715,12 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/GreatCircleDistanceFunction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="24" column="7" lean-forward="true" selection-start-line="24" selection-start-column="7" selection-end-line="24" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1394">
-          <caret line="103" column="29" lean-forward="true" selection-start-line="103" selection-start-column="29" selection-end-line="103" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="26" column="59" lean-forward="true" selection-start-line="26" selection-start-column="59" selection-end-line="26" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="334">
-          <caret line="267" column="7" lean-forward="true" selection-start-line="267" selection-start-column="7" selection-end-line="267" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="30" column="36" lean-forward="true" selection-start-line="30" selection-start-column="36" selection-end-line="30" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="122" column="41" lean-forward="false" selection-start-line="122" selection-start-column="41" selection-end-line="122" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/SpatialDataStructure.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="161" column="0" lean-forward="false" selection-start-line="161" selection-start-column="0" selection-end-line="161" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="81" column="9" lean-forward="true" selection-start-line="81" selection-start-column="9" selection-end-line="81" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/MatchingPoint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="48" column="26" lean-forward="false" selection-start-line="48" selection-start-column="26" selection-end-line="48" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointEdgePair.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="34" column="18" lean-forward="false" selection-start-line="34" selection-start-column="18" selection-end-line="34" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/VectorDistanceFunction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="20" column="40" lean-forward="false" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/clustering/ElkiAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="34" column="8" lean-forward="false" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStrips.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="203" column="15" lean-forward="false" selection-start-line="203" selection-start-column="15" selection-end-line="203" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/strips/UniformStripsModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="163" column="15" lean-forward="false" selection-start-line="163" selection-start-column="15" selection-end-line="163" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="201" column="16" lean-forward="false" selection-start-line="201" selection-start-column="16" selection-end-line="201" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/MaxStaySegmentation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="52" column="27" lean-forward="false" selection-start-line="52" selection-start-column="27" selection-end-line="52" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/segmentation/TrajectorySegmentation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="20" column="38" lean-forward="false" selection-start-line="20" selection-start-column="38" selection-end-line="20" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/transformation/TrajectoryTransformation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1445">
-          <caret line="86" column="9" lean-forward="false" selection-start-line="86" selection-start-column="9" selection-end-line="86" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/graph/path/DijkstrasShortestPath.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/SpatialUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="103" column="27" lean-forward="false" selection-start-line="103" selection-start-column="27" selection-end-line="103" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/PointND.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="112" column="8" lean-forward="false" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/objects/Polygon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="82" column="41" lean-forward="true" selection-start-line="82" selection-start-column="41" selection-end-line="82" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="63" column="39" lean-forward="false" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/structures/voronoi/VoronoiDiagramBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="214" column="20" lean-forward="true" selection-start-line="214" selection-start-column="20" selection-end-line="214" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="129">
-          <caret line="40" column="45" lean-forward="false" selection-start-line="40" selection-start-column="45" selection-end-line="40" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/Demo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="46" column="51" lean-forward="true" selection-start-line="46" selection-start-column="51" selection-end-line="46" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/MapMatchingEvaluation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="50" column="35" lean-forward="false" selection-start-line="50" selection-start-column="35" selection-end-line="50" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/META-INF/MANIFEST.MF">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/gpsmatcher.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="27" column="78" lean-forward="false" selection-start-line="27" selection-start-column="78" selection-end-line="27" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/ProgramData/Anaconda2/Lib/site-packages/scipy/ndimage/io.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="7" column="4" lean-forward="false" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.IntelliJIdea2017.3/system/python_stubs/1282946434/cv2/cv.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="1955" column="0" lean-forward="false" selection-start-line="1955" selection-start-column="0" selection-end-line="1955" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/ProgramData/Anaconda2/Lib/site-packages/PIL/Image.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="591">
-          <caret line="1953" column="22" lean-forward="true" selection-start-line="1953" selection-start-column="22" selection-end-line="1953" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/skeleton.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="790">
-          <caret line="243" column="42" lean-forward="false" selection-start-line="243" selection-start-column="42" selection-end-line="243" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.IntelliJIdea2017.3/system/python_stubs/1282946434/cv2/cv.py" />
+    <entry file="file://D:/ProgramData/Anaconda2/Lib/site-packages/PIL/Image.py" />
     <entry file="file://$PROJECT_DIR$/src/main/python/location.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="608">
           <caret line="101" column="0" lean-forward="false" selection-start-line="101" selection-start-column="0" selection-end-line="104" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1867,18 +1728,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="543">
           <caret line="514" column="0" lean-forward="false" selection-start-line="514" selection-start-column="0" selection-end-line="517" selection-end-column="46" />
-          <folding>
-            <marker date="1520808452218" expanded="true" signature="2667:2745" ph="CREATE TABLE... nodes" />
-            <marker date="1520808452218" expanded="true" signature="2769:2849" ph="CREATE TABLE... edges" />
-            <marker date="1520808452218" expanded="true" signature="2873:2922" ph="CREATE TABLE... segments" />
-            <marker date="1520808452218" expanded="true" signature="2946:2990" ph="CREATE TABLE... intersections" />
-            <marker date="1520808452218" expanded="true" signature="3740:3892" ph="INSERT INTO nodes... " />
-            <marker date="1520808452218" expanded="true" signature="4059:4231" ph="INSERT INTO edges... " />
-            <marker date="1520808452218" expanded="true" signature="4472:4648" ph="INSERT INTO edges... " />
-            <marker date="1520808452218" expanded="true" signature="5150:5244" ph="INSERT INTO segments... " />
-            <marker date="1520808452218" expanded="true" signature="5301:5394" ph="INSERT INTO segments... " />
-            <marker date="1520808452218" expanded="true" signature="5494:5557" ph="INSERT INTO intersections... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1886,7 +1735,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="8" lean-forward="false" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1894,156 +1742,302 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="416">
           <caret line="357" column="73" lean-forward="false" selection-start-line="357" selection-start-column="73" selection-end-line="357" selection-end-column="73" />
-          <folding>
-            <marker date="1520808452049" expanded="true" signature="13851:13929" ph="CREATE TABLE... nodes" />
-            <marker date="1520808452049" expanded="true" signature="13953:14033" ph="CREATE TABLE... edges" />
-            <marker date="1520808452049" expanded="true" signature="14057:14106" ph="CREATE TABLE... segments" />
-            <marker date="1520808452049" expanded="true" signature="14130:14174" ph="CREATE TABLE... intersections" />
-            <marker date="1520808452049" expanded="true" signature="14345:14471" ph="INSERT INTO segments... " />
-            <marker date="1520808452049" expanded="true" signature="14739:14894" ph="INSERT INTO edges... " />
-            <marker date="1520808452049" expanded="true" signature="15050:15194" ph="INSERT INTO nodes... " />
-            <marker date="1520808452049" expanded="true" signature="15283:15338" ph="INSERT INTO intersections... " />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/map_inference_script.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/python/map_inference_script.py" />
     <entry file="file://$PROJECT_DIR$/src/main/python/streetmap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
+        <state relative-caret-position="12886">
           <caret line="760" column="49" lean-forward="false" selection-start-line="760" selection-start-column="49" selection-end-line="760" selection-end-column="49" />
-          <folding>
-            <marker date="1520808452278" expanded="true" signature="5092:5122" ph="select id, l... nodes" />
-            <marker date="1520808452278" expanded="true" signature="5578:5608" ph="select id, t... ways" />
-            <marker date="1520808452278" expanded="true" signature="9580:9629" ph="select id, l... nodes" />
-            <marker date="1520808452278" expanded="true" signature="10099:10146" ph="select id, i... edges" />
-            <marker date="1520808452278" expanded="true" signature="11641:11674" ph="select id, e... segments" />
-            <marker date="1520808452278" expanded="true" signature="12322:12355" ph="select node_... intersections" />
-            <marker date="1520808452278" expanded="true" signature="12541:12609" ph="select trans... transitions" />
-            <marker date="1520808452278" expanded="true" signature="13760:13796" ph="select disti... shapes" />
-            <marker date="1520808452278" expanded="true" signature="14512:14648" ph="select shape... shapes" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/lang/ProcessBuilder.java" />
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/lang/Runtime.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/python/graphdb_matcher_run.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2142">
+          <caret line="131" column="42" lean-forward="false" selection-start-line="131" selection-start-column="42" selection-end-line="131" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/python/kde.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2532">
-          <caret line="17" column="10" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="10" />
-          <folding />
+        <state relative-caret-position="953">
+          <caret line="179" column="23" lean-forward="true" selection-start-line="179" selection-start-column="23" selection-end-line="179" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/BiagioniKDE2012.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="13" column="39" lean-forward="false" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
+        <state relative-caret-position="221">
+          <caret line="15" column="47" lean-forward="false" selection-start-line="15" selection-start-column="47" selection-end-line="15" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/python/process_map_matches.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5389">
+          <caret line="322" column="62" lean-forward="false" selection-start-line="322" selection-start-column="62" selection-end-line="322" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/python/subiterations.pyx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="19" lean-forward="true" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ForwardBackwardAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1287">
+          <caret line="98" column="56" lean-forward="true" selection-start-line="98" selection-start-column="56" selection-end-line="98" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/python/skeleton.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="233" column="23" lean-forward="false" selection-start-line="233" selection-start-column="23" selection-end-line="233" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/processing/core/3.2.1/core-3.2.1-sources.jar!/processing/core/PApplet.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/matching/PointNodePair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="14" column="13" lean-forward="false" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/test/src/main/java/com/bmwcarit/barefoot/markov/StateCandidate.java" />
+    <entry file="file://$PROJECT_DIR$/../TraMiner/traminer-util-lib/src/main/java/traminer/util/map/matching/hmm/HMMMapMatching.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/Transition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="28" column="6" lean-forward="false" selection-start-line="28" selection-start-column="6" selection-end-line="28" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/spatial/distance/GreatCircleDistanceFunction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="34" column="18" lean-forward="false" selection-start-line="34" selection-start-column="18" selection-end-line="34" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Node.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="26" column="27" lean-forward="false" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/MiniRoadSegment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1159">
+          <caret line="79" column="45" lean-forward="false" selection-start-line="79" selection-start-column="45" selection-end-line="79" selection-end-column="45" />
           <folding>
-            <element signature="e#143#144#0" expanded="true" />
-            <element signature="e#200#201#0" expanded="true" />
+            <element signature="e#5456#5457#0" expanded="false" />
+            <element signature="e#5508#5509#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/lang/ProcessBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMProbabilities.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="596">
-          <caret line="1047" column="0" lean-forward="false" selection-start-line="1047" selection-start-column="0" selection-end-line="1047" selection-end-column="0" />
+        <state relative-caret-position="183">
+          <caret line="71" column="18" lean-forward="false" selection-start-line="71" selection-start-column="18" selection-end-line="71" selection-end-column="18" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/lang/Runtime.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/TimeStep.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="484" column="0" lean-forward="false" selection-start-line="484" selection-start-column="0" selection-end-line="484" selection-end-column="0" />
+        <state relative-caret-position="288">
+          <caret line="84" column="20" lean-forward="false" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="379">
+          <caret line="42" column="49" lean-forward="false" selection-start-line="42" selection-start-column="49" selection-end-line="42" selection-end-column="49" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1623#1624#0" expanded="false" />
+            <element signature="e#1669#1670#0" expanded="false" />
+            <element signature="e#1715#1716#0" expanded="false" />
+            <element signature="e#1756#1757#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/matching/parallel/SpatialAwareMatching.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="148" column="29" lean-forward="false" selection-start-line="148" selection-start-column="29" selection-end-line="148" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/matching/MapMatchingMethod.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="17" column="17" lean-forward="false" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="29" column="53" lean-forward="false" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/SequenceState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="81">
+          <caret line="30" column="6" lean-forward="false" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="11" column="19" lean-forward="true" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/TrajectoryMatchResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/lang/Integer.java" />
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_144/src.zip!/java/util/HashSet.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/Pair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-323">
+          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Edge.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="8" column="11" lean-forward="false" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/datatype/PointMatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="627">
+          <caret line="48" column="24" lean-forward="true" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/trajectory/Trajectory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3757">
+          <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="31" column="16" lean-forward="false" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="17" column="44" lean-forward="false" selection-start-line="17" selection-start-column="44" selection-end-line="17" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="69" column="52" lean-forward="false" selection-start-line="69" selection-start-column="52" selection-end-line="69" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVMapReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="78" column="50" lean-forward="false" selection-start-line="78" selection-start-column="48" selection-end-line="78" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/io/CSVTrajectoryReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="836">
+          <caret line="57" column="100" lean-forward="false" selection-start-line="57" selection-start-column="100" selection-end-line="57" selection-end-column="100" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3990">
+          <caret line="225" column="56" lean-forward="false" selection-start-line="225" selection-start-column="56" selection-end-line="225" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2451">
+          <caret line="150" column="63" lean-forward="false" selection-start-line="150" selection-start-column="63" selection-end-line="150" selection-end-column="63" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/main/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-931">
-          <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ForwardBackwardAlgorithm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-399">
-          <caret line="31" column="6" lean-forward="false" selection-start-line="31" selection-start-column="6" selection-end-line="31" selection-end-column="6" />
+        <state relative-caret-position="475">
+          <caret line="35" column="32" lean-forward="false" selection-start-line="35" selection-start-column="32" selection-end-line="35" selection-end-column="32" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/process_map_matches.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="554">
-          <caret line="322" column="62" lean-forward="false" selection-start-line="322" selection-start-column="62" selection-end-line="322" selection-end-column="62" />
-          <folding>
-            <marker date="1520808456728" expanded="true" signature="3675:3753" ph="CREATE TABLE... nodes" />
-            <marker date="1520808456728" expanded="true" signature="3777:3857" ph="CREATE TABLE... edges" />
-            <marker date="1520808456728" expanded="true" signature="3881:3930" ph="CREATE TABLE... segments" />
-            <marker date="1520808456728" expanded="true" signature="3954:3998" ph="CREATE TABLE... intersections" />
-            <marker date="1520808456728" expanded="true" signature="4169:4295" ph="INSERT INTO segments... " />
-            <marker date="1520808456728" expanded="true" signature="4563:4718" ph="INSERT INTO edges... " />
-            <marker date="1520808456728" expanded="true" signature="4874:5018" ph="INSERT INTO nodes... " />
-            <marker date="1520808456728" expanded="true" signature="5107:5162" ph="INSERT INTO intersections... " />
-            <marker date="1520808456728" expanded="true" signature="10838:10916" ph="CREATE TABLE... nodes" />
-            <marker date="1520808456728" expanded="true" signature="10940:11020" ph="CREATE TABLE... edges" />
-            <marker date="1520808456728" expanded="true" signature="11044:11093" ph="CREATE TABLE... segments" />
-            <marker date="1520808456728" expanded="true" signature="11117:11161" ph="CREATE TABLE... intersections" />
-            <marker date="1520808456728" expanded="true" signature="11493:11623" ph="INSERT INTO segments... " />
-            <marker date="1520808456728" expanded="true" signature="11703:11866" ph="INSERT INTO edges... " />
-            <marker date="1520808456728" expanded="true" signature="12030:12174" ph="INSERT INTO nodes... " />
-            <marker date="1520808456728" expanded="true" signature="12263:12318" ph="INSERT INTO intersections... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/graphdb_matcher_run.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="131" column="42" lean-forward="false" selection-start-line="131" selection-start-column="42" selection-end-line="131" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapinference/kde/KDEMapInference.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="35" column="70" lean-forward="false" selection-start-line="35" selection-start-column="70" selection-end-line="35" selection-end-column="70" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/traminer/util/map/roadnetwork/RoadNetworkPrimitive.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/subiterations.pyx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>

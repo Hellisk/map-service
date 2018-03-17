@@ -85,7 +85,7 @@ class GrayscaleSkeleton:
 
         (zero_pixels, next_pixels) = sub_function(image, fg_pixels)
         for (x, y) in zero_pixels:
-            image[x][y] = 0;
+            image[x][y] = 0
 
         return (image, next_pixels)
 

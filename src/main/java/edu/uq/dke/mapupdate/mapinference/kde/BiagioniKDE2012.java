@@ -11,8 +11,8 @@ public class BiagioniKDE2012 {
         this.mapinference = new KDEMapInference(cellSize, blur);
     }
 
-    public void KDEMapInferenceProcess() {
+    public void KDEMapInferenceProcess(String rootPath) {
         KDEMapInference mapinference = new KDEMapInference();
-        mapinference.startMapInference();
+        mapinference.startMapInference(rootPath);
     }
 }

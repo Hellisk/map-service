@@ -18,9 +18,8 @@ public class KDEMapInference {
     }
 
     // use python script to run map inference python code
-    public void startMapInference() {
+    public void startMapInference(String rootPath) {
         String[] pythonCmd = new String[9];
-        String rootPath = "F:/OneDrive/code/github/MapUpdate/src/main/python/";
 
         // setup each command manually
         if (this.cellSize != 1 || this.gaussianBlur != 17) {

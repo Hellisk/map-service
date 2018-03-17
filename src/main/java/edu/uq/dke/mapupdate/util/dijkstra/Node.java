@@ -34,13 +34,11 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node o) {
-        if (this.distanceFromSource < o.getDistanceFromSource()) {
+        if (o == null) {
+            System.out.println("ERROR! Node to compare is NULL!");
             return -1;
-        } else if (this.distanceFromSource > o.getDistanceFromSource()) {
-            return 1;
-        } else {
-            return 0;
         }
+        return Double.compare(this.distanceFromSource, o.getDistanceFromSource());
     }
 
     public int getIndex() {

@@ -1,6 +1,6 @@
 package edu.uq.dke.mapupdate.io;
 
-import edu.uq.dke.mapupdate.datatype.MatchingResult;
+import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
 import traminer.util.map.matching.PointNodePair;
 import traminer.util.spatial.objects.st.STPoint;
 import traminer.util.trajectory.Trajectory;
@@ -29,50 +29,48 @@ public class CSVTrajectoryWriter {
      *
      * @param matchingList matching result
      */
-    public void matchedTrajectoryWriter(List<MatchingResult> matchingList) {
+    public void matchedTrajectoryWriter(List<TrajectoryMatchResult> matchingList) {
         File matchedResultFolder = new File(this.outputFolder + "matchedResult/");
-        File nextInputMatchedResultFolder = new File(this.outputFolder + "matchedNextInput/");
+        File roadIDListFolder = new File(this.outputFolder + "matchedRoadID/");
         int tripCount = 0;
         int pointCount = 1;
         if (!matchedResultFolder.exists()) {
             matchedResultFolder.mkdirs();
         }
-        if (!nextInputMatchedResultFolder.exists()) {
-            nextInputMatchedResultFolder.mkdirs();
+        if (!roadIDListFolder.exists()) {
+            roadIDListFolder.mkdirs();
         }
-        if (matchedResultFolder.isDirectory() && nextInputMatchedResultFolder.isDirectory()) {
+        if (matchedResultFolder.isDirectory() && roadIDListFolder.isDirectory()) {
             if (matchedResultFolder.listFiles() != null) {
                 for (File f : Objects.requireNonNull(matchedResultFolder.listFiles())) {
                     f.delete();
                 }
             }
-            if (nextInputMatchedResultFolder.listFiles() != null) {
-                for (File f : Objects.requireNonNull(nextInputMatchedResultFolder.listFiles())) {
+            if (roadIDListFolder.listFiles() != null) {
+                for (File f : Objects.requireNonNull(roadIDListFolder.listFiles())) {
                     f.delete();
                 }
             }
             DecimalFormat df = new DecimalFormat(".00000");
-            for (MatchingResult w : matchingList) {
+            for (TrajectoryMatchResult w : matchingList) {
                 try {
                     BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedResult/matchedtrip_" + w.getTrajID() + ".txt"));
-                    BufferedWriter nextInputMatchedTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedNextInput/matchedtrip_" + w.getTrajID() + ".txt"));
-                    // TODO confirm point and node type
-                    int startPointCount = pointCount;
-                    int matchingPointCount = w.getMatchingResult().size();
+                    BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedRoadID/matchedtripID_" + w.getTrajID() + ".txt"));
                     for (PointNodePair p : w.getMatchingResult()) {
                         if (p.getMatchingPoint() != null) {
                             bwMatchedTrajectory.write(df.format(p.getMatchingPoint().lon()) + " " + df.format(p.getMatchingPoint().lat()) + " " + p.getPoint().time() + " " + p.getMatchingPoint().getRoadID() + "\n");
-                            nextInputMatchedTrajectory.write(pointCount + "," + df.format(p.getMatchingPoint().lon()) + "," + df.format(p.getMatchingPoint().lat()) + "," + p.getPoint().time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
                         } else {
                             // no point matched, use original point instead
                             bwMatchedTrajectory.write(df.format(p.getPoint().x()) + " " + df.format(p.getPoint().y()) + " " + p.getPoint().time() + " " + 0 + "\n");
-                            nextInputMatchedTrajectory.write(pointCount + "," + df.format(p.getPoint().x()) + "," + df.format(p.getPoint().y()) + "," + p.getPoint().time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
                         }
                         pointCount++;
                     }
+                    for (String s : w.getMatchWayList()) {
+                        roadIDFromTrajectory.write(s + "\n");
+                    }
                     tripCount += 1;
                     bwMatchedTrajectory.close();
-                    nextInputMatchedTrajectory.close();
+                    roadIDFromTrajectory.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

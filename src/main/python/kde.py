@@ -14,8 +14,10 @@ from pylibs import spatialfunclib
 
 cell_size = 1  # meters
 gaussian_blur = 17
-root_path = "F:/data/trajectorydata/mapInference/"
-input_path = "F:/data/trajectorydata/output/unmatchedNextInput"
+# root_path = "F:/data/trajectorydata/mapInference/"
+root_path = "C:/data/trajectorydata/mapInference/"
+# input_path = "F:/data/trajectorydata/output/unmatchedNextInput"
+input_path = "C:/data/trajectorydata/output/unmatchedNextInput"
 
 
 def pairwise(iterable):

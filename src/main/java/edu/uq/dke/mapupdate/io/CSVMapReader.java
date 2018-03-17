@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.io;
 
-import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -31,8 +30,7 @@ public class CSVMapReader implements SpatialInterface {
      *
      * @return A Road Network Graph containing the
      * Nodes, Ways and Relations in the OSM file.
-     * @throws JDOMException
-     * @throws IOException
+     * @throws IOException file not found
      */
 
     public RoadNetworkGraph readMap(int percentage) throws IOException {
@@ -141,6 +139,39 @@ public class CSVMapReader implements SpatialInterface {
             System.out.println("Map contains problem");
         }
         return roadGraph;
+    }
+
+    public List<RoadWay> readRemovedEdges(int percentage) throws IOException {
+        List<RoadWay> removedRoads = new ArrayList<>();
+        String line = "";
+        // read removed road ways
+        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "removedEdges_" + percentage + ".txt"));
+        while ((line = brEdges.readLine()) != null) {
+            RoadWay newWay = new RoadWay();
+            List<RoadNode> miniNode = new ArrayList<>();
+            String[] edgeInfo = line.split("\\|");
+            if (!edgeInfo[0].contains(",")) {
+                for (int i = 1; i < edgeInfo.length; i++) {
+                    String[] roadWayPoint = edgeInfo[i].split(",");
+                    if (roadWayPoint.length == 3) {
+                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]), true);
+
+                        miniNode.add(newNode);
+                    } else {
+                        System.err.println("Wrong road node:" + roadWayPoint.length);
+                        break;
+                    }
+                }
+                newWay.setId(edgeInfo[0]);
+                newWay.setNodes(miniNode);
+                newWay.getNode(0).setToNonMiniNode();
+                newWay.getNode(newWay.size() - 1).setToNonMiniNode();
+                removedRoads.add(newWay);
+            } else {
+                System.out.println("Wrong road id info:" + edgeInfo[0]);
+            }
+        }
+        return removedRoads;
     }
 
     private boolean checkCompleteness(RoadNetworkGraph roadGraph) {

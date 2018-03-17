@@ -4,14 +4,13 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
-import de.fhpotsdam.unfolding.providers.Google;
+import de.fhpotsdam.unfolding.providers.MapBox;
 import de.fhpotsdam.unfolding.utils.MapUtils;
-import edu.uq.dke.mapupdate.datatype.MatchingResult;
+import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.io.CSVMapReader;
 import edu.uq.dke.mapupdate.io.CSVTrajectoryReader;
 import processing.core.PApplet;
 import traminer.util.Pair;
-import traminer.util.map.matching.PointNodePair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Simple Unfolding map app demo.
@@ -31,12 +31,13 @@ import java.util.List;
 //http://unfoldingmaps.org/
 public class UnfoldingGraphDisplay extends PApplet {
 
-    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
     private String ROOT_PATH = "C:/data/trajectorydata/";
+    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
     private int PERCENTAGE = 0;    // remove percentage for map display
     private UnfoldingMap map;
-    private int options = 25;    // 0=nothing, 1= points(undone), 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
-    private String trajID = "11";
+    // options = 2 should always be the last one if it has
+    private int options = 423;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
+    private String trajID = "25";
 
     public static void main(String args[]) {
         PApplet.main(new String[]{"edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay"});
@@ -44,20 +45,36 @@ public class UnfoldingGraphDisplay extends PApplet {
 
     public void settings() {
         size(1440, 900, P2D);
-        this.map = new UnfoldingMap(this, new Google.GoogleMapProvider());
+        this.map = new UnfoldingMap(this, new MapBox.BlankProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
         Location mapCenter = new Location(39.968346f, 116.419598f);  // location in beijing
         map.zoomAndPanTo(15, mapCenter);
-//    }
-//
-//    public void setup() {
+        Map<String, RoadWay> findWayByID = new HashMap<>();
 
         try {
             while (options != 0) {
                 int lastOption = this.options % 10;
                 this.options = this.options / 10;
                 switch (lastOption) {
+                    // removed edges
                     case 1: {
+                        if (PERCENTAGE != 0) {
+                            CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + "input/map/");
+                            List<RoadWay> roadNetworkGraph = csvMapReader.readRemovedEdges(PERCENTAGE);
+                            List<Marker> linesMarkers = new ArrayList<>();
+                            for (RoadWay w : roadNetworkGraph) {
+                                List<Location> locationList = new ArrayList<>();
+                                for (RoadNode n : w.getNodes()) {
+                                    Location pointLocation = new Location(n.lat(), n.lon());
+                                    locationList.add(pointLocation);
+                                }
+                                SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                                marker.setColor(color(255, 97, 0));  // color orange
+                                marker.setStrokeWeight(3);
+                                linesMarkers.add(marker);
+                            }
+                            map.addMarkers(linesMarkers);
+                        }
                         break;
                     }
                     // raw map
@@ -66,14 +83,15 @@ public class UnfoldingGraphDisplay extends PApplet {
                         RoadNetworkGraph roadNetworkGraph = csvMapReader.readMap(PERCENTAGE);
                         List<Marker> linesMarkers = new ArrayList<>();
                         for (RoadWay w : roadNetworkGraph.getWays()) {
+                            findWayByID.put(w.getId(), w);
                             List<Location> locationList = new ArrayList<>();
                             for (RoadNode n : w.getNodes()) {
                                 Location pointLocation = new Location(n.lat(), n.lon());
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(240, 255, 255));  // color sky blue
-                            marker.setStrokeWeight(2);
+                            marker.setColor(color(245, 245, 245, 100));  // color white smoky
+                            marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }
                         map.addMarkers(linesMarkers);
@@ -85,7 +103,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                         List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(ROOT_PATH + "input/trajectory/");
                         List<Marker> linesMarkers = new ArrayList<>();
                         for (Trajectory t : rawTrajectoryList) {
-                            if (t.getId().equals(trajID)) {
+                            if (trajID.equals("-1") || t.getId().equals(trajID)) {
                                 List<Location> locationList = new ArrayList<>();
                                 for (STPoint p : t.getSTPoints()) {
                                     Location pointLocation = new Location(p.y(), p.x());
@@ -103,19 +121,21 @@ public class UnfoldingGraphDisplay extends PApplet {
                     // matching result
                     case 4: {
                         CSVTrajectoryReader matchingResultReader = new CSVTrajectoryReader();
-                        List<MatchingResult> matchedTrajectoryList = matchingResultReader.readMatchingResult(ROOT_PATH + "output/");
+                        List<TrajectoryMatchResult> matchedTrajectoryList = matchingResultReader.readMatchedResult(ROOT_PATH + "output/");
                         List<Marker> linesMarkers = new ArrayList<>();
-                        for (MatchingResult t : matchedTrajectoryList) {
-                            if (t.getTrajID().equals(trajID)) {
-                                List<Location> locationList = new ArrayList<>();
-                                for (PointNodePair p : t.getMatchingResult()) {
-                                    Location pointLocation = new Location(p.getMatchingPoint().lat(), p.getMatchingPoint().lon());
-                                    locationList.add(pointLocation);
+                        for (TrajectoryMatchResult t : matchedTrajectoryList) {
+                            if (trajID.equals("-1") || t.getTrajID().equals(trajID)) {
+                                for (String s : t.getMatchWayList()) {
+                                    List<Location> locationList = new ArrayList<>();
+                                    for (RoadNode n : findWayByID.get(s).getNodes()) {
+                                        Location pointLocation = new Location(n.lat(), n.lon());
+                                        locationList.add(pointLocation);
+                                    }
+                                    SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                                    marker.setColor(color(59, 130, 79));  // color green
+                                    marker.setStrokeWeight(4);
+                                    linesMarkers.add(marker);
                                 }
-                                SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                                marker.setColor(color(59, 130, 79));  // color green
-                                marker.setStrokeWeight(4);
-                                linesMarkers.add(marker);
                             }
                         }
                         map.addMarkers(linesMarkers);
@@ -133,7 +153,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(238, 137, 40));  // color orange
+                            marker.setColor(color(245, 222, 179));  // color light yellow
                             marker.setStrokeWeight(4);
                             map.addMarker(marker);
                             linesMarkers.add(marker);

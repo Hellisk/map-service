@@ -75,8 +75,7 @@ public class RoadNetworkGraph implements MapInterface {
     }
 
     public List<RoadNode> getAllPoints() {
-        List<RoadNode> pointList = new ArrayList<>();
-        pointList.addAll(this.getNodes());
+        List<RoadNode> pointList = new ArrayList<>(this.getNodes());
         for (RoadWay w : this.getWays()) {
             pointList.addAll(w.getNodes());
         }

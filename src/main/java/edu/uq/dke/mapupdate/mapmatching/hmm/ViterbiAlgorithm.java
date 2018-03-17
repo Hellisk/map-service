@@ -316,9 +316,10 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     private void initializeStateProbabilities(O observation, Collection<S> candidates,
                                               Map<S, Double> initialLogProbabilities) {
         if (message != null) {
-            isBroken = false;
+            System.out.println("Error! The message should be empty");
             message = null;
         }
+        isBroken = false;
 
         // Set initial log probability for each start state candidate based on first observation.
         // Do not assign initialLogProbabilities directly to message to not rely on its iteration
@@ -335,6 +336,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         isBroken = hmmBreak(initialMessage);
         if (isBroken) {
             System.out.println("The initial state is broken.");
+            // TODO deal with the broken initial state
             return;
         }
 
@@ -353,7 +355,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     }
 
     /**
-     * Stores addition information for each candidate.
+     * Stores additional information for each candidate.
      */
     public static class ExtendedState<S, O, D> {
 

@@ -17,20 +17,22 @@
 
 package edu.uq.dke.mapupdate.mapmatching.hmm;
 
-import edu.uq.dke.mapupdate.datatype.MatchingPoint;
+import edu.uq.dke.mapupdate.datatype.PointMatch;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Represents the road path between two consecutive road positions.
  */
 @SuppressWarnings("serial")
-class RoadPath implements Serializable {
+public class RoadPath implements Serializable {
     // The following members are used to check whether the correct road paths are retrieved
     // from the most likely sequence
-    public final MatchingPoint from;
-    public final MatchingPoint to;
+    public final PointMatch from;
+    public final PointMatch to;
+    public final List<String> passingRoadID;
 
     /**
      * Creates a new road path between the two given road node.
@@ -38,9 +40,18 @@ class RoadPath implements Serializable {
      * @param from Origin node.
      * @param to   destiny node.
      */
-    public RoadPath(MatchingPoint from, MatchingPoint to) {
+    public RoadPath(PointMatch from, PointMatch to, List<String> roadIdList) {
         this.from = from;
         this.to = to;
+        this.passingRoadID = roadIdList;
+    }
+
+    public void setPassingRoads(List<String> ids) {
+        this.passingRoadID.addAll(ids);
+    }
+
+    public List<String> getPassingRoadID() {
+        return this.passingRoadID;
     }
 
     @Override

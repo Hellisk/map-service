@@ -6,16 +6,17 @@ import traminer.util.trajectory.Trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatchingResult {
+public class TrajectoryMatchResult {
     private String trajID;
     private List<PointNodePair> matchingResult = new ArrayList<>();
+    private List<String> matchWayList = new ArrayList<>();
     private double probability = -1;
 
-    public MatchingResult(Trajectory traj) {
+    public TrajectoryMatchResult(Trajectory traj) {
         this.trajID = traj.getId();
     }
 
-    public MatchingResult(String traj) {
+    public TrajectoryMatchResult(String traj) {
         this.trajID = traj;
     }
 
@@ -39,4 +40,15 @@ public class MatchingResult {
         this.probability = probability;
     }
 
+    public List<String> getMatchWayList() {
+        return matchWayList;
+    }
+
+    public void setMatchWayList(List<String> matchWayList) {
+        this.matchWayList = matchWayList;
+    }
+
+    public void addMatchWay(String roadWay) {
+        this.matchWayList.add(roadWay);
+    }
 }

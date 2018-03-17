@@ -1,7 +1,7 @@
 package edu.uq.dke.mapupdate.io;
 
-import edu.uq.dke.mapupdate.datatype.MatchingPoint;
-import edu.uq.dke.mapupdate.datatype.MatchingResult;
+import edu.uq.dke.mapupdate.datatype.PointMatch;
+import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
 import traminer.util.Pair;
 import traminer.util.map.matching.PointNodePair;
 import traminer.util.spatial.objects.Point;
@@ -35,33 +35,44 @@ public class CSVTrajectoryReader {
         return newTrajectory;
     }
 
-    public List<MatchingResult> readMatchingResult(String trajectoryFilePath) throws IOException {
-        File f = new File(trajectoryFilePath + "matchedResult/");
-        List<MatchingResult> gtResult = new ArrayList<>();
-        if (f.isDirectory()) {
-            File[] fileList = f.listFiles();
-            if (fileList != null) {
-                for (File file : fileList) {
+    public List<TrajectoryMatchResult> readMatchedResult(String trajectoryFilePath) throws IOException {
+        File matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/");
+        File roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/");
+        List<TrajectoryMatchResult> gtResult = new ArrayList<>();
+        if (matchingPointFileFolder.isDirectory() && roadIDFileFolder.isDirectory()) {
+            File[] matchingPointFileList = matchingPointFileFolder.listFiles();
+            File[] roadIDFileList = roadIDFileFolder.listFiles();
+            if (matchingPointFileList != null && roadIDFileList != null) {
+                for (int i = 0; i < roadIDFileList.length; i++) {
+                    File matchingPointFile = matchingPointFileList[i];
+                    File roadIDFile = roadIDFileList[i];
                     List<PointNodePair> matchingPointSet = new ArrayList<>();
-                    BufferedReader brTrajectory = new BufferedReader(new FileReader(file));
+                    List<String> roadWayIDList = new ArrayList<>();
+                    BufferedReader brMatchingTrajectory = new BufferedReader(new FileReader(matchingPointFile));
+                    BufferedReader brRoadIDTrajectory = new BufferedReader(new FileReader(roadIDFile));
                     String line;
-                    while ((line = brTrajectory.readLine()) != null) {
+                    while ((line = brMatchingTrajectory.readLine()) != null) {
                         String[] pointInfo = line.split(" ");
                         if (pointInfo.length == 4) {
                             Point currPoint = new Point(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]));
-                            MatchingPoint currMatchPoint = new MatchingPoint(currPoint, null, pointInfo[3]);
+                            PointMatch currMatchPoint = new PointMatch(currPoint, null, pointInfo[3]);
                             PointNodePair result = new PointNodePair(null, currMatchPoint);
                             matchingPointSet.add(result);
                         }
                     }
-                    brTrajectory.close();
-                    int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
-                    MatchingResult currMatchResult = new MatchingResult(fileNum + "");
+                    while ((line = brRoadIDTrajectory.readLine()) != null)
+                        roadWayIDList.add(line);
+                    brMatchingTrajectory.close();
+                    brRoadIDTrajectory.close();
+                    int fileNum = Integer.parseInt(matchingPointFile.getName().substring(matchingPointFile.getName().indexOf('_') + 1, matchingPointFile.getName().indexOf('.')));
+                    TrajectoryMatchResult currMatchResult = new TrajectoryMatchResult(fileNum + "");
                     currMatchResult.setMatchingResult(matchingPointSet);
+                    currMatchResult.setMatchWayList(roadWayIDList);
                     gtResult.add(currMatchResult);
                 }
             }
         }
+
         return gtResult;
     }
 

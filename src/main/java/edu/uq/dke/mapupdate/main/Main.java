@@ -1,9 +1,11 @@
 package edu.uq.dke.mapupdate.main;
 
-import edu.uq.dke.mapupdate.datatype.MatchingResult;
+import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.evaluation.TrajMatchingEvaluation;
 import edu.uq.dke.mapupdate.io.*;
-import edu.uq.dke.mapupdate.mapinference.kde.BiagioniKDE2012;
 import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
+import edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay;
+import traminer.util.Pair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.trajectory.Trajectory;
 
@@ -15,11 +17,14 @@ import java.util.List;
 
 public class Main {
 
-    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
     private final static int PERCENTAGE = 0;     // percentage of removed road ways (max = 100)
     private final static boolean OLD_GT_ABANDONED = true; // use broken map as input
     // global parameters
     private static String ROOT_PATH = "C:/data/trajectorydata/";    // the root folder of all data
+    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
+    private static String PYTHON_CODE_ROOT_PATH = "C:/Users/uqpchao//OneDrive/code/github/MapUpdate/src/main/python/";
+//    private static String PYTHON_CODE_ROOT_PATH = "F:/OneDrive/code/github/MapUpdate/src/main/python/";
+
 
     // paths for different datasets
     private final static String RAW_MAP = ROOT_PATH + "raw/map/";
@@ -35,7 +40,7 @@ public class Main {
 //    // log-related settings
 //    private static String LOG_PATH = ROOT_PATH + "log/";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         long startTime = System.currentTimeMillis();
         long endTime;
@@ -64,9 +69,14 @@ public class Main {
         endTime = System.currentTimeMillis();
         System.out.println("Initialisation done, start the iteration:" + (endTime - startTime) / 1000 + "seconds");
         startTime = endTime;
-////
+
 //        // read input map and trajectories
-//        CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
+//        CSVMapReader csvMapReader;
+//        if (PERCENTAGE != 0) {
+//            csvMapReader = new CSVMapReader(INPUT_MAP);
+//        } else {
+//            csvMapReader = new CSVMapReader(GT_MAP);
+//        }
 //        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
 //        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
 //        List<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
@@ -74,7 +84,7 @@ public class Main {
 ////        double costFunction = 2;
 //
 //        // iteration 0 calculate the first matching result
-//        List<MatchingResult> initialMatchingResults = startMapmatching(initialTrajectoryList, initialMap);
+//        List<TrajectoryMatchResult> initialTrajectoryMatchResults = startMapmatching(initialTrajectoryList, initialMap);
 //        endTime = System.currentTimeMillis();
 //        System.out.println("Map matching finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
 //        startTime = endTime;
@@ -82,12 +92,11 @@ public class Main {
         // iteration start
 //        while (costFunction > 0) {
 //
-//            if (IS_BROKEN_MAP) {
-        // step 1: map inference:
-        BiagioniKDE2012 mapInference = new BiagioniKDE2012();
-        mapInference.KDEMapInferenceProcess();
-        System.out.println("Map inference finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
-        startTime = endTime;
+//        // step 1: map inference:
+//        BiagioniKDE2012 mapInference = new BiagioniKDE2012();
+//        mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
+//        System.out.println("Map inference finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
+//        startTime = endTime;
 
 //                // evaluation: map inference evaluation
 //                String removedEdgesPath = initialMap + CITY_NAME + "_removed_edges.txt";
@@ -102,7 +111,7 @@ public class Main {
 
 //            // step 2: map matching:
 //            List<Trajectory> unmatchedTraj = new ArrayList<>();
-//            List<MatchingResult> matchingResults = NewsonHMM2009.mapMatchingProcess(initialTrajectoryList, initialMap, unmatchedTraj);
+//            List<TrajectoryMatchResult> matchingResults = NewsonHMM2009.mapMatchingProcess(initialTrajectoryList, initialMap, unmatchedTraj);
 //            endTime = System.currentTimeMillis();
 //            System.out.println("Map matching finished, total time spent:" + (endTime - startTime) / 1000 + "seconds");
 //            startTime = endTime;
@@ -136,69 +145,33 @@ public class Main {
 ////                List<RoadWay> matchedTrajOne = new ArrayList<>();
 ////                matchedTrajOne.add(matchedTraj.get(13));
 ////
-////                // trajectory display
-////                graphDisplay.setRawTrajectories(rawTrajOne);    // one trajectory as raw
-////                graphDisplay.setMatchedTrajectories(matchedTrajOne);    // one trajectory as matched
-//
-//            graphDisplay.setGroundTruthGraph(removedGraph);  // ground truth map
-////                graphDisplay.setRawTrajectories(unmatchedSegmentList);
-//            graphDisplay.setRoadNetworkGraph(inferenceMap);
-//////                graphDisplay.setCentralPoint(matchedTrajOne.get(0).getNode(100).toPoint());
-//            Viewer viewer = graphDisplay.generateGraph().display(false);
-//            if (graphDisplay.getCentralPoint() != null) {
-//                View view = viewer.getDefaultView();
-//                view.getCamera().setViewCenter(graphDisplay.getCentralPoint().x(), graphDisplay.getCentralPoint().y(), 0);
-//                view.getCamera().setViewPercent(0.35);
-//            }
-////                break;
-//        }
 
         // evaluation
         // evaluation: map matching evaluation
-//        CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-////        List<MatchingResult> initialMatchingResults = groundTruthMatchingResultReader.readMatchingResult(OUTPUT_FOLDER);
-//        List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
-//        TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-//        trajMatchingEvaluation.precisionRecallCalc(initialMatchingResults, gtMatchingResult);
-//
-//        UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
-//        graphDisplay.display();
-//        // visualization
-//        GraphStreamDisplay graphDisplay = new GraphStreamDisplay();
-//        graphDisplay.setGroundTruthGraph(initialMap);  // ground truth map
-//
-//        // raw trajectory
-//        List<Trajectory> displayTraj = new ArrayList<>();
-//        displayTraj.add(initialTrajectoryList.get(0));
-//        graphDisplay.setRawTrajectories(displayTraj);
-//
-//        // match result
-//        List<List<PointNodePair>> matchResult = new ArrayList<>();
-//        matchResult.add(initialMatchingResults.get(0).getMatchingResult());
-//        graphDisplay.setMatchedTrajectories(matchResult);
-//
-//        graphDisplay.setCentralPoint(initialTrajectoryList.get(0).get(5));
-//        Viewer viewer = graphDisplay.generateGraph().display(false);
-//        if (graphDisplay.getCentralPoint() != null) {
-//            View view = viewer.getDefaultView();
-//            view.getCamera().setViewCenter(graphDisplay.getCentralPoint().x(), graphDisplay.getCentralPoint().y(), 0);
-//            view.getCamera().setViewPercent(0.35);
-//        }
+        CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
+        List<TrajectoryMatchResult> initialTrajectoryMatchResults = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
+        List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+        TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
+        trajMatchingEvaluation.precisionRecallCalc(initialTrajectoryMatchResults, gtMatchingResult);
+
+        // visualization
+        UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
+        graphDisplay.display();
 
         endTime = System.currentTimeMillis();
         System.out.println("Task finish, total time spent:" + (endTime - startTime) / 1000 + " seconds");
     }
 
-    private static List<MatchingResult> startMapmatching(List<Trajectory> initialTrajectoryList, RoadNetworkGraph initialMap) {
+    private static List<TrajectoryMatchResult> startMapmatching(List<Trajectory> initialTrajectoryList, RoadNetworkGraph initialMap) {
         List<Trajectory> unmatchedTraj;
         NewsonHMM2009 mapMatching = new NewsonHMM2009();
-        List<MatchingResult> initialMatchingResults = mapMatching.mapMatchingProcess(initialTrajectoryList, initialMap);
+        List<TrajectoryMatchResult> initialTrajectoryMatchResults = mapMatching.mapMatchingProcess(initialTrajectoryList, initialMap);
         unmatchedTraj = mapMatching.getUnmatchedTraj();
         CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        matchingResultWriter.matchedTrajectoryWriter(initialMatchingResults);
+        matchingResultWriter.matchedTrajectoryWriter(initialTrajectoryMatchResults);
         CSVTrajectoryWriter unmatchedTrajWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
         unmatchedTrajWriter.trajectoryWriter(unmatchedTraj);
-        return initialMatchingResults;
+        return initialTrajectoryMatchResults;
     }
 
     private static void dataProcessing() throws IOException {
@@ -210,7 +183,7 @@ public class Main {
         rawGTMapWriter.writeMap(0);
 
         // preprocessing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of road map
-        RawFileOperation trajFilter = new RawFileOperation(1500);
+        RawFileOperation trajFilter = new RawFileOperation(200);
         trajFilter.RawTrajectoryParser(GT_MAP, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT);
 
         // preprocessing step 3: road map removal, remove road ways from ground truth map to generate an outdated map

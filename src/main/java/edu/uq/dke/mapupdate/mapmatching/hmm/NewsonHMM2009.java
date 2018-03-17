@@ -1,7 +1,6 @@
 package edu.uq.dke.mapupdate.mapmatching.hmm;
 
-import edu.uq.dke.mapupdate.datatype.MatchingResult;
-import traminer.util.map.matching.PointNodePair;
+import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.spatial.distance.GreatCircleDistanceFunction;
 import traminer.util.trajectory.Trajectory;
@@ -16,17 +15,15 @@ public class NewsonHMM2009 {
 
     private List<Trajectory> unmatchedTraj = new ArrayList<>();
 
-    public List<MatchingResult> mapMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
+    public List<TrajectoryMatchResult> mapMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
         HMMMapMatching hmm = new HMMMapMatching(distFunc, 50, 15, currMap);
         // sequential test
-        List<MatchingResult> result = new ArrayList<>();
+        List<TrajectoryMatchResult> result = new ArrayList<>();
         int matchCount = 0;
         for (Trajectory traj : inputTrajectory) {
-            List<PointNodePair> pointMatchPair = hmm.doMatching(traj, currMap);
-            MatchingResult matchResult = new MatchingResult(traj);
-            matchResult.setMatchingResult(pointMatchPair);
+            TrajectoryMatchResult matchResult = hmm.doMatching(traj, currMap);
             result.add(matchResult);
             matchCount++;
 //            if (inputTrajectory.size() > 100)
