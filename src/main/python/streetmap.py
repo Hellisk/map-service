@@ -7,7 +7,7 @@
 
 import sqlite3
 
-import pyximport;
+import pyximport
 
 pyximport.install()
 from pylibs import spatialfunclib

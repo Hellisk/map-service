@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static edu.uq.dke.mapupdate.main.Main.PERCENTAGE;
+import static edu.uq.dke.mapupdate.main.Main.ROOT_PATH;
+
 /**
  * Simple Unfolding map app demo.
  *
@@ -31,13 +34,11 @@ import java.util.Map;
 //http://unfoldingmaps.org/
 public class UnfoldingGraphDisplay extends PApplet {
 
-    private String ROOT_PATH = "C:/data/trajectorydata/";
-    //    private final static String ROOT_PATH = "F:/data/trajectorydata/";
-    private int PERCENTAGE = 0;    // remove percentage for map display
     private UnfoldingMap map;
+    private Location mapCenter = new Location(39.968346f, 116.419598f);  // location in beijing
     // options = 2 should always be the last one if it has
-    private int options = 423;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
-    private String trajID = "25";
+    private int options = 12;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
+    private String trajID = "-1";
 
     public static void main(String args[]) {
         PApplet.main(new String[]{"edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay"});
@@ -45,10 +46,10 @@ public class UnfoldingGraphDisplay extends PApplet {
 
     public void settings() {
         size(1440, 900, P2D);
-        this.map = new UnfoldingMap(this, new MapBox.BlankProvider());
+        this.map = new UnfoldingMap(this, new MapBox.MuseDarkStyleProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
-        Location mapCenter = new Location(39.968346f, 116.419598f);  // location in beijing
         map.zoomAndPanTo(15, mapCenter);
+        map.setPanningRestriction(mapCenter, 50);
         Map<String, RoadWay> findWayByID = new HashMap<>();
 
         try {
@@ -90,7 +91,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(245, 245, 245, 100));  // color white smoky
+                            marker.setColor(color(245, 245, 245, 70));  // color white smoky
                             marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }

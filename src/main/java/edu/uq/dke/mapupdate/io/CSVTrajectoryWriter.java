@@ -116,7 +116,7 @@ public class CSVTrajectoryWriter {
                     while (iter.hasNext()) {
                         STPoint p = iter.next();
                         bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + "\n");
-                        nextInputUnmatchedTrajectory.write(pointCount + "," + p.x() + "," + p.y() + "," + p.time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
+                        nextInputUnmatchedTrajectory.write(pointCount + "," + p.y() + "," + p.x() + "," + p.time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
                         pointCount++;
                     }
                     tripCount++;

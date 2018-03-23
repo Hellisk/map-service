@@ -15,10 +15,10 @@ public class NewsonHMM2009 {
 
     private List<Trajectory> unmatchedTraj = new ArrayList<>();
 
-    public List<TrajectoryMatchResult> mapMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
+    public List<TrajectoryMatchResult> trajectoryListMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
-        HMMMapMatching hmm = new HMMMapMatching(distFunc, 50, 15, currMap);
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, 50, 20, currMap);
         // sequential test
         List<TrajectoryMatchResult> result = new ArrayList<>();
         int matchCount = 0;
@@ -34,6 +34,21 @@ public class NewsonHMM2009 {
         }
         unmatchedTraj = hmm.getUnMatchedTraj();
         return result;
+    }
+
+    public TrajectoryMatchResult trajectoryMatchingProcess(Trajectory inputTrajectory, RoadNetworkGraph currMap) {
+
+        GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, 50, 20, currMap);
+        // sequential test
+        TrajectoryMatchResult matchResult = hmm.doMatching(inputTrajectory, currMap);
+//            if (inputTrajectory.size() > 100)
+//                if (matchCount % (inputTrajectory.size() / 100) == 0)
+//                    System.out.println("Map matching finish " + matchCount / (inputTrajectory.size() / 100) + "%. Broken trajectory count:" + hmm.getBrokenTrajCount() + ".");
+//            matchCount++;
+        System.out.println("Matching finished:" + inputTrajectory.getId());
+        unmatchedTraj = hmm.getUnMatchedTraj();
+        return matchResult;
     }
 
     public List<Trajectory> getUnmatchedTraj() {

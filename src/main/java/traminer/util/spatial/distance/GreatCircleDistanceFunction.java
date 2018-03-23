@@ -6,11 +6,13 @@ import traminer.util.spatial.objects.Segment;
 
 import java.text.DecimalFormat;
 
+import static java.lang.Math.*;
+
 /**
  * Created by Hellisk on 11/06/2017.
  */
 public class GreatCircleDistanceFunction implements PointDistanceFunction, SegmentDistanceFunction, VectorDistanceFunction {
-    private static final double EARTH_RADIUS = 6378137;
+    private static final double EARTH_RADIUS = 6371000;
     DecimalFormat df = new DecimalFormat(".0000");
 
     private static double rad(double d) {
@@ -23,24 +25,22 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
     }
 
     /**
-     * distance calculator between points.
+     * distance calculator between points. Method adopted from GraphHopper
      *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
+     * @param x1 longitude of the start point
+     * @param y1 latitude of the start point
+     * @param x2 longitude of the end point
+     * @param y2 latitude of the end point
      * @return distance at metres
      */
     @Override
     public double pointToPointDistance(double x1, double y1, double x2, double y2) {
-        double radLat1 = rad(y1);
-        double radLat2 = rad(y2);
-        double a = radLat1 - radLat2;
-        double b = rad(x1) - rad(x2);
-        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
-                Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
-        s = s * EARTH_RADIUS;
-        return Double.parseDouble(df.format(s));
+        double dLat = toRadians(y2 - y1);
+        double dLon = toRadians(x2 - x1);
+        // use mean latitude as reference point for delta_lon
+        double tmp = cos(toRadians((y1 + y2) / 2)) * dLon;
+        double normedDist = dLat * dLat + tmp * tmp;
+        return EARTH_RADIUS * sqrt(normedDist);
     }
 
     @Override

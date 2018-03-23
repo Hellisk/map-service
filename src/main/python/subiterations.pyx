@@ -1,9 +1,5 @@
-mport numpy as np
-cimport numpy as np
-
-cimport
-numpy as np
 import numpy as np
+cimport numpy as np
 
 DTYPE = np.int
 ctypedef np.int_t DTYPE_t

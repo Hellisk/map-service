@@ -1,14 +1,14 @@
 package edu.uq.dke.mapupdate.mapinference.kde;
 
 public class BiagioniKDE2012 {
-    KDEMapInference mapinference;
+    KDEMapInference mapInference;
 
     public BiagioniKDE2012() {
-        this.mapinference = new KDEMapInference();
+        this.mapInference = new KDEMapInference();
     }
 
     public BiagioniKDE2012(double cellSize, int blur) {
-        this.mapinference = new KDEMapInference(cellSize, blur);
+        this.mapInference = new KDEMapInference(cellSize, blur);
     }
 
     public void KDEMapInferenceProcess(String rootPath) {

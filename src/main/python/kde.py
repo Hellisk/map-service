@@ -14,14 +14,16 @@ from pylibs import spatialfunclib
 
 cell_size = 1  # meters
 gaussian_blur = 17
-# root_path = "F:/data/trajectorydata/mapInference/"
-root_path = "C:/data/trajectorydata/mapInference/"
-# input_path = "F:/data/trajectorydata/output/unmatchedNextInput"
-input_path = "C:/data/trajectorydata/output/unmatchedNextInput"
+
+dataset_option = True  # True = beijing trajectory, False = global trajectory
+beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
+global_home_path = "F:/data/evaluationTrajectory/"  # the root folder of all data
+root_path = beijing_home_path + "mapInference/" if dataset_option is True else global_home_path + "mapInference/"
+input_path = beijing_home_path + "output/unmatchedNextInput/" if dataset_option is True else global_home_path + "output/unmatchedNextInput/"
 
 
 def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)
@@ -139,7 +141,7 @@ class KDE:
 
         for trip in all_trips:
 
-            if ((trip_counter % 10 == 0) or (trip_counter == len(all_trips))):
+            if (trip_counter % 10 == 0) or (trip_counter == len(all_trips)):
                 sys.stdout.write("\rCreating drawing (trip " + str(trip_counter) + "/" + str(len(all_trips)) + ")... ")
                 sys.stdout.flush()
             trip_counter += 1
@@ -161,7 +163,7 @@ class KDE:
 
         # # create the mask and compute the contour
         cv.Smooth(themap, themap, cv.CV_GAUSSIAN, gaussian_blur, gaussian_blur)
-        cv.SaveImage(root_path + " kde.png", themap)
+        cv.SaveImage(root_path + "kde.png", themap)
 
         print "done."
         print "\nKDE generation complete."
@@ -182,7 +184,7 @@ if __name__ == '__main__':
             sys.exit()
 
     # create output directory
-    if (not os.path.exists(root_path)):
+    if not os.path.exists(root_path):
         # create trips directory
         os.mkdir(root_path)
 

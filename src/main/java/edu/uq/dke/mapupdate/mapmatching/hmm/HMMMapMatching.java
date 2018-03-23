@@ -313,10 +313,12 @@ public class HMMMapMatching {
         if (brokenTraj) {
             brokenTrajCount += 1;
             // generate unmatched trajectories
-            breakPoints.sort(Comparator.comparingInt(m -> m));
+            List<Integer> breakPointList = new ArrayList<>(currBreakIndex);
+//            List<Integer> breakPointList = new ArrayList<>(breakPoints);
+            breakPointList.sort(Comparator.comparingInt(m -> m));
             Set<Integer> extendedBreakPoints = new LinkedHashSet<>();
             int lastUnmatchedPoint = 0;
-            for (int i : breakPoints) {
+            for (int i : breakPointList) {
                 if (i > 0) {
                     extendedBreakPoints.add(i - 1);
                 }
