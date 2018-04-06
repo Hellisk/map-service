@@ -54,7 +54,7 @@ public class CSVRawMapReader {
                 minLat = lat;
             }
 
-            RoadNode newNode = new RoadNode(lineCount + "", lon, lat, false);
+            RoadNode newNode = new RoadNode(lineCount + "", lon, lat);
             index2Node.put(lineCount + "", newNode);
             nodes.add(newNode);
             lineCount++;
@@ -70,41 +70,28 @@ public class CSVRawMapReader {
             RoadWay newWay = new RoadWay();
             List<RoadNode> miniNode = new ArrayList<>();
             String[] edgeInfo = line.split("\t");
-            miniNode.add(index2Node.get(edgeInfo[0]));
-            miniNode.add(index2Node.get(edgeInfo[1]));
-            newWay.setId(roadCount + "");
-            newWay.setNodes(miniNode);
-            newWay.getNode(0).setToNonMiniNode();
-            newWay.getNode(newWay.size() - 1).setToNonMiniNode();
-            if (index2Node.containsKey(newWay.getNode(0).getId())) {
-                index2Node.get(newWay.getNode(0).getId()).addOutgoingAdjacency(newWay);
-            } else {
-                System.out.println("ERROR");
-            }
-            if (index2Node.containsKey(newWay.getNode(newWay.size() - 1).getId())) {
-                index2Node.get(newWay.getNode(newWay.size() - 1).getId()).addIncomingAdjacency(newWay);
-            } else {
-                System.out.println("ERROR");
-            }
-            ways.add(newWay);
-            roadCount++;
+            if (index2Node.containsKey(edgeInfo[0]) && index2Node.containsKey(edgeInfo[1])) {
+                miniNode.add(index2Node.get(edgeInfo[0]));
+                miniNode.add(index2Node.get(edgeInfo[1]));
+                newWay.setId(roadCount + "");
+                newWay.setNodes(miniNode);
+                ways.add(newWay);
+                roadCount++;
+            } else System.out.println("Road endpoint doesn't exist: " + edgeInfo[0] + "," + edgeInfo[1]);
         }
         brEdges.close();
 
+        roadGraph.addNodes(nodes);
+        roadGraph.addWays(ways);
+        roadGraph.setBoundingBox(minLon, maxLon, minLat, maxLat);
         List<RoadNode> removedRoadNodeList = new ArrayList<>();
         for (RoadNode n : nodes) {
             if (n.getDegree() == 0) {
                 removedRoadNodeList.add(n);
             }
         }
-        nodes.removeAll(removedRoadNodeList);
+        roadGraph.getNodes().removeAll(removedRoadNodeList);
         System.out.println("Read " + trajNum + " road map, isolate nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size() + ", total roads:" + ways.size());
-        roadGraph.addNodes(nodes);
-        roadGraph.addWays(ways);
-        roadGraph.setMaxLat(maxLat);
-        roadGraph.setMinLat(minLat);
-        roadGraph.setMaxLon(maxLon);
-        roadGraph.setMinLon(minLon);
         return roadGraph;
     }
 }

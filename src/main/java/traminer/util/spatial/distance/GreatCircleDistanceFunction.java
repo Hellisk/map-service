@@ -48,11 +48,29 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
         return 0;
     }
 
-    public Point findPerpendicularPoint(Point p, Segment s) {
-        return findPerpendicularPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
+    /**
+     * find the closest point of a given point to the segment, the closest point is either the perpendicular point or one of the endpoint
+     *
+     * @param p 2D point
+     * @param s candidate segment
+     * @return point on s that is closest to p
+     */
+    public Point findClosestPoint(Point p, Segment s) {
+        return findClosestPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
     }
 
-    public Point findPerpendicularPoint(double x, double y, double sx1, double sy1, double sx2, double sy2) {
+    /**
+     * Convert the actual distance into the coordinate offset of latitude/longitude
+     *
+     * @param distance the actual distance in meter
+     * @return the coordinate offset
+     */
+    public double coordinateOffset(double distance) {
+        double radian = distance / EARTH_RADIUS;
+        return Math.toDegrees(radian);
+    }
+
+    public Point findClosestPoint(double x, double y, double sx1, double sy1, double sx2, double sy2) {
 
         // find the perpendicular point pp.
         // the segment is represented as y= ax + b, while the perpendicular line is x= -ay + m
@@ -94,7 +112,7 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
     @Override
     public double pointToSegmentDistance(double x, double y, double sx1, double sy1, double sx2, double sy2) {
 
-        Point ppPoint = findPerpendicularPoint(x, y, sx1, sy1, sx2, sy2);
+        Point ppPoint = findClosestPoint(x, y, sx1, sy1, sx2, sy2);
 
         return pointToPointDistance(x, y, ppPoint.x(), ppPoint.y());
     }

@@ -29,8 +29,11 @@ public class Edge {
     public int getNeighbourIndex(int nodeIndex) {
         if (this.fromNodeIndex == nodeIndex) {
             return this.toNodeIndex;
-        } else {
+        } else if (this.toNodeIndex == nodeIndex) {
             return this.fromNodeIndex;
+        } else {
+            System.out.println("ERROR! Cannot find the neighbour node index of the given node");
+            return nodeIndex;
         }
     }
 

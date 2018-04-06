@@ -1,16 +1,21 @@
 package edu.uq.dke.mapupdate.util.dijkstra;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MinPriorityQueue {
 
     private Node[] array;
     private int heapSize;
+    private Map<Integer, Integer> actualIndex2ArrayIndex;
 
-    public MinPriorityQueue(Node[] array) {
+    MinPriorityQueue(Node[] array) {
         this.array = array;
         this.heapSize = this.array.length;
+        this.actualIndex2ArrayIndex = new HashMap<>();
     }
 
-    public Node extractMin() {
+    Node extractMin() {
         Node temp = array[0];
         swap(0, heapSize - 1, array);
         heapSize--;
@@ -22,21 +27,28 @@ public class MinPriorityQueue {
         return heapSize == 0;
     }
 
-    public void buildMinHeap() {
+    void buildMinHeap() {
         for (int i = heapSize / 2 - 1; i >= 0; i--) {
             sink(i);
         }
+        for (int i = 0; i < heapSize; i++)
+            actualIndex2ArrayIndex.put(array[i].getIndex(), i);
     }
 
-    public void decreaseKey(int index, Node key) {
-        if (key.compareTo(array[index]) >= 0) {
+    public void decreaseKey(int index, double distance) {
+        int arrayIndex = actualIndex2ArrayIndex.get(index);
+        if (distance >= array[arrayIndex].getDistanceFromSource()) {
             throw new IllegalArgumentException("the new key must be greater than the current key");
         }
-        array[index] = key;
-        while (index > 0 && array[index].compareTo(array[parentIndex(index)]) < 0) {
-            swap(index, parentIndex(index), array);
-            index = parentIndex(index);
+        array[arrayIndex].setDistanceFromSource(distance);
+        while (arrayIndex > 0 && array[arrayIndex].compareTo(array[parentIndex(arrayIndex)]) < 0) {
+            swap(arrayIndex, parentIndex(arrayIndex), array);
+            arrayIndex = parentIndex(arrayIndex);
         }
+    }
+
+    public Node getNode(int index) {
+        return array[actualIndex2ArrayIndex.get(index)];
     }
 
     private int parentIndex(int index) {
@@ -75,6 +87,8 @@ public class MinPriorityQueue {
         Node temp = array[i];
         array[i] = array[j];
         array[j] = temp;
+        actualIndex2ArrayIndex.replace(array[i].getIndex(), i);
+        actualIndex2ArrayIndex.replace(array[j].getIndex(), j);
     }
 
 }

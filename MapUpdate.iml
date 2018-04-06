@@ -2,7 +2,7 @@
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python">
-      <configuration sdkName="Python 2.7" />
+      <configuration sdkName="" />
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
@@ -392,7 +392,6 @@
     <orderEntry type="library" name="Maven: org.scijava:parsington:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.gentyref:gentyref:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.bushe:eventbus:1.4" level="project" />
-    <orderEntry type="library" name="Python 2.7 interpreter library" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="renderExternalDocumentation" value="true" />

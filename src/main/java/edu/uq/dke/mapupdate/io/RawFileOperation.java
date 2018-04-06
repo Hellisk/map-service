@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.io;
 
-import org.jdom2.JDOMException;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 
 import java.io.*;
@@ -10,10 +9,12 @@ import java.text.DecimalFormat;
  * Created by uqpchao on 5/07/2017.
  */
 public class RawFileOperation {
-    private int totalRecordCount = 20000;
+    private int totalRecordCount;
+    private int minTrajPointCount;
 
-    public RawFileOperation(int count) {
-        this.totalRecordCount = count;
+    public RawFileOperation(int trajCount, int minTrajPointCount) {
+        this.totalRecordCount = trajCount;
+        this.minTrajPointCount = minTrajPointCount;
     }
 
     /**
@@ -23,8 +24,7 @@ public class RawFileOperation {
      * @param rawTrajectories                    input path for raw trajectorie
      * @param initialTrajectories                folder for output trajectories
      * @param outputGroundTruthMatchResultFolder folder for all corresponding ground truth trajectory match result
-     * @throws IOException   IO exception
-     * @throws JDOMException unchecked exception
+     * @throws IOException IO exception
      */
     public void RawTrajectoryParser(String groundTruthMap, String rawTrajectories, String initialTrajectories, String outputGroundTruthMatchResultFolder) throws IOException {
         CSVMapReader map = new CSVMapReader(groundTruthMap);
@@ -48,62 +48,64 @@ public class RawFileOperation {
         while ((line = brTrajectory.readLine()) != null && tripID < totalRecordCount) {
             String[] trajectoryInfo = line.split(",");
             String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-            BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(initialTrajectories + "trip_" + tripID + ".txt"));
-            boolean isInsideTrajectory = true;
-            double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
-            double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
-            if (isInside(firstLon, firstLat, roadGraph)) {
-                long firstTime = Long.parseLong(rawTrajectory[0].split((":"))[3]);
-                bwRawTrajectory.write(firstLon + " " + firstLat + " " + firstTime + "\n");
-                for (int i = 1; i < rawTrajectory.length; i++) {
-                    double lon = firstLon + (Double.parseDouble(rawTrajectory[i].split(":")[0]) / 100000);
-                    double lat = firstLat + (Double.parseDouble(rawTrajectory[i].split(":")[1]) / 100000);
-                    if (isInside(lon, lat, roadGraph)) {
-                        long time = firstTime + Long.parseLong(rawTrajectory[i].split(":")[3]);
-                        bwRawTrajectory.write(df.format(lon) + " " + df.format(lat) + " " + time + "\n");
-                    } else {
-                        isInsideTrajectory = false;
-                        break;
+            if (rawTrajectory.length > minTrajPointCount) {
+                BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(initialTrajectories + "trip_" + tripID + ".txt"));
+                boolean isInsideTrajectory = true;
+                double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
+                double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
+                if (isInside(firstLon, firstLat, roadGraph)) {
+                    long firstTime = Long.parseLong(rawTrajectory[0].split((":"))[3]);
+                    bwRawTrajectory.write(firstLon + " " + firstLat + " " + firstTime + "\n");
+                    for (int i = 1; i < rawTrajectory.length; i++) {
+                        double lon = firstLon + (Double.parseDouble(rawTrajectory[i].split(":")[0]) / 100000);
+                        double lat = firstLat + (Double.parseDouble(rawTrajectory[i].split(":")[1]) / 100000);
+                        if (isInside(lon, lat, roadGraph)) {
+                            long time = firstTime + Long.parseLong(rawTrajectory[i].split(":")[3]);
+                            bwRawTrajectory.write(df.format(lon) + " " + df.format(lat) + " " + time + "\n");
+                        } else {
+                            isInsideTrajectory = false;
+                            break;
+                        }
                     }
+                } else {
+                    isInsideTrajectory = false;
                 }
-            } else {
-                isInsideTrajectory = false;
-            }
-            bwRawTrajectory.close();
+                bwRawTrajectory.close();
 
-            if (isInsideTrajectory) {
-                BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt"));
-                String[] matchLines = trajectoryInfo[4].split("\\|");
+                if (isInsideTrajectory) {
+                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt"));
+                    String[] matchLines = trajectoryInfo[4].split("\\|");
 
-                for (String l : matchLines)
-                    bwMatchedTrajectory.write(l + "\n");
+                    for (String l : matchLines)
+                        bwMatchedTrajectory.write(l + "\n");
 
-                bwMatchedTrajectory.close();
-                tripID++;
+                    bwMatchedTrajectory.close();
+                    tripID++;
 
-//                boolean isInsideMatchedTrajectory = true;
-//                for (String l : matchLines) {
-//                    String[] matchPointInfo = l.split(":");
-//                    if (!segmentLookup.contains(matchPointInfo[0])) {
-//                        isInsideMatchedTrajectory = false;
-//                        break;
-//                    } else {
-//                        bwMatchedTrajectory.write(matchPointInfo[3] + " " + matchPointInfo[4] + " " + matchPointInfo[5] + " " + matchPointInfo[0] + "\n");
-//                    }
-//                }
-//                bwMatchedTrajectory.close();
-//                if (isInsideMatchedTrajectory) {
-//                    tripID++;
-//                } else {
-//                    File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
-//                    File currMatchedTrajFile = new File(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt");
-//                    currTrajFile.delete();
-//                    currMatchedTrajFile.delete();
-//                }
+                    //                boolean isInsideMatchedTrajectory = true;
+                    //                for (String l : matchLines) {
+                    //                    String[] matchPointInfo = l.split(":");
+                    //                    if (!segmentLookup.contains(matchPointInfo[0])) {
+                    //                        isInsideMatchedTrajectory = false;
+                    //                        break;
+                    //                    } else {
+                    //                        bwMatchedTrajectory.write(matchPointInfo[3] + " " + matchPointInfo[4] + " " + matchPointInfo[5] + " " + matchPointInfo[0] + "\n");
+                    //                    }
+                    //                }
+                    //                bwMatchedTrajectory.close();
+                    //                if (isInsideMatchedTrajectory) {
+                    //                    tripID++;
+                    //                } else {
+                    //                    File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
+                    //                    File currMatchedTrajFile = new File(outputGroundTruthMatchResultFolder + "realtrip_" + tripID + ".txt");
+                    //                    currTrajFile.delete();
+                    //                    currMatchedTrajFile.delete();
+                    //                }
 
-            } else {
-                File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
-                currTrajFile.delete();
+                } else {
+                    File currTrajFile = new File(initialTrajectories + "trip_" + tripID + ".txt");
+                    currTrajFile.delete();
+                }
             }
         }
     }

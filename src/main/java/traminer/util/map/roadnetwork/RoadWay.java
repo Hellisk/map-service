@@ -1,14 +1,12 @@
 package traminer.util.map.roadnetwork;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import traminer.util.spatial.distance.GreatCircleDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
 import traminer.util.spatial.objects.LineString;
+import traminer.util.spatial.objects.Point;
 import traminer.util.spatial.objects.Segment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,10 +17,11 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class RoadWay extends RoadNetworkPrimitive {
+
     /**
      * The list of nodes in this road way
      */
-    private List<RoadNode> nodeList = new ArrayList<>(1);
+    private List<RoadNode> nodeList = new ArrayList<>();
 
     /**
      * Total distance of the road way
@@ -30,6 +29,17 @@ public class RoadWay extends RoadNetworkPrimitive {
     private double distance;
 
     private PointDistanceFunction distFunc;
+
+    /**
+     * The two endpoints of the road way
+     */
+    private RoadNode fromNode;
+    private RoadNode toNode;
+
+    /**
+     * The spatially center of the road way. The center is the middle point between two end points
+     */
+    private Point virtualCenter;
 
     /**
      * Creates a new empty road way.
@@ -60,50 +70,45 @@ public class RoadWay extends RoadNetworkPrimitive {
     }
 
     /**
+     * Creates a new road way from the given nodes.
+     *
+     * @param wayId    The road way identifier.
+     * @param nodeList A sorted list of way nodes.
+     */
+    public RoadWay(String wayId, List<RoadNode> nodeList) {
+        super(wayId);
+        if (nodeList.size() < 2) {
+            throw new NullPointerException("Road way " + wayId + " contains less than two nodes.");
+        }
+        this.nodeList = nodeList;
+        this.fromNode = this.nodeList.get(0);
+        this.toNode = this.nodeList.get(nodeList.size() - 1);
+        calculateCenter();
+        this.distFunc = new GreatCircleDistanceFunction();
+        for (int i = 1; i < this.nodeList.size(); i++) {
+            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
+        }
+    }
+
+    /**
      * Creates a empty road way from the given nodes.
      *
      * @param wayId    The road way identifier.
      * @param nodeList A sorted list of way nodes.
      */
-    public RoadWay(String wayId, Collection<RoadNode> nodeList) {
+    public RoadWay(String wayId, List<RoadNode> nodeList, PointDistanceFunction distFunc) {
         super(wayId);
-        if (nodeList == null) {
-            throw new NullPointerException("Road nodes list cannot be null.");
+        if (nodeList.size() < 2) {
+            throw new NullPointerException("Road way " + wayId + " contains less than two nodes.");
         }
-        this.nodeList = new ArrayList<>(nodeList);
-        this.distFunc = new GreatCircleDistanceFunction();
-        for (int i = 1; i < this.nodeList.size(); i++) {
-            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
-        }
-    }
-
-    /**
-     * Creates a empty road way from the given nodes.
-     *
-     * @param wayId The road way identifier.
-     * @param nodes A sorted list of way nodes.
-     */
-    public RoadWay(String wayId, RoadNode... nodes) {
-        super(wayId);
-        if (nodes == null) {
-            throw new NullPointerException("Road nodes list cannot be null.");
-        }
-        this.nodeList = new ArrayList<>(nodes.length);
-        for (RoadNode node : nodes) {
-            if (node != null) this.nodeList.add(node);
-        }
-        this.distFunc = new GreatCircleDistanceFunction();
-        for (int i = 1; i < this.nodeList.size(); i++) {
-            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
-        }
-
-    }
-
-    /**
-     * Creates a new empty road way.
-     */
-    public RoadWay(PointDistanceFunction distFunc) {
+        this.nodeList = nodeList;
+        this.fromNode = this.nodeList.get(0);
+        this.toNode = this.nodeList.get(nodeList.size() - 1);
+        calculateCenter();
         this.distFunc = distFunc;
+        for (int i = 1; i < this.nodeList.size(); i++) {
+            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
+        }
     }
 
     /**
@@ -128,41 +133,10 @@ public class RoadWay extends RoadNetworkPrimitive {
     }
 
     /**
-     * Creates a empty road way from the given nodes.
-     *
-     * @param wayId    The road way identifier.
-     * @param nodeList A sorted list of way nodes.
+     * Calculate the virtual center of the road way, for better index accuracy. It should be called once fromNode and toNode are updated.
      */
-    public RoadWay(String wayId, Collection<RoadNode> nodeList, PointDistanceFunction distFunc) {
-        super(wayId);
-        if (nodeList == null) {
-            throw new NullPointerException("Road nodes list cannot be null.");
-        }
-        this.nodeList = new ArrayList<>(nodeList);
-        this.distFunc = distFunc;
-        for (int i = 1; i < this.nodeList.size(); i++) {
-            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
-        }
-    }
-
-    public RoadWay(String wayId, PointDistanceFunction distFunc, RoadNode... nodes) {
-        super(wayId);
-        if (nodes == null) {
-            throw new NullPointerException("Road nodes list cannot be null.");
-        }
-        this.nodeList = new ArrayList<>(nodes.length);
-        for (int i = 0; i < nodes.length; i++) {
-            RoadNode node = nodes[i];
-            if (i == 0 || i == nodes.length - 1) {
-                node.setToNonMiniNode();
-            }
-            if (node != null) this.nodeList.add(node);
-        }
-        this.distFunc = distFunc;
-        for (int i = 1; i < this.nodeList.size(); i++) {
-            this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
-        }
-
+    private void calculateCenter() {
+        this.virtualCenter = new Point((this.fromNode.lon() + this.toNode.lon()) / 2.0, (this.fromNode.lat() + this.toNode.lat()) / 2.0);
     }
 
     /**
@@ -175,6 +149,9 @@ public class RoadWay extends RoadNetworkPrimitive {
     public void setNodes(List<RoadNode> nodes) {
         this.nodeList.clear();
         nodeList.addAll(nodes);
+        this.fromNode = this.nodeList.get(0);
+        this.toNode = this.nodeList.get(nodeList.size() - 1);
+        calculateCenter();
         for (int i = 1; i < this.nodeList.size(); i++) {
             this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
         }
@@ -205,12 +182,12 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public void addNode(RoadNode node) {
         if (node != null) {
-            if (this.nodeList.size() > 1) {
-                this.nodeList.get(this.nodeList.size() - 1).setToMiniNode();
-                node.setToNonMiniNode();
+            if (this.nodeList.size() > 0) {
+                this.toNode = node;
+                calculateCenter();
                 this.distance += distFunc.distance(this.nodeList.get(this.nodeList.size() - 1).toPoint(), node.toPoint());
-            } else if (this.nodeList.size() == 1) {
-                this.distance += distFunc.distance(this.nodeList.get(this.nodeList.size() - 1).toPoint(), node.toPoint());
+            } else {
+                this.fromNode = node;
             }
             this.nodeList.add(node);
         }
@@ -221,50 +198,21 @@ public class RoadWay extends RoadNetworkPrimitive {
      * The nodes are connected sequentially to the end of this road way,
      * creating an new edge between every n and n+1 node.
      *
-     * @param nodeList A sorted list of road node to add.
+     * @param nodeList A sequence of road node to add.
      */
-    public void addNodes(Collection<RoadNode> nodeList) {
+    public void addNodes(List<RoadNode> nodeList) {
         if (!nodeList.isEmpty()) {
-            int size = this.nodeList.size();
-            if (this.nodeList.size() > 1) {
-                this.nodeList.get(size - 1).setToMiniNode();
-                this.nodeList.addAll(nodeList);
-                this.nodeList.get(size).setToMiniNode();
-            } else if (this.nodeList.size() == 1) {
-                this.nodeList.addAll(nodeList);
-                this.nodeList.get(size).setToMiniNode();
-            } else {
-                this.nodeList.addAll(nodeList);
+            if (this.nodeList.isEmpty()) {
+                this.fromNode = nodeList.get(0);
             }
+            this.nodeList.addAll(nodeList);
+            this.toNode = nodeList.get(nodeList.size() - 1);
+            calculateCenter();
             // recalculate the distance
             this.distance = 0;
-            for (int i = 1; i < this.nodeList.size(); i++) {
+            for (int i = 1; i < this.nodeList.size(); i++)
                 this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
-            }
         }
-    }
-
-    /**
-     * Adds the given way to the end of this way (merge ways)
-     *
-     * @param way The road way to add.
-     * @return Return This road way after the merge.
-     */
-
-    public RoadWay addWay(RoadWay way) {
-        if (this.nodeList.size() > 1) {
-            way.getNode(0).setToMiniNode();
-            this.nodeList.get(this.nodeList.size() - 1).setToMiniNode();
-            this.distance += distFunc.distance(this.nodeList.get(this.nodeList.size() - 1).toPoint(), way.getNode(0).toPoint());
-        } else if (this.nodeList.size() == 1) {
-            way.getNode(0).setToMiniNode();
-            this.distance += distFunc.distance(this.nodeList.get(this.nodeList.size() - 1).toPoint(), way.getNode(0).toPoint());
-        }
-        for (int i = 1; i < way.size(); i++) {
-            this.distance += distFunc.distance(way.getNode(i - 1).toPoint(), way.getNode(i).toPoint());
-        }
-        this.nodeList.addAll(way.nodeList);
-        return this;
     }
 
     /**
@@ -323,10 +271,8 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     @Override
     public RoadWay clone() {
-        RoadWay clone = new RoadWay(getId(), getTimeStamp());
-        for (RoadNode node : nodeList) {
-            clone.addNode(node.clone());
-        }
+        RoadWay clone = new RoadWay(getId(), getTimeStamp(), this.distFunc);
+        clone.addNodes(nodeList);
         return clone;
     }
 
@@ -357,27 +303,7 @@ public class RoadWay extends RoadNetworkPrimitive {
         if (!(obj instanceof RoadWay))
             return false;
         RoadWay other = (RoadWay) obj;
-        if (this.size() != other.size())
-            return false;
-        return this.getId().equals(other.getId());
-    }
-
-    /**
-     * Displays this Road Way in a GUI window.
-     */
-    public void display() {
-        if (size() < 2) return;
-
-        Graph graph = new SingleGraph("RoadWay");
-        graph.display(false);
-        // create one graph edge for every edge in the road way
-        for (int i = 0; i < nodeList.size() - 1; i++) {
-            RoadNode nodei = nodeList.get(i);
-            RoadNode nodej = nodeList.get(i + 1);
-            graph.addNode(nodei.getId()).setAttribute("xy", nodei.lon(), nodei.lat());
-            graph.addNode(nodej.getId()).setAttribute("xy", nodej.lon(), nodej.lat());
-            graph.addEdge(getId() + "_E" + i, nodei.getId(), nodej.getId());
-        }
+        return this.size() == other.size() && this.getId().equals(other.getId());
     }
 
     /**
@@ -403,6 +329,22 @@ public class RoadWay extends RoadNetworkPrimitive {
 
     public double getDistance() {
         return distance;
+    }
+
+    public RoadNode getFromNode() {
+        return fromNode;
+    }
+
+    public RoadNode getToNode() {
+        return toNode;
+    }
+
+    public Point getVirtualCenter() {
+        return virtualCenter;
+    }
+
+    public PointDistanceFunction getDistFunc() {
+        return distFunc;
     }
 
     public void setDistanceFunction(PointDistanceFunction distFunc) {

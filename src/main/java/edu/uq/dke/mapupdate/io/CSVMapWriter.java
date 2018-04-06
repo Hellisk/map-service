@@ -63,6 +63,10 @@ public class CSVMapWriter implements SpatialInterface {
     }
 
     public void randomBasedRoadRemoval(int percentage) throws IOException {
+
+        if (percentage == 0)
+            return;
+
         // create directories before writing
         File file = new File(csvMapPath.substring(0, csvMapPath.lastIndexOf('/')));
         if (!file.exists()) {
@@ -91,12 +95,12 @@ public class CSVMapWriter implements SpatialInterface {
                 bwRemovedEdges.write("\n");
 
                 // remove one road way from the corresponding end points
-                if (nodeRemovalCount.containsKey(w.getNode(0).getId())) {
-                    nodeRemovalCount.replace(w.getNode(0).getId(), nodeRemovalCount.get(w.getNode(0).getId()) + 1);
-                } else nodeRemovalCount.put(w.getNode(0).getId(), 1);
-                if (nodeRemovalCount.containsKey(w.getNode(w.size() - 1).getId())) {
-                    nodeRemovalCount.replace(w.getNode(w.size() - 1).getId(), nodeRemovalCount.get(w.getNode(w.size() - 1).getId()) + 1);
-                } else nodeRemovalCount.put(w.getNode(w.size() - 1).getId(), 1);
+                if (nodeRemovalCount.containsKey(w.getFromNode().getId())) {
+                    nodeRemovalCount.replace(w.getFromNode().getId(), nodeRemovalCount.get(w.getFromNode().getId()) + 1);
+                } else nodeRemovalCount.put(w.getFromNode().getId(), 1);
+                if (nodeRemovalCount.containsKey(w.getToNode().getId())) {
+                    nodeRemovalCount.replace(w.getToNode().getId(), nodeRemovalCount.get(w.getToNode().getId()) + 1);
+                } else nodeRemovalCount.put(w.getToNode().getId(), 1);
                 roadRemovalCount++;
             }
         }
@@ -116,4 +120,3 @@ public class CSVMapWriter implements SpatialInterface {
         bwVertices.close();
     }
 }
-

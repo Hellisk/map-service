@@ -1,46 +1,38 @@
 package traminer.util.map.roadnetwork;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import traminer.util.map.MapInterface;
 
 import java.util.*;
 
 /**
  * A Road Network Graph object, based on OpenStreetMap (OSM) data model.
- * 
- * @author uqdalves
+ *
+ * @author uqdalves, uqpchao
  */
 @SuppressWarnings("serial")
 public class RoadNetworkGraph implements MapInterface {
     /**
      * OSM primitives
      */
-    private Map<String, RoadNode> nodesList =
-            new HashMap<>();
-    private Map<String, RoadWay> waysList =
-            new HashMap<>();
-    private Map<String, RoadRelation> relationsList =
-            new HashMap<>();
+    private List<RoadNode> nodesList = new ArrayList<>();
+    private Set<String> nodeIDList = new HashSet<>();
+    private List<RoadWay> waysList = new ArrayList<>();
+    private Set<String> wayIDList = new HashSet<>();
+
     /**
      * Map boundaries
      */
     private double minLat, minLon;
     private double maxLat, maxLon;
 
+
+    private boolean hasBoundary = false;
+
     /**
      * @return The list of Nodes in this road network graph.
      */
-    public Collection<RoadNode> getNodes() {
-        return nodesList.values();
-    }
-
-    /**
-     * @param nodeId Node Id to search.
-     * @return Return the road node with the given Id.
-     */
-    public RoadNode getNodeById(String nodeId) {
-        return nodesList.get(nodeId);
+    public List<RoadNode> getNodes() {
+        return nodesList;
     }
 
     /**
@@ -49,44 +41,55 @@ public class RoadNetworkGraph implements MapInterface {
      * @param node The road node to add.
      */
     public void addNode(RoadNode node) {
-        if (node != null) nodesList.put(node.getId(), node);
+        if (node != null) {
+            if (!nodeIDList.contains(node.getId())) {
+                nodesList.add(node);
+                nodeIDList.add(node.getId());
+            } else System.out.println("Node already exist: " + node.getId());
+        }
     }
 
     /**
      * Adds all the nodes in the list to this road network graph.
      *
-     * @param nodesList The list of road nodes to add.
+     * @param nodes The list of road nodes to add.
      */
-    public void addNodes(List<RoadNode> nodesList) {
-        if (nodesList == null) {
+    public void addNodes(List<RoadNode> nodes) {
+        if (nodes == null) {
             throw new NullPointerException(
                     "List of road nodes to add must not be null.");
-        }
-        for (RoadNode node : nodesList) {
-            addNode(node);
+        } else {
+            for (RoadNode node : nodes) {
+                this.addNode(node);
+            }
         }
     }
 
     /**
      * @return The list of Ways in this road network graph.
      */
-    public Collection<RoadWay> getWays() {
-        return waysList.values();
+    public List<RoadWay> getWays() {
+        return waysList;
     }
 
-    public List<RoadNode> getAllPoints() {
+    /**
+     * check if the boundary is preset
+     *
+     * @return
+     */
+    public boolean hasBoundary() {
+        return hasBoundary;
+    }
+
+    /**
+     * @return both intersections and mini nodes
+     */
+    public List<RoadNode> getAllNodes() {
         List<RoadNode> pointList = new ArrayList<>(this.getNodes());
         for (RoadWay w : this.getWays()) {
             pointList.addAll(w.getNodes());
         }
         return pointList;
-    }
-    /**
-     * @param wayId Way Id to search.
-     * @return Return the road way with the given Id.
-     */
-    public RoadWay getWayById(String wayId) {
-        return waysList.get(wayId);
     }
 
     /**
@@ -95,7 +98,14 @@ public class RoadNetworkGraph implements MapInterface {
      * @param way The road way to add.
      */
     public void addWay(RoadWay way) {
-        if (way != null) waysList.put(way.getId(), way);
+        if (way != null) {
+            if (!wayIDList.contains(way.getId())) {
+                waysList.add(way);
+                wayIDList.add(way.getId());
+                way.getFromNode().increaseOutGoingDegree();
+                way.getToNode().increaseInComingDegree();
+            } else System.out.println("Road way already exist: " + way.getId());
+        }
     }
 
     /**
@@ -109,47 +119,25 @@ public class RoadNetworkGraph implements MapInterface {
                     "List of road ways to add must not be null.");
         }
         for (RoadWay way : waysList) {
-            addWay(way);
+            if (!wayIDList.contains(way.getId()))
+                addWay(way);
         }
     }
 
     /**
-     * @return The list of Relations in this road network graph.
-     */
-    public Collection<RoadRelation> getRelations() {
-        return relationsList.values();
-    }
-
-    /**
-     * @param relationId Relation Id to search.
-     * @return Return the road relation with the given Id.
-     */
-    public RoadRelation getRelationById(String relationId) {
-        return relationsList.get(relationId);
-    }
-
-    /**
-     * Adds the given Relation to this road network graph.
+     * Set bounding box of the road network.
      *
-     * @param relation The road relation to add.
+     * @param minLon minimum longitude
+     * @param maxLon maximum longitude
+     * @param minLat minimum latitude
+     * @param maxLat maximum latitude
      */
-    public void addRelation(RoadRelation relation) {
-        if (relation != null) relationsList.put(relation.getId(), relation);
-    }
-
-    /**
-     * Adds all the relations in the list to this road network graph.
-     *
-     * @param relationsList The list of road relations to add.
-     */
-    public void addRelations(List<RoadRelation> relationsList) {
-        if (relationsList == null) {
-            throw new NullPointerException(
-                    "List of road ways to add must not be null.");
-        }
-        for (RoadRelation r : relationsList) {
-            addRelation(r);
-        }
+    public void setBoundingBox(double minLon, double maxLon, double minLat, double maxLat) {
+        this.minLon = minLon;
+        this.maxLon = maxLon;
+        this.minLat = minLat;
+        this.maxLat = maxLat;
+        this.hasBoundary = true;
     }
 
     /**
@@ -215,42 +203,6 @@ public class RoadNetworkGraph implements MapInterface {
      * has no nodes.
      */
     public boolean isEmpty() {
-        if (nodesList == null) {
-            return true;
-        }
-        return nodesList.isEmpty();
-    }
-
-    /**
-     * Convert this road network graph to a Graph object.
-     *
-     * @return Returns a graph representation of this road network.
-     */
-    public Graph toGraph() {
-        Graph graph = new SingleGraph("RoadNetworkGraph");
-
-        // create one graph node per road network node.
-        for (RoadNode node : getNodes()) {
-            graph.addNode(node.getId())
-                    .setAttribute("xy", node.lon(), node.lat());
-        }
-        // create one graph edge for every edge in the road ways
-        for (RoadWay way : getWays()) {
-            for (int i = 0; i < way.size() - 1; i++) {
-                RoadNode nodei = way.getNodes().get(i);
-                RoadNode nodej = way.getNodes().get(i + 1);
-                graph.addEdge(way.getId() + "_E" + i, nodei.getId(), nodej.getId());
-            }
-        }
-
-        return graph;
-    }
-
-    /**
-     * Displays this road network graph in a GUI window.
-     */
-    public void display() {
-        if (this.isEmpty()) return;
-        toGraph().display(false);
+        return nodesList == null || nodesList.isEmpty();
     }
 }

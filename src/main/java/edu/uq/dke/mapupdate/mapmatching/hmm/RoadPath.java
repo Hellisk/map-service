@@ -40,7 +40,7 @@ public class RoadPath implements Serializable {
      * @param from Origin node.
      * @param to   destiny node.
      */
-    public RoadPath(PointMatch from, PointMatch to, List<String> roadIdList) {
+    RoadPath(PointMatch from, PointMatch to, List<String> roadIdList) {
         this.from = from;
         this.to = to;
         this.passingRoadID = roadIdList;

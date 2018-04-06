@@ -26,23 +26,22 @@ public class CSVMapReader implements SpatialInterface {
     }
 
     /**
-     * Read and parse the OSM file.
+     * Read and parse the CSV file.
      *
-     * @return A Road Network Graph containing the
-     * Nodes, Ways and Relations in the OSM file.
+     * @return A road network graph containing the road nodes and road ways in the CSV file.
      * @throws IOException file not found
      */
-
     public RoadNetworkGraph readMap(int percentage) throws IOException {
 
         double maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
         double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;        // boarder of the map
         List<RoadNode> nodes = new ArrayList<RoadNode>();
         List<RoadWay> ways = new ArrayList<RoadWay>();
-        Map<String, Integer> nodeIndexMapping = new HashMap<>();       // maintain a mapping of road location to node index
+        Map<String, Integer> node2Index = new HashMap<>();       // maintain a mapping of road location to node index
         // read road nodes
         String line;
         BufferedReader brVertices = new BufferedReader(new FileReader(this.csvMapPath + "vertices_" + percentage + ".txt"));
+        int nodeIndex = 0;
         while ((line = brVertices.readLine()) != null) {
             String[] nodeInfo = line.split(",");
             double lon = Double.parseDouble(nodeInfo[1]);
@@ -62,9 +61,10 @@ public class CSVMapReader implements SpatialInterface {
                 minLat = lat;
             }
 
-            RoadNode newNode = new RoadNode(nodeInfo[0], lon, lat, false);
+            RoadNode newNode = new RoadNode(nodeInfo[0], lon, lat);
             nodes.add(newNode);
-            nodeIndexMapping.put(newNode.getId(), nodes.indexOf(newNode));
+            node2Index.put(newNode.getId(), nodeIndex);
+            nodeIndex++;
         }
         brVertices.close();
 
@@ -74,12 +74,20 @@ public class CSVMapReader implements SpatialInterface {
             RoadWay newWay = new RoadWay();
             List<RoadNode> miniNode = new ArrayList<>();
             String[] edgeInfo = line.split("\\|");
-            if (!edgeInfo[0].contains(",")) {
+            // the road way record is complete and the endpoints exist
+            if (!edgeInfo[0].contains(",") && node2Index.containsKey(edgeInfo[1].split(",")[0]) && node2Index.containsKey
+                    (edgeInfo[edgeInfo.length - 1].split(",")[0])) {
                 boolean isCompleteRoad = true;
                 for (int i = 1; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
-                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]), true);
+                        RoadNode newNode;
+                        if (i == 1) {
+                            newNode = nodes.get(node2Index.get(roadWayPoint[0]));
+                        } else if (i == edgeInfo.length - 1) {
+                            newNode = nodes.get(node2Index.get(roadWayPoint[0]));
+                        } else
+                            newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
 
                         // update the map boarder
                         if (maxLon < Double.parseDouble(roadWayPoint[1])) {
@@ -101,43 +109,31 @@ public class CSVMapReader implements SpatialInterface {
                         isCompleteRoad = false;
                         break;
                     }
+
                 }
+
                 if (isCompleteRoad) {
                     newWay.setId(edgeInfo[0]);
                     newWay.setNodes(miniNode);
-                    newWay.getNode(0).setToNonMiniNode();
-                    newWay.getNode(newWay.size() - 1).setToNonMiniNode();
-                    if (nodeIndexMapping.containsKey(newWay.getNode(0).getId())) {
-                        nodes.get(nodeIndexMapping.get(newWay.getNode(0).getId())).addOutgoingAdjacency(newWay);
-                    } else {
-                        System.out.println("ERROR");
-                    }
-                    nodes.get(nodeIndexMapping.get(newWay.getNode(newWay.size() - 1).getId())).addIncomingAdjacency(newWay);
                     ways.add(newWay);
                 }
             } else {
-                System.out.println("Wrong road id info:" + edgeInfo[0]);
+                System.out.println("Road way record is broken or endpoints not found: " + edgeInfo[0]);
             }
         }
         brEdges.close();
 
+        roadGraph.addNodes(nodes);
+        roadGraph.addWays(ways);
+        roadGraph.setBoundingBox(minLon, maxLon, minLat, maxLat);
         List<RoadNode> removedRoadNodeList = new ArrayList<>();
         for (RoadNode n : nodes) {
             if (n.getDegree() == 0) {
                 removedRoadNodeList.add(n);
             }
         }
-        nodes.removeAll(removedRoadNodeList);
+        roadGraph.getNodes().removeAll(removedRoadNodeList);
         System.out.println("Read " + percentage + "% road map, isolate nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size() + ", total roads:" + ways.size());
-        roadGraph.addNodes(nodes);
-        roadGraph.addWays(ways);
-        roadGraph.setMaxLat(maxLat);
-        roadGraph.setMinLat(minLat);
-        roadGraph.setMaxLon(maxLon);
-        roadGraph.setMinLon(minLon);
-        if (!checkCompleteness(roadGraph)) {
-            System.out.println("Map contains problem");
-        }
         return roadGraph;
     }
 
@@ -154,7 +150,7 @@ public class CSVMapReader implements SpatialInterface {
                 for (int i = 1; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
-                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]), true);
+                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
 
                         miniNode.add(newNode);
                     } else {
@@ -164,137 +160,11 @@ public class CSVMapReader implements SpatialInterface {
                 }
                 newWay.setId(edgeInfo[0]);
                 newWay.setNodes(miniNode);
-                newWay.getNode(0).setToNonMiniNode();
-                newWay.getNode(newWay.size() - 1).setToNonMiniNode();
                 removedRoads.add(newWay);
             } else {
                 System.out.println("Wrong road id info:" + edgeInfo[0]);
             }
         }
         return removedRoads;
-    }
-
-    private boolean checkCompleteness(RoadNetworkGraph roadGraph) {
-        for (RoadNode n : roadGraph.getNodes()) {
-            if (!n.checkNodeCompleteness()) {
-                return false;
-            }
-        }
-        for (RoadWay w : roadGraph.getWays()) {
-            for (RoadNode n : w.getNodes()) {
-                if (!n.checkNodeCompleteness()) {
-//                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public RoadNetworkGraph readMapEdges(int percentage) throws IOException {
-
-        double maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
-        double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;        // boarder of the map
-        // read road ways only
-        String line;
-        List<RoadNode> nodes = new ArrayList<>();
-        List<RoadWay> ways = new ArrayList<>();
-        Map<String, Integer> locIndexMapping = new HashMap<>();       // maintain a mapping of road location to node index
-        BufferedReader brEdges = new BufferedReader(new FileReader(csvMapPath + "edges_" + percentage + ".txt"));
-        while ((line = brEdges.readLine()) != null) {
-            String[] edgeInfo = line.split("\\|");
-            List<RoadNode> intermediateNodes = new ArrayList<>();
-            if (!edgeInfo[0].contains(",")) {
-                RoadWay newWay = new RoadWay();
-                boolean isCompleteRoad = true;
-                for (int i = 1; i < edgeInfo.length; i++) {
-                    String[] roadWayPoint = edgeInfo[i].split(",");
-                    if (roadWayPoint.length == 3) {
-                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]), true);
-
-                        // update the map boarder
-                        if (maxLon < Double.parseDouble(roadWayPoint[1])) {
-                            maxLon = Double.parseDouble(roadWayPoint[1]);
-                        }
-                        if (minLon > Double.parseDouble(roadWayPoint[1])) {
-                            minLon = Double.parseDouble(roadWayPoint[1]);
-                        }
-                        if (maxLat < Double.parseDouble(roadWayPoint[2])) {
-                            maxLat = Double.parseDouble(roadWayPoint[2]);
-                        }
-                        if (minLat > Double.parseDouble(roadWayPoint[2])) {
-                            minLat = Double.parseDouble(roadWayPoint[2]);
-                        }
-                        if (i == 1 || i == edgeInfo.length - 1) {
-                            newNode.setToNonMiniNode();
-                            if (!locIndexMapping.containsKey(newNode.lon() + "_" + newNode.lat())) {
-                                nodes.add(newNode);
-                                locIndexMapping.put(newNode.lon() + "_" + newNode.lat(), nodes.indexOf(newNode));
-                            }
-                        }
-                        intermediateNodes.add(newNode);
-                    } else {
-                        System.err.println("Wrong road node:" + roadWayPoint.length);
-                        isCompleteRoad = false;
-                        break;
-                    }
-                }
-                if (isCompleteRoad) {
-                    newWay.setId(edgeInfo[0]);
-                    newWay.setNodes(intermediateNodes);
-                    if (nodeUpdate(nodes, newWay, locIndexMapping)) {
-                        ways.add(newWay);
-                    }
-                }
-            } else {
-                System.out.println("Wrong road id info:" + edgeInfo[0]);
-            }
-        }
-
-        brEdges.close();
-
-        List<RoadNode> removedRoadNodeList = new ArrayList<>();
-        for (RoadNode n : nodes) {
-            if (n.getDegree() == 0) {
-                removedRoadNodeList.add(n);
-            }
-        }
-        nodes.removeAll(removedRoadNodeList);
-        System.out.println("Total removed nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size());
-        roadGraph.addNodes(nodes);
-        roadGraph.addWays(ways);
-        roadGraph.setMaxLat(maxLat);
-        roadGraph.setMinLat(minLat);
-        roadGraph.setMaxLon(maxLon);
-        roadGraph.setMinLon(minLon);
-        if (!checkCompleteness(roadGraph)) {
-            System.out.println("Map contains problem");
-        }
-        return roadGraph;
-    }
-
-    // abandoned method since we use nodeID to control the connections
-    private boolean nodeUpdate(List<RoadNode> nodeList, RoadWay roadWay, Map<String, Integer> mapping) {
-        // find the corresponding end points
-        RoadNode startPoint = roadWay.getNode(0);
-        RoadNode endPoint = roadWay.getNode(roadWay.size() - 1);
-        startPoint.setToNonMiniNode();
-        endPoint.setToNonMiniNode();
-
-        for (RoadNode n : roadWay.getNodes()) {
-            if (n.isMiniNode() && mapping.containsKey(n.lon() + "_" + n.lat())) {
-                System.out.println("Error! mini node is an intersection as well:" + mapping.get(n.lon() + "_" + n.lat()) + "," + n.lon() + "," + n.lat());
-                return false;
-            }
-        }
-        RoadNode startNode = nodeList.get(mapping.get(startPoint.lon() + "_" + startPoint.lat()));
-        RoadNode endNode = nodeList.get(mapping.get(endPoint.lon() + "_" + endPoint.lat()));
-        if (startNode.lon() == startPoint.lon() && startNode.lat() == startPoint.lat() && endNode.lon() == endNode.lon() && endNode.lat() == endNode.lat()) {
-            startNode.addOutgoingAdjacency(roadWay);
-            endNode.addIncomingAdjacency(roadWay);
-        } else {
-            System.out.println("Wrong node match");
-        }
-
-        return true;
     }
 }

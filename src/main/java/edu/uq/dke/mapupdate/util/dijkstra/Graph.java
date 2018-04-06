@@ -1,21 +1,22 @@
 package edu.uq.dke.mapupdate.util.dijkstra;
 
 import edu.uq.dke.mapupdate.datatype.PointMatch;
-import edu.uq.dke.mapupdate.mapmatching.hmm.MiniRoadSegment;
 import traminer.util.Pair;
 import traminer.util.map.roadnetwork.RoadNetworkGraph;
 import traminer.util.map.roadnetwork.RoadNode;
 import traminer.util.map.roadnetwork.RoadWay;
 import traminer.util.spatial.distance.GreatCircleDistanceFunction;
 import traminer.util.spatial.distance.PointDistanceFunction;
+import traminer.util.spatial.objects.Segment;
 
 import java.util.*;
 
 public class Graph {
-    private HashMap<Integer, String> edgeIDOwner = new HashMap<>();    // the mapping between the mini edge id and its corresponding roadway id
-    private HashMap<MiniRoadSegment, Integer> findMiniEdgeIndex = new HashMap<>();  // find the mini road index using the coordinates and road way id
-    private HashMap<Integer, Pair<Integer, Integer>> findEndPointIndicesOfEdge = new HashMap<>();  // find the end point indices given the mini edge index
-    private HashMap<Pair<Integer, Integer>, Integer> findIndicesOfEdgeEndPoint = new HashMap<>();  // find the mini edge index given the end point indices
+    private HashMap<Integer, String> index2EdgeID = new HashMap<>();    // the mapping between the mini edge id and its corresponding roadway id
+    private HashMap<Segment, Integer> roadSegment2Index = new HashMap<>();  // find the mini road index using the coordinates and road
+    // way id
+    private HashMap<Integer, Pair<Integer, Integer>> edgeIndex2EndpointsIndex = new HashMap<>();  // find the end point indices given the mini edge index
+    private HashMap<Pair<Integer, Integer>, Integer> endPointsIndex2EdgeIndex = new HashMap<>();  // find the mini edge index given the end point indices
     private Node[] nodes;
     private int noOfNodes = 0;
     private Edge[] edges;
@@ -46,7 +47,7 @@ public class Graph {
         HashMap<String, Integer> oldNodeIDMapping = new HashMap<>();
         for (RoadNode node : roadNetwork.getNodes()) {
             if (oldNodeIDMapping.containsKey(node.getId()))
-                System.err.println("Error: Old node ID already exists!");
+                System.err.println("ERROR! Old node ID already exists!");
             oldNodeIDMapping.put(node.getId(), noOfNodes);
             noOfNodes++;
         }
@@ -58,7 +59,7 @@ public class Graph {
                 RoadNode startNode = way.getNode(i);
                 if (i != 0) {
                     if (oldNodeIDMapping.containsKey(startNode.getId()))
-                        System.err.println("Error: Old node ID already exists!");
+                        System.err.println("ERROR! Old node ID already exists!");
                     oldNodeIDMapping.put(startNode.getId(), noOfNodes);
                     noOfNodes++;
                 }
@@ -68,14 +69,15 @@ public class Graph {
             for (int i = 0; i < way.getNodes().size() - 1; i++) {
                 RoadNode startNode = way.getNode(i);
                 RoadNode endNode = way.getNode(i + 1);
-                edgeIDOwner.put(noOfEdges, way.getId());
-                MiniRoadSegment roadSegment = new MiniRoadSegment(startNode.lon(), startNode.lat(), endNode.lon(), endNode.lat(), way.getId());
-                findMiniEdgeIndex.put(roadSegment, noOfEdges);
+                index2EdgeID.put(noOfEdges, way.getId());
+                Segment roadSegment = new Segment(startNode.lon(), startNode.lat(), endNode.lon(), endNode.lat());
+                roadSegment.setId(way.getId());
+                roadSegment2Index.put(roadSegment, noOfEdges);
                 int startID = oldNodeIDMapping.get(startNode.getId());
                 int endID = oldNodeIDMapping.get(endNode.getId());
                 Pair<Integer, Integer> endPointIndices = new Pair<>(startID, endID);
-                findEndPointIndicesOfEdge.put(noOfEdges, endPointIndices);
-                findIndicesOfEdgeEndPoint.put(endPointIndices, noOfEdges);
+                edgeIndex2EndpointsIndex.put(noOfEdges, endPointIndices);
+                endPointsIndex2EdgeIndex.put(endPointIndices, noOfEdges);
                 Edge currEdge = new Edge(startID, endID, dist.pointToPointDistance(startNode.lon(), startNode.lat(), endNode.lon(), endNode.lat()));
                 currEdge.setIndex(noOfEdges);
                 edgeList.add(currEdge);
@@ -100,7 +102,7 @@ public class Graph {
             this.nodes[n] = new Node();
             this.nodes[n].setIndex(n);
         }
-        // add all the edges to the nodes, each edge added to two nodes (to and from)
+        // add all the edges to the nodes, each edge added to only from nodes
         for (int edgeToAdd = 0; edgeToAdd < this.noOfEdges; edgeToAdd++) {
             this.nodes[edges[edgeToAdd].getFromNodeIndex()].getEdges().add(edges[edgeToAdd]);
 //            this.nodes[edges[edgeToAdd].getToNodeIndex()].getEdges().add(edges[edgeToAdd]);
@@ -181,63 +183,64 @@ public class Graph {
         HashMap<Integer, Integer> destinationIndex = new HashMap<>();        // (point index in graph, point index in pointList)
 
         // if source point doesn't exist, return infinity to all distances
-        MiniRoadSegment sourceSegment = new MiniRoadSegment(source.getMatchedSegment(), source.getRoadID());
-        if (!this.findMiniEdgeIndex.containsKey(sourceSegment)) {
+        Segment sourceSegment = source.getMatchedSegment().clone();
+        sourceSegment.setId(source.getRoadID());
+        if (!this.roadSegment2Index.containsKey(sourceSegment)) {
             System.out.println("Shortest distance calculation failed: Source node is not found.");
             return resultOutput(distance, path);
         }
 
-        int currNode = findEndPointIndicesOfEdge.get(findMiniEdgeIndex.get(sourceSegment))._2();
+        int startNode = edgeIndex2EndpointsIndex.get(roadSegment2Index.get(sourceSegment))._2();
         double sourceDistance = this.dist.pointToPointDistance(source.lon(), source.lat(), source.getMatchedSegment().x2(), source.getMatchedSegment().y2());
         // Dijkstra start node
-        this.nodes[currNode].setDistanceFromSource(0);
-        parent[currNode] = currNode;
+        this.nodes[startNode].setDistanceFromSource(0);
+        parent[startNode] = startNode;
         // TODO min-heap Dijkstra implementation
-//        MinPriorityQueue minHeap = new MinPriorityQueue(this.nodes.clone());
-//        minHeap.buildMinHeap();
-//        minHeap.extractMin();
+        MinPriorityQueue minHeap = new MinPriorityQueue(this.nodes.clone());
+        minHeap.buildMinHeap();
+        Node currMinNode = minHeap.extractMin();
 
         // attach all destination points to the graph
         int hitCount = 0;
+
         for (int i = 0; i < pointList.size(); i++) {
-            MiniRoadSegment destinationSegment = new MiniRoadSegment(pointList.get(i).getMatchedSegment(), pointList.get(i).getRoadID());
-            if (!this.findMiniEdgeIndex.containsKey(destinationSegment)) {
+            Segment destinationSegment = pointList.get(i).getMatchedSegment().clone();
+            destinationSegment.setId(pointList.get(i).getRoadID());
+            if (!this.roadSegment2Index.containsKey(destinationSegment)) {
                 System.out.println("Destination node is not found.");
             } else {
                 if (destinationSegment.equals(sourceSegment)) {   // two segments refer to the same mini edge
                     distance[i] = this.dist.pointToPointDistance(source.lon(), source.lat(), pointList.get(i).getMatchPoint().x(), pointList.get(i).getMatchPoint().y());
-                    path[i].add(destinationSegment.getRoadWayID());
+                    path[i].add(destinationSegment.getId());
                     hitCount++;
                 }
-                int edgeID = findMiniEdgeIndex.get(destinationSegment);
-                destinationIndex.put(findEndPointIndicesOfEdge.get(edgeID)._1(), i);
+                int edgeID = roadSegment2Index.get(destinationSegment);
+                destinationIndex.put(edgeIndex2EndpointsIndex.get(edgeID)._1(), i);
             }
         }
 
         // visit every node
-        while (nodes[currNode].getDistanceFromSource() < maxDistance) {
+        while (currMinNode.getDistanceFromSource() < maxDistance && !this.nodes[currMinNode.getIndex()].isVisited()) {
+            int currNodeIndex = currMinNode.getIndex();
             // loop around the edges of current node
-            ArrayList<Edge> currentOutgoingEdges = this.nodes[currNode].getEdges();
+            ArrayList<Edge> currentOutgoingEdges = this.nodes[currNodeIndex].getEdges();
             for (Edge currentNodeEdge : currentOutgoingEdges) {
-                int neighbourIndex = currentNodeEdge.getNeighbourIndex(currNode);
-                // only if not visited
-                if (!this.nodes[neighbourIndex].isVisited()) {
-                    double tentative = this.nodes[currNode].getDistanceFromSource() + currentNodeEdge.getLength();
-                    if (tentative < nodes[neighbourIndex].getDistanceFromSource()) {
-                        nodes[neighbourIndex].setDistanceFromSource(tentative);
-                        parent[neighbourIndex] = currNode;
-                    }
+                int neighbourIndex = currentNodeEdge.getNeighbourIndex(currNodeIndex);
+                double tentative = currMinNode.getDistanceFromSource() + currentNodeEdge.getLength();
+                if (tentative < minHeap.getNode(neighbourIndex).getDistanceFromSource()) {
+                    minHeap.decreaseKey(neighbourIndex, tentative);
+                    parent[neighbourIndex] = currNodeIndex;
                 }
             }
             // all neighbours checked so node visited
-            nodes[currNode].setVisited(true);
-            if (destinationIndex.containsKey(currNode)) {
+            nodes[currNodeIndex].setVisited(true);
+            if (destinationIndex.containsKey(currNodeIndex)) {
                 hitCount++;
-                int index = destinationIndex.get(currNode);
-                distance[index] = nodes[currNode].getDistanceFromSource();
+                int index = destinationIndex.get(currNodeIndex);
+                distance[index] = nodes[currNodeIndex].getDistanceFromSource();
                 distance[index] += sourceDistance;
                 distance[index] += this.dist.pointToPointDistance(pointList.get(index).getMatchedSegment().x1(), pointList.get(index).getMatchedSegment().y1(), pointList.get(index).lon(), pointList.get(index).lat());
-                path[index] = findPath(currNode, parent);
+                path[index] = findPath(currNodeIndex, parent);
             }
             if (hitCount == distance.length) {
                 return resultOutput(distance, path);
@@ -245,11 +248,7 @@ public class Graph {
             // next node must be with shortest distance
 //            minHeap.buildMinHeap();
 //            currNode = minHeap.extractMin().getIndex();
-            if (currNode != getNodeShortestDistance() && getNodeShortestDistance() != -1) {
-                currNode = getNodeShortestDistance();
-            } else {
-                break;
-            }
+            currMinNode = minHeap.extractMin();
 //            if(index!=currNode){
 //                double value1 = nodes[index].getDistanceFromSource();
 //                double value2 = nodes[currNode].getDistanceFromSource();
@@ -265,8 +264,8 @@ public class Graph {
             if (parent[index] == -1)
                 System.out.println("ERROR! Road path is broken!");
             Pair<Integer, Integer> currentSegment = new Pair<>(parent[index], index);
-            int edgeID = findIndicesOfEdgeEndPoint.get(currentSegment);
-            roadIDList.add(edgeIDOwner.get(edgeID));
+            int edgeID = endPointsIndex2EdgeIndex.get(currentSegment);
+            roadIDList.add(index2EdgeID.get(edgeID));
             index = parent[index];
         }
         return new ArrayList<>(roadIDList);

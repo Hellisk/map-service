@@ -2,9 +2,6 @@ package traminer.util.map.roadnetwork;
 
 import traminer.util.spatial.objects.Point;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A node in the road network graph (OSM Node).
  * <br> The spatial coordinates of the node are immutable.
@@ -23,39 +20,23 @@ public final class RoadNode extends RoadNetworkPrimitive {
     private final double lat; // y
 
     /**
-     * Degree of the node, an intersection will have a non-zero degree, while the mini points are zero
+     * In-coming and out-going degree of the node, an intersection should have a non-zero degree, while the mini points are zero
      **/
-    private int degree;
+    private int inComingDegree;
+    private int outGoingDegree;
 
     /**
-     * Whether it is a intersection or an intermediate node within a road segment
-     */
-    private boolean isMiniNode;
-
-    /**
-     * List of road ways that start from this road node
-     */
-    private List<RoadWay> outgoingAdjacentList;
-
-    /**
-     * List of road ways that end at this road node
-     */
-    private List<RoadWay> incomingAdjacentList;
-
-    /**
-     * Creates and empty road node with coordinates (0,0)
+     * Create and empty road node with coordinates (0,0)
      */
     public RoadNode() {
         this.lon = 0.0;
         this.lat = 0.0;
-        this.degree = 0;
-        this.isMiniNode = false;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
+        this.inComingDegree = 0;
+        this.outGoingDegree = 0;
     }
 
     /**
-     * Creates and empty road node.
+     * Create a road node.
      *
      * @param id  Node ID
      * @param lon Longitude coordinate (x)
@@ -65,70 +46,27 @@ public final class RoadNode extends RoadNetworkPrimitive {
         super(id);
         this.lon = lon;
         this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = false;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
+        this.inComingDegree = 0;
+        this.outGoingDegree = 0;
     }
 
     /**
-     * Creates and empty road node.
+     * Create a road node.
      *
-     * @param id         Node ID
-     * @param lon        Longitude coordinate (x)
-     * @param lat        Latitude coordinate (y)
-     * @param isMiniNode whether it is a intermediate node of a road way
+     * @param id  Node ID
+     * @param lon Longitude coordinate (x)
+     * @param lat Latitude coordinate (y)
      */
-    public RoadNode(String id, double lon, double lat, boolean isMiniNode) {
-        super(id);
-        this.lon = lon;
-        this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = isMiniNode;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
-    }
-
-    /**
-     * Creates and empty road node.
-     *
-     * @param id         Node ID
-     * @param lon        Longitude coordinate (x)
-     * @param lat        Latitude coordinate (y)
-     * @param isMiniNode whether it is a intermediate node of a road way
-     * @param timeStamp  Node time-stamp
-     */
-    public RoadNode(String id, double lon, double lat, boolean isMiniNode, String timeStamp) {
+    public RoadNode(String id, double lon, double lat, String timeStamp, int inComingDegree, int outGoingDegree) {
         super(id, timeStamp);
         this.lon = lon;
         this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = isMiniNode;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
+        this.inComingDegree = inComingDegree;
+        this.outGoingDegree = outGoingDegree;
     }
 
     /**
-     * Creates and empty road node.
-     *
-     * @param id         Node ID
-     * @param lon        Longitude coordinate (x)
-     * @param lat        Latitude coordinate (y)
-     * @param isMiniNode whether it is a intermediate node of a road way
-     * @param timeStamp  Node time-stamp (e.g. seconds, milliseconds)
-     */
-    public RoadNode(String id, double lon, double lat, boolean isMiniNode, long timeStamp) {
-        super(id, "" + timeStamp);
-        this.lon = lon;
-        this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = isMiniNode;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
-    }
-
-    /**
-     * Creates and empty road node.
+     * Create a road node.
      *
      * @param id        Node ID
      * @param lon       Longitude coordinate (x)
@@ -139,28 +77,8 @@ public final class RoadNode extends RoadNetworkPrimitive {
         super(id, timeStamp);
         this.lon = lon;
         this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = false;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
-    }
-
-    /**
-     * Creates and empty road node.
-     *
-     * @param id        Node ID
-     * @param lon       Longitude coordinate (x)
-     * @param lat       Latitude coordinate (y)
-     * @param timeStamp Node time-stamp (e.g. seconds, milliseconds)
-     */
-    public RoadNode(String id, double lon, double lat, long timeStamp) {
-        super(id, "" + timeStamp);
-        this.lon = lon;
-        this.lat = lat;
-        this.degree = 0;
-        this.isMiniNode = false;
-        this.incomingAdjacentList = new ArrayList<>();
-        this.outgoingAdjacentList = new ArrayList<>();
+        this.inComingDegree = 0;
+        this.outGoingDegree = 0;
     }
 
     /**
@@ -202,8 +120,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
      */
     @Override
     public RoadNode clone() {
-        RoadNode clone = new RoadNode(getId(), lon, lat, getTimeStamp());
-        return clone;
+        return new RoadNode(getId(), lon, lat, getTimeStamp());
     }
 
     @Override
@@ -232,95 +149,27 @@ public final class RoadNode extends RoadNetworkPrimitive {
         if (!(obj instanceof RoadNode))
             return false;
         RoadNode other = (RoadNode) obj;
-        if (!super.equals(other))
-            return false;
-        if (Double.doubleToLongBits(lat) !=
-                Double.doubleToLongBits(other.lat))
-            return false;
-        return Double.doubleToLongBits(lon) == Double.doubleToLongBits(other.lon);
+        return super.equals(other) && Double.doubleToLongBits(lat) == Double.doubleToLongBits(other.lat) && Double.doubleToLongBits(lon) == Double.doubleToLongBits(other.lon);
     }
 
     public int getDegree() {
-        return degree;
+        return inComingDegree + outGoingDegree;
     }
 
-    public boolean isMiniNode() {
-        return isMiniNode;
+    public void increaseInComingDegree() {
+        this.inComingDegree++;
     }
 
-    public List<RoadWay> getIncomingAdjacentList() {
-        return incomingAdjacentList;
+    public void increaseOutGoingDegree() {
+        this.outGoingDegree++;
     }
 
-    public void setIncomingAdjacentList(List<RoadWay> incomingAdjacentList) {
-        this.degree -= this.incomingAdjacentList.size();
-        this.outgoingAdjacentList = incomingAdjacentList;
-        this.degree += this.incomingAdjacentList.size();
+    public int getInComingDegree() {
+        return inComingDegree;
     }
 
-    public void addIncomingAdjacency(RoadWay adjacentRoadWay) {
-        if (!this.incomingAdjacentList.contains(adjacentRoadWay)) {
-            this.incomingAdjacentList.add(adjacentRoadWay);
-            this.degree++;
-        }
+    public int getOutGoingDegree() {
+        return outGoingDegree;
     }
 
-    public void addIncomingAdjacency(List<RoadWay> adjacentList) {
-        for (RoadWay w : adjacentList) {
-            if (!this.incomingAdjacentList.contains(w)) {
-                this.incomingAdjacentList.addAll(adjacentList);
-                this.degree++;
-            }
-        }
-    }
-
-    public List<RoadWay> getOutgoingAdjacentList() {
-        return this.outgoingAdjacentList;
-    }
-
-    public void setOutgoingAdjacentList(List<RoadWay> outgoingAdjacentList) {
-        this.degree -= this.outgoingAdjacentList.size();
-        this.outgoingAdjacentList = outgoingAdjacentList;
-        this.degree += this.outgoingAdjacentList.size();
-    }
-
-    public void addOutgoingAdjacency(RoadWay adjacentRoadWay) {
-        if (!outgoingAdjacentList.contains(adjacentRoadWay)) {
-            this.outgoingAdjacentList.add(adjacentRoadWay);
-            this.degree++;
-        }
-    }
-
-    public void addOutgoingAdjacency(List<RoadWay> adjacentList) {
-        for (RoadWay w : adjacentList) {
-            if (!this.outgoingAdjacentList.contains(w)) {
-                this.outgoingAdjacentList.addAll(adjacentList);
-                this.degree++;
-            }
-        }
-    }
-
-    // check whether the road node has a right degree value and adjacent lists
-    public boolean checkNodeCompleteness() {
-        if (this.degree != incomingAdjacentList.size() + outgoingAdjacentList.size() || this.degree < 0) {
-            System.out.println("Degree is not equivalent to the adjacent size, node ID:" + this.getId());
-            return false;
-        }
-        if (this.isMiniNode) {
-            if (this.degree != 0) {
-                System.out.println("Degree is not 0 for a mini node:" + this.getId() + "," + this.getDegree());
-                return false;
-            } else {
-                return true;
-            }
-        } else return true;
-    }
-
-    public void setToMiniNode() {
-        this.isMiniNode = true;
-    }
-
-    public void setToNonMiniNode() {
-        this.isMiniNode = false;
-    }
 }

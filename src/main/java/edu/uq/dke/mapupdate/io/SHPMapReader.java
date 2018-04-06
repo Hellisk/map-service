@@ -8,7 +8,6 @@ import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
-import org.jdom2.JDOMException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -19,7 +18,9 @@ import traminer.util.map.roadnetwork.RoadWay;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uqpchao on 3/07/2017.
@@ -35,17 +36,14 @@ public class SHPMapReader {
         this.shpVerticesPath = shpVertexPath;
         this.shpEdgesPath = shpEdgePath;
 
+        // preset bounds to reduce the map size, si huan
+        this.roadGraph.setBoundingBox(116.20, 116.57, 39.76, 40.03);
+//
 //        // preset bounds to reduce the map size, er huan
-//        this.roadGraph.setMaxLat(39.95);
-//        this.roadGraph.setMinLat(39.895);
-//        this.roadGraph.setMaxLon(116.44);
-//        this.roadGraph.setMinLon(116.35);
-
-        // preset bounds to reduce the map size, particular area
-        this.roadGraph.setMaxLat(39.978720);
-        this.roadGraph.setMinLat(39.957972);
-        this.roadGraph.setMaxLon(116.433773);
-        this.roadGraph.setMinLon(116.405423);
+//        this.roadGraph.setBoundingBox(116.35, 116.44, 39.895, 39.95);
+//
+//        // preset bounds to reduce the map size, smaller than er huan
+//        this.roadGraph.setBoundingBox(116.405423, 116.433773, 39.957972, 39.978720);
     }
 
     /**
@@ -53,7 +51,6 @@ public class SHPMapReader {
      *
      * @return A Road Network Graph containing the
      * Nodes, Ways and Relations in the shape file.
-     * @throws JDOMException
      * @throws IOException
      */
     public RoadNetworkGraph readSHP() throws IOException {
@@ -76,6 +73,7 @@ public class SHPMapReader {
 //        this.roadGraph.setMaxLat(bounds.getMaxY());
 
         List<RoadNode> roadNodeList = new ArrayList<>();
+        Map<String, RoadNode> id2Node = new HashMap<>();
         int roadNodeCount = 0;
         try (FeatureIterator<SimpleFeature> features = vertexCollection.features()) {
             while (features.hasNext()) {
@@ -87,9 +85,10 @@ public class SHPMapReader {
 //                    if (feature.getAttribute(5).equals("1")) {
 //                        coNodeMapping.put(pointID, (String) feature.getAttribute(8));
 //                    }
-                    roadNodeCount++;
                     RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y);
                     roadNodeList.add(newRoadNode);
+                    id2Node.put(newRoadNode.getId(), newRoadNode);
+                    roadNodeCount++;
                 }
             }
         }
@@ -115,41 +114,47 @@ public class SHPMapReader {
                 RoadWay newRoadWay = new RoadWay(edgeID);
                 List<RoadNode> miniNode = new ArrayList<>();
                 Coordinate[] coordinates = edges.getCoordinates();
+                // the endpoints are not included in the current map
                 if (!isInside(coordinates[0].x, coordinates[0].y, roadGraph) || !isInside(coordinates[coordinates.length - 1].x, coordinates[coordinates.length - 1].y, roadGraph))
                     continue;
-                for (Coordinate e : coordinates) {
-                    miniNode.add(new RoadNode(roadWayPointID + "-", e.x, e.y));
-                    roadWayPointID++;
+                if (!id2Node.containsKey(feature.getAttribute(10)) || !id2Node.containsKey(feature.getAttribute(11))) {
+                    System.out.println("ERROR! The endpoints of the input road way is not in the road node list!");
+                    continue;
+                }
+                for (int i = 0; i < coordinates.length; i++) {
+                    if (i == 0) {
+                        miniNode.add(id2Node.get(feature.getAttribute(10)));
+                    } else if (i == coordinates.length - 1) {
+                        miniNode.add(id2Node.get(feature.getAttribute(11)));
+                    } else {
+                        miniNode.add(new RoadNode(roadWayPointID + "-", coordinates[i].x, coordinates[i].y));
+                        roadWayPointID++;
+                    }
                 }
                 switch (feature.getAttribute(6).toString()) {
                     case "0":
                     case "1":
                         newRoadWay.addNodes(miniNode);
-                        newRoadWay.getNode(0).setId((String) feature.getAttribute(10));
-                        newRoadWay.getNode(newRoadWay.getNodes().size() - 1).setId((String) feature.getAttribute(11));
                         roadWayList.add(newRoadWay);
                         RoadWay reverseRoad = new RoadWay("-" + edgeID);
-                        for (int i = miniNode.size() - 1; i >= 0; i--) {
+
+                        reverseRoad.addNode(newRoadWay.getToNode());
+                        for (int i = miniNode.size() - 2; i > 0; i--) {
                             RoadNode reverseNode = new RoadNode(roadWayPointID + "-", miniNode.get(i).lon(), miniNode.get(i).lat());
                             roadWayPointID++;
                             reverseRoad.addNode(reverseNode);
                         }
-                        reverseRoad.getNode(0).setId((String) feature.getAttribute(11));
-                        reverseRoad.getNode(newRoadWay.getNodes().size() - 1).setId((String) feature.getAttribute(10));
+                        reverseRoad.addNode(newRoadWay.getFromNode());
                         roadWayList.add(reverseRoad);
                         break;
                     case "2":
                         newRoadWay.addNodes(miniNode);
-                        newRoadWay.getNode(0).setId((String) feature.getAttribute(10));
-                        newRoadWay.getNode(newRoadWay.getNodes().size() - 1).setId((String) feature.getAttribute(11));
                         roadWayList.add(newRoadWay);
                         break;
                     case "3":
                         for (int i = miniNode.size() - 1; i >= 0; i--) {
                             newRoadWay.addNode(miniNode.get(i));
                         }
-                        newRoadWay.getNode(0).setId((String) feature.getAttribute(11));
-                        newRoadWay.getNode(newRoadWay.getNodes().size() - 1).setId((String) feature.getAttribute(10));
                         roadWayList.add(newRoadWay);
                         break;
                     default:
@@ -158,18 +163,16 @@ public class SHPMapReader {
                 }
             }
         }
-        System.out.println("Raw map read finish, total nodes:" + roadNodeCount + ", total road way points:" + roadWayPointID);
         this.roadGraph.addWays(roadWayList);
+        System.out.println("Raw map read finish, total intersections:" + roadNodeCount + ", total road node points:" + roadWayPointID);
         dataStoreEdge.dispose();
 
         return this.roadGraph;
     }
 
     private boolean isInside(double pointX, double pointY, RoadNetworkGraph roadGraph) {
-        boolean inside = false;
-        if (pointX > roadGraph.getMinLon() && pointX < roadGraph.getMaxLon())
-            if (pointY > roadGraph.getMinLat() && pointY < roadGraph.getMaxLat())
-                inside = true;
-        return inside;
+        if (roadGraph.hasBoundary())
+            return pointX > roadGraph.getMinLon() && pointX < roadGraph.getMaxLon() && pointY > roadGraph.getMinLat() && pointY < roadGraph.getMaxLat();
+        else return true;
     }
 }
