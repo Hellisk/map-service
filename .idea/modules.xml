@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/src/main/python/MapInference.iml" filepath="$PROJECT_DIR$/src/main/python/MapInference.iml" />
       <module fileurl="file://$PROJECT_DIR$/MapUpdate.iml" filepath="$PROJECT_DIR$/MapUpdate.iml" />
     </modules>
   </component>

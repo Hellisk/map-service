@@ -36,11 +36,11 @@ public class SHPMapReader {
         this.shpVerticesPath = shpVertexPath;
         this.shpEdgesPath = shpEdgePath;
 
-        // preset bounds to reduce the map size, si huan
-        this.roadGraph.setBoundingBox(116.20, 116.57, 39.76, 40.03);
+//        // preset bounds to reduce the map size, si huan
+//        this.roadGraph.setBoundingBox(116.20, 116.57, 39.76, 40.03);
 //
-//        // preset bounds to reduce the map size, er huan
-//        this.roadGraph.setBoundingBox(116.35, 116.44, 39.895, 39.95);
+        // preset bounds to reduce the map size, er huan
+        this.roadGraph.setBoundingBox(116.35, 116.44, 39.895, 39.95);
 //
 //        // preset bounds to reduce the map size, smaller than er huan
 //        this.roadGraph.setBoundingBox(116.405423, 116.433773, 39.957972, 39.978720);
@@ -51,7 +51,7 @@ public class SHPMapReader {
      *
      * @return A Road Network Graph containing the
      * Nodes, Ways and Relations in the shape file.
-     * @throws IOException
+     * @throws IOException File read failure
      */
     public RoadNetworkGraph readSHP() throws IOException {
 //        HashMap<String, String> coNodeMapping = new HashMap<>();  // map the co-node in an intersection to its main node
@@ -117,15 +117,15 @@ public class SHPMapReader {
                 // the endpoints are not included in the current map
                 if (!isInside(coordinates[0].x, coordinates[0].y, roadGraph) || !isInside(coordinates[coordinates.length - 1].x, coordinates[coordinates.length - 1].y, roadGraph))
                     continue;
-                if (!id2Node.containsKey(feature.getAttribute(10)) || !id2Node.containsKey(feature.getAttribute(11))) {
+                if (!id2Node.containsKey(feature.getAttribute(10).toString()) || !id2Node.containsKey(feature.getAttribute(11).toString())) {
                     System.out.println("ERROR! The endpoints of the input road way is not in the road node list!");
                     continue;
                 }
                 for (int i = 0; i < coordinates.length; i++) {
                     if (i == 0) {
-                        miniNode.add(id2Node.get(feature.getAttribute(10)));
+                        miniNode.add(id2Node.get(feature.getAttribute(10).toString()));
                     } else if (i == coordinates.length - 1) {
-                        miniNode.add(id2Node.get(feature.getAttribute(11)));
+                        miniNode.add(id2Node.get(feature.getAttribute(11).toString()));
                     } else {
                         miniNode.add(new RoadNode(roadWayPointID + "-", coordinates[i].x, coordinates[i].y));
                         roadWayPointID++;

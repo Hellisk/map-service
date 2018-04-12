@@ -93,17 +93,17 @@ public class Graph {
 //                } else System.out.println("Duplicate road when generating shortest path graph.");
             }
         }
-        Edge[] edges = edgeList.toArray(new Edge[edgeList.size()]);
+        Edge[] edges = edgeList.toArray(new Edge[0]);
 
         this.edges = edges;
         // create all nodes ready to be updated with the edges
-        this.nodes = new Node[this.noOfNodes];
-        for (int n = 0; n < this.noOfNodes; n++) {
+        this.nodes = new Node[noOfNodes];
+        for (int n = 0; n < noOfNodes; n++) {
             this.nodes[n] = new Node();
             this.nodes[n].setIndex(n);
         }
         // add all the edges to the nodes, each edge added to only from nodes
-        for (int edgeToAdd = 0; edgeToAdd < this.noOfEdges; edgeToAdd++) {
+        for (int edgeToAdd = 0; edgeToAdd < noOfEdges; edgeToAdd++) {
             this.nodes[edges[edgeToAdd].getFromNodeIndex()].getEdges().add(edges[edgeToAdd]);
 //            this.nodes[edges[edgeToAdd].getToNodeIndex()].getEdges().add(edges[edgeToAdd]);
         }
@@ -115,7 +115,7 @@ public class Graph {
                 isolatedNodeCount++;
         }
         System.out.println("No. of node having only incoming edges: " + isolatedNodeCount);
-        System.out.println("Shortest path graph generated. Total nodes:" + this.noOfNodes + ", total edges:" + noOfEdges);
+        System.out.println("Shortest path graph generated. Total nodes:" + noOfNodes + ", total edges:" + noOfEdges);
     }
 
 //    // Calculate all shortest distance from given source to destination
@@ -151,7 +151,7 @@ public class Graph {
 //                }
 //            }
 //            // all neighbours checked so node visited
-//            nodes[nextNode].setVisited(true);
+//            nodes[nextNode].setVisit(true);
 //
 //            if (nextNode == destNode) {
 //                return nodes[destNode].getDistanceFromSource();
@@ -164,20 +164,17 @@ public class Graph {
 
     // Calculate all shortest distance from given node
     public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
-        double[] distance = new double[pointList.size()];
-        ArrayList<String>[] path = new ArrayList[pointList.size()];
+        double[] distance = new double[pointList.size()];   // the distance to every destination
+        ArrayList<String>[] path = new ArrayList[pointList.size()];     // the path to every destination
         int[] parent = new int[this.nodes.length];  // the index of its preceding point
 
         // initialization
-        for (int i = 0; i < distance.length; i++) {
-            distance[i] = Double.MAX_VALUE;
-            path[i] = new ArrayList<>();
-        }
-        for (int i = 0; i < this.nodes.length; i++) {
-            Node n = this.nodes[i];
-            n.setDistanceFromSource(Double.MAX_VALUE);
-            n.setVisited(false);
-            parent[i] = -1;
+        Arrays.fill(distance, Double.MAX_VALUE);
+        Arrays.fill(path, new ArrayList<>());
+        Arrays.fill(parent, -1);
+        for (Node n : this.nodes) {
+            n.setDistanceFromSource(0);
+            n.setVisit(false);
         }
 
         HashMap<Integer, Integer> destinationIndex = new HashMap<>();        // (point index in graph, point index in pointList)
@@ -192,13 +189,6 @@ public class Graph {
 
         int startNode = edgeIndex2EndpointsIndex.get(roadSegment2Index.get(sourceSegment))._2();
         double sourceDistance = this.dist.pointToPointDistance(source.lon(), source.lat(), source.getMatchedSegment().x2(), source.getMatchedSegment().y2());
-        // Dijkstra start node
-        this.nodes[startNode].setDistanceFromSource(0);
-        parent[startNode] = startNode;
-        // TODO min-heap Dijkstra implementation
-        MinPriorityQueue minHeap = new MinPriorityQueue(this.nodes.clone());
-        minHeap.buildMinHeap();
-        Node currMinNode = minHeap.extractMin();
 
         // attach all destination points to the graph
         int hitCount = 0;
@@ -206,11 +196,11 @@ public class Graph {
         for (int i = 0; i < pointList.size(); i++) {
             Segment destinationSegment = pointList.get(i).getMatchedSegment().clone();
             destinationSegment.setId(pointList.get(i).getRoadID());
-            if (!this.roadSegment2Index.containsKey(destinationSegment)) {
+            if (!roadSegment2Index.containsKey(destinationSegment)) {
                 System.out.println("Destination node is not found.");
             } else {
                 if (destinationSegment.equals(sourceSegment)) {   // two segments refer to the same mini edge
-                    distance[i] = this.dist.pointToPointDistance(source.lon(), source.lat(), pointList.get(i).getMatchPoint().x(), pointList.get(i).getMatchPoint().y());
+                    distance[i] = dist.pointToPointDistance(source.lon(), source.lat(), pointList.get(i).getMatchPoint().x(), pointList.get(i).getMatchPoint().y());
                     path[i].add(destinationSegment.getId());
                     hitCount++;
                 }
@@ -219,28 +209,35 @@ public class Graph {
             }
         }
 
+        // Dijkstra start node
+        nodes[startNode].setDistanceFromSource(0);
+        parent[startNode] = startNode;
+        MinPriorityQueue minHeap = new MinPriorityQueue();
+        int currIndex = startNode;
+
+//        System.out.println("start new shortest distance");
         // visit every node
-        while (currMinNode.getDistanceFromSource() < maxDistance && !this.nodes[currMinNode.getIndex()].isVisited()) {
-            int currNodeIndex = currMinNode.getIndex();
+        while (currIndex != -1 && nodes[currIndex].getDistanceFromSource() < maxDistance) {
             // loop around the edges of current node
-            ArrayList<Edge> currentOutgoingEdges = this.nodes[currNodeIndex].getEdges();
+//            System.out.println(nodes[currIndex].getDistanceFromSource());
+            ArrayList<Edge> currentOutgoingEdges = nodes[currIndex].getEdges();
             for (Edge currentNodeEdge : currentOutgoingEdges) {
-                int neighbourIndex = currentNodeEdge.getNeighbourIndex(currNodeIndex);
-                double tentative = currMinNode.getDistanceFromSource() + currentNodeEdge.getLength();
-                if (tentative < minHeap.getNode(neighbourIndex).getDistanceFromSource()) {
-                    minHeap.decreaseKey(neighbourIndex, tentative);
-                    parent[neighbourIndex] = currNodeIndex;
+                int neighbourIndex = currentNodeEdge.getNeighbourIndex(currIndex);
+                double tentative = nodes[currIndex].getDistanceFromSource() + currentNodeEdge.getLength();
+                if (!nodes[neighbourIndex].isVisited() && minHeap.decreaseKey(neighbourIndex, tentative)) {
+                    nodes[neighbourIndex].setDistanceFromSource(tentative);
+                    parent[neighbourIndex] = currIndex;
                 }
             }
             // all neighbours checked so node visited
-            nodes[currNodeIndex].setVisited(true);
-            if (destinationIndex.containsKey(currNodeIndex)) {
+            nodes[currIndex].setVisit(true);
+            if (destinationIndex.containsKey(currIndex)) {
                 hitCount++;
-                int index = destinationIndex.get(currNodeIndex);
-                distance[index] = nodes[currNodeIndex].getDistanceFromSource();
+                int index = destinationIndex.get(currIndex);
+                distance[index] = nodes[currIndex].getDistanceFromSource();
                 distance[index] += sourceDistance;
-                distance[index] += this.dist.pointToPointDistance(pointList.get(index).getMatchedSegment().x1(), pointList.get(index).getMatchedSegment().y1(), pointList.get(index).lon(), pointList.get(index).lat());
-                path[index] = findPath(currNodeIndex, parent);
+                distance[index] += dist.pointToPointDistance(pointList.get(index).getMatchedSegment().x1(), pointList.get(index).getMatchedSegment().y1(), pointList.get(index).lon(), pointList.get(index).lat());
+                path[index] = findPath(currIndex, parent);
             }
             if (hitCount == distance.length) {
                 return resultOutput(distance, path);
@@ -248,7 +245,7 @@ public class Graph {
             // next node must be with shortest distance
 //            minHeap.buildMinHeap();
 //            currNode = minHeap.extractMin().getIndex();
-            currMinNode = minHeap.extractMin();
+            currIndex = minHeap.extractMin();
 //            if(index!=currNode){
 //                double value1 = nodes[index].getDistanceFromSource();
 //                double value2 = nodes[currNode].getDistanceFromSource();
@@ -295,9 +292,9 @@ public class Graph {
 
     // display result
     public void printResult() {
-        StringBuilder output = new StringBuilder("Number of nodes = " + this.noOfNodes);
-        output.append("\nNumber of edges = ").append(this.noOfEdges);
-        for (int i = 0; i < this.nodes.length; i++) {
+        StringBuilder output = new StringBuilder("Number of nodes = " + noOfNodes);
+        output.append("\nNumber of edges = ").append(noOfEdges);
+        for (int i = 0; i < nodes.length; i++) {
             output.append("\nThe shortest distance from node 0 to node ").append(i).append(" is ").append(nodes[i].getDistanceFromSource());
         }
         System.out.println(output);

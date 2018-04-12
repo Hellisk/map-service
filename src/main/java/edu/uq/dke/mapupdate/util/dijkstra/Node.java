@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Node implements Comparable<Node> {
     private double distanceFromSource = Double.MAX_VALUE;
-    private boolean visited;
+    private boolean visit = false;
     private ArrayList<Edge> edges = new ArrayList<Edge>(); // now we must create edges
     private int index;
 
@@ -17,11 +17,11 @@ public class Node implements Comparable<Node> {
     }
 
     public boolean isVisited() {
-        return visited;
+        return visit;
     }
 
-    public void setVisited(boolean visited) {
-        this.visited = visited;
+    public void setVisit(boolean visited) {
+        this.visit = visited;
     }
 
     public ArrayList<Edge> getEdges() {

@@ -16,9 +16,9 @@ import java.util.Map;
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 0;     // percentage of removed road ways (max = 100)
-    private final static int datasetOption = 0; // 0 = beijing trajectory, 1 = global trajectory
-    private final static boolean workspace = false;  // true = home, false = school
+    public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
+    private final static int datasetOption = 0;     // 0 = beijing trajectory, 1 = global trajectory
+    private final static boolean workspace = true; // true = home, false = school
 
     // parameters for KDE-based map inference
     private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
@@ -28,11 +28,12 @@ public class Main {
     private final static int CANDIDATE_RANGE = 50;
     private final static int GAP_EXTENSION_RANGE = 20;
 
-    private final static String beijingSchoolPath = "C:/data/beijingTrajectory/";    // the root folder of all data
-    private final static String beijingHomePath = "F:/data/beijingTrajectory/";   // the root folder of all data
-    private final static String globalSchoolPath = "C:/data/evaluationTrajectory/";    // the root folder of all data
-    private final static String globalHomePath = "F:/data/evaluationTrajectory/";  // the root folder of all data
-    public final static String ROOT_PATH = datasetOption == 0 ? (workspace ? beijingHomePath : beijingSchoolPath) : (workspace ? globalHomePath : globalSchoolPath);
+    private final static String beijingSchoolPath = "C:/data/beijingTrajectory/";       // the root folder of all data
+    private final static String beijingHomePath = "F:/data/beijingTrajectory/";         // the root folder of all data
+    private final static String globalSchoolPath = "C:/data/evaluationTrajectory/";     // the root folder of all data
+    private final static String globalHomePath = "F:/data/evaluationTrajectory/";       // the root folder of all data
+    public final static String ROOT_PATH = datasetOption == 0 ? (workspace ? beijingHomePath : beijingSchoolPath) : (workspace ?
+            globalHomePath : globalSchoolPath);
     private final static String pythonSchoolPath = "C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/python/";
     private final static String pythonHomePath = "F:/OneDrive/code/github/MapUpdate/src/main/python/";
     private final static String PYTHON_CODE_ROOT_PATH = workspace ? pythonHomePath : pythonSchoolPath;
@@ -80,7 +81,8 @@ public class Main {
             // evaluation: map matching evaluation
             CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
 //            List<TrajectoryMatchResult> initialTrajectoryMatchResults = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
-            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
+                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
             TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
             trajMatchingEvaluation.beijingPrecisionRecallCalc(initialTrajectoryMatchResults, gtMatchingResult);
 

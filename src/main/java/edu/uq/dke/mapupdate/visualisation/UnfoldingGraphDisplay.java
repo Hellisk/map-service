@@ -4,7 +4,7 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
-import de.fhpotsdam.unfolding.providers.MapBox;
+import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import edu.uq.dke.mapupdate.datatype.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.io.CSVMapReader;
@@ -37,7 +37,8 @@ public class UnfoldingGraphDisplay extends PApplet {
     private UnfoldingMap map;
     private Location mapCenter = new Location(39.968346f, 116.419598f);  // location in beijing
     // options = 2 should always be the last one if it has
-    private int options = 12;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5= unmatched trajectory pieces
+    private int options = 125;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
+    // unmatched trajectory pieces
     private String trajID = "-1";
 
     public static void main(String args[]) {
@@ -46,7 +47,7 @@ public class UnfoldingGraphDisplay extends PApplet {
 
     public void settings() {
         size(1440, 900, P2D);
-        this.map = new UnfoldingMap(this, new MapBox.MuseDarkStyleProvider());
+        this.map = new UnfoldingMap(this, new Google.GoogleMapProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
         map.zoomAndPanTo(15, mapCenter);
         map.setPanningRestriction(mapCenter, 50);

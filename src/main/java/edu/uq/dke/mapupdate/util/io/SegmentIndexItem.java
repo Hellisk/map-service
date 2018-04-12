@@ -42,7 +42,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
     }
 
     public Point toPoint() {
-        return new Point(this.x(), this.y());
+        return new Point(x(), y());
     }
 
     public double x() {
@@ -98,7 +98,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
     }
 
     public Point getPoint() {
-        return new Point(this.x(), this.y());
+        return new Point(x(), y());
     }
 //
 //    /**
@@ -108,7 +108,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
 //     * @param dist The point distance measure to use.
 //     */
 //    public double distance(SegmentIndexItem p, PointDistanceFunction dist) {
-//        return dist.distance(p.getPoint(), this.getPoint());
+//        return dist.distance(p.getPoint(), getPoint());
 //    }
 
     /**
@@ -118,7 +118,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
      * @param dist The point distance measure to use.
      */
     public double distance(Point p, SegmentDistanceFunction dist) {
-        return dist.pointToSegmentDistance(p, this.segmentElement);
+        return dist.pointToSegmentDistance(p, segmentElement);
     }
 
     /**
@@ -131,7 +131,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
     @Override
     public List<Point> getCoordinates() {
         ArrayList<Point> list = new ArrayList<>();
-        list.add(this.getPoint());
+        list.add(getPoint());
         return list;
     }
 
@@ -156,13 +156,13 @@ public class SegmentIndexItem extends SimpleSpatialObject {
 //            return false;
 //        }
 //        if (obj instanceof Segment) {
-//            return ((Segment) obj).touches(this.getPoint());
+//            return ((Segment) obj).touches(getPoint());
 //        }
 //        if (obj instanceof Circle) {
 //            return ((Circle) obj).touches(this);
 //        }
 //        for (Segment s : obj.getEdges()) {
-//            if (s.touches(this.getPoint())) {
+//            if (s.touches(getPoint())) {
 //                return true;
 //            }
 //        }
