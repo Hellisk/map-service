@@ -37,8 +37,8 @@ public class Main {
     private final static String globalHomePath = "F:/data/evaluationTrajectory/";       // the root folder of all data
     public final static String ROOT_PATH = datasetOption == 0 ? (workspace ? beijingHomePath : beijingSchoolPath) : (workspace ?
             globalHomePath : globalSchoolPath);
-    private final static String pythonSchoolPath = "C:/Users/uqpchao/OneDrive/code/github/map-update/src/main/python/";
-    private final static String pythonHomePath = "F:/OneDrive/code/github/map-update/src/main/python/";
+    private final static String pythonSchoolPath = "C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/python/";
+    private final static String pythonHomePath = "F:/OneDrive/code/github/MapUpdate/src/main/python/";
     private final static String PYTHON_CODE_ROOT_PATH = workspace ? pythonHomePath : pythonSchoolPath;
 
     // different paths in Beijing dataset
