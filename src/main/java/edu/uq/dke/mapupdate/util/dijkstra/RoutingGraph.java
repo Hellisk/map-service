@@ -11,7 +11,7 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Segment;
 
 import java.util.*;
 
-public class Graph {
+public class RoutingGraph {
     private HashMap<Integer, String> index2EdgeID = new HashMap<>();    // the mapping between the mini edge id and its corresponding roadway id
     private HashMap<Segment, Integer> roadSegment2Index = new HashMap<>();  // find the mini road index using the coordinates and road
     // way id
@@ -23,7 +23,7 @@ public class Graph {
     private int noOfEdges = 0;
     private PointDistanceFunction dist = new GreatCircleDistanceFunction();
 
-    public Graph(RoadNetworkGraph roadNetwork) {
+    public RoutingGraph(RoadNetworkGraph roadNetwork) {
         List<Edge> edgeList = new ArrayList<>();
         // insert the road node into node list
         HashMap<String, Integer> oldNodeIDMapping = new HashMap<>();
@@ -90,6 +90,7 @@ public class Graph {
         System.out.println("Shortest path graph generated. Total nodes:" + noOfNodes + ", total edges:" + noOfEdges);
     }
 
+    @SuppressWarnings("unchecked")
     // Calculate all shortest distance from given node
     public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
         double[] distance = new double[pointList.size()];   // the distance to every destination

@@ -51,7 +51,10 @@ public class CSVMapWriter implements SpatialInterface {
         // write road way file
         BufferedWriter bwEdges = new BufferedWriter(new FileWriter(csvMapPath + "edges_" + percentage + ".txt"));
         for (RoadWay w : roadGraph.getWays()) {
-            bwEdges.write(w.getId());
+            bwEdges.write(w.getId() + "|");
+            if (w.isNewRoad())
+                bwEdges.write(w.getConfidenceScore() + "," + w.getInfluenceScore());
+            else bwEdges.write("null");
             for (RoadNode n : w.getNodes()) {
                 bwEdges.write("|" + n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()));
             }

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A way in the road network graph (OSM Way).
  *
- * @author uqdalves
+ * @author uqpchao, uqdalves
  */
 @SuppressWarnings("serial")
 public class RoadWay extends RoadNetworkPrimitive {
@@ -39,6 +39,20 @@ public class RoadWay extends RoadNetworkPrimitive {
      * The spatially center of the road way. The center is the middle point between two end points
      */
     private Point virtualCenter;
+
+    /**
+     * The weights of the road used for map-trajectory co-optimization
+     * The confidence score indicates the confidence of the map inference
+     * The influence score indicates the influence of the road to the map-matching results
+     * Both scores are zero if it is not a new road
+     */
+    private double confidenceScore = 0;
+    private double influenceScore = 0;
+
+    /**
+     * The new road indicator
+     */
+    private boolean isNewRoad = false;
 
     /**
      * Creates a new empty road way.
@@ -344,5 +358,29 @@ public class RoadWay extends RoadNetworkPrimitive {
                 this.distance += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
             }
         }
+    }
+
+    public double getConfidenceScore() {
+        return confidenceScore;
+    }
+
+    public void setConfidenceScore(double confidenceScore) {
+        this.confidenceScore = confidenceScore;
+    }
+
+    public double getInfluenceScore() {
+        return influenceScore;
+    }
+
+    public void setInfluenceScore(double influenceScore) {
+        this.influenceScore = influenceScore;
+    }
+
+    public boolean isNewRoad() {
+        return isNewRoad;
+    }
+
+    public void setNewRoad(boolean newRoad) {
+        isNewRoad = newRoad;
     }
 }

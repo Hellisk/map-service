@@ -1,6 +1,5 @@
 package edu.uq.dke.mapupdate.util.io;
 
-import edu.uq.dke.mapupdate.util.object.datastructure.PointNodePair;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
@@ -18,7 +17,7 @@ import java.util.Objects;
  * Created by uqpchao on 23/05/2017.
  */
 public class CSVTrajectoryWriter {
-    String outputFolder;
+    private String outputFolder;
 
     public CSVTrajectoryWriter(String outputPath) {
         this.outputFolder = outputPath;
@@ -29,26 +28,26 @@ public class CSVTrajectoryWriter {
      *
      * @param matchingList matching result
      */
-    public void matchedTrajectoryWriter(List<TrajectoryMatchResult> matchingList) {
+    public void matchedTrajectoryWriter(List<TrajectoryMatchResult> matchingList, int rankLength) throws IOException {
         File matchedResultFolder = new File(this.outputFolder + "matchedResult/");
         File roadIDListFolder = new File(this.outputFolder + "matchedRoadID/");
         int tripCount = 0;
-        int pointCount = 1;
+        int pointCount = 0;
         if (!matchedResultFolder.exists()) {
-            matchedResultFolder.mkdirs();
+            if (!matchedResultFolder.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
         if (!roadIDListFolder.exists()) {
-            roadIDListFolder.mkdirs();
+            if (!roadIDListFolder.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
         if (matchedResultFolder.isDirectory() && roadIDListFolder.isDirectory()) {
             if (matchedResultFolder.listFiles() != null) {
                 for (File f : Objects.requireNonNull(matchedResultFolder.listFiles())) {
-                    f.delete();
+                    if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
             if (roadIDListFolder.listFiles() != null) {
                 for (File f : Objects.requireNonNull(roadIDListFolder.listFiles())) {
-                    f.delete();
+                    if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
             DecimalFormat df = new DecimalFormat(".00000");
@@ -56,17 +55,36 @@ public class CSVTrajectoryWriter {
                 try {
                     BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedResult/matchedtrip_" + w.getTrajID() + ".txt"));
                     BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedRoadID/matchedtripID_" + w.getTrajID() + ".txt"));
-                    for (PointNodePair p : w.getMatchingResult()) {
-                        if (p.getMatchingPoint() != null) {
-                            bwMatchedTrajectory.write(df.format(p.getMatchingPoint().lon()) + " " + df.format(p.getMatchingPoint().lat()) + " " + p.getPoint().time() + " " + p.getMatchingPoint().getRoadID() + "\n");
-                        } else {
-                            // no point matched, use original point instead
-                            bwMatchedTrajectory.write(df.format(p.getPoint().x()) + " " + df.format(p.getPoint().y()) + " " + p.getPoint().time() + " " + 0 + "\n");
+
+                    // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
+                    // roadID|...)
+                    for (int i = 0; i < w.getTrajLength(); i++) {
+
+                        bwMatchedTrajectory.write(df.format(w.getTrajPoint(i).x()) + " " + df.format(w.getTrajPoint(i).y()) + w
+                                .getTrajPoint(i).time());
+                        int maxRank = w.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
+                        for (int j = 0; j < rankLength; j++) {
+                            if (j < maxRank && w.getMatchingResult(j).get(i) != null) {
+                                bwMatchedTrajectory.write("|" + df.format(w.getMatchingResult(j).get(i).lon()) + "," + df.format(w
+                                        .getMatchingResult(j).get(i).lat()) + "," + w.getMatchingResult(j).get(i).getRoadID());
+                            } else {
+                                // no point matched, use null instead
+                                bwMatchedTrajectory.write("|null");
+                            }
                         }
+                        bwMatchedTrajectory.write("\n");
+
                         pointCount++;
                     }
-                    for (String s : w.getMatchWayList()) {
-                        roadIDFromTrajectory.write(s + "\n");
+
+                    // start writing road way list, each line refers to one rank, format(roadID,roadID,...|probability)
+                    for (int i = 0; i < rankLength; i++) {
+                        List<String> matchWayList = w.getMatchWayList(i);
+                        for (int j = 0; j < matchWayList.size() - 1; j++) {
+                            roadIDFromTrajectory.write(matchWayList.get(j) + ",");
+                        }
+                        roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
+                        roadIDFromTrajectory.write(w.getProbability(i) + "");
                     }
                     tripCount += 1;
                     bwMatchedTrajectory.close();
@@ -76,7 +94,7 @@ public class CSVTrajectoryWriter {
                 }
             }
         } else System.err.println("Matched trajectory output path is incorrect:" + this.outputFolder);
-        System.out.println("Matched road ways written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
+        System.out.println("Matched road ways written, total files:" + tripCount + ", total trajectory points:" + pointCount);
     }
 
     /**
@@ -84,26 +102,26 @@ public class CSVTrajectoryWriter {
      *
      * @param trajectoryList output trajectories
      */
-    public void trajectoryWriter(List<Trajectory> trajectoryList) {
+    public void trajectoryWriter(List<Trajectory> trajectoryList) throws IOException {
         File outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/");
         File nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/");
         int tripCount = 0;
         int pointCount = 1;
         if (!outputTrajectoryFolder.exists()) {
-            outputTrajectoryFolder.mkdirs();
+            if (!outputTrajectoryFolder.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
         if (!nextInputUnmatchedTrajectoryFolder.exists()) {
-            nextInputUnmatchedTrajectoryFolder.mkdirs();
+            if (!nextInputUnmatchedTrajectoryFolder.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
         if (outputTrajectoryFolder.isDirectory() && nextInputUnmatchedTrajectoryFolder.isDirectory()) {
             if (outputTrajectoryFolder.listFiles() != null) {
-                for (File f : outputTrajectoryFolder.listFiles()) {
-                    f.delete();
+                for (File f : Objects.requireNonNull(outputTrajectoryFolder.listFiles())) {
+                    if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
             if (nextInputUnmatchedTrajectoryFolder.listFiles() != null) {
-                for (File f : nextInputUnmatchedTrajectoryFolder.listFiles()) {
-                    f.delete();
+                for (File f : Objects.requireNonNull(nextInputUnmatchedTrajectoryFolder.listFiles())) {
+                    if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
             for (Trajectory w : trajectoryList) {

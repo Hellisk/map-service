@@ -8,6 +8,8 @@ import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import edu.uq.dke.mapupdate.util.io.CSVMapReader;
 import edu.uq.dke.mapupdate.util.io.CSVTrajectoryReader;
+import edu.uq.dke.mapupdate.util.io.RawFileOperation;
+import edu.uq.dke.mapupdate.util.io.RawMapReader;
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
@@ -31,19 +33,15 @@ import static edu.uq.dke.mapupdate.Main.*;
 public class UnfoldingGraphDisplay extends PApplet {
 
     private UnfoldingMap map;
-    private int options = 2346;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
-    // unmatched trajectory pieces, 6= ground truth matching result
+    private int options = 7;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
+    // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison
     private Set<String> trajectoryID = new HashSet<>();
 
-    public static void main(String args[]) {
-
-        PApplet.main(new String[]{"edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay"});
-    }
-
     public void settings() {
-        size(1440, 900, P2D);
+        size(1440, 900, P3D);
         this.map = new UnfoldingMap(this, new Google.GoogleSimplifiedProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
+
         Map<String, RoadWay> findWayByID = new HashMap<>();
 
         try {
@@ -60,8 +58,8 @@ public class UnfoldingGraphDisplay extends PApplet {
             map.setPanningRestriction(mapCenter, 50);
 
             Random random = new Random();
-            for (int i = 0; i < trajectoryCount / 100; i++) {
-                trajectoryID.add(random.nextInt(trajectoryCount) + "");
+            for (int i = 0; i < TRAJECTORY_COUNT / 100; i++) {
+                trajectoryID.add(random.nextInt(TRAJECTORY_COUNT) + "");
             }
 
             while (options != 0) {
@@ -108,8 +106,12 @@ public class UnfoldingGraphDisplay extends PApplet {
                     break;
                     // raw trajectory
                     case 3: {
-                        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-                        List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(ROOT_PATH + "input/trajectory/");
+//                        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
+//                        List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(ROOT_PATH + "input/trajectory/");
+                        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, false,
+                                MAX_TIME_INTERVAL);
+                        List<Trajectory> rawTrajectoryList = trajFilter.RawTrajectoryParser(GT_MAP, RAW_TRAJECTORY, INPUT_TRAJECTORY,
+                                GT_MATCHING_RESULT);
                         List<Marker> linesMarkers = new ArrayList<>();
                         for (Trajectory t : rawTrajectoryList) {
                             if (trajectoryID.contains(t.getId())) {
@@ -120,7 +122,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 }
                                 SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                                 marker.setColor(color(233, 57, 35));  // color red
-                                marker.setStrokeWeight(4);
+                                marker.setStrokeWeight(2);
                                 linesMarkers.add(marker);
                             }
                         }
@@ -130,11 +132,12 @@ public class UnfoldingGraphDisplay extends PApplet {
                     // matching result
                     case 4: {
                         CSVTrajectoryReader matchingResultReader = new CSVTrajectoryReader();
-                        List<TrajectoryMatchResult> matchedTrajectoryList = matchingResultReader.readMatchedResult(ROOT_PATH + "output/");
+                        List<TrajectoryMatchResult> matchedTrajectoryList = matchingResultReader.readMatchedResult(ROOT_PATH + "output/",
+                                RANK_LENGTH);
                         List<Marker> linesMarkers = new ArrayList<>();
                         for (TrajectoryMatchResult t : matchedTrajectoryList) {
                             if (trajectoryID.contains(t.getTrajID())) {
-                                for (String s : t.getMatchWayList()) {
+                                for (String s : t.getBestMatchWayList()) {
                                     List<Location> locationList = new ArrayList<>();
                                     for (RoadNode n : findWayByID.get(s).getNodes()) {
                                         Location pointLocation = new Location(n.lat(), n.lon());
@@ -203,6 +206,39 @@ public class UnfoldingGraphDisplay extends PApplet {
                         map.addMarkers(linesMarkers);
                         break;
                     }
+                    // map comparison
+                    case 7: {
+                        RawMapReader newMapReader = new RawMapReader(RAW_MAP, BOUNDING_BOX);
+                        RoadNetworkGraph newMap = newMapReader.readNewBeijingMap();
+                        RawMapReader oldMapReader = new RawMapReader(RAW_MAP, BOUNDING_BOX);
+                        RoadNetworkGraph oldMap = oldMapReader.readOldBeijingMap();
+
+                        List<Marker> linesMarkers = new ArrayList<>();
+                        for (RoadWay w : newMap.getWays()) {
+                            List<Location> locationList = new ArrayList<>();
+                            for (RoadNode n : w.getNodes()) {
+                                Location pointLocation = new Location(n.lat(), n.lon());
+                                locationList.add(pointLocation);
+                            }
+                            SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                            marker.setColor(color(255, 102, 178));  // color pink
+                            marker.setStrokeWeight(4);
+                            linesMarkers.add(marker);
+                        }
+                        for (RoadWay w : oldMap.getWays()) {
+                            List<Location> locationList = new ArrayList<>();
+                            for (RoadNode n : w.getNodes()) {
+                                Location pointLocation = new Location(n.lat(), n.lon());
+                                locationList.add(pointLocation);
+                            }
+                            SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                            marker.setColor(color(102, 255, 178));  // color green
+                            marker.setStrokeWeight(4);
+                            linesMarkers.add(marker);
+                        }
+                        map.addMarkers(linesMarkers);
+                    }
+                    break;
                     default:
                         System.out.println("Error display option:" + this.options);
                 }

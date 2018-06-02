@@ -75,14 +75,14 @@ public class CSVMapReader implements SpatialInterface {
             List<RoadNode> miniNode = new ArrayList<>();
             String[] edgeInfo = line.split("\\|");
             // the road way record is complete and the endpoints exist
-            if (!edgeInfo[0].contains(",") && node2Index.containsKey(edgeInfo[1].split(",")[0]) && node2Index.containsKey
+            if (!edgeInfo[0].contains(",") && node2Index.containsKey(edgeInfo[2].split(",")[0]) && node2Index.containsKey
                     (edgeInfo[edgeInfo.length - 1].split(",")[0])) {
                 boolean isCompleteRoad = true;
-                for (int i = 1; i < edgeInfo.length; i++) {
+                for (int i = 2; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
                         RoadNode newNode;
-                        if (i == 1) {
+                        if (i == 2) {
                             newNode = nodes.get(node2Index.get(roadWayPoint[0]));
                         } else if (i == edgeInfo.length - 1) {
                             newNode = nodes.get(node2Index.get(roadWayPoint[0]));
@@ -114,6 +114,12 @@ public class CSVMapReader implements SpatialInterface {
 
                 if (isCompleteRoad) {
                     newWay.setId(edgeInfo[0]);
+                    if (edgeInfo[1].contains(",")) {
+                        String[] scoreInfo = edgeInfo[1].split(",");
+                        newWay.setNewRoad(true);
+                        newWay.setConfidenceScore(Double.parseDouble(scoreInfo[0]));
+                        newWay.setInfluenceScore(Double.parseDouble(scoreInfo[1]));
+                    }
                     newWay.setNodes(miniNode);
                     ways.add(newWay);
                 }

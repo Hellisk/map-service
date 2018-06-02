@@ -81,7 +81,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
     private Collection<S> prevCandidates;
 
-
     /**
      * For each state s_t of the current time step t, message.get(s_t) contains the log
      * probability of the most likely sequence ending in state s_t with given observations
@@ -102,7 +101,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * Need to construct a new instance for each sequence of observations.
      * Does not keep the message history.
      */
-    public ViterbiAlgorithm() {
+    ViterbiAlgorithm() {
         this(false);
     }
 
@@ -112,13 +111,13 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * @param keepMessageHistory Whether to store intermediate forward messages
      *                           (probabilities of intermediate most likely paths) for debugging.
      */
-    public ViterbiAlgorithm(boolean keepMessageHistory) {
+    private ViterbiAlgorithm(boolean keepMessageHistory) {
         if (keepMessageHistory) {
             messageHistory = new ArrayList<>();
         }
     }
 
-    public void setLastExtendedStates(Map<S, ExtendedState<S, O, D>> lastExtendedStates) {
+    void setLastExtendedStates(Map<S, ExtendedState<S, O, D>> lastExtendedStates) {
         this.lastExtendedStates = lastExtendedStates;
     }
 
@@ -126,15 +125,15 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         return prevCandidates;
     }
 
-    public void setPrevCandidates(Collection<S> prevCandidates) {
+    void setPrevCandidates(Collection<S> prevCandidates) {
         this.prevCandidates = prevCandidates;
     }
 
-    public Map<S, Double> getMessage() {
+    Map<S, Double> getMessage() {
         return message;
     }
 
-    public void setMessage(Map<S, Double> message) {
+    void setMessage(Map<S, Double> message) {
         this.message = message;
     }
 
@@ -162,8 +161,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      *                               {@link #startWithInitialObservation(Object, Collection, Map)}
      *                               has already been called
      */
-    public void startWithInitialStateProbabilities(Collection<S> initialStates,
-                                                   Map<S, Double> initialLogProbabilities) {
+    private void startWithInitialStateProbabilities(Collection<S> initialStates,
+                                                    Map<S, Double> initialLogProbabilities) {
         initializeStateProbabilities(null, initialStates, initialLogProbabilities);
     }
 
@@ -179,8 +178,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * @throws IllegalStateException if this method or
      *                               {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
      */
-    public void startWithInitialObservation(O observation, Collection<S> candidates,
-                                            Map<S, Double> emissionLogProbabilities) {
+    void startWithInitialObservation(O observation, Collection<S> candidates,
+                                     Map<S, Double> emissionLogProbabilities) {
         initializeStateProbabilities(observation, candidates, emissionLogProbabilities);
     }
 
@@ -199,10 +198,10 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      *                               {@link #startWithInitialObservation(Object, Collection, Map)}
      *                               has not been called before or if this method is called after an HMM break has occurred
      */
-    public void nextStep(O observation, Collection<S> candidates,
-                         Map<S, Double> emissionLogProbabilities,
-                         Map<Transition<S>, Double> transitionLogProbabilities,
-                         Map<Transition<S>, D> transitionDescriptors) {
+    void nextStep(O observation, Collection<S> candidates,
+                  Map<S, Double> emissionLogProbabilities,
+                  Map<Transition<S>, Double> transitionLogProbabilities,
+                  Map<Transition<S>, D> transitionDescriptors) {
         if (message == null) {
             throw new IllegalStateException(
                     "startWithInitialStateProbabilities() or startWithInitialObservation() "
@@ -228,7 +227,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         prevCandidates = new ArrayList<>(candidates); // Defensive copy.
     }
 
-    public void setBroken(boolean broken) {
+    void setBroken(boolean broken) {
         this.isBroken = broken;
     }
 
@@ -251,7 +250,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
      * o_t is the observation at time step t and T is the number of time steps.
      */
-    public List<SequenceState<S, O, D>> computeMostLikelySequence() {
+    List<SequenceState<S, O, D>> computeMostLikelySequence() {
         if (message == null) {
             // Return empty most likely sequence if there are no time steps or if initial
             // observations caused an HMM break.
@@ -266,7 +265,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * <p>
      * An HMM break means that the probability of all states equals zero.
      */
-    public boolean isBroken() {
+    boolean isBroken() {
         return isBroken;
     }
 
@@ -287,10 +286,10 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         sb.append("Message history with log probabilies\n\n");
         int i = 0;
         for (Map<S, Double> message : messageHistory) {
-            sb.append("Time step " + i + "\n");
+            sb.append("Time step ").append(i).append("\n");
             i++;
             for (S state : message.keySet()) {
-                sb.append(state + ": " + message.get(state) + "\n");
+                sb.append(state).append(": ").append(message.get(state)).append("\n");
             }
             sb.append("\n");
         }
@@ -335,8 +334,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
         isBroken = hmmBreak(initialMessage);
         if (isBroken) {
-            System.out.println("The initial state is broken.");
-            // TODO deal with the broken initial state
+            System.out.println("ERROR! The initial state is broken.");
             return;
         }
 

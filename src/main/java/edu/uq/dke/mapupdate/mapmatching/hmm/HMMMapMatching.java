@@ -1,6 +1,6 @@
 package edu.uq.dke.mapupdate.mapmatching.hmm;
 
-import edu.uq.dke.mapupdate.util.dijkstra.Graph;
+import edu.uq.dke.mapupdate.util.dijkstra.RoutingGraph;
 import edu.uq.dke.mapupdate.util.function.GreatCircleDistanceFunction;
 import edu.uq.dke.mapupdate.util.index.grid.Grid;
 import edu.uq.dke.mapupdate.util.index.grid.GridPartition;
@@ -49,14 +49,18 @@ public class HMMMapMatching {
     private final double candidateRange;
 
     /**
-     * unmatched trajectory threshold
+     * The distance threshold for an unmatched point, the unmatched point should have no candidate within this distance
      */
     private final double gapExtensionRange;
 
     /**
+     * The k top-ranked matching result sequence that will be stored
+     */
+    private final int rankLength;
+    /**
      * The graph for Dijkstra shortest distance calculation
      */
-    private final Graph shortestPathGraph;
+    private final RoutingGraph shortestPathGraph;
 
     /**
      * The road network graph for candidate generation
@@ -105,24 +109,25 @@ public class HMMMapMatching {
      * @param distFunc       The point-to-node distance function to use.
      * @param candidateRange The distance threshold for the candidate points.
      */
-    HMMMapMatching(GreatCircleDistanceFunction distFunc, double candidateRange, double gapExtensionRange, RoadNetworkGraph roadNetworkGraph) {
+    HMMMapMatching(GreatCircleDistanceFunction distFunc, double candidateRange, double gapExtensionRange, int rankLength, RoadNetworkGraph
+            roadNetworkGraph) {
         this.distanceFunction = distFunc;
         this.candidateRange = candidateRange;
         this.limitedLength = (2 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can
         // escape the grid search
-        this.shortestPathGraph = new Graph(roadNetworkGraph);
+        this.shortestPathGraph = new RoutingGraph(roadNetworkGraph);
         this.gapExtensionRange = gapExtensionRange;
+        this.rankLength = rankLength;
         buildGridIndex(roadNetworkGraph);   // build grid index
         this.roadNetworkGraph = roadNetworkGraph;
     }
 
     TrajectoryMatchResult doMatching(Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         computeCandidatesFromIndex(trajectory);
 //        computeCandidates(trajectory);
 //        System.out.println("Time cost on candidate generation is: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
         boolean brokenTraj = false;
         Set<Integer> currBreakIndex = new LinkedHashSet<>();    // points that will be put into the unmatched trajectory
         List<Integer> breakPoints = new ArrayList<>();  // points that break the connectivity
@@ -135,17 +140,17 @@ public class HMMMapMatching {
         Map<Integer, Map<PointMatch, Double>> messageList = new HashMap<>();
 //        List<Collection<PointMatch>> candidateList = new ArrayList<>();
 //        List<Map<PointMatch, ViterbiAlgorithm.ExtendedState<PointMatch, STPoint, RoadPath>>> extendedStates = new ArrayList<>();
+//        long endTime = System.currentTimeMillis();
+//        int type = 0;
         // check if every point has candidates
         // build the lattice
-        long endTime = System.currentTimeMillis();
-//        int type = 0;
         for (int i = 0; i < trajectory.size(); i++) {
 //            System.out.println("Last point spent:" + (System.currentTimeMillis() - endTime) + "ms, which was " + type);
-            endTime = System.currentTimeMillis();
+//            endTime = System.currentTimeMillis();
             Collection<PointMatch> candidates;
             TimeStep<PointMatch, STPoint, RoadPath> timeStep;
             STPoint gpsPoint = trajectory.get(i);
-            if (candidatesMap.get(gpsPoint).size() == 0) {
+            if (candidatesMap.get(gpsPoint).size() == 0) {  // no candidate for the current point
                 timeStep = new TimeStep<>(gpsPoint, new ArrayList<>());
             } else {
                 candidates = candidatesMap.get(gpsPoint);
@@ -584,7 +589,7 @@ public class HMMMapMatching {
      * @return A list of Point-to-Node pairs with distance.
      */
     private TrajectoryMatchResult getResult(Trajectory traj, List<SequenceState<PointMatch, STPoint, RoadPath>> roadPositions) {
-        List<PointNodePair> matchPairs = new ArrayList<>();
+        List<PointMatch> matchPairs = new ArrayList<>();
         Set<String> path = new LinkedHashSet<>();
         double distance;
         for (SequenceState<PointMatch, STPoint, RoadPath> sequence : roadPositions) {
@@ -593,18 +598,17 @@ public class HMMMapMatching {
             if (pointMatch != null) {
                 distance = getDistance(point.x(), point.y(), pointMatch.lon(), pointMatch.lat());
                 // make sure it returns a copy of the objects
-                matchPairs.add(new PointNodePair(point.clone(), pointMatch.clone(), distance));
+                matchPairs.add(pointMatch);
             } else {
-                System.out.println("ERROR! Matching result should not have NULL value");
-                matchPairs.add(new PointNodePair(point.clone(), null, Double.MAX_VALUE));
+                throw new NullPointerException("ERROR! Matching result should not have NULL value");
             }
             if (sequence.transitionDescriptor != null) {
                 path.addAll(sequence.transitionDescriptor.passingRoadID);
             }
         }
-        TrajectoryMatchResult result = new TrajectoryMatchResult(traj.getId());
-        result.setMatchingResult(matchPairs);
-        result.setMatchWayList(new ArrayList<>(path));
+        TrajectoryMatchResult result = new TrajectoryMatchResult(traj.getId(), rankLength);
+        result.setMatchingResult(matchPairs, 0);
+        result.setMatchWayList(new ArrayList<>(path), 0);
         return result;
     }
 

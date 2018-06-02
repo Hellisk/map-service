@@ -27,7 +27,7 @@ public class TrajMatchingEvaluation {
         int totalMatchingResultCount = 0;    // number of road ways that are matched incorrectly
 
         for (TrajectoryMatchResult r : matchedResult) {
-            List<String> matchRoadIDList = r.getMatchWayList();
+            List<String> matchRoadIDList = r.getBestMatchWayList();
             // insert all unique road way ID into the list
             totalMatchingResultCount += matchRoadIDList.size();
             int hitCount = 0;
@@ -62,7 +62,7 @@ public class TrajMatchingEvaluation {
         int totalMatchingResultCount = 0;    // number of road ways that are matched incorrectly
 
         for (TrajectoryMatchResult r : matchedResult) {
-            List<String> matchRoadIDList = r.getMatchWayList();
+            List<String> matchRoadIDList = r.getBestMatchWayList();
             // insert all unique road way ID into the list
             totalMatchingResultCount += matchRoadIDList.size();
             int hitCount = 0;

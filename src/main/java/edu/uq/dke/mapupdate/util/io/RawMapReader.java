@@ -11,39 +11,30 @@ import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * Created by uqpchao on 3/07/2017.
  */
-public class SHPMapReader {
+public class RawMapReader {
     private final RoadNetworkGraph roadGraph;
-    private final String shpVerticesPath;
-    private final String shpEdgesPath;
+    private final String generalPath;   // general path for old Beijing road map
 
-
-    public SHPMapReader(final String shpVertexPath, final String shpEdgePath) {
+    public RawMapReader(final String generalPath, final double[] boundingBox) {
         this.roadGraph = new RoadNetworkGraph();
-        this.shpVerticesPath = shpVertexPath;
-        this.shpEdgesPath = shpEdgePath;
-
-//        // preset bounds to reduce the map size, si huan
-//        this.roadGraph.setBoundingBox(116.20, 116.57, 39.76, 40.03);
-//
-        // preset bounds to reduce the map size, er huan
-        this.roadGraph.setBoundingBox(116.35, 116.44, 39.895, 39.95);
-//
-//        // preset bounds to reduce the map size, smaller than er huan
-//        this.roadGraph.setBoundingBox(116.405423, 116.433773, 39.957972, 39.978720);
+        this.generalPath = generalPath;
+        if (boundingBox.length == 4)
+            this.roadGraph.setBoundingBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
     }
 
     /**
@@ -53,11 +44,11 @@ public class SHPMapReader {
      * Nodes, Ways and Relations in the shape file.
      * @throws IOException File read failure
      */
-    public RoadNetworkGraph readSHP() throws IOException {
+    public RoadNetworkGraph readNewBeijingMap() throws IOException {
 //        HashMap<String, String> coNodeMapping = new HashMap<>();  // map the co-node in an intersection to its main node
 
         // read vertices
-        File vertexFile = new File(shpVerticesPath);
+        File vertexFile = new File(generalPath + "Nbeijing_point.shp");
         FileDataStore dataStoreVertex = FileDataStoreFinder.getDataStore(vertexFile);
         String typeName = dataStoreVertex.getTypeNames()[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> vertexSource = dataStoreVertex
@@ -65,12 +56,15 @@ public class SHPMapReader {
         Filter filter = Filter.INCLUDE; // ECQL.toFilter("BBOX(THE_GEOM, 10,20,30,40)")
         FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection = vertexSource.getFeatures(filter);
 
-//        // set boundary
-//        ReferencedEnvelope bounds = vertexCollection.getBounds();
-//        this.roadGraph.setMinLon(bounds.getMinX());
-//        this.roadGraph.setMinLat(bounds.getMinY());
-//        this.roadGraph.setMaxLon(bounds.getMaxX());
-//        this.roadGraph.setMaxLat(bounds.getMaxY());
+        // set boundary
+        if (this.roadGraph.getMinLat() == -Double.MAX_VALUE && this.roadGraph.getMaxLat() == Double.MAX_VALUE && this.roadGraph.getMinLon()
+                == -Double.MAX_VALUE && this.roadGraph.getMaxLon() == Double.MAX_VALUE) {
+            ReferencedEnvelope bounds = vertexCollection.getBounds();
+            this.roadGraph.setMinLon(bounds.getMinX());
+            this.roadGraph.setMinLat(bounds.getMinY());
+            this.roadGraph.setMaxLon(bounds.getMaxX());
+            this.roadGraph.setMaxLat(bounds.getMaxY());
+        }
 
         List<RoadNode> roadNodeList = new ArrayList<>();
         Map<String, RoadNode> id2Node = new HashMap<>();
@@ -97,7 +91,7 @@ public class SHPMapReader {
         dataStoreVertex.dispose();
 
         // read edges
-        File edgeFile = new File(shpEdgesPath);
+        File edgeFile = new File(generalPath + "Rbeijing_polyline.shp");
         FileDataStore dataStoreEdge = FileDataStoreFinder.getDataStore(edgeFile);
         String edgeTypeName = dataStoreEdge.getTypeNames()[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> edgeSource = dataStoreEdge
@@ -164,10 +158,74 @@ public class SHPMapReader {
             }
         }
         this.roadGraph.addWays(roadWayList);
-        System.out.println("Raw map read finish, total intersections:" + roadNodeCount + ", total road node points:" + roadWayPointID);
+        System.out.println("Raw map read finish, total intersections:" + roadNodeCount + ", total road node points:" + roadWayPointID +
+                ", total road ways: " + roadWayList.size());
         dataStoreEdge.dispose();
 
         return this.roadGraph;
+    }
+
+    public RoadNetworkGraph readOldBeijingMap() throws IOException {
+        List<RoadNode> nodes = new ArrayList<>();
+        List<RoadWay> ways = new ArrayList<>();
+        Map<String, String> nodeID2Coordination = new HashMap<>();       // node ID and its coordination, format: lon_lat
+        // read road nodes
+        BufferedReader mapFileReader = new BufferedReader(new FileReader(generalPath + "Oldbeijing_map.txt"));
+        int nodeSize = Integer.parseInt(mapFileReader.readLine());      // the total number of nodes in file
+        DecimalFormat df = new DecimalFormat(".00000");
+        for (int i = 0; i < nodeSize; i++) {
+            String[] nodeInfo = mapFileReader.readLine().split("\t");
+            if (nodeInfo.length == 3) {
+                if (isInside(Double.parseDouble(nodeInfo[2]), Double.parseDouble(nodeInfo[1]), roadGraph)) {
+                    RoadNode newNode = new RoadNode(nodeInfo[0], Double.parseDouble(df.format(Double.parseDouble(nodeInfo[2]))), Double
+                            .parseDouble
+                                    (df.format(Double.parseDouble(nodeInfo[1]))));
+                    nodeID2Coordination.put(nodeInfo[0], df.format(Double.parseDouble(nodeInfo[2])) + "_" + df.format(Double.parseDouble
+                            (nodeInfo[1])));
+                    nodes.add(newNode);
+                }
+            } else
+                throw new IOException("ERROR! read old beijing node failed: " + nodeInfo[0]);
+        }
+        String line = mapFileReader.readLine();
+        int edgeSize;       // the total number of edges in file
+        int miniNodeCount = 0;  // unique number for each intermediate node
+        if (line.split("\t").length == 1)
+            edgeSize = Integer.parseInt(line);
+        else
+            throw new IOException("ERROR! read old beijing edge failed: " + line);
+        for (int i = 0; i < edgeSize; i++) {
+            String lineOne = mapFileReader.readLine();
+            String lineTwo = mapFileReader.readLine();
+            String[] nodeInfo = lineOne.split("\t");
+            if (nodeID2Coordination.containsKey(nodeInfo[0]) && nodeID2Coordination.containsKey(nodeInfo[1])) {
+                List<RoadNode> nodeList = new ArrayList<>();
+                String[] startPoint = nodeID2Coordination.get(nodeInfo[0]).split("_");
+                String[] endPoint = nodeID2Coordination.get(nodeInfo[1]).split("_");
+                nodeList.add(new RoadNode(nodeInfo[0], Double.parseDouble(startPoint[0]), Double.parseDouble(startPoint[1])));
+                String[] intermediateNodes = lineTwo.split(",");
+                for (String p : intermediateNodes) {
+                    String[] interNodeInfo = p.split(" ");
+                    if (interNodeInfo.length < 2)
+                        System.out.println(p);
+                    nodeList.add(new RoadNode(miniNodeCount + "-", Double.parseDouble(df.format(Double.parseDouble(interNodeInfo[1]))),
+                            Double.parseDouble
+                                    (df.format(Double.parseDouble(interNodeInfo[0])))));
+                    miniNodeCount++;
+                }
+                nodeList.add(new RoadNode(nodeInfo[1], Double.parseDouble(endPoint[0]), Double.parseDouble(endPoint[1])));
+                RoadWay newWay = new RoadWay(i + "");
+                newWay.addNodes(nodeList);
+                ways.add(newWay);
+            }
+
+        }
+        this.roadGraph.addNodes(nodes);
+        this.roadGraph.addWays(ways);
+        mapFileReader.close();
+        System.out.println("Old Beijing map read finish, total intersections: " + nodes.size() + ", total road node points:" +
+                miniNodeCount + ", total road ways: " + ways.size());
+        return roadGraph;
     }
 
     private boolean isInside(double pointX, double pointY, RoadNetworkGraph roadGraph) {

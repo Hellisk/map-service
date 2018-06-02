@@ -15,7 +15,7 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = False  # True = home, False = school
+dataset_option = True  # True = home, False = school
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option is True else beijing_school_path
@@ -53,16 +53,16 @@ class KDE:
 
         for trip in all_trips:
             for location in trip.locations:
-                if (location.latitude < min_lat):
+                if location.latitude < min_lat:
                     min_lat = location.latitude
 
-                if (location.latitude > max_lat):
+                if location.latitude > max_lat:
                     max_lat = location.latitude
 
-                if (location.longitude < min_lon):
+                if location.longitude < min_lon:
                     min_lon = location.longitude
 
-                if (location.longitude > max_lon):
+                if location.longitude > max_lon:
                     max_lon = location.longitude
 
         print "done."

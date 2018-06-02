@@ -7,6 +7,10 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Stream;
 
 /**
  * Created by uqpchao on 22/05/2017.
@@ -14,18 +18,20 @@ import java.util.List;
 public class NewsonHMM2009 {
     private int candidateRange = 50;    // in meter
     private int gapExtensionRange = 20; // in meter
+    private int rankLength = 1; // in meter
 
     private List<Trajectory> unmatchedTraj = new ArrayList<>();
 
-    public NewsonHMM2009(int candidateRange, int unmatchedTrajThreshold) {
+    public NewsonHMM2009(int candidateRange, int unmatchedTrajThreshold, int rankLength) {
         this.candidateRange = candidateRange;
         this.gapExtensionRange = unmatchedTrajThreshold;
+        this.rankLength = rankLength;
     }
 
     public List<TrajectoryMatchResult> trajectoryListMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
-        HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, currMap);
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
         // sequential test
         List<TrajectoryMatchResult> result = new ArrayList<>();
         int matchCount = 0;
@@ -43,10 +49,50 @@ public class NewsonHMM2009 {
         return result;
     }
 
+    public Stream<TrajectoryMatchResult> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory, RoadNetworkGraph currMap, int
+            numOfThreads) throws ExecutionException, InterruptedException {
+
+        if (inputTrajectory == null) {
+            throw new IllegalArgumentException(
+                    "Trajectory stream for map-matching must not be null.");
+        }
+        if (currMap == null || currMap.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Road-Network-Graph for map-matching must not be empty nor null.");
+        }
+
+        final ThreadLocal<HMMMapMatching> matchingMethodThread =
+                new ThreadLocal<HMMMapMatching>();
+
+
+        GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
+        // sequential test
+        List<TrajectoryMatchResult> result = new ArrayList<>();
+        ForkJoinPool forkJoinPool = new ForkJoinPool(numOfThreads);
+        ForkJoinTask<Stream<TrajectoryMatchResult>> taskResult =
+                forkJoinPool.submit(() -> {
+                    matchingMethodThread.set(hmm);
+                    Stream<TrajectoryMatchResult> matchResultStream =
+                            inputTrajectory.parallel().map(trajectory -> {
+                                TrajectoryMatchResult matchPairs = matchingMethodThread.get()
+                                        .doMatching(trajectory);
+                                try {
+                                    Thread.sleep(5);
+                                } catch (InterruptedException e) {
+                                }
+                                return matchPairs;
+                            });
+                    this.unmatchedTraj = hmm.getUnMatchedTraj();
+                    return matchResultStream;
+                });
+        return taskResult.get();
+    }
+
     public TrajectoryMatchResult trajectoryMatchingProcess(Trajectory inputTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
-        HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, currMap);
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
         // sequential test
         TrajectoryMatchResult matchResult = hmm.doMatching(inputTrajectory);
 //            if (inputTrajectory.size() > 100)
