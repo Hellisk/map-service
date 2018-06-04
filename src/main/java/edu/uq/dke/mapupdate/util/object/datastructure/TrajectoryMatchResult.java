@@ -13,40 +13,18 @@ public class TrajectoryMatchResult {
     private double[] probabilities;
     private int rankLength;
 
-    //    // TODO check all calls are changed
-//    public TrajectoryMatchResult(String traj) {
-//        this.trajectory = new Trajectory(traj);
-//        this.rankLength = 1;
-//        this.matchingResult = new ArrayList<>(1);
-//        this.matchWayList = new ArrayList<>(1);
-//        this.matchingResult.set(0, new ArrayList<>());
-//        this.matchWayList.set(0, new ArrayList<>());
-//        probabilities = new double[1];
-//    }
-    public TrajectoryMatchResult(String traj, int rankLength) {
-        if (rankLength < 1) throw new IndexOutOfBoundsException("ERROR! Rank should be at least 1");
-        this.trajectory = new Trajectory(traj);
-        this.rankLength = rankLength;
-        this.matchingResult = new ArrayList<>(rankLength);
-        this.matchWayList = new ArrayList<>(rankLength);
-        for (int i = 0; i < rankLength; i++) {
-            this.matchingResult.set(i, new ArrayList<>());
-            this.matchWayList.set(i, new ArrayList<>());
-        }
-        probabilities = new double[rankLength];
-    }
-
     public TrajectoryMatchResult(Trajectory traj, int rankLength) {
         if (rankLength < 1) throw new IndexOutOfBoundsException("ERROR! Rank should be at least 1");
         this.trajectory = traj;
         this.rankLength = rankLength;
         this.matchingResult = new ArrayList<>(rankLength);
         this.matchWayList = new ArrayList<>(rankLength);
+        this.probabilities = new double[rankLength];
         for (int i = 0; i < rankLength; i++) {
-            this.matchingResult.set(i, new ArrayList<>());
-            this.matchWayList.set(i, new ArrayList<>());
+            this.matchingResult.add(new ArrayList<>());
+            this.matchWayList.add(new ArrayList<>());
+            this.probabilities[i] = 0;
         }
-        probabilities = new double[rankLength];
     }
 
 

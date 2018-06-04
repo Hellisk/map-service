@@ -23,8 +23,8 @@ public class CSVRawMapReader {
     }
 
     public RoadNetworkGraph readRawMap(int trajNum) throws IOException {
-        double maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
-        double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;        // boarder of the map
+        double maxLat = Double.NEGATIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY;
+        double minLat = Double.POSITIVE_INFINITY, minLon = Double.POSITIVE_INFINITY;        // boarder of the map
         RoadNetworkGraph roadGraph = new RoadNetworkGraph();
         List<RoadNode> nodes = new ArrayList<RoadNode>();
         Map<String, RoadNode> index2Node = new HashMap<>();

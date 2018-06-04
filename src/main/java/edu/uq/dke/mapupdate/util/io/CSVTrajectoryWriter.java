@@ -64,7 +64,7 @@ public class CSVTrajectoryWriter {
                                 .getTrajPoint(i).time());
                         int maxRank = w.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
                         for (int j = 0; j < rankLength; j++) {
-                            if (j < maxRank && w.getMatchingResult(j).get(i) != null) {
+                            if (j < maxRank && w.getMatchingResult(j).size() > i) {
                                 bwMatchedTrajectory.write("|" + df.format(w.getMatchingResult(j).get(i).lon()) + "," + df.format(w
                                         .getMatchingResult(j).get(i).lat()) + "," + w.getMatchingResult(j).get(i).getRoadID());
                             } else {

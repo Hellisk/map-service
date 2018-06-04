@@ -1,7 +1,9 @@
 package edu.uq.dke.mapupdate;
 
 import edu.uq.dke.mapupdate.evaluation.TrajMatchingEvaluation;
+import edu.uq.dke.mapupdate.mapinference.BiagioniKDE2012;
 import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
+import edu.uq.dke.mapupdate.mapmerge.NNMapMerge;
 import edu.uq.dke.mapupdate.util.io.*;
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
@@ -22,22 +24,22 @@ public class Main {
     // global parameters
     public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
-    private final static boolean WORKSPACE = false; // true = home, false = school
+    private final static boolean WORKSPACE = true; // true = home, false = school
     private final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
-    public final static int TRAJECTORY_COUNT = 100; // total number of trajectories extracted. -1 = extract all
+    public final static int TRAJECTORY_COUNT = 500; // total number of trajectories extracted. -1 = extract all
     public final static int MIN_TRAJ_POINT_COUNT = 20; // the minimal number of point required in a trajectory. -1 = no requirement
     public final static int MAX_TIME_INTERVAL = 30; // the maximum time interval within a trajectory -1 = no requirement
 
     //    public final static double[] BOUNDING_BOX = {};
-//    // preset the map boundary, si huan
+    // preset the map boundary, si huan
 //    public final static double[] BOUNDING_BOX = {116.20, 116.57, 39.76, 40.03};
     // preset the map boundary, er huan
     public final static double[] BOUNDING_BOX = {116.35, 116.44, 39.895, 39.95};
-//    // preset the map boundary, smaller er huan
+    // preset the map boundary, smaller er huan
 //    public final static double[] BOUNDING_BOX = {116.400000, 116.433773, 39.950000, 39.980000};
 
     // parameters for KDE-based map inference
-    private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
+    private final static double CELL_SIZE = 5;    // the size of each cell unit, default is 1
     private final static int GAUSSIAN_BLUR = 17;  // Gaussian blur filter, default is 17
 
     // parameters for HMM-based map matching
@@ -46,6 +48,9 @@ public class Main {
     private final static int GAP_EXTENSION_RANGE = 20;  // the trajectory point will be extended as unmatched point if no candidate is
     // within the circle of this radius in meter
     public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
+
+    // parameters for map merge
+    private final static int MAX_DISTANCE_THRESHOLD = 50;   // the maximum allowed distance to attach a end point to an intersection
 
     private final static String BEIJING_SCHOOL_PATH = "C:/data/beijingTrajectory/";       // the root folder of all data
     private final static String BEIJING_HOME_PATH = "F:/data/beijingTrajectory/";         // the root folder of all data
@@ -76,23 +81,30 @@ public class Main {
             System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
-            // pre-processing the data
-            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
-            dataPreparation();
-            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
-                    "map-matching process.");
-            prevTime = System.currentTimeMillis();
+//            // pre-processing the data
+//            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
+//            dataPreparation();
+//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
+//                    "map-matching process.");
+//            prevTime = System.currentTimeMillis();
 
-            // map-matching process
+            // map-matching process, read the input map first
+            CSVMapReader csvMapReader;
+            if (PERCENTAGE != 0) {
+                csvMapReader = new CSVMapReader(INPUT_MAP);
+            } else {
+                csvMapReader = new CSVMapReader(GT_MAP);
+            }
+            RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
 //            Stream<TrajectoryMatchResult> trajMatchingResultStream = parallelMapMatchingBeijing();
-            List<TrajectoryMatchResult> trajMatchingResultList = mapMatchingBeijing();
+            List<TrajectoryMatchResult> trajMatchingResultList = mapMatchingBeijing(initialMap);
             System.out.println("Map matching finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
             prevTime = System.currentTimeMillis();
 //
-//            // step 1: map inference
-//            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
-//            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
-//            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
+            // step 1: map inference
+            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
+            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
+            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
 //
             // evaluation: map matching evaluation
             CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
@@ -102,6 +114,14 @@ public class Main {
 //            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
 //            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
             trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
+
+//        // step 3: map merge
+//        NNMapMerge spMapMerge = new NNMapMerge(initialMap, inferenceGraph, 64,MAX_DISTANCE_THRESHOLD);
+//        RoadNetworkGraph mergedMap = spMapMerge.NearestNeighbourMapMerge();
+
+            // visualization
+            UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
+            graphDisplay.display();
         } else if (DATASET_OPTION == 1) {    // map-matching evaluation dataset
 
             // use global dataset to evaluate the map-matching accuracy
@@ -129,6 +149,7 @@ public class Main {
 //            List<TrajectoryMatchResult> trajectoryMatchResults = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
             TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
             trajMatchingEvaluation.globalPrecisionRecallCalc(trajectoryMatchResults, groundTruthMatchingResult, groundTruthTrajectoryInfo);
+
         } else {    // other test cases
             System.out.println("Start comparing different versions of Beijing map...");
             long prevTime = startTaskTime;
@@ -153,9 +174,6 @@ public class Main {
             System.out.println("Total matched node percentage: " + matchCount / (double) newBeijingMap.getNodes().size());
         }
 
-        // visualization
-        UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
-        graphDisplay.display();
 
 //        // evaluation: map inference evaluation
 //        String removedEdgesPath = initialMap + CITY_NAME + "_removed_edges.txt";
@@ -164,14 +182,7 @@ public class Main {
 //        MapMatchingEvaluation mapMatchingEvaluation = new MapMatchingEvaluation(10);
 //        mapMatchingEvaluation.precisionRecallEval(inferenceGraph, removedGraph, initialMap);
 //
-//        // step 3: map merge
-//        SPBasedRoadWayFiltering spMapMerge = new SPBasedRoadWayFiltering(mergedMap, inferenceGraph, removedGraph, 64);
-//        mergedMap = spMapMerge.SPBasedMapMerge();
 //
-//        // step 2: map matching:
-//        List<Trajectory> unmatchedTraj = new ArrayList<>();
-//        List<TrajectoryMatchResult> matchingResults = NewsonHMM2009.trajectoryMatchingProcess(initialTrajectoryList, initialMap, unmatchedTraj);
-
         System.out.println("Task finish, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + " seconds");
     }
 
@@ -181,16 +192,10 @@ public class Main {
      * @return map-matched trajectory result
      * @throws IOException file reading error
      */
-    private static List<TrajectoryMatchResult> mapMatchingBeijing() throws IOException {
+    private static List<TrajectoryMatchResult> mapMatchingBeijing(RoadNetworkGraph initialMap) throws IOException {
 
         // read input map and trajectories
-        CSVMapReader csvMapReader;
-        if (PERCENTAGE != 0) {
-            csvMapReader = new CSVMapReader(INPUT_MAP);
-        } else {
-            csvMapReader = new CSVMapReader(GT_MAP);
-        }
-        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
+
         CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
         List<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
 

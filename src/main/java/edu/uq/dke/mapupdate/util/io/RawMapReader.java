@@ -57,8 +57,8 @@ public class RawMapReader {
         FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection = vertexSource.getFeatures(filter);
 
         // set boundary
-        if (this.roadGraph.getMinLat() == -Double.MAX_VALUE && this.roadGraph.getMaxLat() == Double.MAX_VALUE && this.roadGraph.getMinLon()
-                == -Double.MAX_VALUE && this.roadGraph.getMaxLon() == Double.MAX_VALUE) {
+        if (this.roadGraph.getMinLat() == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLat() == Double.POSITIVE_INFINITY && this.roadGraph.getMinLon()
+                == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLon() == Double.POSITIVE_INFINITY) {
             ReferencedEnvelope bounds = vertexCollection.getBounds();
             this.roadGraph.setMinLon(bounds.getMinX());
             this.roadGraph.setMinLat(bounds.getMinY());

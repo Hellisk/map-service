@@ -11,6 +11,6 @@ public interface MapInterface extends Serializable {
     /**
      * Infinity (big) value
      */
-    double INFINITY = Double.MAX_VALUE;
+    double INFINITY = Double.POSITIVE_INFINITY;
 }
 

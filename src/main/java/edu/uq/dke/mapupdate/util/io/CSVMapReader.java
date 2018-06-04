@@ -33,8 +33,8 @@ public class CSVMapReader implements SpatialInterface {
      */
     public RoadNetworkGraph readMap(int percentage) throws IOException {
 
-        double maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
-        double minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;        // boarder of the map
+        double maxLat = Double.NEGATIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY;
+        double minLat = Double.POSITIVE_INFINITY, minLon = Double.POSITIVE_INFINITY;        // boarder of the map
         List<RoadNode> nodes = new ArrayList<RoadNode>();
         List<RoadWay> ways = new ArrayList<RoadWay>();
         Map<String, Integer> node2Index = new HashMap<>();       // maintain a mapping of road location to node index

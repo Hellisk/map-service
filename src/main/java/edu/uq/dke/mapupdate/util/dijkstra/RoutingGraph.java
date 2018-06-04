@@ -98,7 +98,7 @@ public class RoutingGraph {
         int[] parent = new int[this.nodes.length];  // the index of its preceding point
 
         // initialization
-        Arrays.fill(distance, Double.MAX_VALUE);
+        Arrays.fill(distance, Double.POSITIVE_INFINITY);
         Arrays.fill(path, new ArrayList<>());
         Arrays.fill(parent, -1);
         for (Node n : this.nodes) {
@@ -208,7 +208,7 @@ public class RoutingGraph {
     // calculate the shortest distance in each iteration
     private int getNodeShortestDistance() {
         int storedNodeIndex = -1;
-        double storedDist = Double.MAX_VALUE;
+        double storedDist = Double.POSITIVE_INFINITY;
         for (int i = 0; i < nodes.length; i++) {
             double currentDist = nodes[i].getDistanceFromSource();
             if (!nodes[i].isVisited() && currentDist < storedDist) {

@@ -23,8 +23,8 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * Map boundaries
      */
-    private double minLat = -Double.MAX_VALUE, minLon = -Double.MAX_VALUE;
-    private double maxLat = Double.MAX_VALUE, maxLon = Double.MAX_VALUE;
+    private double minLat = Double.NEGATIVE_INFINITY, minLon = Double.NEGATIVE_INFINITY;
+    private double maxLat = Double.POSITIVE_INFINITY, maxLon = Double.POSITIVE_INFINITY;
 
     private boolean hasBoundary = false;
 

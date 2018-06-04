@@ -33,7 +33,7 @@ import static edu.uq.dke.mapupdate.Main.*;
 public class UnfoldingGraphDisplay extends PApplet {
 
     private UnfoldingMap map;
-    private int options = 7;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
+    private int options = 125;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
     // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison
     private Set<String> trajectoryID = new HashSet<>();
 
@@ -166,7 +166,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                             marker.setColor(color(245, 222, 179));  // color light yellow
-                            marker.setStrokeWeight(4);
+                            marker.setStrokeWeight(1);
                             map.addMarker(marker);
                             linesMarkers.add(marker);
                         }

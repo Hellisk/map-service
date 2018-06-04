@@ -15,7 +15,7 @@ public interface SpatialInterface extends Serializable {
     /**
      * Infinity (big) value
      */
-    double INFINITY = Double.MAX_VALUE;
+    double INFINITY = Double.POSITIVE_INFINITY;
     /**
      * Min distance between objects -> less than that is taken as zero
      */
