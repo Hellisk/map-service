@@ -60,7 +60,7 @@ public class CSVTrajectoryWriter {
                     // roadID|...)
                     for (int i = 0; i < w.getTrajLength(); i++) {
 
-                        bwMatchedTrajectory.write(df.format(w.getTrajPoint(i).x()) + " " + df.format(w.getTrajPoint(i).y()) + w
+                        bwMatchedTrajectory.write(df.format(w.getTrajPoint(i).x()) + " " + df.format(w.getTrajPoint(i).y()) + " " + w
                                 .getTrajPoint(i).time());
                         int maxRank = w.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
                         for (int j = 0; j < rankLength; j++) {
@@ -84,7 +84,7 @@ public class CSVTrajectoryWriter {
                             roadIDFromTrajectory.write(matchWayList.get(j) + ",");
                         }
                         roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
-                        roadIDFromTrajectory.write(w.getProbability(i) + "");
+                        roadIDFromTrajectory.write(w.getProbability(i) + "" + "\n");
                     }
                     tripCount += 1;
                     bwMatchedTrajectory.close();

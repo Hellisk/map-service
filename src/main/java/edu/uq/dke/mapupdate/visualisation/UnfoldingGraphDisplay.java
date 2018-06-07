@@ -33,21 +33,21 @@ import static edu.uq.dke.mapupdate.Main.*;
 public class UnfoldingGraphDisplay extends PApplet {
 
     private UnfoldingMap map;
-    private int options = 125;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
-    // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison
+    private int options = 18;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
+    // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison, 8= inferred map, 9= merged map
     private Set<String> trajectoryID = new HashSet<>();
 
     public void settings() {
-        size(1440, 900, P3D);
-        this.map = new UnfoldingMap(this, new Google.GoogleSimplifiedProvider());
-        MapUtils.createDefaultEventDispatcher(this, map);
+        size(1920, 1080, P2D);
+        this.map = new UnfoldingMap(this, new Google.GoogleMapProvider());
+        MapUtils.createMouseEventDispatcher(this, map);
 
         Map<String, RoadWay> findWayByID = new HashMap<>();
 
         try {
             // read the map first
-            CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + (PERCENTAGE == 0 ? "groundTruth/map/" : "input/map/"));
-            RoadNetworkGraph roadNetworkGraph = csvMapReader.readMap(PERCENTAGE);
+            CSVMapReader csvMapReader = new CSVMapReader(ROOT_PATH + "groundTruth/map/");
+            RoadNetworkGraph roadNetworkGraph = csvMapReader.readMap(0);
             for (RoadWay w : roadNetworkGraph.getWays()) {
                 findWayByID.put(w.getId(), w);
             }
@@ -79,7 +79,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                     locationList.add(pointLocation);
                                 }
                                 SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                                marker.setColor(color(255, 97, 0));  // color orange
+                                marker.setColor(color(255, 178, 102));  // color orange
                                 marker.setStrokeWeight(3);
                                 linesMarkers.add(marker);
                             }
@@ -97,7 +97,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(245, 245, 245, 70));  // color white smoky
+                            marker.setColor(color(178, 102, 255));  // color purple
                             marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }
@@ -122,7 +122,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 }
                                 SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                                 marker.setColor(color(233, 57, 35));  // color red
-                                marker.setStrokeWeight(2);
+                                marker.setStrokeWeight(3);
                                 linesMarkers.add(marker);
                             }
                         }
@@ -145,7 +145,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                     }
                                     SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                                     marker.setColor(color(59, 130, 79));  // color green
-                                    marker.setStrokeWeight(4);
+                                    marker.setStrokeWeight(3);
                                     linesMarkers.add(marker);
                                 }
                             }
@@ -166,8 +166,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                             marker.setColor(color(245, 222, 179));  // color light yellow
-                            marker.setStrokeWeight(1);
-                            map.addMarker(marker);
+                            marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }
                         map.addMarkers(linesMarkers);
@@ -198,7 +197,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                     }
                                     SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                                     marker.setColor(color(0, 255, 255));  // color light blue
-                                    marker.setStrokeWeight(4);
+                                    marker.setStrokeWeight(3);
                                     linesMarkers.add(marker);
                                 }
                             }
@@ -222,7 +221,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                             marker.setColor(color(255, 102, 178));  // color pink
-                            marker.setStrokeWeight(4);
+                            marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }
                         for (RoadWay w : oldMap.getWays()) {
@@ -233,12 +232,32 @@ public class UnfoldingGraphDisplay extends PApplet {
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
                             marker.setColor(color(102, 255, 178));  // color green
-                            marker.setStrokeWeight(4);
+                            marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }
                         map.addMarkers(linesMarkers);
+                        break;
                     }
-                    break;
+                    // inferred map
+                    case 8: {
+                        CSVMapReader csvInferredMapReader = new CSVMapReader(ROOT_PATH + "mapInference/");
+                        List<RoadWay> inferredMap = csvInferredMapReader.readInferredEdges();
+                        List<Marker> linesMarkers = new ArrayList<>();
+                        for (RoadWay w : inferredMap) {
+                            List<Location> locationList = new ArrayList<>();
+                            for (RoadNode n : w.getNodes()) {
+                                Location pointLocation = new Location(n.lat(), n.lon());
+                                locationList.add(pointLocation);
+                            }
+                            SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
+                            marker.setColor(color(255, 255, 255));  // color purple
+                            marker.setStrokeWeight(3);
+                            linesMarkers.add(marker);
+                        }
+                        map.addMarkers(linesMarkers);
+                        break;
+                    }
+
                     default:
                         System.out.println("Error display option:" + this.options);
                 }

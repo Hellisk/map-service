@@ -1,5 +1,6 @@
 import getopt
 import os
+import shutil
 
 import cv
 import sys
@@ -185,9 +186,12 @@ if __name__ == '__main__':
             sys.exit()
 
     # create output directory
-    if not os.path.exists(root_path):
-        # create trips directory
-        os.mkdir(root_path)
+    if os.path.exists(root_path):
+        os.rename(root_path, root_folder + "remove/")
+        shutil.rmtree(root_folder + "remove/")
+
+    # create trips directory
+    os.mkdir(root_path)
 
     k = KDE()
     k.create_kde_with_trips(TripLoader.load_all_trips(input_path))

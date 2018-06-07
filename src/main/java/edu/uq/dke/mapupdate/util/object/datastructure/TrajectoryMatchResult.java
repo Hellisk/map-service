@@ -73,8 +73,8 @@ public class TrajectoryMatchResult {
     public void setMatchingResult(List<PointMatch> result, int rank) {
         if (rank > rankLength) throw new IndexOutOfBoundsException("ERROR! Matching result set failed: the specified rank is out of range" +
                 ".");
-        if (result.size() != trajectory.size()) System.out.println("Match result size is different from the raw trajectory:" + result.size
-                () + ":" + trajectory.size());
+        if (result.size() != trajectory.size() && !result.isEmpty()) System.out.println("Match result size is different from the raw " +
+                "trajectory:" + result.size() + ":" + trajectory.size());
         this.matchingResult.set(rank, result);
     }
 

@@ -51,8 +51,8 @@ public class CSVTrajectoryReader {
                     List<List<PointMatch>> matchingPointSet = new ArrayList<>(rankLength);
                     List<List<String>> roadWayIDList = new ArrayList<>(rankLength);
                     for (int j = 0; j < rankLength; j++) {
-                        matchingPointSet.set(j, new ArrayList<>());
-                        roadWayIDList.set(j, new ArrayList<>());
+                        matchingPointSet.add(new ArrayList<>());
+                        roadWayIDList.add(new ArrayList<>());
                     }
                     double[] probabilities = new double[rankLength];
                     BufferedReader brMatchingTrajectory = new BufferedReader(new FileReader(matchingPointFile));
@@ -61,11 +61,14 @@ public class CSVTrajectoryReader {
                     while ((line = brMatchingTrajectory.readLine()) != null) {
                         String[] matchInfo = line.split("\\|");
                         if (matchInfo.length == rankLength + 1) {
-                            String[] pointInfo = matchInfo[0].split(",");
+                            String[] pointInfo = matchInfo[0].split(" ");
                             STPoint currPoint = new STPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), Long
                                     .parseLong(pointInfo[2]));
                             rawTraj.add(currPoint);
                             for (int j = 0; j < rankLength; j++) {
+                                if (matchInfo[j + 1].equals("null")) {
+                                    break;
+                                }
                                 String[] matchPointInfo = matchInfo[j + 1].split(",");
                                 Point matchPoint = new Point(Double.parseDouble(matchPointInfo[0]), Double.parseDouble(matchPointInfo[1]));
                                 PointMatch currMatchPoint = new PointMatch(matchPoint, null, matchPointInfo[2]);

@@ -328,5 +328,10 @@ if __name__ == '__main__':
     print "matched trips directory: " + str(matched_trips_directory)
     print "output filename: " + str(output_filename)
 
+    # create skeleton image directory
+    if not os.path.exists(matched_trips_directory):
+        # create trips directory
+        os.mkdir(matched_trips_directory)
+
     p = ProcessMapMatches()
     p.process(graphdb_filename, matched_trips_directory, output_filename, output_filename.replace(".db", "_traces.txt"))

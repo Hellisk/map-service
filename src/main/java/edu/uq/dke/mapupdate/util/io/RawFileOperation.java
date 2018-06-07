@@ -58,9 +58,13 @@ public class RawFileOperation {
         long maxTimeDiff = 0;   // the maximum time difference
         long totalTimeDiff = 0;  // total time difference
         long totalNumOfPoint = 0;
+        int currCursor = 0;
         while ((line = brTrajectory.readLine()) != null && (requiredRecordNum == -1 || tripID < requiredRecordNum)) {
-            if (tripID % 5000 == 0)
-                System.out.println(tripID + " trajectories processed. ");
+            if (tripID != 0 && tripID % 5000 == 0)
+                if (tripID != currCursor) {
+                    System.out.println(tripID + " trajectories processed. ");
+                    currCursor = tripID;
+                }
             if (statisticsMode) {   // for statistics purpose
                 String[] trajectoryInfo = line.split(",");
                 String[] rawTrajectory = trajectoryInfo[28].split("\\|");

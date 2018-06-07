@@ -8,20 +8,21 @@ import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class NNMapMerge {
     private RoadNetworkGraph rawMap = new RoadNetworkGraph();
-    private RoadNetworkGraph inferredGraph = new RoadNetworkGraph();
+    private List<RoadWay> inferredGraph = new ArrayList<>();
     private Map<String, RoadWay> locPairRoadWayMap = new HashMap<>();
     private GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
     private Grid<Point> grid;
     private int avgNodePerGrid = 64;
     private int maxDistanceThreshold = 50;
 
-    public NNMapMerge(RoadNetworkGraph rawMap, RoadNetworkGraph inferredGraph, int avgNodePerGrid, int maxDistanceThreshold) {
+    public NNMapMerge(RoadNetworkGraph rawMap, List<RoadWay> inferredGraph, int avgNodePerGrid, int maxDistanceThreshold) {
         this.rawMap = rawMap;
         this.inferredGraph = inferredGraph;
         this.avgNodePerGrid = avgNodePerGrid;
@@ -31,7 +32,7 @@ public class NNMapMerge {
     public RoadNetworkGraph NearestNeighbourMapMerge() {
         buildGridIndex();
         int matchFoundCount = 0;
-        for (RoadWay w : inferredGraph.getWays()) {
+        for (RoadWay w : inferredGraph) {
             Point startPoint = this.grid.nearestNeighborSearch(w.getFromNode().lon(), w.getFromNode().lat(), distFunc).getSpatialObject();
             Point endPoint = this.grid.nearestNeighborSearch(w.getToNode().lon(), w.getToNode().lat(), distFunc).getSpatialObject();
             if (distFunc.distance(startPoint, w.getFromNode().toPoint()) < maxDistanceThreshold && distFunc.distance(endPoint, w.getToNode()
@@ -46,7 +47,7 @@ public class NNMapMerge {
             rawMap.addWay(w);
         }
         System.out.println("Nearest neighbour map merge completed. Total number of road match found:" + matchFoundCount + ", total number " +
-                "of road way added:" + inferredGraph.getWays().size());
+                "of road way added:" + inferredGraph.size());
         return rawMap;
     }
 
@@ -79,5 +80,4 @@ public class NNMapMerge {
         System.out.println("Total number of nodes in grid index:" + rawMap.getNodes().size());
         System.out.println("The grid contains " + rowNum + "rows and columns");
     }
-
 }

@@ -24,7 +24,7 @@ import java.util.*;
  * Information Systems. ACM, 2009.
  *
  * @author uqdalves, uqpchao
- * @link https://github.com/bmwcarit/hmm-oldversion.
+ * @link https://github.com/bmwcarit/.
  */
 @SuppressWarnings("serial")
 public class HMMMapMatching {

@@ -30,7 +30,7 @@ public class CSVMapWriter implements SpatialInterface {
      * write a road network to files
      *
      * @param percentage percentage of removed edges
-     * @throws IOException
+     * @throws IOException Failed map writing
      */
     public void writeMap(int percentage) throws IOException {
 
@@ -39,7 +39,7 @@ public class CSVMapWriter implements SpatialInterface {
         // create directories before writing
         File file = new File(csvMapPath.substring(0, csvMapPath.lastIndexOf('/')));
         if (!file.exists()) {
-            file.mkdirs();
+            if (!file.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
         // write vertex file
         BufferedWriter bwVertices = new BufferedWriter(new FileWriter(csvMapPath + "vertices_" + percentage + ".txt"));
@@ -67,13 +67,15 @@ public class CSVMapWriter implements SpatialInterface {
 
     public void randomBasedRoadRemoval(int percentage) throws IOException {
 
+        DecimalFormat df = new DecimalFormat(".00000");
+
         if (percentage == 0)
             return;
 
         // create directories before writing
         File file = new File(csvMapPath.substring(0, csvMapPath.lastIndexOf('/')));
         if (!file.exists()) {
-            file.mkdirs();
+            if (!file.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
 
         HashMap<String, Integer> nodeRemovalCount = new HashMap<>();   // for each vertex, the total count of its edges that are removed
@@ -85,15 +87,21 @@ public class CSVMapWriter implements SpatialInterface {
         Random random = new Random(1);
         for (RoadWay w : roadGraph.getWays()) {
             if (random.nextInt(100) >= percentage) {
-                bwEdges.write(w.getId());
+                bwEdges.write(w.getId() + "|");
+                if (w.isNewRoad())
+                    bwEdges.write(w.getConfidenceScore() + "," + w.getInfluenceScore());
+                else bwEdges.write("null");
                 for (RoadNode n : w.getNodes()) {
-                    bwEdges.write("|" + n.getId() + "," + n.lon() + "," + n.lat());
+                    bwEdges.write("|" + n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()));
                 }
                 bwEdges.write("\n");
             } else {
-                bwRemovedEdges.write(w.getId());
+                bwRemovedEdges.write(w.getId() + "|");
+                if (w.isNewRoad())
+                    bwRemovedEdges.write(w.getConfidenceScore() + "," + w.getInfluenceScore());
+                else bwRemovedEdges.write("null");
                 for (RoadNode n : w.getNodes()) {
-                    bwRemovedEdges.write("|" + n.getId() + "," + n.lon() + "," + n.lat());
+                    bwRemovedEdges.write("|" + n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()));
                 }
                 bwRemovedEdges.write("\n");
 
@@ -113,7 +121,7 @@ public class CSVMapWriter implements SpatialInterface {
         BufferedWriter bwVertices = new BufferedWriter(new FileWriter(csvMapPath + "vertices_" + percentage + ".txt"));
         for (RoadNode n : roadGraph.getNodes()) {
             if (!nodeRemovalCount.containsKey(n.getId()) || nodeRemovalCount.get(n.getId()) != n.getDegree()) {
-                bwVertices.write(n.getId() + "," + n.lon() + "," + n.lat() + "\n");
+                bwVertices.write(n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()) + "\n");
             } else {
                 vertexRemovalCount++;
             }

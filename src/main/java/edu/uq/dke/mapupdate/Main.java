@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
+    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
     private final static boolean WORKSPACE = true; // true = home, false = school
     private final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
@@ -39,7 +39,7 @@ public class Main {
 //    public final static double[] BOUNDING_BOX = {116.400000, 116.433773, 39.950000, 39.980000};
 
     // parameters for KDE-based map inference
-    private final static double CELL_SIZE = 5;    // the size of each cell unit, default is 1
+    private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
     private final static int GAUSSIAN_BLUR = 17;  // Gaussian blur filter, default is 17
 
     // parameters for HMM-based map matching
@@ -71,7 +71,7 @@ public class Main {
     public final static String INPUT_TRAJECTORY = ROOT_PATH + "input/trajectory/";    // input trajectory dataset
     private final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
 
-    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+    public static void main(String[] args) throws IOException {
 
         System.out.println("Co-optimization process start.");
         BasicConfigurator.configure();
@@ -87,7 +87,7 @@ public class Main {
 //            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
 //                    "map-matching process.");
 //            prevTime = System.currentTimeMillis();
-
+//
             // map-matching process, read the input map first
             CSVMapReader csvMapReader;
             if (PERCENTAGE != 0) {
@@ -101,19 +101,20 @@ public class Main {
             System.out.println("Map matching finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
             prevTime = System.currentTimeMillis();
 //
-            // step 1: map inference
-            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
-            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
-            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
+//            // evaluation: map matching evaluation
+//            CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
+//            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
+//                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+//            TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
+////            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
+////            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
+//            trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
 //
-            // evaluation: map matching evaluation
-            CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
-                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
-            TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-//            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
-//            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
-            trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
+//            // step 1: map inference
+//            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
+//            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
+//            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
+
 
 //        // step 3: map merge
 //        NNMapMerge spMapMerge = new NNMapMerge(initialMap, inferenceGraph, 64,MAX_DISTANCE_THRESHOLD);
@@ -152,7 +153,6 @@ public class Main {
 
         } else {    // other test cases
             System.out.println("Start comparing different versions of Beijing map...");
-            long prevTime = startTaskTime;
 
             RawMapReader newMapReader = new RawMapReader(RAW_MAP, BOUNDING_BOX);
             System.out.println("Start reading the new and old Beijing maps.");

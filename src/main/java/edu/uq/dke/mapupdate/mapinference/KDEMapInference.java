@@ -3,7 +3,7 @@ package edu.uq.dke.mapupdate.mapinference;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class KDEMapInference {
+class KDEMapInference {
     private double cellSize;    // meter
     private int gaussianBlur;
 
@@ -18,7 +18,7 @@ public class KDEMapInference {
     }
 
     // use python script to run map inference python code
-    public void startMapInference(String rootPath) {
+    void startMapInference(String rootPath) {
         String[] pythonCmd = new String[9];
 
         // setup each command manually

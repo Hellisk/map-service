@@ -8,10 +8,7 @@ import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by uqpchao on 22/05/2017.
@@ -35,8 +32,8 @@ public class CSVMapReader implements SpatialInterface {
 
         double maxLat = Double.NEGATIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY;
         double minLat = Double.POSITIVE_INFINITY, minLon = Double.POSITIVE_INFINITY;        // boarder of the map
-        List<RoadNode> nodes = new ArrayList<RoadNode>();
-        List<RoadWay> ways = new ArrayList<RoadWay>();
+        List<RoadNode> nodes = new ArrayList<>();
+        List<RoadWay> ways = new ArrayList<>();
         Map<String, Integer> node2Index = new HashMap<>();       // maintain a mapping of road location to node index
         // read road nodes
         String line;
@@ -145,7 +142,7 @@ public class CSVMapReader implements SpatialInterface {
 
     public List<RoadWay> readRemovedEdges(int percentage) throws IOException {
         List<RoadWay> removedRoads = new ArrayList<>();
-        String line = "";
+        String line;
         // read removed road ways
         BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "removedEdges_" + percentage + ".txt"));
         while ((line = brEdges.readLine()) != null) {
@@ -153,7 +150,7 @@ public class CSVMapReader implements SpatialInterface {
             List<RoadNode> miniNode = new ArrayList<>();
             String[] edgeInfo = line.split("\\|");
             if (!edgeInfo[0].contains(",")) {
-                for (int i = 1; i < edgeInfo.length; i++) {
+                for (int i = 2; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
                         RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
@@ -172,5 +169,36 @@ public class CSVMapReader implements SpatialInterface {
             }
         }
         return removedRoads;
+    }
+
+    public List<RoadWay> readInferredEdges() throws IOException {
+        List<RoadWay> inferredRoads = new ArrayList<>();
+        String line;
+        // read inferred road ways
+        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "final_map.txt"));
+        while ((line = brEdges.readLine()) != null) {
+            RoadWay newWay = new RoadWay();
+            List<RoadNode> miniNode = new ArrayList<>();
+            String[] edgeInfo = line.split("\\|");
+            if (!edgeInfo[0].equals("null"))
+                newWay.setId(edgeInfo[0]);
+            if (edgeInfo[1].contains(",")) {  // confidence score is set
+                newWay.setConfidenceScore(Double.parseDouble(edgeInfo[1].split(",")[1]));
+            }
+            for (int i = 2; i < edgeInfo.length; i++) {
+                String[] roadWayPoint = edgeInfo[i].split(",");
+                if (roadWayPoint.length == 2) { // inferred edges do not have id
+                    RoadNode newNode = new RoadNode(null, Double.parseDouble(roadWayPoint[0]), Double.parseDouble(roadWayPoint[1]));
+                    miniNode.add(newNode);
+                } else if (roadWayPoint.length == 3) {
+                    RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
+                            (roadWayPoint[2]));
+                    miniNode.add(newNode);
+                } else throw new InvalidPropertiesFormatException("Wrong road way node in inferred map:" + roadWayPoint.length);
+            }
+            newWay.setNodes(miniNode);
+            inferredRoads.add(newWay);
+        }
+        return inferredRoads;
     }
 }

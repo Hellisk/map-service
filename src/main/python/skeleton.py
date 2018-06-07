@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pyximport
 
 pyximport.install(setup_args={'include_dirs': np.get_include()})
@@ -232,6 +233,11 @@ if __name__ == '__main__':
 
     print "input filename: " + str(input_filename)
     print "output filename: " + str(output_filename)
+
+    # create skeleton image directory
+    if not os.path.exists(skeleton_images_path):
+        # create trips directory
+        os.mkdir(skeleton_images_path)
 
     input_kde = imread(input_filename)
 

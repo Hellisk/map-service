@@ -6,7 +6,7 @@
 #
 
 import sqlite3
-
+import os
 import pyximport
 
 pyximport.install()
@@ -717,14 +717,17 @@ class StreetMap:
         sys.stdout.write("\nWriting map to file... ")
         sys.stdout.flush()
 
+        if os.path.exists(map_filename):
+            os.remove(map_filename)
+
         # open map file
         map_file = open(map_filename, 'w')
 
         # iterate through all map edges
         for curr_edge in self.edges.values():
             # output current edge to file
-            map_file.write(str(curr_edge.in_node.latitude) + "," + str(curr_edge.in_node.longitude) + "\n")
-            map_file.write(str(curr_edge.out_node.latitude) + "," + str(curr_edge.out_node.longitude) + "\n\n")
+            map_file.write("null|null|" + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|")
+            map_file.write(str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude) + "\n")
 
         # close map file
         map_file.close()
@@ -741,9 +744,9 @@ import time
 if __name__ == '__main__':
     usage = "usage: python streetmap.py (osmdb|graphdb|shapedb) db_filename output_filename"
 
-    if len(sys.argv) != 4:
-        print usage
-        exit()
+    # if len(sys.argv) != 4:
+    #     print usage
+    #     exit()
 
     start_time = time.time()
     db_type = "graphdb"
