@@ -1,5 +1,6 @@
 package edu.uq.dke.mapupdate.util.io;
 
+import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
@@ -24,7 +25,8 @@ public class CSVTrajectoryWriter {
     }
 
     /**
-     * writer for writing matching result and the input of the inference step
+     * Writer for writing matching result and the input of the inference step
+     * Matching result format: raw point lon lat time|match point lon,lat,match segment lon1,lat1,lon2,lat2,time
      *
      * @param matchingList matching result
      */
@@ -65,8 +67,14 @@ public class CSVTrajectoryWriter {
                         int maxRank = w.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
                         for (int j = 0; j < rankLength; j++) {
                             if (j < maxRank && w.getMatchingResult(j).size() > i) {
-                                bwMatchedTrajectory.write("|" + df.format(w.getMatchingResult(j).get(i).lon()) + "," + df.format(w
-                                        .getMatchingResult(j).get(i).lat()) + "," + w.getMatchingResult(j).get(i).getRoadID());
+                                PointMatch currMatch = w.getMatchingResult(j).get(i);
+                                if (currMatch != new PointMatch())
+                                    // write the information of trajectory matching result, including match point, match segment and road id
+                                    bwMatchedTrajectory.write("|" + df.format(currMatch.lon()) + "," + df.format(currMatch.lat()) + "," +
+                                            df.format(currMatch.getMatchedSegment().x1()) + "," + df.format(currMatch.getMatchedSegment()
+                                            .y1()) + "," + df.format(currMatch.getMatchedSegment().x2()) + "," + df.format(currMatch
+                                            .getMatchedSegment().y2()) + "," + currMatch.getRoadID());
+                                else bwMatchedTrajectory.write("|null");
                             } else {
                                 // no point matched, use null instead
                                 bwMatchedTrajectory.write("|null");

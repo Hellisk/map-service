@@ -11,7 +11,6 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Segment;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
-import org.geotools.util.MapEntry;
 
 import java.util.*;
 
@@ -33,11 +32,6 @@ public class HMMMapMatching {
      * The distance method to use between points
      */
     private final GreatCircleDistanceFunction distanceFunction;
-
-    /**
-     * Map each point to a list of candidate nodes
-     */
-    private final Map<STPoint, Collection<PointMatch>> candidatesMap = new HashMap<>();
 
     /**
      * The probabilities of the HMM lattice
@@ -74,29 +68,14 @@ public class HMMMapMatching {
     private Grid<SegmentIndexItem> grid;
 
     /**
-     * unmatched trajectory segment list
+     * Unmatched trajectory segment list
      */
     private List<Trajectory> unmatchedTrajectoryList = new ArrayList<>();
-
-    /**
-     * number of broken trajectories
-     */
-    private int brokenTrajCount = 0;
 
     /**
      * the index of the last point before current broken position, -1: complete matching sequence
      */
     private int currBreakPointIndex = -1;
-
-    /**
-     * the last position that preserved in the current matching result
-     */
-    private int lastReservedPointIndex = -1;
-
-    /**
-     * the points before this index has been well processed
-     */
-    private int newMatchStartPointIndex = 0;
 
     /**
      * the threshold for extra indexing point, segments that exceed such threshold will generate extra indexing point(s)
@@ -126,19 +105,25 @@ public class HMMMapMatching {
     TrajectoryMatchResult doMatching(Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
-        computeCandidatesFromIndex(trajectory);
+
+        final Map<STPoint, Collection<PointMatch>> candidatesMap = new HashMap<>(); //Map each point to a list of candidate nodes
+        computeCandidatesFromIndex(trajectory, candidatesMap);
 //        computeCandidates(trajectory);
 //        System.out.println("Time cost on candidate generation is: " + (System.currentTimeMillis() - startTime));
-        boolean brokenTraj = false;
-        Set<Integer> currBreakIndex = new LinkedHashSet<>();    // points that will be put into the unmatched trajectory
-        List<Integer> breakPoints = new ArrayList<>();  // points that break the connectivity
+        boolean isBrokenTraj = false;
+//        Set<Integer> currBreakIndex = new LinkedHashSet<>();    // points that will be put into the unmatched trajectory
+        Map<Integer, Boolean> breakPoints = new LinkedHashMap<>();  // the points that break the connectivity and the reason, =true if
+        // the break is caused by no candidate, =false if it is caused by broken transition
 
         ViterbiAlgorithm<PointMatch, STPoint, RoadPath> viterbi = new ViterbiAlgorithm<>(rankLength);
         TimeStep<PointMatch, STPoint, RoadPath> prevTimeStep = null;
         Map<Integer, List<SequenceState<PointMatch, STPoint, RoadPath>>> rankedRoadPositionList = new LinkedHashMap<>(rankLength);
+        for (int i = 0; i < rankLength; i++)       // first fill all top k results with empty array
+            rankedRoadPositionList.computeIfAbsent(i, k -> new ArrayList<>());
         // store all states during the process, prepare for the breaks
 //        Map<Integer, TimeStep<PointMatch, STPoint, RoadPath>> timeStepList = new HashMap<>();
-        Map<Integer, Map<PointMatch, Double>> messageList = new HashMap<>();
+        Map<PointMatch, Double> lastMatchSequenceMessage = new HashMap<>();
+        Map<PointMatch, ViterbiAlgorithm.ExtendedState<PointMatch, STPoint, RoadPath>> lastExtendedStates = new HashMap<>();
 //        List<Collection<PointMatch>> candidateList = new ArrayList<>();
 //        List<Map<PointMatch, ViterbiAlgorithm.ExtendedState<PointMatch, STPoint, RoadPath>>> extendedStates = new ArrayList<>();
 //        long endTime = System.currentTimeMillis();
@@ -151,56 +136,52 @@ public class HMMMapMatching {
             Collection<PointMatch> candidates;
             TimeStep<PointMatch, STPoint, RoadPath> timeStep;
             STPoint gpsPoint = trajectory.get(i);
-            if (candidatesMap.get(gpsPoint).size() == 0) {  // no candidate for the current point
-                timeStep = new TimeStep<>(gpsPoint, new ArrayList<>());
-                // TODO merge all code for candidate size = 0 here
-            } else {
-                candidates = candidatesMap.get(gpsPoint);
-                timeStep = new TimeStep<>(gpsPoint, candidates);
+            if (candidatesMap.get(gpsPoint).size() == 0) {  // no candidate for the current point, definitely a break point
+                isBrokenTraj = true;
+                breakPoints.put(i, true);
+                continue;
             }
+            candidates = candidatesMap.get(gpsPoint);
+            timeStep = new TimeStep<>(gpsPoint, candidates);
             if (prevTimeStep == null) {     // start of the trajectory or the current matching has just been cut off
-                if (candidatesMap.get(gpsPoint).size() != 0) {
-                    computeEmissionProbabilities(timeStep);
-                    viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
-                            timeStep.emissionLogProbabilities);
-                    // successful initialization
-                    newMatchStartPointIndex = i;
-                    messageList.put(i, viterbi.getMessage());
-                    prevTimeStep = timeStep;
-                } else {
-                    if (currBreakPointIndex != -1) {
-                        System.out.println("ERROR! The first point has no candidate");
-                        breakPoints.add(i); // directly add to the break point list
-//                        type = 1;
-                    } else {
-                        // already broken, add a new point
-                        currBreakIndex.add(i);
-//                        type = 1;
-                    }
-                }
-            } else if (candidatesMap.get(gpsPoint).size() != 0) {   // continue the matching process
+                computeEmissionProbabilities(timeStep);
+                viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
+                        timeStep.emissionLogProbabilities);
+                // successful initialization
+                prevTimeStep = timeStep;
+            } else {   // continue the matching process
                 final double timeDiff = (timeStep.observation.time() - prevTimeStep.observation.time());
-                if (timeDiff > 180) {   // time different factor
+                if (timeDiff > 180) {   // huge time gap, split the trajectory
+                    // matching result
                     if (currBreakPointIndex != -1) {
-                        // find the timestamp of the last unbroken point, call computeMostLikelySequence
-                        viterbi.setMessage(messageList.get(currBreakPointIndex));
-                        i = currBreakPointIndex + 1;
-                        // we finish the matching before break point and start a new line from break point
+                        // we finish the matching before last break point and start a new matching sequence from break point to the
+                        // current gap, the previous matching sequence is finished here
+                        List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions =
+                                viterbi.computeMostLikelySequence(rankLength);
+                        resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, currBreakPointIndex, candidatesMap);
+
+                        // restart the matching from the last break point
+                        i = currBreakPointIndex;
                         currBreakPointIndex = -1;
-                        lastReservedPointIndex = -1;
+                        prevTimeStep = null;
+                        viterbi.setMessage(null);
+                        viterbi.setLastExtendedStates(null);
+                        continue;
                     }
                     List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions =
                             viterbi.computeMostLikelySequence(rankLength);
-                    for (int j = 0; j < temporalRoadPositions.size(); j++) {
-                        rankedRoadPositionList.computeIfAbsent(j, k -> new ArrayList<>());
-                        rankedRoadPositionList.get(j).addAll(temporalRoadPositions.get(j));
-                    }
+                    resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, i, candidatesMap);
+
+                    // set the current point as break point and restart the matching
+                    breakPoints.put(i, false);
+                    i--;
+                    prevTimeStep = null;
                     viterbi.setMessage(null);
                     viterbi.setLastExtendedStates(null);
-                    prevTimeStep = null;
                     continue;
                 }
 
+                //  no time gap, continue the matching process
                 computeEmissionProbabilities(timeStep);
 //                endTime = System.currentTimeMillis();
                 computeTransitionProbabilitiesWithConnectivity(prevTimeStep, timeStep);
@@ -217,127 +198,54 @@ public class HMMMapMatching {
 
                 if (viterbi.isBroken()) {
                     // the match stops due to no connection, add the current point and its predecessor to the broken list
-                    brokenTraj = true;
+                    isBrokenTraj = true;
                     if (currBreakPointIndex == -1) {
                         currBreakPointIndex = i - 1;
-                        lastReservedPointIndex = i - 2;
-                        currBreakIndex.add(i);
-                        currBreakIndex.add(i - 1);
-                        breakPoints.add(currBreakPointIndex);
-                        if (lastReservedPointIndex < newMatchStartPointIndex) {
-                            // new match breaks at the second position, start from the third point
-                            viterbi.setMessage(null);
-                            viterbi.setLastExtendedStates(null);
-                            prevTimeStep = null;
-                            currBreakPointIndex = -1;
-                            lastReservedPointIndex = -1;
-                            continue;
+                        while (breakPoints.containsKey(currBreakPointIndex)) {
+                            currBreakPointIndex--;
                         }
-                    } else {
-                        currBreakIndex.add(i);
-                        currBreakIndex.add(lastReservedPointIndex);
-                        lastReservedPointIndex--;
-                        if (lastReservedPointIndex < newMatchStartPointIndex) {
-                            // the breaking segment extends to the start of the match
-                            viterbi.setMessage(messageList.get(currBreakPointIndex));
-                            List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions =
-                                    viterbi.computeMostLikelySequence(rankLength);
-                            for (int j = 0; j < temporalRoadPositions.size(); j++) {
-                                rankedRoadPositionList.computeIfAbsent(j, k -> new ArrayList<>());
-                                rankedRoadPositionList.get(j).addAll(temporalRoadPositions.get(j));
-                            }
-                            viterbi.setMessage(null);
-                            viterbi.setLastExtendedStates(null);
-                            prevTimeStep = null;
-                            // we finish the matching before break point and start a new line from break point
-                            i = currBreakPointIndex + 1;
-                            currBreakPointIndex = -1;
-                            lastReservedPointIndex = -1;
-                            continue;
-                        }
+                        if (currBreakPointIndex < rankedRoadPositionList.get(0).size())
+                            throw new IndexOutOfBoundsException("ERROR! No preceding initiated point before break point.");
                     }
-                    // remove the broken points and expect a reconnection
-                    viterbi.setMessage(messageList.get(lastReservedPointIndex));
-                    viterbi.setPrevCandidates(candidatesMap.get(trajectory.get(lastReservedPointIndex)));
+                    // mark the broken points and expect a reconnection
+                    breakPoints.put(i, false);
                     viterbi.setBroken(false);
-//                    type = 2;
                 } else {
                     // the match continues
                     if (currBreakPointIndex != -1) {
-                        // continuous after removing points, deal with the removed points, remove the break flag and continue
+                        // remove the break flag and continue
                         currBreakPointIndex = -1;
-                        lastReservedPointIndex = -1;
                     }
-
-//                        currBreakIndex.sort(Comparator.comparingInt(m -> m));
-//                        for (int j = currBreakIndex.get(0); j < i; j++) {
-//                            STPoint currPoint = trajectory.get(j);
-//                            SequenceState<PointMatch, STPoint, RoadPath> currMatch;
-//                            if (candidatesMap.get(currPoint).size() != 0) {
-//                                List<PointMatch> currPointCandidates = new ArrayList<>(candidatesMap.get(currPoint));
-//                                double minDistance = this.distanceFunction.pointToPointDistance(currPoint.x(), currPoint.y(), currPointCandidates.get(0).lon(), currPointCandidates.get(0).lat());
-//                                PointMatch choseMatch = currPointCandidates.get(0);
-//                                for (PointMatch m : currPointCandidates) {
-//                                    double currDistance = this.distanceFunction.pointToPointDistance(currPoint.x(), currPoint.y(), m.lon(), m.lat());
-//
-//                                    if (minDistance > currDistance) {
-//                                        minDistance = currDistance;
-//                                        choseMatch = m;
-//                                    }
-//                                }
-//                                currMatch = new SequenceState<>(choseMatch, currPoint, null);
-//                            } else {
-//                                currMatch = new SequenceState<>(null, currPoint, null);
-//                            }
-//                            rankedRoadPositionList.add(currMatch);
-//                            if (j > currBreakPointIndex) {
-//                                timeStepList.add(null);
-//                                messageList.add(null);
-//                                candidateList.add(null);
-//                                extendedStates.add(null);
-//                            }
-//                        }
-//                        breakPoints.add(currBreakPointIndex);
-//                        currBreakIndex.clear();
-//                        currBreakPointIndex = -1;
-//                        lastReservedPointIndex = i - 1;
-//                    }
-                    // successful iteration
+                    breakPoints.remove(i);
                     prevTimeStep = timeStep;
-                    messageList.put(i, viterbi.getMessage());
-//                    type = 3;
                 }
-            } else {
+            }
+            if (i == trajectory.size() - 1) {  // the last point
+                // complete the final part of the matching sequence
                 if (currBreakPointIndex != -1) {
-                    breakPoints.add(i);
-                    currBreakIndex.add(i);
-                    messageList.put(i, messageList.get(i - 1));
+                    // we finish the matching before last break point and start a new matching sequence from break point to the
+                    // current gap and restart the match from the break point
+                    List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions = viterbi.computeMostLikelySequence
+                            (rankLength);
+                    resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, currBreakPointIndex, candidatesMap);
+
+                    // restart the matching from the last break point
+                    i = currBreakPointIndex;
+                    currBreakPointIndex = -1;
+                    prevTimeStep = null;
+                    viterbi.setLastExtendedStates(null);
+                    viterbi.setMessage(null);
                 } else {
-                    currBreakPointIndex = i - 1;
-                    lastReservedPointIndex = i - 1;
-                    messageList.put(i, messageList.get(i - 1));
+                    List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions = viterbi.computeMostLikelySequence
+                            (rankLength);
+                    resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, trajectory.size() - 1, candidatesMap);
                 }
-//                type = 4;
             }
         }
 
-        // complete the final part of the matching sequence
-        if (currBreakPointIndex != -1) {
-            viterbi.setMessage(messageList.get(currBreakPointIndex));
-            // we finish the matching before break point and waive the rest of the sequence
-            currBreakPointIndex = -1;
-            lastReservedPointIndex = -1;
-        }
-        List<List<SequenceState<PointMatch, STPoint, RoadPath>>> lastRoadPositions =
-                viterbi.computeMostLikelySequence(rankLength);
-        for (int j = 0; j < lastRoadPositions.size(); j++) {
-            rankedRoadPositionList.computeIfAbsent(j, k -> new ArrayList<>());
-            rankedRoadPositionList.get(j).addAll(lastRoadPositions.get(j));
-        }
         // Check whether the HMM occurred in the last time step
         if (viterbi.isBroken()) {
-            System.out.println("ERROR! Unnable to compute HMM Map-Matching, Viterbi computation "
-                    + "is broken (the probability of all states equals zero).");
+            throw new RuntimeException("ERROR! The hmm break still exists after the trajectory is processed.");
         }
 
         for (int i = 0; i < rankedRoadPositionList.size(); i++) {
@@ -345,57 +253,79 @@ public class HMMMapMatching {
         }
 //        System.out.println("Time cost on matching is: " + (System.currentTimeMillis() - startTime));
 
-        if (brokenTraj) {
-            brokenTrajCount += 1;
+        if (isBrokenTraj) {
             // generate unmatched trajectories
-            List<Integer> breakPointList = new ArrayList<>(currBreakIndex);
+            List<Integer> breakPointList = new ArrayList<>(breakPoints.keySet());
 //            List<Integer> breakPointList = new ArrayList<>(breakPoints);
             breakPointList.sort(Comparator.comparingInt(m -> m));
-            Set<Integer> extendedBreakPoints = new LinkedHashSet<>();
-            int lastUnmatchedPoint = 0;
-            for (int i : breakPointList) {
-                if (i > 0) {
-                    extendedBreakPoints.add(i - 1);
-                }
-                extendedBreakPoints.add(i);
-                extendedBreakPoints.add(i + 1);
-
-                for (int p = 2; i - p > lastUnmatchedPoint; p++) {
-                    if (findMinimumDist(trajectory.get(i - p), candidatesMap.get(trajectory.get(i - p))) > gapExtensionRange) {
-                        extendedBreakPoints.add(i - p);
-                    } else {
-                        break;
+            Set<Integer> extendedBreakPoints = simpleBreakPointExtension(breakPointList, trajectory, candidatesMap);
+            if (extendedBreakPoints.isEmpty()) {
+                System.out.println("The break point(s) cannot be extended and thus removed. No unmatched trajectory output");
+            } else {
+                List<Integer> extendedBreakPointList = new ArrayList<>(extendedBreakPoints);
+                extendedBreakPointList.sort(Comparator.comparingInt(m -> m));
+                int start = extendedBreakPointList.get(0);
+                int end;
+                for (int i = 1; i < extendedBreakPointList.size(); i++) {
+                    if (extendedBreakPointList.get(i) != extendedBreakPointList.get(i - 1) + 1) {
+                        end = extendedBreakPointList.get(i - 1);
+                        unmatchedTrajectoryList.add(trajectory.subTrajectory(start, end));
+                        start = extendedBreakPointList.get(i);
                     }
                 }
-                for (int p = 2; i + p < trajectory.size(); p++) {
-                    if (findMinimumDist(trajectory.get(i + p), candidatesMap.get(trajectory.get(i + p))) > gapExtensionRange) {
-                        extendedBreakPoints.add(i + p);
-                    } else {
-                        lastUnmatchedPoint = i + p - 1;
-                        break;
-                    }
-                }
+                unmatchedTrajectoryList.add(trajectory.subTrajectory(start, extendedBreakPointList.get(extendedBreakPointList.size() - 1)));
             }
-
-            List<Integer> extendedBreakPointList = new ArrayList<>(extendedBreakPoints);
-            extendedBreakPointList.sort(Comparator.comparingInt(m -> m));
-            int start = extendedBreakPointList.get(0);
-            int end;
-            for (int i = 1; i < extendedBreakPointList.size(); i++) {
-                if (extendedBreakPointList.get(i) != extendedBreakPointList.get(i - 1) + 1) {
-                    end = extendedBreakPointList.get(i - 1);
-                    unmatchedTrajectoryList.add(trajectory.subTrajectory(start, end));
-                    start = extendedBreakPointList.get(i);
-                }
-            }
-            unmatchedTrajectoryList.add(trajectory.subTrajectory(start, extendedBreakPointList.get(extendedBreakPointList.size() - 1)));
         } else
             System.out.print("Complete match result with no break. ");
-        candidatesMap.clear();
-        return getResult(trajectory, rankedRoadPositionList);
+        return getResult(trajectory, rankedRoadPositionList, viterbi.getProbabilities());
     }
 
-    private double findMinimumDist(STPoint stPoint, Collection<PointMatch> pointMatches) {
+    private Set<Integer> simpleBreakPointExtension(List<Integer> breakPointList, Trajectory trajectory, Map<STPoint,
+            Collection<PointMatch>> candidatesMap) {
+        Set<Integer> extendedBreakPoints = new LinkedHashSet<>();
+        int lastUnmatchedPoint = 0;
+        boolean hasNeighbour = false;
+        for (int i : breakPointList) {
+            for (int p = 1; i - p > lastUnmatchedPoint; p++) {
+                if (findMinDist(trajectory.get(i - p), candidatesMap.get(trajectory.get(i - p))) > gapExtensionRange) {
+                    extendedBreakPoints.add(i - p);
+                } else {
+                    if (p != 1)
+                        hasNeighbour = true;
+                    break;
+                }
+            }
+            for (int p = 1; i + p < trajectory.size(); p++) {
+                if (findMinDist(trajectory.get(i + p), candidatesMap.get(trajectory.get(i + p))) > gapExtensionRange) {
+                    extendedBreakPoints.add(i + p);
+                    lastUnmatchedPoint = i + p;
+                } else {
+                    if (p == 1 && !hasNeighbour) {
+
+                        break;
+                    }
+                    extendedBreakPoints.add(i);
+                    lastUnmatchedPoint = i + p - 1;
+                }
+            }
+        }
+        return extendedBreakPoints;
+    }
+
+    private PointMatch findNearestMatch(STPoint trajPoint, Collection<PointMatch> trajPointMatches) {
+        PointMatch nearestPointMatch = trajPointMatches.iterator().next();
+        double distance = Double.POSITIVE_INFINITY;
+        for (PointMatch m : trajPointMatches) {
+            double currDistance = getDistance(trajPoint.x(), trajPoint.y(), m.lon(), m.lat());
+            if (currDistance < distance) {
+                nearestPointMatch = m;
+                distance = currDistance;
+            }
+        }
+        return nearestPointMatch;
+    }
+
+    private double findMinDist(STPoint stPoint, Collection<PointMatch> pointMatches) {
         double minDistance = Double.POSITIVE_INFINITY;
         for (PointMatch p : pointMatches) {
             double dist = distanceFunction.distance(p.getMatchPoint(), stPoint);
@@ -409,7 +339,7 @@ public class HMMMapMatching {
      *
      * @param pointsList List of GPS trajectory points to map.
      */
-    private void computeCandidates(Collection<STPoint> pointsList) {
+    private void computeCandidates(Collection<STPoint> pointsList, Map<STPoint, Collection<PointMatch>> candidatesMap) {
         double distance;
         // for every point find the nodes within a distance = 'candidateRange'
         for (STPoint gpsPoint : pointsList) {
@@ -430,9 +360,10 @@ public class HMMMapMatching {
     /**
      * Compute the candidates list for every GPS point using a radius query.
      *
-     * @param pointsList List of GPS trajectory points to map.
+     * @param pointsList    List of GPS trajectory points to map.
+     * @param candidatesMap the candidate list for every trajectory point
      */
-    private void computeCandidatesFromIndex(Collection<STPoint> pointsList) {
+    private void computeCandidatesFromIndex(Collection<STPoint> pointsList, Map<STPoint, Collection<PointMatch>> candidatesMap) {
         int candidateCount = 0;
         for (STPoint p : pointsList) {
             Set<String> candidateFilter = new HashSet<>();
@@ -451,7 +382,7 @@ public class HMMMapMatching {
                             Point matchingPoint = distanceFunction.findClosestPoint(p, indexItem.getSegmentElement());
                             if (distanceFunction.distance(p, matchingPoint) < candidateRange) {
                                 PointMatch candidate = new PointMatch(matchingPoint, indexItem.getSegmentElement(), indexItem.getRoadID());
-                                this.candidatesMap.get(p).add(candidate);
+                                candidatesMap.get(p).add(candidate);
                                 candidateCount++;
                                 candidateFilter.add(indexItem.getSegmentElement().x1() + "," + indexItem.getSegmentElement().y1() + "_" +
                                         indexItem.getSegmentElement().x2() + "," + indexItem.getSegmentElement().y2() + "_" + indexItem.getRoadID());
@@ -577,10 +508,11 @@ public class HMMMapMatching {
      * HMM algorithm result.
      *
      * @param roadPositionList The Viterbi algorithm result (best match).
+     * @param probabilities    The probabilities of the matching results.
      * @return A list of Point-to-Node pairs with distance.
      */
     private TrajectoryMatchResult getResult(Trajectory traj, Map<Integer, List<SequenceState<PointMatch, STPoint, RoadPath>>>
-            roadPositionList) {
+            roadPositionList, double[] probabilities) {
         TrajectoryMatchResult result = new TrajectoryMatchResult(traj, rankLength);
         for (Map.Entry<Integer, List<SequenceState<PointMatch, STPoint, RoadPath>>> roadPosition : roadPositionList.entrySet()) {
             List<PointMatch> matchPairs = new ArrayList<>();
@@ -601,6 +533,7 @@ public class HMMMapMatching {
             result.setMatchingResult(matchPairs, rank);
             result.setMatchWayList(new ArrayList<>(path), rank);
         }
+        result.setProbabilities(probabilities);
         return result;
     }
 
@@ -618,11 +551,38 @@ public class HMMMapMatching {
         return distanceFunction.pointToPointDistance(x1, y1, x2, y2);
     }
 
-    List<Trajectory> getUnMatchedTraj() {
-        return unmatchedTrajectoryList;
+    private void resultMerge(Map<Integer, List<SequenceState<PointMatch, STPoint, RoadPath>>> rankedRoadPositionList,
+                             List<List<SequenceState<PointMatch, STPoint, RoadPath>>> temporalRoadPositions, Trajectory trajectory,
+                             Map<Integer, Boolean> breakPoints, int destinationIndex, Map<STPoint, Collection<PointMatch>> candidatesMap) {
+        for (int j = 0; j < rankLength; j++) {
+            if (j < temporalRoadPositions.size()) {    // the rank j result exists
+                int cursor = 0;
+                for (int k = rankedRoadPositionList.get(j).size(); k < destinationIndex + 1; k++) {
+                    // if the current point is a breaking point
+                    if (breakPoints.containsKey(k)) {
+                        if (breakPoints.get(k))  // if the point does not have candidate
+                            rankedRoadPositionList.get(j).add(new SequenceState<>(new PointMatch(), trajectory.get(k), null));
+                        else {
+                            List<String> roadIdList = new ArrayList<>();
+                            PointMatch closestMatch = findNearestMatch(trajectory.get(k), candidatesMap.get(trajectory.get(k)));
+                            roadIdList.add(closestMatch.getRoadID());
+                            rankedRoadPositionList.get(j).add(new SequenceState<>(closestMatch, trajectory.get(k), new
+                                    RoadPath(null, null, roadIdList)));
+                        }
+                    } else {
+                        rankedRoadPositionList.get(j).add(temporalRoadPositions.get(j).get(cursor));
+                        cursor++;
+                    }
+                }
+            } else {
+                for (int k = rankedRoadPositionList.get(j).size(); k < destinationIndex + 1; k++) {
+                    rankedRoadPositionList.get(j).add(new SequenceState<>(null, trajectory.get(k), null));
+                }
+            }
+        }
     }
 
-    public int getBrokenTrajCount() {
-        return brokenTrajCount;
+    List<Trajectory> getUnMatchedTraj() {
+        return unmatchedTrajectoryList;
     }
 }

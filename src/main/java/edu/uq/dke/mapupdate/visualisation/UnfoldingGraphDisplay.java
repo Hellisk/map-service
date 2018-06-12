@@ -33,12 +33,12 @@ import static edu.uq.dke.mapupdate.Main.*;
 public class UnfoldingGraphDisplay extends PApplet {
 
     private UnfoldingMap map;
-    private int options = 18;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
+    private int options = 15;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
     // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison, 8= inferred map, 9= merged map
     private Set<String> trajectoryID = new HashSet<>();
 
     public void settings() {
-        size(1920, 1080, P2D);
+        size(1440, 900, P2D);
         this.map = new UnfoldingMap(this, new Google.GoogleMapProvider());
         MapUtils.createMouseEventDispatcher(this, map);
 
@@ -250,7 +250,7 @@ public class UnfoldingGraphDisplay extends PApplet {
                                 locationList.add(pointLocation);
                             }
                             SimpleLinesMarker marker = new SimpleLinesMarker(locationList);
-                            marker.setColor(color(255, 255, 255));  // color purple
+                            marker.setColor(color(170, 255, 229));  // color light sky
                             marker.setStrokeWeight(3);
                             linesMarkers.add(marker);
                         }

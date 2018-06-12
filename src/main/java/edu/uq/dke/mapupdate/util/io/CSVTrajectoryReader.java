@@ -5,6 +5,7 @@ import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
+import edu.uq.dke.mapupdate.util.object.spatialobject.Segment;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
 import java.io.BufferedReader;
@@ -67,12 +68,18 @@ public class CSVTrajectoryReader {
                             rawTraj.add(currPoint);
                             for (int j = 0; j < rankLength; j++) {
                                 if (matchInfo[j + 1].equals("null")) {
-                                    break;
+                                    matchingPointSet.get(j).add(new PointMatch());
+                                } else {
+                                    String[] matchPointInfo = matchInfo[j + 1].split(",");
+                                    if (matchPointInfo.length == 7) {
+                                        Point matchPoint = new Point(Double.parseDouble(matchPointInfo[0]), Double.parseDouble(matchPointInfo[1]));
+                                        Segment matchSegment = new Segment(Double.parseDouble(matchPointInfo[2]), Double.parseDouble
+                                                (matchPointInfo[3]), Double.parseDouble(matchPointInfo[4]), Double.parseDouble
+                                                (matchPointInfo[5]));
+                                        PointMatch currMatchPoint = new PointMatch(matchPoint, matchSegment, matchPointInfo[6]);
+                                        matchingPointSet.get(j).add(currMatchPoint);
+                                    } else System.out.println("ERROR! Incorrect match result length.");
                                 }
-                                String[] matchPointInfo = matchInfo[j + 1].split(",");
-                                Point matchPoint = new Point(Double.parseDouble(matchPointInfo[0]), Double.parseDouble(matchPointInfo[1]));
-                                PointMatch currMatchPoint = new PointMatch(matchPoint, null, matchPointInfo[2]);
-                                matchingPointSet.get(j).add(currMatchPoint);
                             }
                         } else System.out.println("ERROR! Inconsistent rank length during trajectory reading.");
                     }

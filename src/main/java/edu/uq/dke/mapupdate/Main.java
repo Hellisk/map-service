@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
+    public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
-    private final static boolean WORKSPACE = true; // true = home, false = school
+    private final static boolean WORKSPACE = false; // true = home, false = school
     private final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
     public final static int TRAJECTORY_COUNT = 500; // total number of trajectories extracted. -1 = extract all
     public final static int MIN_TRAJ_POINT_COUNT = 20; // the minimal number of point required in a trajectory. -1 = no requirement
@@ -81,13 +81,13 @@ public class Main {
             System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
-//            // pre-processing the data
-//            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
-//            dataPreparation();
-//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
-//                    "map-matching process.");
-//            prevTime = System.currentTimeMillis();
-//
+            // pre-processing the data
+            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
+            dataPreparation();
+            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
+                    "map-matching process.");
+            prevTime = System.currentTimeMillis();
+
             // map-matching process, read the input map first
             CSVMapReader csvMapReader;
             if (PERCENTAGE != 0) {
@@ -100,16 +100,16 @@ public class Main {
             List<TrajectoryMatchResult> trajMatchingResultList = mapMatchingBeijing(initialMap);
             System.out.println("Map matching finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
             prevTime = System.currentTimeMillis();
-//
-//            // evaluation: map matching evaluation
-//            CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-//            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
-//                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
-//            TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-////            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
-////            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
-//            trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
-//
+
+            // evaluation: map matching evaluation
+            CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
+            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
+                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+            TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
+//            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
+//            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
+            trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
+
 //            // step 1: map inference
 //            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
 //            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);

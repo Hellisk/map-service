@@ -8,6 +8,12 @@ public class PointMatch {
     private Segment matchedSegment;
     private String roadID;
 
+    public PointMatch() {
+        this.matchPoint = new Point();
+        this.matchedSegment = new Segment();
+        this.roadID = "";
+    }
+
     public PointMatch(Point matchingPoint, Segment matchedSegment, String roadID) {
         this.matchPoint = new Point(matchingPoint.x(), matchingPoint.y());
         this.matchedSegment = matchedSegment;

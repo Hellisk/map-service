@@ -99,6 +99,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      */
     private Map<S, Double> message;
 
+    private double[] probabilities = new double[rankLength];
+
     private boolean isBroken = false;
 
     private List<Map<S, Double>> messageHistory; // For debugging only.
@@ -137,7 +139,11 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     }
 
     Map<S, Double> getMessage() {
-        return message;
+        return this.message;
+    }
+
+    double[] getProbabilities() {
+        return this.probabilities;
     }
 
     void setMessage(Map<S, Double> message) {
@@ -261,6 +267,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         if (message == null) {
             // Return empty most likely sequence if there are no time steps or if initial
             // observations caused an HMM break.
+            System.out.println("WARNING! No sequence can be generated.");
             return new ArrayList<>();
         } else {
             return retrieveRankedSequences(rankLength);
@@ -425,9 +432,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             // Throws NullPointerException if curState is not stored in the map.
             result.newMessage.put(curState, optimalState == null ? Double.NEGATIVE_INFINITY : optimalState.getProbability() + emissionLogProbabilities.get(curState));
 
-            // Note that optimalState == null if there is no transition with non-zero probability.
-            // In this case curState has zero probability and will not be part of the most likely
-            // sequence, so we don't need an ExtendedState.
+            // Note that optimalState == null if there is no transition with non-zero probability. In this case curState has zero
+            // probability and will not be part of the most likely sequence, so we don't need an ExtendedState.
             if (optimalState != null) {
                 final List<D> transitionDescriptionList = new ArrayList<>();
                 final List<ExtendedState<S, O, D>> lastRankedExtendedStateList = new ArrayList<>();
@@ -505,11 +511,12 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         assert !message.isEmpty();
 
         final List<S> lastState = topRankedFinalStates(rankLength);
+        double[] currRankedProbabilities = new double[rankLength];
 
         // Retrieve top k most likely state sequence in reverse order
         final List<List<SequenceState<S, O, D>>> result = new ArrayList<>(rankLength);
         // TODO Consider using Guava's Optional.leastOf/greatestOf instead of priority queue for better performance.
-        Queue<ItemWithProbability<Pair<ExtendedState<S, O, D>, Integer>>> topRankedItems = new PriorityQueue<>();   // Triplet<current state
+        Queue<ItemWithProbability<Pair<ExtendedState<S, O, D>, Integer>>> topRankedItems = new PriorityQueue<>();   // Pair<current state
         // and the i-th back pointer>
         List<Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>>> intermediateState = new ArrayList<>(); // each pair contains the
         // ES of one of the top k candidates and its path to the end state
@@ -518,6 +525,17 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             for (int i = 0; i < es.backPointer.size(); i++) {
                 topRankedItems.add(new ItemWithProbability<>(new Pair<>(es, i), es.probabilities.get(i)));
             }
+        }
+        if (topRankedItems.isEmpty()) {
+            // the matching sequence only contains one point, which is the end point
+            for (S state : lastState) {
+                ExtendedState<S, O, D> es = lastExtendedStates.get(state);
+                SequenceState<S, O, D> currState = new SequenceState<>(es.state, es.observation, null);
+                List<SequenceState<S, O, D>> currStateList = new ArrayList<>();
+                currStateList.add(currState);
+                result.add(currStateList);
+            }
+            return result;
         }
         int candidateCount = 0;
         ItemWithProbability<Pair<ExtendedState<S, O, D>, Integer>> currItem;

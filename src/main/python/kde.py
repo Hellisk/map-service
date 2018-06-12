@@ -16,7 +16,7 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = True  # True = home, False = school
+dataset_option = False  # True = home, False = school
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option is True else beijing_school_path
