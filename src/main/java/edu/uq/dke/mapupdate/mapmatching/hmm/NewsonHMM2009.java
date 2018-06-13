@@ -16,9 +16,9 @@ import java.util.stream.Stream;
  * Created by uqpchao on 22/05/2017.
  */
 public class NewsonHMM2009 {
-    private int candidateRange = 50;    // in meter
-    private int gapExtensionRange = 20; // in meter
-    private int rankLength = 1; // in meter
+    private int candidateRange;    // in meter
+    private int gapExtensionRange; // in meter
+    private int rankLength; // in meter
 
     private List<Trajectory> unmatchedTraj = new ArrayList<>();
 

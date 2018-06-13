@@ -91,7 +91,11 @@ public class CSVTrajectoryWriter {
                         for (int j = 0; j < matchWayList.size() - 1; j++) {
                             roadIDFromTrajectory.write(matchWayList.get(j) + ",");
                         }
-                        roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
+                        if (matchWayList.size() != 0) {
+                            roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
+                        } else
+                            roadIDFromTrajectory.write("null|");
+
                         roadIDFromTrajectory.write(w.getProbability(i) + "" + "\n");
                     }
                     tripCount += 1;

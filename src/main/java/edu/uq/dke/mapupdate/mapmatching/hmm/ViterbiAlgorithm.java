@@ -99,7 +99,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      */
     private Map<S, Double> message;
 
-    private double[] probabilities = new double[rankLength];
+    private double[] probabilities;
 
     private boolean isBroken = false;
 
@@ -112,6 +112,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     ViterbiAlgorithm(int rankLength) {
         this(false);
         this.rankLength = rankLength;
+        this.probabilities = new double[rankLength];
     }
 
     /**
@@ -556,12 +557,11 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             for (Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>> item : intermediateState) {
                 List<ExtendedState<S, O, D>> backPointer = item._1().backPointer;
                 for (int i = 0; i < backPointer.size(); i++) {
-                    ExtendedState<S, O, D> candidate = backPointer.get(i);
                     SequenceState<S, O, D> currRouteState = new SequenceState<>(item._1().state, item._1().observation, item._1()
                             .transitionDescriptor.get(i));
                     List<SequenceState<S, O, D>> currRouteSequence = new ArrayList<>(item._2());
                     currRouteSequence.add(currRouteState);
-                    topRankedIntermediateResult.add(new ItemWithProbability<>(new Triplet<>(candidate, currRouteSequence, i), item._1()
+                    topRankedIntermediateResult.add(new ItemWithProbability<>(new Triplet<>(item._1(), currRouteSequence, i), item._1()
                             .probabilities.get(i)));
                 }
             }
@@ -579,7 +579,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             ItemWithProbability<Triplet<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>, Integer>> currNewItem;
             intermediateState.clear();
             while ((currNewItem = topRankedIntermediateResult.poll()) != null && currCandidateCount < rankLength) {
-                intermediateState.add(new Pair<>(currNewItem.getItem()._1(), currNewItem.getItem()._2()));
+                ExtendedState<S, O, D> currES = currNewItem.getItem()._1();
+                intermediateState.add(new Pair<>(currES.backPointer.get(currNewItem.getItem()._3()), currNewItem.getItem()._2()));
                 currCandidateCount++;
             }
         }

@@ -22,11 +22,11 @@ import java.util.stream.Stream;
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
+    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
     private final static boolean WORKSPACE = false; // true = home, false = school
     private final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
-    public final static int TRAJECTORY_COUNT = 500; // total number of trajectories extracted. -1 = extract all
+    public final static int TRAJECTORY_COUNT = 4000; // total number of trajectories extracted. -1 = extract all
     public final static int MIN_TRAJ_POINT_COUNT = 20; // the minimal number of point required in a trajectory. -1 = no requirement
     public final static int MAX_TIME_INTERVAL = 30; // the maximum time interval within a trajectory -1 = no requirement
 
@@ -34,9 +34,9 @@ public class Main {
     // preset the map boundary, si huan
 //    public final static double[] BOUNDING_BOX = {116.20, 116.57, 39.76, 40.03};
     // preset the map boundary, er huan
-    public final static double[] BOUNDING_BOX = {116.35, 116.44, 39.895, 39.95};
+//    public final static double[] BOUNDING_BOX = {116.35, 116.44, 39.895, 39.95};
     // preset the map boundary, smaller er huan
-//    public final static double[] BOUNDING_BOX = {116.400000, 116.433773, 39.950000, 39.980000};
+    public final static double[] BOUNDING_BOX = {116.400000, 116.433773, 39.950000, 39.980000};
 
     // parameters for KDE-based map inference
     private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
@@ -44,8 +44,8 @@ public class Main {
 
     // parameters for HMM-based map matching
     private final static int NUM_OF_THREADS = 8;    // number of parallel tasks for map-matching
-    private final static int CANDIDATE_RANGE = 50;  // the radius of the candidate generation range in meter
-    private final static int GAP_EXTENSION_RANGE = 20;  // the trajectory point will be extended as unmatched point if no candidate is
+    private final static int CANDIDATE_RANGE = 30;  // the radius of the candidate generation range in meter
+    private final static int GAP_EXTENSION_RANGE = 15;  // the trajectory point will be extended as unmatched point if no candidate is
     // within the circle of this radius in meter
     public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
 
@@ -81,12 +81,12 @@ public class Main {
             System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
-            // pre-processing the data
-            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
-            dataPreparation();
-            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
-                    "map-matching process.");
-            prevTime = System.currentTimeMillis();
+//            // pre-processing the data
+//            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
+//            dataPreparation();
+//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
+//                    "map-matching process.");
+//            prevTime = System.currentTimeMillis();
 
             // map-matching process, read the input map first
             CSVMapReader csvMapReader;
@@ -172,6 +172,9 @@ public class Main {
                     matchCount++;
             }
             System.out.println("Total matched node percentage: " + matchCount / (double) newBeijingMap.getNodes().size());
+            // visualization
+            UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
+            graphDisplay.display();
         }
 
 

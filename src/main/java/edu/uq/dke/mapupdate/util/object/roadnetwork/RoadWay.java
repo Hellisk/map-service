@@ -41,6 +41,10 @@ public class RoadWay extends RoadNetworkPrimitive {
     private Point virtualCenter;
 
     /**
+     * Number of times that the road way is visited
+     */
+    private long visitCount = 0;
+    /**
      * The weights of the road used for map-trajectory co-optimization
      * The confidence score indicates the confidence of the map inference
      * The influence score indicates the influence of the road to the map-matching results
@@ -382,5 +386,13 @@ public class RoadWay extends RoadNetworkPrimitive {
 
     public void setNewRoad(boolean newRoad) {
         isNewRoad = newRoad;
+    }
+
+    public long getNoOfVisits() {
+        return visitCount;
+    }
+
+    public void addVisitByOne() {
+        this.visitCount++;
     }
 }

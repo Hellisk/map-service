@@ -130,4 +130,70 @@ public class CSVMapWriter implements SpatialInterface {
         System.out.println("Random road Removal done. Total removed roads: " + roadRemovalCount + ", total removed nodes:" + vertexRemovalCount);
         bwVertices.close();
     }
+
+    public void areaBasedRoadRemoval(int percentage) throws IOException {
+
+        DecimalFormat df = new DecimalFormat(".00000");
+
+        if (percentage == 0)
+            return;
+
+        // create directories before writing
+        File file = new File(csvMapPath.substring(0, csvMapPath.lastIndexOf('/')));
+        if (!file.exists()) {
+            if (!file.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
+        }
+
+        HashMap<String, Integer> nodeRemovalCount = new HashMap<>();   // for each vertex, the total count of its edges that are removed
+        // write road way file
+        BufferedWriter bwEdges = new BufferedWriter(new FileWriter(csvMapPath + "edges_" + percentage + ".txt"));
+        BufferedWriter bwRemovedEdges = new BufferedWriter(new FileWriter(csvMapPath + "removedEdges_" + percentage + ".txt"));
+        int roadRemovalCount = 0;
+        int vertexRemovalCount = 0;
+        Random random = new Random(1);
+        for (RoadWay w : roadGraph.getWays()) {
+            if (random.nextInt(100) >= percentage) {
+                bwEdges.write(w.getId() + "|");
+                if (w.isNewRoad())
+                    bwEdges.write(w.getConfidenceScore() + "," + w.getInfluenceScore());
+                else bwEdges.write("null");
+                for (RoadNode n : w.getNodes()) {
+                    bwEdges.write("|" + n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()));
+                }
+                bwEdges.write("\n");
+            } else {
+                bwRemovedEdges.write(w.getId() + "|");
+                if (w.isNewRoad())
+                    bwRemovedEdges.write(w.getConfidenceScore() + "," + w.getInfluenceScore());
+                else bwRemovedEdges.write("null");
+                for (RoadNode n : w.getNodes()) {
+                    bwRemovedEdges.write("|" + n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()));
+                }
+                bwRemovedEdges.write("\n");
+
+                // remove one road way from the corresponding end points
+                if (nodeRemovalCount.containsKey(w.getFromNode().getId())) {
+                    nodeRemovalCount.replace(w.getFromNode().getId(), nodeRemovalCount.get(w.getFromNode().getId()) + 1);
+                } else nodeRemovalCount.put(w.getFromNode().getId(), 1);
+                if (nodeRemovalCount.containsKey(w.getToNode().getId())) {
+                    nodeRemovalCount.replace(w.getToNode().getId(), nodeRemovalCount.get(w.getToNode().getId()) + 1);
+                } else nodeRemovalCount.put(w.getToNode().getId(), 1);
+                roadRemovalCount++;
+            }
+        }
+        bwEdges.close();
+        bwRemovedEdges.close();
+        // write vertex file
+        BufferedWriter bwVertices = new BufferedWriter(new FileWriter(csvMapPath + "vertices_" + percentage + ".txt"));
+        for (RoadNode n : roadGraph.getNodes()) {
+            if (!nodeRemovalCount.containsKey(n.getId()) || nodeRemovalCount.get(n.getId()) != n.getDegree()) {
+                bwVertices.write(n.getId() + "," + df.format(n.lon()) + "," + df.format(n.lat()) + "\n");
+            } else {
+                vertexRemovalCount++;
+            }
+        }
+
+        System.out.println("Random road Removal done. Total removed roads: " + roadRemovalCount + ", total removed nodes:" + vertexRemovalCount);
+        bwVertices.close();
+    }
 }

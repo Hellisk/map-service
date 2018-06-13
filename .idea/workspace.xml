@@ -4,16 +4,16 @@
     <bookmark url="file://$PROJECT_DIR$/src/main/python/streetmap.py" line="372" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6e39ea45-7e1c-4b5e-bf8f-892bd5460911" name="Default" comment="">
+    <list default="true" id="6e39ea45-7e1c-4b5e-bf8f-892bd5460911" name="Default" comment="Rewrite the unmatched trajectory selection strategy and the break point logic.&#10;&#10;TODO: Refine the top-k matching result generation, test the map merge and evaluation, add confidence score and influence score">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/PointMatch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/PointMatch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/kde.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/kde.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -28,8 +28,8 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="88" column="29" selection-start-line="83" selection-start-column="29" selection-end-line="88" selection-end-column="29" />
+            <state relative-caret-position="-833">
+              <caret line="164" column="35" selection-start-line="164" selection-start-column="35" selection-end-line="164" selection-end-column="35" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -40,61 +40,72 @@
       <file leaf-file-name="CSVTrajectoryWriter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="84" column="37" selection-start-line="84" selection-start-column="37" selection-end-line="84" selection-end-column="37" />
+            <state relative-caret-position="277">
+              <caret line="98" column="60" selection-start-line="98" selection-start-column="60" selection-end-line="98" selection-end-column="60" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CSVTrajectoryReader.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java">
+      <file leaf-file-name="RoadNetworkGraph.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="69" column="63" selection-start-line="69" selection-start-column="63" selection-end-line="69" selection-end-column="63" />
+            <state relative-caret-position="-1156">
+              <caret line="19" column="20" lean-forward="true" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PointMatch.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/PointMatch.java">
+      <file leaf-file-name="RoadWay.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
+            <state relative-caret-position="457">
+              <caret line="390" column="25" lean-forward="true" selection-start-line="390" selection-start-column="25" selection-end-line="390" selection-end-column="25" />
               <folding>
-                <element signature="e#930#931#0" expanded="true" />
-                <element signature="e#959#960#0" expanded="true" />
+                <element signature="e#11756#11757#0" expanded="true" />
+                <element signature="e#11789#11790#0" expanded="true" />
+                <element signature="e#11771#11772#0" expanded="true" />
+                <element signature="e#11815#11816#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RoadPath.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/RoadPath.java">
+      <file leaf-file-name="RawFileOperation.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawFileOperation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="39" column="31" selection-start-line="39" selection-start-column="31" selection-end-line="39" selection-end-column="31" />
+            <state relative-caret-position="357">
+              <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ViterbiAlgorithm.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
+      <file leaf-file-name="UnfoldingGraphDisplay.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-504">
-              <caret line="127" lean-forward="true" selection-start-line="127" selection-end-line="127" />
+            <state relative-caret-position="-255">
+              <caret line="163" column="84" selection-start-line="163" selection-start-column="84" selection-end-line="163" selection-end-column="84" />
               <folding>
-                <element signature="e#3158#3159#0" expanded="true" />
-                <element signature="e#3199#3200#0" expanded="true" />
+                <element signature="e#15289#15290#0" expanded="true" />
+                <element signature="e#15358#15359#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NewsonHMM2009.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
+      <file leaf-file-name="CSVMapWriter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="38" selection-start-line="38" selection-end-line="38" />
+            <state relative-caret-position="304">
+              <caret line="141" column="47" selection-start-line="141" selection-start-column="47" selection-end-line="141" selection-end-column="47" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TrajectoryMatchResult.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/TrajectoryMatchResult.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="186">
+              <caret line="95" selection-start-line="95" selection-end-line="95" />
             </state>
           </provider>
         </entry>
@@ -102,10 +113,23 @@
       <file leaf-file-name="HMMMapMatching.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4522">
-              <caret line="278" column="70" selection-start-line="278" selection-start-column="70" selection-end-line="278" selection-end-column="70" />
+            <state relative-caret-position="-663">
+              <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ViterbiAlgorithm.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="479">
+              <caret line="581" selection-start-line="581" selection-end-line="581" />
+              <folding>
+                <element signature="e#3158#3159#0" expanded="true" />
+                <element signature="e#3199#3200#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -122,16 +146,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>p.process</find>
-      <find>root_path</find>
-      <find>os</find>
-      <find>Got an error reading</find>
-      <find>usage: python streetmap.py</find>
-      <find>_valid_node</find>
-      <find>Error display option</find>
-      <find>readRem</find>
-      <find>findWayByID</find>
-      <find />
       <find>&quot; &quot;</find>
       <find>Match result size is different from the raw trajectory</find>
       <find>ERROR! Wrong length of the road way info</find>
@@ -140,18 +154,28 @@
       <find>k</find>
       <find>Mapping</find>
       <find>breakPoints</find>
-      <find>SequenceState</find>
       <find>transitiond</find>
       <find>getMessage</find>
       <find>set</find>
       <find>setMe</find>
       <find>ERROR! No match result can be extracted</find>
       <find>ERROR! Matching result should not have NULL value</find>
-      <find>null</find>
       <find>PointMatch</find>
       <find>candidatesMap.cler</find>
       <find>setLastExtendedStates</find>
+      <find>ERROR! Probabilities set failed:</find>
       <find>probabilities</find>
+      <find>ViterbiAlgorithm</find>
+      <find>rankLength</find>
+      <find>SequenceState</find>
+      <find>new SequenceState</find>
+      <find>null,</find>
+      <find>null</find>
+      <find>unmatched</find>
+      <find>unmatch</find>
+      <find>ERROR! No preceding initiated point before break point</find>
+      <find>todo</find>
+      <find>test</find>
     </findStrings>
     <replaceStrings>
       <replace>ERROR!</replace>
@@ -179,7 +203,6 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/SHPMapReader.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawMapReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/evaluation/TrajMatchingEvaluation.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/Graph.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/RoutingGraph.java" />
@@ -189,11 +212,9 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/DoubleComparableItem.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/StateWithProbability.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/Triplet.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/test/TestMain.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/ItemWithProbability.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmerge/SPBasedRoadWayFiltering.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java" />
         <option value="$PROJECT_DIR$/src/main/python/process_map_matches.py" />
         <option value="$PROJECT_DIR$/src/main/python/skeleton.py" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawFileOperation.java" />
@@ -202,13 +223,16 @@
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapReader.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmerge/NNMapMerge.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/TrajectoryMatchResult.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/PointMatch.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" />
-        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
         <option value="$PROJECT_DIR$/src/main/python/kde.py" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java" />
         <option value="$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/Main.java" />
       </list>
     </option>
@@ -265,8 +289,8 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="580" />
-    <option name="y" value="200" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="1400" />
     <option name="height" value="1000" />
   </component>
@@ -278,6 +302,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -417,7 +442,6 @@
         </subPane>
       </pane>
       <pane id="AndroidView" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -619,7 +643,9 @@
       <workItem from="1528506979078" duration="52053000" />
       <workItem from="1528675435207" duration="19160000" />
       <workItem from="1528707245928" duration="16126000" />
-      <workItem from="1528762181675" duration="5475000" />
+      <workItem from="1528762181675" duration="19374000" />
+      <workItem from="1528791959499" duration="13585000" />
+      <workItem from="1528850499406" duration="11134000" />
     </task>
     <task id="LOCAL-00001" summary="Before modifying ranked HMM&#10;&#10;TODO: Ranked HMM, map merge">
       <created>1527953239422</created>
@@ -642,11 +668,18 @@
       <option name="project" value="LOCAL" />
       <updated>1528379999615</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Rewrite the unmatched trajectory selection strategy and the break point logic.&#10;&#10;TODO: Refine the top-k matching result generation, test the map merge and evaluation, add confidence score and influence score">
+      <created>1528773681090</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1528773681090</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="442199000" />
+    <option name="totallyTimeSpent" value="480817000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -659,37 +692,36 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49920508" weight="0.32943925" />
-      <window_info anchor="bottom" id="Messages" order="11" sideWeight="0.45628998" weight="0.3225108" />
+      <window_info anchor="bottom" id="Messages" order="11" sideWeight="0.4419714" weight="0.32142857" />
       <window_info anchor="right" id="Palette&#9;" order="9" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.53411514" side_tool="true" visible="true" weight="0.3225108" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.36565977" side_tool="true" weight="0.3956386" />
       <window_info anchor="right" id="Maven Projects" order="8" weight="0.21268657" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49960256" weight="0.32943925" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.46588486" visible="true" weight="0.3225108" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4610874" visible="true" weight="0.32142857" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49960256" weight="0.32943925" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Designer" order="3" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2196162" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2238806" />
       <window_info anchor="right" id="Database" order="7" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49801272" weight="0.32788163" />
       <window_info anchor="right" id="SciView" order="5" weight="0.3298887" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="4" />
       <window_info anchor="right" id="Theme Preview" order="6" />
       <window_info id="Favorites" order="5" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.48720682" weight="0.3961039" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6343402" weight="0.3939394" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49801272" weight="0.32788163" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -702,13 +734,14 @@
     <MESSAGE value="Before modifying ranked HMM&#10;&#10;TODO: Ranked HMM, map merge" />
     <MESSAGE value="Top k map-matching implemented, nearest neighbour map merge implemented but not tested yet. Map inference not runnable due to a bug in the final step.&#10;&#10;TODO: fix the bug in map inference, test map merge and evaluate, add confidence score and influence score, check the code correctness of map-matching" />
     <MESSAGE value="Map inference bug fixed, map inference result visible.&#10;&#10;TODO: Improve the unmatched trajectory selection strategy, test the map merge and evaluation, add confidence score and influence score, check the code correctness of map-matching" />
-    <option name="LAST_COMMIT_MESSAGE" value="Map inference bug fixed, map inference result visible.&#10;&#10;TODO: Improve the unmatched trajectory selection strategy, test the map merge and evaluation, add confidence score and influence score, check the code correctness of map-matching" />
+    <MESSAGE value="Rewrite the unmatched trajectory selection strategy and the break point logic.&#10;&#10;TODO: Refine the top-k matching result generation, test the map merge and evaluation, add confidence score and influence score" />
+    <option name="LAST_COMMIT_MESSAGE" value="Rewrite the unmatched trajectory selection strategy and the break point logic.&#10;&#10;TODO: Refine the top-k matching result generation, test the map merge and evaluation, add confidence score and influence score" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java</url>
           <line>275</line>
           <properties />
@@ -716,38 +749,44 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java</url>
-          <line>523</line>
+          <line>134</line>
           <properties />
-          <option name="timeStamp" value="56" />
+          <option name="timeStamp" value="94" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="60" />
+      <option name="time" value="112" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="MavenRunConfiguration">
-        <watch expression="trajectory" />
+        <watch expression="breakPoints" />
       </configuration>
     </watches-manager>
   </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="arrayFilter">
+      <expression>
+        <expression-string>6505</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>6055</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="filteringjava.util.ArrayList">
+      <expression>
+        <expression-string>6505</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawMapReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="42" column="30" selection-start-line="42" selection-start-column="30" selection-end-line="42" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/dijkstra/RoutingGraph.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/IOService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="194" column="23" selection-start-line="194" selection-start-column="23" selection-end-line="194" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/PriorityQueue.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="621">
@@ -874,13 +913,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1272">
-          <caret line="123" column="95" selection-start-line="123" selection-start-column="95" selection-end-line="123" selection-end-column="95" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/python/graph_extract.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="402">
@@ -900,13 +932,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawFileOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="36" column="39" selection-start-line="36" selection-start-column="39" selection-end-line="36" selection-end-column="39" />
         </state>
       </provider>
     </entry>
@@ -931,13 +956,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5814">
           <caret line="312" selection-start-line="312" selection-end-line="312" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2907">
-          <caret line="164" selection-start-line="164" selection-end-line="164" />
         </state>
       </provider>
     </entry>
@@ -990,16 +1008,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="35" column="28" selection-start-line="35" selection-start-column="28" selection-end-line="35" selection-end-column="28" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/HashMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
@@ -1018,10 +1026,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="9" selection-start-line="9" selection-end-line="9" />
-          <folding>
-            <element signature="e#930#931#0" expanded="true" />
-            <element signature="e#959#960#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1032,55 +1036,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/spatialobject/Trajectory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4522">
-          <caret line="278" column="70" selection-start-line="278" selection-start-column="70" selection-end-line="278" selection-end-column="70" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="3723">
+          <caret line="235" column="22" selection-start-line="235" selection-start-column="22" selection-end-line="235" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/python/kde.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="16" column="18" lean-forward="true" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="84" column="37" selection-start-line="84" selection-start-column="37" selection-end-line="84" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/TrajectoryMatchResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="130" column="15" selection-start-line="130" selection-start-column="15" selection-end-line="130" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="69" column="63" selection-start-line="69" selection-start-column="63" selection-end-line="69" selection-end-column="63" />
+        <state relative-caret-position="255">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
+        <state relative-caret-position="152">
           <caret line="38" selection-start-line="38" selection-end-line="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/lang/ThreadGroup.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="777" column="43" selection-start-line="777" selection-start-column="43" selection-end-line="777" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="542">
+          <caret line="180" column="5" selection-start-line="180" selection-start-column="5" selection-end-line="180" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVMapWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="141" column="47" selection-start-line="141" selection-start-column="47" selection-end-line="141" selection-end-column="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-504">
-          <caret line="127" lean-forward="true" selection-start-line="127" selection-end-line="127" />
+        <state relative-caret-position="479">
+          <caret line="581" selection-start-line="581" selection-end-line="581" />
           <folding>
             <element signature="e#3158#3159#0" expanded="true" />
             <element signature="e#3199#3200#0" expanded="true" />
@@ -1088,10 +1089,72 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/datastructure/TrajectoryMatchResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="95" selection-start-line="95" selection-end-line="95" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/visualisation/UnfoldingGraphDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-255">
+          <caret line="163" column="84" selection-start-line="163" selection-start-column="84" selection-end-line="163" selection-end-column="84" />
+          <folding>
+            <element signature="e#15289#15290#0" expanded="true" />
+            <element signature="e#15358#15359#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/RawFileOperation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadWay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="457">
+          <caret line="390" column="25" lean-forward="true" selection-start-line="390" selection-start-column="25" selection-end-line="390" selection-end-column="25" />
+          <folding>
+            <element signature="e#11756#11757#0" expanded="true" />
+            <element signature="e#11789#11790#0" expanded="true" />
+            <element signature="e#11771#11772#0" expanded="true" />
+            <element signature="e#11815#11816#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1156">
+          <caret line="19" column="20" lean-forward="true" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/util/io/CSVTrajectoryWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="277">
+          <caret line="98" column="60" selection-start-line="98" selection-start-column="60" selection-end-line="98" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/mapmatching/hmm/HMMMapMatching.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-663">
+          <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/edu/uq/dke/mapupdate/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="88" column="29" selection-start-line="83" selection-start-column="29" selection-end-line="88" selection-end-column="29" />
+        <state relative-caret-position="-833">
+          <caret line="164" column="35" selection-start-line="164" selection-start-column="35" selection-end-line="164" selection-end-column="35" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
