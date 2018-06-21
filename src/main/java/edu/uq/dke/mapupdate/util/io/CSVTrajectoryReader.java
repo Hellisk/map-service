@@ -3,6 +3,8 @@ package edu.uq.dke.mapupdate.util.io;
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
+import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Segment;
@@ -12,10 +14,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
+
+import static edu.uq.dke.mapupdate.Main.*;
 
 /**
  * Created by uqpchao on 23/05/2017.
@@ -37,9 +39,11 @@ public class CSVTrajectoryReader {
         return newTrajectory;
     }
 
-    public List<TrajectoryMatchResult> readMatchedResult(String trajectoryFilePath, int rankLength) throws IOException {
-        File matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/");
-        File roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/");
+    public List<TrajectoryMatchResult> readMatchedResult(String trajectoryFilePath) throws IOException {
+        File matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+        File roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
         List<TrajectoryMatchResult> gtResult = new ArrayList<>();
         if (matchingPointFileFolder.isDirectory() && roadIDFileFolder.isDirectory()) {
             File[] matchingPointFileList = matchingPointFileFolder.listFiles();
@@ -49,24 +53,24 @@ public class CSVTrajectoryReader {
                     File matchingPointFile = matchingPointFileList[i];
                     File roadIDFile = roadIDFileList[i];
                     Trajectory rawTraj = new Trajectory();
-                    List<List<PointMatch>> matchingPointSet = new ArrayList<>(rankLength);
-                    List<List<String>> roadWayIDList = new ArrayList<>(rankLength);
-                    for (int j = 0; j < rankLength; j++) {
+                    List<List<PointMatch>> matchingPointSet = new ArrayList<>(RANK_LENGTH);
+                    List<List<String>> roadWayIDList = new ArrayList<>(RANK_LENGTH);
+                    for (int j = 0; j < RANK_LENGTH; j++) {
                         matchingPointSet.add(new ArrayList<>());
                         roadWayIDList.add(new ArrayList<>());
                     }
-                    double[] probabilities = new double[rankLength];
+                    double[] probabilities = new double[RANK_LENGTH];
                     BufferedReader brMatchingTrajectory = new BufferedReader(new FileReader(matchingPointFile));
                     BufferedReader brRoadIDTrajectory = new BufferedReader(new FileReader(roadIDFile));
                     String line;
                     while ((line = brMatchingTrajectory.readLine()) != null) {
                         String[] matchInfo = line.split("\\|");
-                        if (matchInfo.length == rankLength + 1) {
+                        if (matchInfo.length == RANK_LENGTH + 1) {
                             String[] pointInfo = matchInfo[0].split(" ");
                             STPoint currPoint = new STPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), Long
                                     .parseLong(pointInfo[2]));
                             rawTraj.add(currPoint);
-                            for (int j = 0; j < rankLength; j++) {
+                            for (int j = 0; j < RANK_LENGTH; j++) {
                                 if (matchInfo[j + 1].equals("null")) {
                                     matchingPointSet.get(j).add(new PointMatch());
                                 } else {
@@ -78,17 +82,22 @@ public class CSVTrajectoryReader {
                                                 (matchPointInfo[5]));
                                         PointMatch currMatchPoint = new PointMatch(matchPoint, matchSegment, matchPointInfo[6]);
                                         matchingPointSet.get(j).add(currMatchPoint);
-                                    } else System.out.println("ERROR! Incorrect match result length.");
+                                    } else System.out.println("ERROR! Incorrect match result length." + roadIDFileList[i].getName());
                                 }
                             }
                         } else System.out.println("ERROR! Inconsistent rank length during trajectory reading.");
                     }
                     int rowCount = 0;
-                    while ((line = brRoadIDTrajectory.readLine()) != null && rowCount < rankLength) {
+                    while ((line = brRoadIDTrajectory.readLine()) != null && rowCount < RANK_LENGTH) {
                         String[] roadWayInfo = line.split("\\|");
                         if (roadWayInfo.length == 2) {
                             String[] matchWayResult = roadWayInfo[0].split(",");
-                            roadWayIDList.set(rowCount, Arrays.asList(matchWayResult));
+                            List<String> matchWayList = new ArrayList<>();
+                            for (String aMatchWayResult : matchWayResult) {
+                                if (!aMatchWayResult.equals("null"))
+                                    matchWayList.add(aMatchWayResult);
+                            }
+                            roadWayIDList.set(rowCount, matchWayList);
                             probabilities[rowCount] = Double.parseDouble(roadWayInfo[1]);
                             rowCount++;
                         } else System.out.println("ERROR! Wrong length of the road way info.");
@@ -97,8 +106,8 @@ public class CSVTrajectoryReader {
                     brRoadIDTrajectory.close();
                     int fileNum = Integer.parseInt(matchingPointFile.getName().substring(matchingPointFile.getName().indexOf('_') + 1, matchingPointFile.getName().indexOf('.')));
                     rawTraj.setId(fileNum + "");
-                    TrajectoryMatchResult currMatchResult = new TrajectoryMatchResult(rawTraj, rankLength);
-                    for (int j = 0; j < rankLength; j++) {
+                    TrajectoryMatchResult currMatchResult = new TrajectoryMatchResult(rawTraj, RANK_LENGTH);
+                    for (int j = 0; j < RANK_LENGTH; j++) {
                         currMatchResult.setMatchingResult(matchingPointSet.get(j), j);
                     }
                     currMatchResult.setMatchWayLists(roadWayIDList);
@@ -107,7 +116,6 @@ public class CSVTrajectoryReader {
                 }
             }
         }
-
         return gtResult;
     }
 
@@ -136,6 +144,8 @@ public class CSVTrajectoryReader {
     public List<Trajectory> readTrajectoryFilesList(String csvTrajectoryPath) throws IOException {
         File inputFile = new File(csvTrajectoryPath);
         List<Trajectory> trajectoryList = new ArrayList<>();
+        if (!inputFile.exists())
+            System.out.println("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         if (inputFile.isDirectory()) {
             File[] trajectoryFiles = inputFile.listFiles();
             if (trajectoryFiles != null) {
@@ -144,7 +154,7 @@ public class CSVTrajectoryReader {
                     newTrajectory.setId(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
                     trajectoryList.add(newTrajectory);
                 }
-            }
+            } else System.out.println("ERROR! The input trajectory dictionary is empty: " + csvTrajectoryPath);
         } else {
             trajectoryList.add(readTrajectory(inputFile));
         }

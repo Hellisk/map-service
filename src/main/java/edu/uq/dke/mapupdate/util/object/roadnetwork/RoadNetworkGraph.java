@@ -28,11 +28,20 @@ public class RoadNetworkGraph implements MapInterface {
 
     private boolean hasBoundary = false;
 
+    private int maxVisitCount = 0;
+
     /**
      * @return The list of Nodes in this road network graph.
      */
     public List<RoadNode> getNodes() {
         return nodesList;
+    }
+
+    public void setNodes(List<RoadNode> nodesList) {
+        for (RoadNode n : nodesList) {
+            n.clearDegree();
+            this.addNode(n);
+        }
     }
 
     /**
@@ -45,7 +54,8 @@ public class RoadNetworkGraph implements MapInterface {
             if (!nodeIDList.contains(node.getId())) {
                 nodesList.add(node);
                 nodeIDList.add(node.getId());
-            } else System.out.println("Node already exist: " + node.getId());
+                updateBoundingBox(node);
+            } else System.out.println("ERROR! Node already exist: " + node.getId());
         }
     }
 
@@ -57,12 +67,30 @@ public class RoadNetworkGraph implements MapInterface {
     public void addNodes(List<RoadNode> nodes) {
         if (nodes == null) {
             throw new NullPointerException(
-                    "List of road nodes to add must not be null.");
+                    "ERROR! List of road nodes to add must not be null.");
         } else {
             for (RoadNode node : nodes) {
+                updateBoundingBox(node);
                 this.addNode(node);
             }
         }
+    }
+
+    private void updateBoundingBox(RoadNode node) {
+        // update the map boarder
+        if (this.maxLon == Double.POSITIVE_INFINITY || this.maxLon < node.lon()) {
+            this.maxLon = node.lon();
+        }
+        if (this.minLon == Double.NEGATIVE_INFINITY || this.minLon > node.lon()) {
+            this.minLon = node.lon();
+        }
+        if (this.maxLat == Double.POSITIVE_INFINITY || this.maxLat < node.lat()) {
+            this.maxLat = node.lat();
+        }
+        if (this.minLat == Double.NEGATIVE_INFINITY || this.minLat > node.lat()) {
+            this.minLat = node.lat();
+        }
+        this.hasBoundary = true;
     }
 
     /**
@@ -75,7 +103,7 @@ public class RoadNetworkGraph implements MapInterface {
     /**
      * check if the boundary is preset
      *
-     * @return
+     * @return True if the boundary is preset
      */
     public boolean hasBoundary() {
         return hasBoundary;
@@ -87,7 +115,9 @@ public class RoadNetworkGraph implements MapInterface {
     public List<RoadNode> getAllNodes() {
         List<RoadNode> pointList = new ArrayList<>(this.getNodes());
         for (RoadWay w : this.getWays()) {
-            pointList.addAll(w.getNodes());
+            for (RoadNode n : w.getNodes())
+                if (!this.nodeIDList.contains(n.getId()))
+                    pointList.add(n);
         }
         return pointList;
     }
@@ -104,6 +134,10 @@ public class RoadNetworkGraph implements MapInterface {
                 wayIDList.add(way.getId());
                 way.getFromNode().increaseOutGoingDegree();
                 way.getToNode().increaseInComingDegree();
+                if (this.maxVisitCount < way.getVisitCount())
+                    this.maxVisitCount = way.getVisitCount();
+                for (RoadNode n : way.getNodes())
+                    updateBoundingBox(n);
             } else System.out.println("Road way already exist: " + way.getId());
         }
     }
@@ -118,10 +152,8 @@ public class RoadNetworkGraph implements MapInterface {
             throw new NullPointerException(
                     "List of road ways to add must not be null.");
         }
-        for (RoadWay way : waysList) {
-            if (!wayIDList.contains(way.getId()))
-                addWay(way);
-        }
+        for (RoadWay way : waysList)
+            addWay(way);
     }
 
     /**
@@ -152,6 +184,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void setMinLat(double minLat) {
         this.minLat = minLat;
+        this.hasBoundary = true;
     }
 
     /**
@@ -166,6 +199,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void setMinLon(double minLon) {
         this.minLon = minLon;
+        this.hasBoundary = true;
     }
 
     /**
@@ -180,6 +214,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void setMaxLat(double maxLat) {
         this.maxLat = maxLat;
+        this.hasBoundary = true;
     }
 
     /**
@@ -194,6 +229,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void setMaxLon(double maxLon) {
         this.maxLon = maxLon;
+        this.hasBoundary = true;
     }
 
     /**
@@ -204,5 +240,26 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public boolean isEmpty() {
         return nodesList == null || nodesList.isEmpty();
+    }
+
+    public int isolatedNodeRemoval() {
+        List<RoadNode> removedRoadNodeList = new ArrayList<>();
+        for (RoadNode n : this.nodesList) {
+            if (n.getDegree() == 0) {
+                removedRoadNodeList.add(n);
+                this.nodeIDList.remove(n.getId());
+            }
+        }
+        this.nodesList.removeAll(removedRoadNodeList);
+        return removedRoadNodeList.size();
+    }
+
+    public int getMaxVisitCount() {
+        return maxVisitCount;
+    }
+
+    public void updateMaxVisitCount(int visitCount) {
+        if (this.maxVisitCount < visitCount)
+            this.maxVisitCount = visitCount;
     }
 }

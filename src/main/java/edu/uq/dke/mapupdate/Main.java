@@ -10,7 +10,8 @@ import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
-import edu.uq.dke.mapupdate.visualisation.UnfoldingGraphDisplay;
+import edu.uq.dke.mapupdate.visualisation.UnfoldingMapDisplay;
+import edu.uq.dke.mapupdate.visualisation.UnfoldingTrajectoryDisplay;
 import org.apache.log4j.BasicConfigurator;
 
 import java.io.IOException;
@@ -22,15 +23,16 @@ import java.util.stream.Stream;
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
+    public final static int PERCENTAGE = 1;         // percentage of removed road ways (max = 100)
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
     private final static boolean WORKSPACE = false; // true = home, false = school
-    private final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
-    public final static int TRAJECTORY_COUNT = 4000; // total number of trajectories extracted. -1 = extract all
-    public final static int MIN_TRAJ_POINT_COUNT = 20; // the minimal number of point required in a trajectory. -1 = no requirement
-    public final static int MAX_TIME_INTERVAL = 30; // the maximum time interval within a trajectory -1 = no requirement
+    public final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
+    public final static int TRAJECTORY_COUNT = 5000; // total number of trajectories extracted. -1 = extract all
+    public final static int MIN_TRAJ_POINT_COUNT = 10; // the minimal number of point required in a trajectory. -1 = no requirement
+    public final static int MAX_TIME_INTERVAL = 60; // the maximum time interval within a trajectory -1 = no requirement
 
-    //    public final static double[] BOUNDING_BOX = {};
+    // after the change of bounding box, the existing trajectories should be deleted manually
+//    public final static double[] BOUNDING_BOX = {};
     // preset the map boundary, si huan
 //    public final static double[] BOUNDING_BOX = {116.20, 116.57, 39.76, 40.03};
     // preset the map boundary, er huan
@@ -44,8 +46,8 @@ public class Main {
 
     // parameters for HMM-based map matching
     private final static int NUM_OF_THREADS = 8;    // number of parallel tasks for map-matching
-    private final static int CANDIDATE_RANGE = 30;  // the radius of the candidate generation range in meter
-    private final static int GAP_EXTENSION_RANGE = 15;  // the trajectory point will be extended as unmatched point if no candidate is
+    private final static int CANDIDATE_RANGE = 50;  // the radius of the candidate generation range in meter
+    private final static int GAP_EXTENSION_RANGE = 25;  // the trajectory point will be extended as unmatched point if no candidate is
     // within the circle of this radius in meter
     public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
 
@@ -58,18 +60,20 @@ public class Main {
     private final static String GLOBAL_HOME_PATH = "F:/data/evaluationTrajectory/";       // the root folder of all data
     public final static String ROOT_PATH = DATASET_OPTION <= 0 ? (WORKSPACE ? BEIJING_HOME_PATH : BEIJING_SCHOOL_PATH) : (WORKSPACE ?
             GLOBAL_HOME_PATH : GLOBAL_SCHOOL_PATH);
-    private final static String PYTHON_SCHOOL_PATH = "C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/python/";
-    private final static String PYTHON_HOME_PATH = "F:/OneDrive/code/github/MapUpdate/src/main/python/";
-    private final static String PYTHON_CODE_ROOT_PATH = WORKSPACE ? PYTHON_HOME_PATH : PYTHON_SCHOOL_PATH;
+    private final static String CODE_SCHOOL_PATH = "C:/Users/uqpchao/OneDrive/code/github/MapUpdate/";
+    private final static String CODE_HOME_PATH = "F:/OneDrive/code/github/MapUpdate/";
+    public final static String CODE_ROOT_PATH = WORKSPACE ? CODE_HOME_PATH : CODE_SCHOOL_PATH;
 
     // different paths in Beijing dataset
     public final static String RAW_MAP = ROOT_PATH + "raw/map/";
-    public final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
+    private final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
     public final static String GT_MAP = ROOT_PATH + "groundTruth/map/";  // ground-truth road network
-    public final static String GT_MATCHING_RESULT = ROOT_PATH + "groundTruth/matchingResult/";   // the map-matched trajectory dataset
-    private final static String INPUT_MAP = ROOT_PATH + "input/map/"; // the map with removed roads
-    public final static String INPUT_TRAJECTORY = ROOT_PATH + "input/trajectory/";    // input trajectory dataset
-    private final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
+    public final static String GT_MATCHING_RESULT = ROOT_PATH + "groundTruth/matchingResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";   // the map-matched trajectory dataset
+    public final static String INPUT_MAP = ROOT_PATH + "input/map/"; // the map with removed roads
+    public final static String INPUT_TRAJECTORY = ROOT_PATH + "input/trajectory/TP" + MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL +
+            "_TC" + TRAJECTORY_COUNT + "/";    // input trajectory dataset
+    public final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
 
     public static void main(String[] args) throws IOException {
 
@@ -81,20 +85,19 @@ public class Main {
             System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
+//            System.out.println("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
+//            rawMapInitialization();
+//            System.out.print("Initialization done. ");
+
 //            // pre-processing the data
-//            System.out.println("Data preprocessing step required. Start the data preprocessing step...");
-//            dataPreparation();
+//            System.out.println("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
+//            dataPreprocessing();
 //            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
 //                    "map-matching process.");
 //            prevTime = System.currentTimeMillis();
-
+//
             // map-matching process, read the input map first
-            CSVMapReader csvMapReader;
-            if (PERCENTAGE != 0) {
-                csvMapReader = new CSVMapReader(INPUT_MAP);
-            } else {
-                csvMapReader = new CSVMapReader(GT_MAP);
-            }
+            CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
             RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
 //            Stream<TrajectoryMatchResult> trajMatchingResultStream = parallelMapMatchingBeijing();
             List<TrajectoryMatchResult> trajMatchingResultList = mapMatchingBeijing(initialMap);
@@ -109,20 +112,23 @@ public class Main {
 //            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
 //            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
             trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
-
+//
 //            // step 1: map inference
 //            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
-//            mapInference.KDEMapInferenceProcess(PYTHON_CODE_ROOT_PATH);
+//            mapInference.KDEMapInferenceProcess(CODE_ROOT_PATH + "src/main/python/", OUTPUT_FOLDER + "unmatchedNextInput/TP" +
+//                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
 //            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
+//
+//
+//            // step 3: map merge
+//            NNMapMerge spMapMerge = new NNMapMerge(initialMap, inferenceGraph, 64, MAX_DISTANCE_THRESHOLD);
+//            RoadNetworkGraph mergedMap = spMapMerge.NearestNeighbourMapMerge();
 
-
-//        // step 3: map merge
-//        NNMapMerge spMapMerge = new NNMapMerge(initialMap, inferenceGraph, 64,MAX_DISTANCE_THRESHOLD);
-//        RoadNetworkGraph mergedMap = spMapMerge.NearestNeighbourMapMerge();
-
-            // visualization
-            UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
-            graphDisplay.display();
+//            // visualization
+//            UnfoldingMapDisplay mapDisplay = new UnfoldingMapDisplay();
+//            mapDisplay.display();
+            UnfoldingTrajectoryDisplay trajDisplay = new UnfoldingTrajectoryDisplay();
+            trajDisplay.display();
         } else if (DATASET_OPTION == 1) {    // map-matching evaluation dataset
 
             // use global dataset to evaluate the map-matching accuracy
@@ -173,10 +179,9 @@ public class Main {
             }
             System.out.println("Total matched node percentage: " + matchCount / (double) newBeijingMap.getNodes().size());
             // visualization
-            UnfoldingGraphDisplay graphDisplay = new UnfoldingGraphDisplay();
+            UnfoldingMapDisplay graphDisplay = new UnfoldingMapDisplay();
             graphDisplay.display();
         }
-
 
 //        // evaluation: map inference evaluation
 //        String removedEdgesPath = initialMap + CITY_NAME + "_removed_edges.txt";
@@ -224,12 +229,7 @@ public class Main {
      */
     private static Stream<TrajectoryMatchResult> parallelMapMatchingBeijing() throws IOException, ExecutionException, InterruptedException {
         // read input map and trajectories
-        CSVMapReader csvMapReader;
-        if (PERCENTAGE != 0) {
-            csvMapReader = new CSVMapReader(INPUT_MAP);
-        } else {
-            csvMapReader = new CSVMapReader(GT_MAP);
-        }
+        CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
         RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
         CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
         Stream<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesStream(INPUT_TRAJECTORY);
@@ -294,26 +294,47 @@ public class Main {
      *
      * @throws IOException file read error
      */
-    private static void dataPreparation() throws IOException {
+    private static void dataPreprocessing() throws IOException {
 
-        // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
-        System.out.println("Start reading the raw road map from SHP file.");
-        RawMapReader shpReader = new RawMapReader(RAW_MAP, BOUNDING_BOX);
-        RoadNetworkGraph roadNetworkGraph = shpReader.readNewBeijingMap();
-        CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
+        // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
+        System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box");
+        CSVMapReader rawMapReader = new CSVMapReader(GT_MAP);
+        RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
+        CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
         rawGTMapWriter.writeMap(0);
+//        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
+//        trajFilter.groundTruthMatchResultStatistics(roadNetworkGraph, RAW_TRAJECTORY);
 
         // pre-processing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of
         // road map
         System.out.println("Start the trajectory filtering.");
-        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, STATISTIC_MODE, MAX_TIME_INTERVAL);
-        trajFilter.RawTrajectoryParser(GT_MAP, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT);
+        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
+        trajFilter.rawTrajectoryParser(roadNetworkGraph, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT);
 
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
         System.out.println("Start manipulating the map according to the given road removal percentage:" + PERCENTAGE);
-        CSVMapReader groundTruthMapReader = new CSVMapReader(GT_MAP);
-        RoadNetworkGraph graph = groundTruthMapReader.readMap(0);
-        CSVMapWriter mapRemovalWriter = new CSVMapWriter(graph, INPUT_MAP);
-        mapRemovalWriter.randomBasedRoadRemoval(PERCENTAGE);
+//        CSVMapReader visitedMapReader = new CSVMapReader(INPUT_MAP);
+//        RoadNetworkGraph visitedGraph = visitedMapReader.readMap(0);
+        CSVMapWriter mapRemovalWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
+        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE);
+    }
+
+    /**
+     * Initialize the entire Beijing road map, set the visit frequency of each edge.
+     *
+     * @throws IOException file read error
+     */
+    private static void rawMapInitialization() throws IOException {
+
+        // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
+        System.out.println("Start reading the raw road map from SHP file and extract the map enclosed by the bounding box");
+        double[] boundingBox = new double[0];
+        RawMapReader shpReader = new RawMapReader(RAW_MAP, boundingBox);
+        RoadNetworkGraph roadNetworkGraph = shpReader.readNewBeijingMap();
+        RawFileOperation trajFilter = new RawFileOperation(-1, -1, -1);
+        trajFilter.trajectoryVisitAssignment(roadNetworkGraph, RAW_TRAJECTORY);
+        // write the visited map to the ground truth folder
+        CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
+        rawGTMapWriter.writeMap(0);
     }
 }

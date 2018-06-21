@@ -131,8 +131,6 @@ public class HMMMapMatching {
         // check if every point has candidates
         // build the lattice
 
-        if (trajectory.size() == 7243)
-            System.out.println("test");
         for (int i = 0; i < trajectory.size(); i++) {
 //            System.out.println("Last point spent:" + (System.currentTimeMillis() - endTime) + "ms, which was " + type);
 //            endTime = System.currentTimeMillis();
@@ -150,6 +148,7 @@ public class HMMMapMatching {
                 computeEmissionProbabilities(timeStep);
                 viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
                         timeStep.emissionLogProbabilities);
+                breakPoints.remove(i);  // start the new match from the current point, so it is no longer a break point.
                 // successful initialization
                 prevTimeStep = timeStep;
             } else {   // continue the matching process
@@ -209,7 +208,6 @@ public class HMMMapMatching {
                             currBreakPointIndex--;
                         }
                         if (currBreakPointIndex < rankedRoadPositionList.get(0).size())
-                            // TODO bug reported
                             throw new IndexOutOfBoundsException("ERROR! No preceding initiated point before break point.");
                     }
                     // mark the broken points and expect a reconnection

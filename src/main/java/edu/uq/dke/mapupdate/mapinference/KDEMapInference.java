@@ -18,12 +18,12 @@ class KDEMapInference {
     }
 
     // use python script to run map inference python code
-    void startMapInference(String rootPath) {
+    void startMapInference(String rootPath, String inputTrajPath) {
         String[] pythonCmd = new String[9];
 
         // setup each command manually
         if (this.cellSize != 1 || this.gaussianBlur != 17) {
-            pythonCmd[0] = "python " + rootPath + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur;
+            pythonCmd[0] = "python " + rootPath + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -p " + inputTrajPath;
         } else {
             pythonCmd[0] = "python " + rootPath + "kde.py";
         }

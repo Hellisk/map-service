@@ -14,6 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import static edu.uq.dke.mapupdate.Main.MAX_TIME_INTERVAL;
+import static edu.uq.dke.mapupdate.Main.MIN_TRAJ_POINT_COUNT;
+import static edu.uq.dke.mapupdate.Main.TRAJECTORY_COUNT;
+
 /**
  * Created by uqpchao on 23/05/2017.
  */
@@ -31,8 +35,10 @@ public class CSVTrajectoryWriter {
      * @param matchingList matching result
      */
     public void matchedTrajectoryWriter(List<TrajectoryMatchResult> matchingList, int rankLength) throws IOException {
-        File matchedResultFolder = new File(this.outputFolder + "matchedResult/");
-        File roadIDListFolder = new File(this.outputFolder + "matchedRoadID/");
+        File matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+        File roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
         int tripCount = 0;
         int pointCount = 0;
         if (!matchedResultFolder.exists()) {
@@ -52,11 +58,13 @@ public class CSVTrajectoryWriter {
                     if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
-            DecimalFormat df = new DecimalFormat(".00000");
+            DecimalFormat df = new DecimalFormat("0.00000");
             for (TrajectoryMatchResult w : matchingList) {
                 try {
-                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedResult/matchedtrip_" + w.getTrajID() + ".txt"));
-                    BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "matchedRoadID/matchedtripID_" + w.getTrajID() + ".txt"));
+                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(matchedResultFolder.toString() +
+                            "/matchedtrip_" + w.getTrajID() + ".txt"));
+                    BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(roadIDListFolder.toString() + "/matchedtripID_"
+                            + w.getTrajID() + ".txt"));
 
                     // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
                     // roadID|...)
@@ -68,7 +76,7 @@ public class CSVTrajectoryWriter {
                         for (int j = 0; j < rankLength; j++) {
                             if (j < maxRank && w.getMatchingResult(j).size() > i) {
                                 PointMatch currMatch = w.getMatchingResult(j).get(i);
-                                if (currMatch != new PointMatch())
+                                if (!currMatch.getRoadID().equals(""))
                                     // write the information of trajectory matching result, including match point, match segment and road id
                                     bwMatchedTrajectory.write("|" + df.format(currMatch.lon()) + "," + df.format(currMatch.lat()) + "," +
                                             df.format(currMatch.getMatchedSegment().x1()) + "," + df.format(currMatch.getMatchedSegment()
@@ -115,8 +123,10 @@ public class CSVTrajectoryWriter {
      * @param trajectoryList output trajectories
      */
     public void trajectoryWriter(List<Trajectory> trajectoryList) throws IOException {
-        File outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/");
-        File nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/");
+        File outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+        File nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
         int tripCount = 0;
         int pointCount = 1;
         if (!outputTrajectoryFolder.exists()) {
@@ -138,8 +148,10 @@ public class CSVTrajectoryWriter {
             }
             for (Trajectory w : trajectoryList) {
                 try {
-                    BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "unmatchedTraj/trip_" + w.getId() + ".txt"));
-                    BufferedWriter nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(this.outputFolder + "unmatchedNextInput/trip_" + w.getId() + ".txt"));
+                    BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" + w
+                            .getId() + ".txt"));
+                    BufferedWriter nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
+                            "/trip_" + w.getId() + ".txt"));
                     Iterator<STPoint> iter = w.iterator();
                     int startPointCount = pointCount;
                     int matchingPointCount = w.getSTPoints().size();

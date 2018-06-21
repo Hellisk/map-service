@@ -21,7 +21,9 @@ beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option is True else beijing_school_path
 root_path = root_folder + "mapInference/"
-input_path = root_folder + "output/unmatchedNextInput/"
+
+
+# input_path = root_folder + "output/unmatchedNextInput/"
 
 
 def pairwise(iterable):

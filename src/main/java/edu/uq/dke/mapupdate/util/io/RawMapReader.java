@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static edu.uq.dke.mapupdate.Main.STATISTIC_MODE;
+
 /**
  * Created by uqpchao on 3/07/2017.
  */
@@ -38,7 +40,14 @@ public class RawMapReader {
     }
 
     /**
-     * Read and parse the shape file.
+     * Read and parse the shape file of new Beijing road map. This road map contains the following features
+     * 1. Many intersections are compounded by multiple sub-nodes, each pair of which is connected by a tiny edge
+     * 2. The edge connected to the sub node is recorded in the adjacent list of both the primary node and the sub node
+     * 3. The edge connecting the sub node and its primary node is only recorded in tue sub node and does not appear in primary node
+     * 4. The link number doesn't contain -edgeID, but appears in matching results
+     * 5. Non-intersection nodes may have multiple adjacent edges
+     * <p>
+     * The node of the output map includes the id, coordinates and the node type, the road ways contains
      *
      * @return A Road Network Graph containing the
      * Nodes, Ways and Relations in the shape file.
@@ -57,8 +66,8 @@ public class RawMapReader {
         FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection = vertexSource.getFeatures(filter);
 
         // set boundary
-        if (this.roadGraph.getMinLat() == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLat() == Double.POSITIVE_INFINITY && this.roadGraph.getMinLon()
-                == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLon() == Double.POSITIVE_INFINITY) {
+        if (this.roadGraph.getMinLat() == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLat() == Double.POSITIVE_INFINITY && this
+                .roadGraph.getMinLon() == Double.NEGATIVE_INFINITY && this.roadGraph.getMaxLon() == Double.POSITIVE_INFINITY) {
             ReferencedEnvelope bounds = vertexCollection.getBounds();
             this.roadGraph.setMinLon(bounds.getMinX());
             this.roadGraph.setMinLat(bounds.getMinY());
@@ -66,31 +75,29 @@ public class RawMapReader {
             this.roadGraph.setMaxLat(bounds.getMaxY());
         }
 
+        // start reading nodes
         List<RoadNode> roadNodeList = new ArrayList<>();
         Map<String, RoadNode> id2Node = new HashMap<>();
-        int roadNodeCount = 0;
         try (FeatureIterator<SimpleFeature> features = vertexCollection.features()) {
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
                 MultiPoint point = (MultiPoint) feature.getAttribute(0);
-                // check whether the road node is inside the given rectangle
+                // check whether the road node is inside the given bounding box
                 if (isInside(point.getCoordinate().x, point.getCoordinate().y, roadGraph)) {
                     String pointID = feature.getAttribute(2).toString();
-//                    if (feature.getAttribute(5).equals("1")) {
-//                        coNodeMapping.put(pointID, (String) feature.getAttribute(8));
-//                    }
-                    RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y);
+                    short nodeType = Short.parseShort(feature.getAttribute(5).toString());
+                    RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y, nodeType);
+                    id2Node.put(pointID, newRoadNode);
                     roadNodeList.add(newRoadNode);
-                    id2Node.put(newRoadNode.getId(), newRoadNode);
-                    roadNodeCount++;
                 }
             }
+        } catch (IllegalThreadStateException e) {
+            e.printStackTrace();
         }
-
         this.roadGraph.addNodes(roadNodeList);
         dataStoreVertex.dispose();
 
-        // read edges
+        // start reading edges
         File edgeFile = new File(generalPath + "Rbeijing_polyline.shp");
         FileDataStore dataStoreEdge = FileDataStoreFinder.getDataStore(edgeFile);
         String edgeTypeName = dataStoreEdge.getTypeNames()[0];
@@ -99,6 +106,8 @@ public class RawMapReader {
         FeatureCollection<SimpleFeatureType, SimpleFeature> edgeCollection = edgeSource.getFeatures(filter);
 
         List<RoadWay> roadWayList = new ArrayList<>();
+        Map<String, Integer> roadTypeDictionary = new HashMap<>();
+        initDictionary(roadTypeDictionary);
         int roadWayPointID = 0;
         try (FeatureIterator<SimpleFeature> features = edgeCollection.features()) {
             while (features.hasNext()) {
@@ -106,15 +115,32 @@ public class RawMapReader {
                 MultiLineString edges = (MultiLineString) feature.getAttribute(0);
                 String edgeID = feature.getAttribute(2).toString();
                 RoadWay newRoadWay = new RoadWay(edgeID);
+                int numOfType = Integer.parseInt(feature.getAttribute(3).toString());
+                if (numOfType == 1) {
+                    String roadLevel = feature.getAttribute(4).toString().substring(0, 2);
+                    String roadType = feature.getAttribute(4).toString().substring(2);
+                    roadLevelConverter(newRoadWay, roadLevel);
+                    if (roadTypeDictionary.containsKey(roadType))
+                        newRoadWay.setRoadWayTypeBit(roadTypeDictionary.get(roadType));
+                    else
+                        System.out.println("test");
+                } else if (numOfType > 1) {
+                    String[] roadTypeList = feature.getAttribute(4).toString().split("\\|");
+                    String roadLevel = roadTypeList[0].substring(0, 2);
+                    roadLevelConverter(newRoadWay, roadLevel);
+                    for (int i = 0; i < numOfType; i++) {
+                        if (roadTypeDictionary.containsKey(roadTypeList[i].substring(2)))
+                            newRoadWay.setRoadWayTypeBit(roadTypeDictionary.get(roadTypeList[i].substring(2)));
+                        else System.out.println("ERROR! Incorrect road type: " + roadTypeList[i].substring(2));
+                    }
+                } else
+                    System.out.println("test");
+
                 List<RoadNode> miniNode = new ArrayList<>();
                 Coordinate[] coordinates = edges.getCoordinates();
                 // the endpoints are not included in the current map
                 if (!isInside(coordinates[0].x, coordinates[0].y, roadGraph) || !isInside(coordinates[coordinates.length - 1].x, coordinates[coordinates.length - 1].y, roadGraph))
                     continue;
-                if (!id2Node.containsKey(feature.getAttribute(10).toString()) || !id2Node.containsKey(feature.getAttribute(11).toString())) {
-                    System.out.println("ERROR! The endpoints of the input road way is not in the road node list!");
-                    continue;
-                }
                 for (int i = 0; i < coordinates.length; i++) {
                     if (i == 0) {
                         miniNode.add(id2Node.get(feature.getAttribute(10).toString()));
@@ -127,11 +153,12 @@ public class RawMapReader {
                 }
                 switch (feature.getAttribute(6).toString()) {
                     case "0":
-                    case "1":
+                    case "1": {
                         newRoadWay.addNodes(miniNode);
                         roadWayList.add(newRoadWay);
                         RoadWay reverseRoad = new RoadWay("-" + edgeID);
-
+                        reverseRoad.setRoadWayLevel(newRoadWay.getRoadWayLevel());
+                        reverseRoad.setRoadWayType(newRoadWay.getRoadWayType());
                         reverseRoad.addNode(newRoadWay.getToNode());
                         for (int i = miniNode.size() - 2; i > 0; i--) {
                             RoadNode reverseNode = new RoadNode(roadWayPointID + "-", miniNode.get(i).lon(), miniNode.get(i).lat());
@@ -141,28 +168,87 @@ public class RawMapReader {
                         reverseRoad.addNode(newRoadWay.getFromNode());
                         roadWayList.add(reverseRoad);
                         break;
-                    case "2":
+                    }
+                    case "2": {
                         newRoadWay.addNodes(miniNode);
                         roadWayList.add(newRoadWay);
                         break;
-                    case "3":
-                        for (int i = miniNode.size() - 1; i >= 0; i--) {
+                    }
+                    case "3": {
+                        for (int i = miniNode.size() - 1; i >= 0; i--)
                             newRoadWay.addNode(miniNode.get(i));
-                        }
                         roadWayList.add(newRoadWay);
                         break;
-                    default:
+                    }
+                    default: {
                         System.out.println("Error direction number:" + feature.getAttribute(6).toString());
                         break;
+                    }
                 }
             }
+        } catch (IllegalThreadStateException e) {
+            e.printStackTrace();
         }
         this.roadGraph.addWays(roadWayList);
-        System.out.println("Raw map read finish, total intersections:" + roadNodeCount + ", total road node points:" + roadWayPointID +
-                ", total road ways: " + roadWayList.size());
+        long roadLength = 0;
+        for (RoadWay w : this.roadGraph.getWays()) {
+            roadLength += w.getRoadLength();
+        }
+
+        int removedNodeCount = roadGraph.isolatedNodeRemoval();
+        System.out.println("Raw map read finish, " + removedNodeCount + " nodes are removed due to no edges connected. Total " +
+                "intersections:" + roadGraph.getNodes().size() + ", total intermediate road node points:" + roadWayPointID +
+                ", total road ways: " + roadWayList.size() + ", average road way length: " + roadLength / roadGraph.getWays().size());
         dataStoreEdge.dispose();
 
         return this.roadGraph;
+    }
+
+    private void roadLevelConverter(RoadWay newRoadWay, String roadLevel) {
+        switch (roadLevel) {
+            case "0a":
+                newRoadWay.setRoadWayLevel((short) 5);
+                break;
+            case "0b":
+                newRoadWay.setRoadWayLevel((short) 7);
+                break;
+            default:
+                newRoadWay.setRoadWayLevel(Short.parseShort(roadLevel));
+                break;
+        }
+    }
+
+    /**
+     * Initialize the road type dictionary. The dictionary is used for road type code conversion.
+     *
+     * @param roadTypeDictionary Dictionary to be initialized
+     */
+    private void initDictionary(Map<String, Integer> roadTypeDictionary) {
+        roadTypeDictionary.put("00", 0);
+        roadTypeDictionary.put("01", 1);
+        roadTypeDictionary.put("02", 2);
+        roadTypeDictionary.put("03", 3);
+        roadTypeDictionary.put("04", 4);
+        roadTypeDictionary.put("05", 5);
+        roadTypeDictionary.put("06", 6);
+        roadTypeDictionary.put("07", 7);
+        roadTypeDictionary.put("08", 8);
+        roadTypeDictionary.put("09", 9);
+        roadTypeDictionary.put("11", 10);
+        roadTypeDictionary.put("12", 11);
+        roadTypeDictionary.put("13", 12);
+        roadTypeDictionary.put("14", 13);
+        roadTypeDictionary.put("15", 14);
+        roadTypeDictionary.put("16", 15);
+        roadTypeDictionary.put("17", 16);
+        roadTypeDictionary.put("18", 17);
+        roadTypeDictionary.put("19", 18);
+        roadTypeDictionary.put("0a", 19);
+        roadTypeDictionary.put("0b", 20);
+        roadTypeDictionary.put("0c", 21);
+        roadTypeDictionary.put("0d", 22);
+        roadTypeDictionary.put("0e", 23);
+        roadTypeDictionary.put("0f", 24);
     }
 
     public RoadNetworkGraph readOldBeijingMap() throws IOException {
@@ -230,7 +316,8 @@ public class RawMapReader {
 
     private boolean isInside(double pointX, double pointY, RoadNetworkGraph roadGraph) {
         if (roadGraph.hasBoundary())
-            return pointX > roadGraph.getMinLon() && pointX < roadGraph.getMaxLon() && pointY > roadGraph.getMinLat() && pointY < roadGraph.getMaxLat();
+            return pointX >= roadGraph.getMinLon() && pointX <= roadGraph.getMaxLon() && pointY >= roadGraph.getMinLat() && pointY <=
+                    roadGraph.getMaxLat();
         else return true;
     }
 }

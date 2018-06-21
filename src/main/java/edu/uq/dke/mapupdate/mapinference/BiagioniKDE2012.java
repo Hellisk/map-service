@@ -7,8 +7,8 @@ public class BiagioniKDE2012 {
         this.mapInference = new KDEMapInference(cellSize, blur);
     }
 
-    public void KDEMapInferenceProcess(String rootPath) {
+    public void KDEMapInferenceProcess(String codeRootPath, String inputTrajPath) {
         KDEMapInference mapInference = new KDEMapInference();
-        mapInference.startMapInference(rootPath);
+        mapInference.startMapInference(codeRootPath, inputTrajPath);
     }
 }
