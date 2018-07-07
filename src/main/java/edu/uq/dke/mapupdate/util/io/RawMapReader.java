@@ -258,7 +258,7 @@ public class RawMapReader {
         // read road nodes
         BufferedReader mapFileReader = new BufferedReader(new FileReader(generalPath + "Oldbeijing_map.txt"));
         int nodeSize = Integer.parseInt(mapFileReader.readLine());      // the total number of nodes in file
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.00000");
         for (int i = 0; i < nodeSize; i++) {
             String[] nodeInfo = mapFileReader.readLine().split("\t");
             if (nodeInfo.length == 3) {

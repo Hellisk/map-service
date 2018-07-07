@@ -15,11 +15,9 @@ import java.util.*;
  * Created by uqpchao on 22/05/2017.
  */
 public class CSVMapReader implements SpatialInterface {
-    private RoadNetworkGraph roadGraph;
     private String csvMapPath;
 
     public CSVMapReader(String csvPath) {
-        this.roadGraph = new RoadNetworkGraph();
         this.csvMapPath = csvPath;
     }
 
@@ -29,14 +27,23 @@ public class CSVMapReader implements SpatialInterface {
      * @return A road network graph containing the road nodes and road ways in the CSV file.
      * @throws IOException file not found
      */
-    public RoadNetworkGraph readMap(int percentage) throws IOException {
+    public RoadNetworkGraph readMap(int percentage, int iteration, boolean isTempMap) throws IOException {
 
+        RoadNetworkGraph roadGraph = new RoadNetworkGraph();
         List<RoadNode> nodes = new ArrayList<>();
         List<RoadWay> ways = new ArrayList<>();
         Map<String, RoadNode> index2Node = new HashMap<>();       // maintain a mapping of road location to node index
         // read road nodes
         String line;
-        BufferedReader brVertices = new BufferedReader(new FileReader(this.csvMapPath + "vertices_" + percentage + ".txt"));
+        String inputPath;
+        if (iteration != -1)
+            inputPath = this.csvMapPath + "map/" + iteration + "/";
+        else inputPath = this.csvMapPath;
+
+        BufferedReader brVertices;
+        if (isTempMap)
+            brVertices = new BufferedReader(new FileReader(inputPath + "temp_vertices_" + percentage + ".txt"));
+        else brVertices = new BufferedReader(new FileReader(inputPath + "vertices_" + percentage + ".txt"));
         while ((line = brVertices.readLine()) != null) {
             RoadNode newNode = RoadNode.parseRoadNode(line);
             nodes.add(newNode);
@@ -45,7 +52,10 @@ public class CSVMapReader implements SpatialInterface {
         brVertices.close();
 
         // read road ways
-        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "edges_" + percentage + ".txt"));
+        BufferedReader brEdges;
+        if (isTempMap)
+            brEdges = new BufferedReader(new FileReader(inputPath + "temp_edges_" + percentage + ".txt"));
+        else brEdges = new BufferedReader(new FileReader(inputPath + "edges_" + percentage + ".txt"));
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, index2Node);
             ways.add(newWay);
@@ -69,9 +79,10 @@ public class CSVMapReader implements SpatialInterface {
      */
     public RoadNetworkGraph extractMapWithBoundary(double[] boundingBox) throws IOException {
 
+        RoadNetworkGraph roadGraph = new RoadNetworkGraph();
         if (boundingBox.length != 4)
-            return this.readMap(0);
-        this.roadGraph.setBoundingBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
+            return this.readMap(0, -1, false);
+        roadGraph.setBoundingBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]);
 
         List<RoadNode> nodeList = new ArrayList<>();
         List<RoadWay> wayList = new ArrayList<>();
@@ -134,35 +145,35 @@ public class CSVMapReader implements SpatialInterface {
         return wayList;
     }
 
-    public List<RoadWay> readMapEdgeByTypeSet(int percentage, BitSet typeIndex) throws IOException {
-        if (typeIndex.size() != 25)
-            throw new IllegalArgumentException("ERROR! Failed to read edges through type set: Incorrect type set length." + typeIndex
-                    .size());
+    public List<RoadWay> readNewMapEdge(int percentage, int iteration, boolean isTempMap) throws IOException {
         List<RoadWay> wayList = new ArrayList<>();
+        String inputPath;
+        if (iteration != -1)
+            inputPath = this.csvMapPath + "map/" + iteration + "/";
+        else inputPath = this.csvMapPath;
         // read road ways
-        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "edges_" + percentage + ".txt"));
+        BufferedReader brEdges;
+        if (isTempMap)
+            brEdges = new BufferedReader(new FileReader(inputPath + "temp_edges_" + percentage + ".txt"));
+        else brEdges = new BufferedReader(new FileReader(inputPath + "edges_" + percentage + ".txt"));
         String line;
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
-            boolean isContained = true;
-            for (int i = 0; i < typeIndex.size(); i++) {
-                if (typeIndex.get(i))
-                    if (!newWay.getRoadWayType().get(i))
-                        isContained = false;
-            }
-            if (isContained)
+            if (newWay.isNewRoad())
                 wayList.add(newWay);
         }
         brEdges.close();
         return wayList;
     }
 
-    public List<RoadWay> readRemovedEdges(int percentage) throws IOException {
+    public List<RoadWay> readRemovedEdges(int percentage, int iteration) throws IOException {
         if (percentage == 0)    // no removed edge when percentage is 0
             return new ArrayList<>();
         List<RoadWay> removedRoads = new ArrayList<>();
         String line;
         // read removed road ways
+        if (iteration != -1)
+            System.out.println("ERROR! Removed road ways is only read outside the iteration.");
         BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "removedEdges_" + percentage + ".txt"));
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
@@ -173,30 +184,11 @@ public class CSVMapReader implements SpatialInterface {
 
     public List<RoadWay> readInferredEdges() throws IOException {
         List<RoadWay> inferredRoads = new ArrayList<>();
-        String line;
         // read inferred road ways
-        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "final_map.txt"));
+        BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "inferred_edges.txt"));
+        String line;
         while ((line = brEdges.readLine()) != null) {
-            RoadWay newWay = new RoadWay();
-            List<RoadNode> miniNode = new ArrayList<>();
-            String[] edgeInfo = line.split("\\|");
-            if (!edgeInfo[0].equals("null"))
-                newWay.setId(edgeInfo[0]);
-            if (edgeInfo[1].contains(",")) {  // confidence score is set
-                newWay.setConfidenceScore(Double.parseDouble(edgeInfo[1].split(",")[1]));
-            }
-            for (int i = 2; i < edgeInfo.length; i++) {
-                String[] roadWayPoint = edgeInfo[i].split(",");
-                if (roadWayPoint.length == 2) { // inferred edges do not have id
-                    RoadNode newNode = new RoadNode(null, Double.parseDouble(roadWayPoint[0]), Double.parseDouble(roadWayPoint[1]));
-                    miniNode.add(newNode);
-                } else if (roadWayPoint.length == 3) {
-                    RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
-                            (roadWayPoint[2]));
-                    miniNode.add(newNode);
-                } else throw new InvalidPropertiesFormatException("Wrong road way node in inferred map:" + roadWayPoint.length);
-            }
-            newWay.setNodes(miniNode);
+            RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
             inferredRoads.add(newWay);
         }
         return inferredRoads;

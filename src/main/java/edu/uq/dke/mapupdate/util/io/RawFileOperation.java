@@ -1,5 +1,6 @@
 package edu.uq.dke.mapupdate.util.io;
 
+import edu.uq.dke.mapupdate.util.function.GreatCircleDistanceFunction;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
@@ -17,6 +18,7 @@ public class RawFileOperation {
     private int requiredRecordNum;
     private int minTrajPointNum;
     private int maxTimeInterval;
+    private GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
 
     public RawFileOperation(int trajCount, int minTrajPointCount, int maxTimeInterval) {
         this.requiredRecordNum = trajCount;
@@ -107,14 +109,15 @@ public class RawFileOperation {
     /**
      * read raw trajectories and filter them with a given size map, all trajectories that are completely inside the map bounds are outputted
      *
-     * @param roadGraph                          input given map
-     * @param rawTrajectories                    input path for raw trajectorie
-     * @param initialTrajectories                folder for output trajectories
-     * @param outputGroundTruthMatchResultFolder folder for all corresponding ground truth trajectory match result
+     * @param roadGraph                          Input given map
+     * @param rawTrajectories                    Input path for raw trajectorie
+     * @param initialTrajectories                Folder for output trajectories
+     * @param outputGroundTruthMatchResultFolder Folder for all corresponding ground truth trajectory match result
+     * @param minDist                            The minimum distance the two consecutive trajectory point should have
      * @throws IOException IO exception
      */
     public void rawTrajectoryParser(RoadNetworkGraph roadGraph, String rawTrajectories, String initialTrajectories, String
-            outputGroundTruthMatchResultFolder) throws IOException {
+            outputGroundTruthMatchResultFolder, double minDist) throws IOException {
         Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of trajectory
         // visited
 
@@ -132,7 +135,7 @@ public class RawFileOperation {
         if (createRawTrajFolder.exists() && Objects.requireNonNull(createRawTrajFolder.list()).length > 0)
             return;
         cleanPath(createMatchedTrajFolder);
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.00000");
         String line;
         int tripID = 0;
         long maxTimeDiff = 0;   // the maximum time difference
@@ -159,29 +162,39 @@ public class RawFileOperation {
 
                 // test whether the raw trajectory is within the map area
                 String trajectoryFile = "";
-                boolean isInsideTrajectory = true;
+                boolean isValidTrajectory = true;
                 double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
                 double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
+                int pointCount = 1;
                 long tempMaxTime = 0;
                 long tempTotalTime = 0;
                 if (isInside(firstLon, firstLat, roadGraph)) {
                     long firstTime = Long.parseLong(rawTrajectory[0].split((":"))[3]);
                     trajectoryFile += firstLon + " " + firstLat + " " + firstTime + "\n";
-
+                    double prevLon = firstLon;
+                    double prevLat = firstLat;
                     long prevTimeDiff = 0;
                     for (int i = 1; i < rawTrajectory.length; i++) {
                         double lon = firstLon + (Double.parseDouble(rawTrajectory[i].split(":")[0]) / 100000);
                         double lat = firstLat + (Double.parseDouble(rawTrajectory[i].split(":")[1]) / 100000);
+
+                        double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
+                        if (distance < minDist)
+                            continue;
                         long currTime = Long.parseLong(rawTrajectory[i].split(":")[3]);
                         long currTimeDiff = currTime - prevTimeDiff;
                         long time = firstTime + currTime;
+                        // the new point is inside the area and satisfies the time constraint
                         if (isInside(lon, lat, roadGraph) && currTimeDiff <= maxTimeInterval) {
                             tempMaxTime = tempMaxTime > currTimeDiff ? tempMaxTime : currTimeDiff;
                             tempTotalTime += currTimeDiff;
                             prevTimeDiff = currTime;
                             trajectoryFile += df.format(lon) + " " + df.format(lat) + " " + time + "\n";
+                            prevLon = lon;
+                            prevLat = lat;
+                            pointCount++;
                         } else {
-                            isInsideTrajectory = false;
+                            isValidTrajectory = false;
                             break;
                         }
                     }
@@ -189,7 +202,7 @@ public class RawFileOperation {
                     continue;   // the point is outside the road map area, skip the current trajectory
                 }
 
-                if (isInsideTrajectory) {   // the current trajectory is selected
+                if (isValidTrajectory && pointCount > minTrajPointNum) {   // the current trajectory is selected
                     BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(createRawTrajFolder.getAbsolutePath() +
                             "/trip_" + tripID + ".txt"));
                     bwRawTrajectory.write(trajectoryFile);

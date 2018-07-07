@@ -18,6 +18,9 @@ package edu.uq.dke.mapupdate.mapmatching.hmm;
 
 import java.io.Serializable;
 
+import static edu.uq.dke.mapupdate.Main.BETA;
+import static edu.uq.dke.mapupdate.Main.SIGMA;
+
 /**
  * Based on Newson, Paul, and John Krumm. "Hidden Markov map matching through noise and sparseness."
  * Proceedings of the 17th ACM SIGSPATIAL International Conference on Advances in Geographic
@@ -37,7 +40,7 @@ class HMMProbabilities implements Serializable {
          * Beta empirically computed from the Microsoft ground truth data for shortest route
          * lengths and 60 s sampling interval but also works for other sampling intervals.
          */
-        this(4.07, 0.00959442);
+        this(SIGMA, BETA);
     }
 
     /**

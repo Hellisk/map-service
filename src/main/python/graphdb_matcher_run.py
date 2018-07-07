@@ -2,7 +2,6 @@ import math
 
 import spatialfunclib
 from graphdb_matcher import GraphDBMatcher
-from kde import input_path
 from kde import root_path
 
 MAX_SPEED_M_PER_S = 20.0
@@ -112,9 +111,9 @@ import os
 if __name__ == '__main__':
 
     graphdb_filename = root_path + "skeleton_maps/skeleton_map_1m.db"
-    constraint_length = 300
-    max_dist = 350
-    trip_directory = input_path
+    constraint_length = 10
+    max_dist = 100
+    trip_directory = root_path + "output/unmatchedNextInput/TP0_TI0_TC0"  # the current folder should not exist, replaced by -t argument
     output_directory = root_path + "matched_trips_1m/"
 
     (opts, args) = getopt.getopt(sys.argv[1:], "c:m:d:t:o:h")

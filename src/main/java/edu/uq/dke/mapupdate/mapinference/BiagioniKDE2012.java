@@ -1,5 +1,7 @@
 package edu.uq.dke.mapupdate.mapinference;
 
+import java.io.IOException;
+
 public class BiagioniKDE2012 {
     private KDEMapInference mapInference;
 
@@ -7,8 +9,7 @@ public class BiagioniKDE2012 {
         this.mapInference = new KDEMapInference(cellSize, blur);
     }
 
-    public void KDEMapInferenceProcess(String codeRootPath, String inputTrajPath) {
-        KDEMapInference mapInference = new KDEMapInference();
+    public void KDEMapInferenceProcess(String codeRootPath, String inputTrajPath) throws IOException {
         mapInference.startMapInference(codeRootPath, inputTrajPath);
     }
 }

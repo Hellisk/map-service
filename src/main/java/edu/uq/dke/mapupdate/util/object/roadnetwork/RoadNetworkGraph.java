@@ -31,6 +31,19 @@ public class RoadNetworkGraph implements MapInterface {
     private int maxVisitCount = 0;
 
     /**
+     * The global dataset doesn't have problem regarding road way id, so the following variables are unused.
+     */
+    private boolean isBeijingDataset = true;
+    /**
+     * The max absolute value of the node ID
+     */
+    private long maxAbsWayID = 0;
+
+    private long maxRoadNodeID = 0;
+
+    private int maxMiniNodeID = 0;
+
+    /**
      * @return The list of Nodes in this road network graph.
      */
     public List<RoadNode> getNodes() {
@@ -55,6 +68,8 @@ public class RoadNetworkGraph implements MapInterface {
                 nodesList.add(node);
                 nodeIDList.add(node.getId());
                 updateBoundingBox(node);
+                if (isBeijingDataset)
+                    maxRoadNodeID = Long.parseLong(node.getId()) > maxRoadNodeID ? Long.parseLong(node.getId()) : maxRoadNodeID;
             } else System.out.println("ERROR! Node already exist: " + node.getId());
         }
     }
@@ -138,6 +153,17 @@ public class RoadNetworkGraph implements MapInterface {
                     this.maxVisitCount = way.getVisitCount();
                 for (RoadNode n : way.getNodes())
                     updateBoundingBox(n);
+                if (isBeijingDataset) {
+                    if (!way.getId().contains("temp_")) {
+                        maxAbsWayID = Math.abs(Long.parseLong(way.getId())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getId())) :
+                                maxAbsWayID;
+                        for (RoadNode n : way.getNodes()) {
+                            maxMiniNodeID = Integer.parseInt(n.getId().substring(0, n.getId().length() - 1)) > maxMiniNodeID ? Integer.parseInt(n
+                                    .getId().substring(0, n.getId().length() - 1)) : maxMiniNodeID;
+                        }
+                    } else
+                        System.out.println("ERROR! Temporary edges should not be included in the road map.");
+                }
             } else System.out.println("Road way already exist: " + way.getId());
         }
     }
@@ -261,5 +287,21 @@ public class RoadNetworkGraph implements MapInterface {
     public void updateMaxVisitCount(int visitCount) {
         if (this.maxVisitCount < visitCount)
             this.maxVisitCount = visitCount;
+    }
+
+    public int getMaxMiniNodeID() {
+        return maxMiniNodeID;
+    }
+
+    public long getMaxAbsWayID() {
+        return maxAbsWayID;
+    }
+
+    public long getMaxRoadNodeID() {
+        return maxRoadNodeID;
+    }
+
+    public void setBeijingDataset(boolean beijingDataset) {
+        isBeijingDataset = beijingDataset;
     }
 }

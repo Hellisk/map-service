@@ -2,9 +2,7 @@ package edu.uq.dke.mapupdate.util.io;
 
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
-import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
-import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
-import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Segment;
@@ -39,12 +37,21 @@ public class CSVTrajectoryReader {
         return newTrajectory;
     }
 
-    public List<TrajectoryMatchResult> readMatchedResult(String trajectoryFilePath) throws IOException {
-        File matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-        File roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-        List<TrajectoryMatchResult> gtResult = new ArrayList<>();
+    public List<TrajectoryMatchingResult> readMatchedResult(String trajectoryFilePath, int iteration) throws IOException {
+        File matchingPointFileFolder;
+        File roadIDFileFolder;
+        if (iteration == -1) {
+            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+        } else {
+            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+        }
+        List<TrajectoryMatchingResult> gtResult = new ArrayList<>();
         if (matchingPointFileFolder.isDirectory() && roadIDFileFolder.isDirectory()) {
             File[] matchingPointFileList = matchingPointFileFolder.listFiles();
             File[] roadIDFileList = roadIDFileFolder.listFiles();
@@ -85,7 +92,7 @@ public class CSVTrajectoryReader {
                                     } else System.out.println("ERROR! Incorrect match result length." + roadIDFileList[i].getName());
                                 }
                             }
-                        } else System.out.println("ERROR! Inconsistent rank length during trajectory reading.");
+                        } else System.out.println("ERROR! Inconsistent rank length during trajectory reading: " + matchInfo.length);
                     }
                     int rowCount = 0;
                     while ((line = brRoadIDTrajectory.readLine()) != null && rowCount < RANK_LENGTH) {
@@ -106,7 +113,7 @@ public class CSVTrajectoryReader {
                     brRoadIDTrajectory.close();
                     int fileNum = Integer.parseInt(matchingPointFile.getName().substring(matchingPointFile.getName().indexOf('_') + 1, matchingPointFile.getName().indexOf('.')));
                     rawTraj.setId(fileNum + "");
-                    TrajectoryMatchResult currMatchResult = new TrajectoryMatchResult(rawTraj, RANK_LENGTH);
+                    TrajectoryMatchingResult currMatchResult = new TrajectoryMatchingResult(rawTraj, RANK_LENGTH);
                     for (int j = 0; j < RANK_LENGTH; j++) {
                         currMatchResult.setMatchingResult(matchingPointSet.get(j), j);
                     }

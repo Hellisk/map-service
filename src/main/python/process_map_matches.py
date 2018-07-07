@@ -149,12 +149,13 @@ class ProcessMapMatches:
             curr_trip_obs = []
             no_obs_time_ranges = []
 
+            # read match results and separate the unmatched one with the matched ones
             for record in matched_trip_records:
                 if (len(record) < 7):
                     obs_lat, obs_lon, obs_time, unknown_state = record
 
                     # observation blackout +/- 30 secconds of 'unknown' state observation time
-                    no_obs_time_ranges.append((float(obs_time) - 30.0, float(obs_time) + 30.0))
+                    no_obs_time_ranges.append((float(obs_time) - 5.0, float(obs_time) + 5.0))
 
                 else:
                     obs_lat, obs_lon, obs_time, state_in_node_lat, state_in_node_lon, state_out_node_lat, state_out_node_lon = record

@@ -1,58 +1,78 @@
 package edu.uq.dke.mapupdate;
 
+import edu.uq.dke.mapupdate.cooptimization.CoOptimizationFunc;
 import edu.uq.dke.mapupdate.evaluation.TrajMatchingEvaluation;
 import edu.uq.dke.mapupdate.mapinference.BiagioniKDE2012;
 import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
-import edu.uq.dke.mapupdate.mapmerge.NNMapMerge;
+import edu.uq.dke.mapupdate.mapmerge.MapMerge;
 import edu.uq.dke.mapupdate.util.io.*;
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
-import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
+import edu.uq.dke.mapupdate.util.object.datastructure.Triplet;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
+import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 import edu.uq.dke.mapupdate.visualisation.UnfoldingMapDisplay;
-import edu.uq.dke.mapupdate.visualisation.UnfoldingTrajectoryDisplay;
 import org.apache.log4j.BasicConfigurator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static edu.uq.dke.mapupdate.util.io.DataPreprocessing.dataPreprocessing;
+import static edu.uq.dke.mapupdate.util.io.DataPreprocessing.rawMapInitialization;
+
 public class Main {
 
     // global parameters
-    public final static int PERCENTAGE = 1;         // percentage of removed road ways (max = 100)
-    private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
-    private final static boolean WORKSPACE = false; // true = home, false = school
+    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
+    private final static int DATASET_OPTION = 1;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
+    private final static boolean WORKSPACE = true; // true = home, false = school
     public final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
-    public final static int TRAJECTORY_COUNT = 5000; // total number of trajectories extracted. -1 = extract all
-    public final static int MIN_TRAJ_POINT_COUNT = 10; // the minimal number of point required in a trajectory. -1 = no requirement
-    public final static int MAX_TIME_INTERVAL = 60; // the maximum time interval within a trajectory -1 = no requirement
+    public final static int TRAJECTORY_COUNT = 10000; // total number of trajectories extracted. -1 = extract all
+    public final static int MIN_TRAJ_POINT_COUNT = 5; // the minimal number of point required in a trajectory. -1 = no requirement
+    public final static int MAX_TIME_INTERVAL = 120; // the maximum time interval within a trajectory -1 = no requirement
 
-    // after the change of bounding box, the existing trajectories should be deleted manually
+    //    // after the change of bounding box, the existing trajectories should be deleted manually
 //    public final static double[] BOUNDING_BOX = {};
-    // preset the map boundary, si huan
+//    // preset the map boundary, si huan
 //    public final static double[] BOUNDING_BOX = {116.20, 116.57, 39.76, 40.03};
-    // preset the map boundary, er huan
+//    // preset the map boundary, er huan
 //    public final static double[] BOUNDING_BOX = {116.35, 116.44, 39.895, 39.95};
     // preset the map boundary, smaller er huan
     public final static double[] BOUNDING_BOX = {116.400000, 116.433773, 39.950000, 39.980000};
 
-    // parameters for KDE-based map inference
+    /* parameters for KDE-based map inference */
     private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
     private final static int GAUSSIAN_BLUR = 17;  // Gaussian blur filter, default is 17
 
-    // parameters for HMM-based map matching
+    /* parameters for incremental trace merge */
+    public final static double AHMED_EPSILON = 0.0020;    // in meter
+
+    /* parameters for HMM-based map matching */
+    public final static double SIGMA = 4.07;    // parameter for emission probability calculation, also used to filter unnecessary
+    // trajectory points (points whose distance is closer than 2*SIGMA will be removed)
+    public final static double BETA = 0.00959442;    // parameter for transition probability calculation
+    // TODO u-turn penalty doesn't apply for global
+    public final static double U_TURN_PENALTY = -5;  // penalty for travelling through u-turn
     private final static int NUM_OF_THREADS = 8;    // number of parallel tasks for map-matching
     private final static int CANDIDATE_RANGE = 50;  // the radius of the candidate generation range in meter
     private final static int GAP_EXTENSION_RANGE = 25;  // the trajectory point will be extended as unmatched point if no candidate is
     // within the circle of this radius in meter
-    public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
+    public final static int RANK_LENGTH = 1;  // the number of top-ranked map-matching results to be stored
 
     // parameters for map merge
-    private final static int MAX_DISTANCE_THRESHOLD = 50;   // the maximum allowed distance to attach a end point to an intersection
+    public final static int MIN_ROAD_LENGTH = 100;     // the minimum length of a new road
+    private final static int DIRECT_MERGE_DISTANCE = 25;   // the maximum allowed distance to attach a end point to an intersection
+    private final static int SUB_TRAJECTORY_MERGE_DISTANCE = 5;   // the maximum allowed distance to attach a end point to an intersection
+
+    // parameters for co-optimization function
+    public final static double SCORE_THRESHOLD = 50;   // the value that divide the high and low influence/confidence score
 
     private final static String BEIJING_SCHOOL_PATH = "C:/data/beijingTrajectory/";       // the root folder of all data
     private final static String BEIJING_HOME_PATH = "F:/data/beijingTrajectory/";         // the root folder of all data
@@ -66,7 +86,7 @@ public class Main {
 
     // different paths in Beijing dataset
     public final static String RAW_MAP = ROOT_PATH + "raw/map/";
-    private final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
+    public final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
     public final static String GT_MAP = ROOT_PATH + "groundTruth/map/";  // ground-truth road network
     public final static String GT_MATCHING_RESULT = ROOT_PATH + "groundTruth/matchingResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
             MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";   // the map-matched trajectory dataset
@@ -74,6 +94,8 @@ public class Main {
     public final static String INPUT_TRAJECTORY = ROOT_PATH + "input/trajectory/TP" + MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL +
             "_TC" + TRAJECTORY_COUNT + "/";    // input trajectory dataset
     public final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
+    public final static String CACHE_FOLDER = ROOT_PATH + "cache/";
+    public final static String INFERENCE_FOLDER = ROOT_PATH + "mapInference/";
 
     public static void main(String[] args) throws IOException {
 
@@ -85,50 +107,118 @@ public class Main {
             System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
+//            // process the raw data and convert them into standard format
 //            System.out.println("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
 //            rawMapInitialization();
 //            System.out.print("Initialization done. ");
 
-//            // pre-processing the data
+//            // pre-processing the data so that the map and the trajectories are filtered
 //            System.out.println("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
 //            dataPreprocessing();
-//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + "seconds" + ", start the " +
+//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds, start the " +
 //                    "map-matching process.");
 //            prevTime = System.currentTimeMillis();
-//
-            // map-matching process, read the input map first
+
+            // initialization step, read the input map first
             CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
-            RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
-//            Stream<TrajectoryMatchResult> trajMatchingResultStream = parallelMapMatchingBeijing();
-            List<TrajectoryMatchResult> trajMatchingResultList = mapMatchingBeijing(initialMap);
-            System.out.println("Map matching finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
+            RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE, -1, false);
+            List<RoadWay> removedWayList = csvMapReader.readRemovedEdges(PERCENTAGE, -1);
+            // read input map and trajectories
+            CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
+            List<Trajectory> rawTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
+
+            // step 0: map-matching process, start the initial map-matching
+//            Stream<TrajectoryMatchingResult> trajMatchingResultStream = parallelMapMatchingBeijing();
+            Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> initialMatchingResultTriplet = mapMatchingBeijing
+                    (rawTrajectoryList, initialMap, 0, false);
+            System.out.println("Initial map matching finished, time elapsed:" + (System.currentTimeMillis() - prevTime) / 1000 +
+                    " seconds");
             prevTime = System.currentTimeMillis();
 
-            // evaluation: map matching evaluation
+            // evaluation: initial map matching evaluation
             CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader
-                    .readGroundTruthMatchingResult(GT_MATCHING_RESULT);
+            List<Pair<Integer, List<String>>> gtMatchingResult = groundTruthMatchingResultReader.readGroundTruthMatchingResult
+                    (GT_MATCHING_RESULT);
             TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-//            List<TrajectoryMatchResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
-//            List<TrajectoryMatchResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
-            trajMatchingEvaluation.beijingPrecisionRecallCalc(trajMatchingResultList, gtMatchingResult);
-//
-//            // step 1: map inference
-//            BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
-//            mapInference.KDEMapInferenceProcess(CODE_ROOT_PATH + "src/main/python/", OUTPUT_FOLDER + "unmatchedNextInput/TP" +
-//                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-//            System.out.println("Map inference finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
-//
-//
-//            // step 3: map merge
-//            NNMapMerge spMapMerge = new NNMapMerge(initialMap, inferenceGraph, 64, MAX_DISTANCE_THRESHOLD);
-//            RoadNetworkGraph mergedMap = spMapMerge.NearestNeighbourMapMerge();
+//            List<TrajectoryMatchingResult> trajMatchingResultList = trajMatchingResultStream.collect(Collectors.toList());
+//            List<TrajectoryMatchingResult> trajMatchResultList = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
+            trajMatchingEvaluation.beijingPrecisionRecallCalc(initialMatchingResultTriplet._1(), gtMatchingResult);
 
-//            // visualization
-//            UnfoldingMapDisplay mapDisplay = new UnfoldingMapDisplay();
-//            mapDisplay.display();
-            UnfoldingTrajectoryDisplay trajDisplay = new UnfoldingTrajectoryDisplay();
-            trajDisplay.display();
+            int iteration = 1;  // start the iteration
+            double iterationBenefitGain = 0;
+            while (iteration < 2) { // TODO replace it by cost function
+
+                System.out.println("Start the " + iteration + " round of iteration.");
+                long currIterationStartTime = System.currentTimeMillis();
+
+                // step 1: map inference
+                BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
+                mapInference.KDEMapInferenceProcess(CODE_ROOT_PATH + "src/main/python/", CACHE_FOLDER + "unmatchedNextInput/TP" +
+                        MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
+                System.out.println("Map inference finished, time elapsed: " + (System.currentTimeMillis
+                        () - prevTime) / 1000 + " seconds");
+
+                // step 2: map merge
+                CSVMapReader inferenceEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
+                List<RoadWay> inferredEdges = inferenceEdgeReader.readInferredEdges();
+                RoadNetworkGraph prevMap;
+                if (iteration == 1) {
+                    CSVMapReader prevMapReader = new CSVMapReader(INPUT_MAP);
+                    prevMap = prevMapReader.readMap(PERCENTAGE, -1, false);
+                } else {
+                    CSVMapReader prevMapReader = new CSVMapReader(CACHE_FOLDER);
+                    prevMap = prevMapReader.readMap(PERCENTAGE, iteration - 1, false);
+                }
+                MapMerge spMapMerge = new MapMerge(prevMap, inferredEdges, removedWayList, 64, DIRECT_MERGE_DISTANCE,
+                        SUB_TRAJECTORY_MERGE_DISTANCE);
+                RoadNetworkGraph mergedMap = spMapMerge.NearestNeighbourMapMerge();
+                CSVMapWriter updatedMapWriter = new CSVMapWriter(mergedMap, CACHE_FOLDER);
+                updatedMapWriter.writeMap(PERCENTAGE, iteration, true);
+
+                // step 3: map-matching process on updated map
+                CSVMapReader updatedMapReader = new CSVMapReader(CACHE_FOLDER);
+                RoadNetworkGraph updatedMap = updatedMapReader.readMap(PERCENTAGE, iteration, true);
+
+//                Stream<TrajectoryMatchingResult> trajMatchingResultStream = parallelMapMatchingBeijing();
+                Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> matchingResultTriplet = mapMatchingBeijing
+                        (rawTrajectoryList, updatedMap, iteration, false);
+                System.out.println("Map matching finished, time elapsed: " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
+                prevTime = System.currentTimeMillis();
+
+                // step 4: co-optimization model
+                CoOptimizationFunc coOptimizationFunc = new CoOptimizationFunc();
+                Triplet<RoadNetworkGraph, List<Trajectory>, Double> refinementResult = coOptimizationFunc.costFunctionCal
+                        (matchingResultTriplet);
+                Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> refinedMatchingResult = mapMatchingBeijing
+                        (refinementResult._2(), refinementResult._1(), iteration, true);
+                // write refinement result
+                CSVMapWriter refinedMapWriter = new CSVMapWriter(refinementResult._1(), CACHE_FOLDER);
+                refinedMapWriter.writeMap(PERCENTAGE, iteration, false);
+                CSVTrajectoryWriter mergedMatchingResultWriter = new CSVTrajectoryWriter(CACHE_FOLDER);
+                mergedMatchingResultWriter.writeMergedMatchedTrajectory(matchingResultTriplet._1(), refinedMatchingResult._1(),
+                        RANK_LENGTH, iteration);
+                mergedMatchingResultWriter.writeMergedUnmatchedTrajectory(matchingResultTriplet._3(), refinedMatchingResult._3(), iteration);
+                iterationBenefitGain = refinementResult._3();
+                System.out.println("Result refinement finished, the benefit gain is " + iterationBenefitGain + ", time elapsed: " +
+                        (System.currentTimeMillis() - prevTime) / 1000 + " seconds.");
+                System.out.println("Finish the" + iteration + " round of iteration, total time elapsed: " + (System.currentTimeMillis()
+                        - currIterationStartTime) / 1000 + " seconds.");
+                prevTime = System.currentTimeMillis();
+                iteration++;
+            }
+
+            // finish the iterations and write the final output
+            CSVMapReader finalMapReader = new CSVMapReader(CACHE_FOLDER);
+            RoadNetworkGraph finalMap = finalMapReader.readMap(PERCENTAGE, iteration - 1, false);
+            CSVMapWriter finalMapWriter = new CSVMapWriter(finalMap, OUTPUT_FOLDER + "map/");
+            finalMapWriter.writeMap(PERCENTAGE, -1, false);
+            CSVTrajectoryReader finalMatchingResultReader = new CSVTrajectoryReader();
+            List<TrajectoryMatchingResult> finalMatchingResult = finalMatchingResultReader.readMatchedResult(CACHE_FOLDER, iteration - 1);
+            CSVTrajectoryWriter finalMatchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
+            finalMatchingResultWriter.writeMatchedTrajectory(finalMatchingResult, RANK_LENGTH, -1);
+
+            System.out.println("Iterative process done. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 + " " +
+                    "seconds");
         } else if (DATASET_OPTION == 1) {    // map-matching evaluation dataset
 
             // use global dataset to evaluate the map-matching accuracy
@@ -137,7 +227,7 @@ public class Main {
 
             // map-matching process
             XMLTrajectoryReader reader = new XMLTrajectoryReader(ROOT_PATH + "input/");
-            List<TrajectoryMatchResult> trajectoryMatchResults = mapMatchingGlobal(reader);
+            List<TrajectoryMatchingResult> trajectoryMatchingResults = mapMatchingGlobal(reader);
 
             System.out.println("Map matching finished, total time spent:" + (System.currentTimeMillis() - prevTime) / 1000 + "seconds");
             prevTime = System.currentTimeMillis();
@@ -153,9 +243,9 @@ public class Main {
                 groundTruthTrajectoryInfo.add(reader.findTrajectoryInfo(i));
             }
 //            CSVTrajectoryReader groundTruthMatchingResultReader = new CSVTrajectoryReader();
-//            List<TrajectoryMatchResult> trajectoryMatchResults = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER);
+//            List<TrajectoryMatchingResult> trajectoryMatchingResults = groundTruthMatchingResultReader.readMatchedResult(OUTPUT_FOLDER, -1);
             TrajMatchingEvaluation trajMatchingEvaluation = new TrajMatchingEvaluation();
-            trajMatchingEvaluation.globalPrecisionRecallCalc(trajectoryMatchResults, groundTruthMatchingResult, groundTruthTrajectoryInfo);
+            trajMatchingEvaluation.globalPrecisionRecallCalc(trajectoryMatchingResults, groundTruthMatchingResult, groundTruthTrajectoryInfo);
 
         } else {    // other test cases
             System.out.println("Start comparing different versions of Beijing map...");
@@ -164,7 +254,7 @@ public class Main {
             System.out.println("Start reading the new and old Beijing maps.");
             RoadNetworkGraph newBeijingMap = newMapReader.readNewBeijingMap();
             CSVMapWriter beijingMapWriter = new CSVMapWriter(newBeijingMap, GT_MAP);
-            beijingMapWriter.writeMap(0);
+            beijingMapWriter.writeMap(0, -1, false);
             RawMapReader oldMapReader = new RawMapReader(RAW_MAP, BOUNDING_BOX);
             RoadNetworkGraph oldBeijingMap = oldMapReader.readOldBeijingMap();
 
@@ -190,7 +280,6 @@ public class Main {
 //        MapMatchingEvaluation mapMatchingEvaluation = new MapMatchingEvaluation(10);
 //        mapMatchingEvaluation.precisionRecallEval(inferenceGraph, removedGraph, initialMap);
 //
-//
         System.out.println("Task finish, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + " seconds");
     }
 
@@ -200,25 +289,38 @@ public class Main {
      * @return map-matched trajectory result
      * @throws IOException file reading error
      */
-    private static List<TrajectoryMatchResult> mapMatchingBeijing(RoadNetworkGraph initialMap) throws IOException {
-
-        // read input map and trajectories
-
-        CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-        List<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
+    private static Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> mapMatchingBeijing
+    (List<Trajectory> rawTrajectoryList, RoadNetworkGraph roadMap, int iteration, boolean refinementStep) throws IOException {
 
         // start matching process
         NewsonHMM2009 mapMatching = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH);
-        List<TrajectoryMatchResult> trajMatchResults = mapMatching.trajectoryListMatchingProcess(initialTrajectoryList, initialMap);
+        List<TrajectoryMatchingResult> currMatchingResultList = mapMatching.trajectoryListMatchingProcess(rawTrajectoryList, roadMap);
         List<Trajectory> unmatchedTraj;
         unmatchedTraj = mapMatching.getUnmatchedTraj();
-
-        // write output matching result
-        CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        matchingResultWriter.matchedTrajectoryWriter(trajMatchResults, RANK_LENGTH);
-        CSVTrajectoryWriter unmatchedTrajWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        unmatchedTrajWriter.trajectoryWriter(unmatchedTraj);
-        return trajMatchResults;
+        if (!refinementStep) {
+            if (iteration != 0) {     // start processing the co-optimization model
+                CSVTrajectoryReader csvMatchedTrajectoryReader = new CSVTrajectoryReader();
+                List<TrajectoryMatchingResult> prevMatchingResult = csvMatchedTrajectoryReader.readMatchedResult(CACHE_FOLDER, iteration - 1);
+                Map<String, TrajectoryMatchingResult> id2PrevMatchingResult = new HashMap<>();
+                for (TrajectoryMatchingResult mr : prevMatchingResult) {
+                    if (!id2PrevMatchingResult.containsKey(mr.getTrajID()))
+                        id2PrevMatchingResult.put(mr.getTrajID(), mr);
+                    else System.out.println("ERROR! The same trajectory matching result occured twice: " + mr.getTrajID());
+                }
+                CoOptimizationFunc optimizationFunc = new CoOptimizationFunc();
+                RoadNetworkGraph updatedMap = optimizationFunc.influenceScoreGen(currMatchingResultList, id2PrevMatchingResult, roadMap);
+                return new Triplet<>(currMatchingResultList, updatedMap, unmatchedTraj);
+            } else {
+                // write output matching result
+                CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(CACHE_FOLDER);
+                matchingResultWriter.writeMatchedTrajectory(currMatchingResultList, RANK_LENGTH, iteration);
+                CSVTrajectoryWriter unmatchedTrajWriter = new CSVTrajectoryWriter(CACHE_FOLDER);
+                unmatchedTrajWriter.writeUnmatchedTrajectory(unmatchedTraj, iteration);
+                return new Triplet<>(currMatchingResultList, roadMap, unmatchedTraj);
+            }
+        } else {
+            return new Triplet<>(currMatchingResultList, roadMap, unmatchedTraj);
+        }
     }
 
     /**
@@ -227,26 +329,27 @@ public class Main {
      * @return map-matched trajectory result
      * @throws IOException file reading error
      */
-    private static Stream<TrajectoryMatchResult> parallelMapMatchingBeijing() throws IOException, ExecutionException, InterruptedException {
+    private static Stream<TrajectoryMatchingResult> parallelMapMatchingBeijing(int iteration) throws IOException, ExecutionException,
+            InterruptedException {
         // read input map and trajectories
         CSVMapReader csvMapReader = new CSVMapReader(INPUT_MAP);
-        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE);
+        RoadNetworkGraph initialMap = csvMapReader.readMap(PERCENTAGE, iteration, false);
         CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
         Stream<Trajectory> initialTrajectoryList = csvTrajectoryReader.readTrajectoryFilesStream(INPUT_TRAJECTORY);
 
         // start matching process
         NewsonHMM2009 mapMatching = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH);
-        Stream<TrajectoryMatchResult> trajMatchResults = mapMatching.trajectoryStreamMatchingProcess(initialTrajectoryList, initialMap,
+        Stream<TrajectoryMatchingResult> trajMatchResults = mapMatching.trajectoryStreamMatchingProcess(initialTrajectoryList, initialMap,
                 NUM_OF_THREADS);
         List<Trajectory> unmatchedTraj;
         unmatchedTraj = mapMatching.getUnmatchedTraj();
 
         // write output matching result
         CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        List<TrajectoryMatchResult> trajMatchResultList = trajMatchResults.collect(Collectors.toList());
-        matchingResultWriter.matchedTrajectoryWriter(trajMatchResultList, RANK_LENGTH);
+        List<TrajectoryMatchingResult> trajMatchResultList = trajMatchResults.collect(Collectors.toList());
+        matchingResultWriter.writeMatchedTrajectory(trajMatchResultList, RANK_LENGTH, iteration);
         CSVTrajectoryWriter unmatchedTrajWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        unmatchedTrajWriter.trajectoryWriter(unmatchedTraj);
+        unmatchedTrajWriter.writeUnmatchedTrajectory(unmatchedTraj, iteration);
         return trajMatchResults;
     }
 
@@ -256,15 +359,17 @@ public class Main {
      * @return map-matched trajectory result
      * @throws IOException file reading error
      */
-    private static List<TrajectoryMatchResult> mapMatchingGlobal(XMLTrajectoryReader reader) throws IOException {
+    private static List<TrajectoryMatchingResult> mapMatchingGlobal(XMLTrajectoryReader reader) throws IOException {
         CSVRawMapReader mapReader = new CSVRawMapReader(ROOT_PATH + "input/");
-        List<TrajectoryMatchResult> results = new ArrayList<>();
+        List<TrajectoryMatchingResult> results = new ArrayList<>();
         for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
             Trajectory currTraj = reader.readInputTrajectory(i);
             RoadNetworkGraph currMap = mapReader.readRawMap(i);
-            TrajectoryMatchResult matchResult = startTrajectoryMatching(currTraj, currMap);
+            TrajectoryMatchingResult matchResult = startGlobalTrajectoryMatching(currTraj, currMap);
             results.add(matchResult);
         }
+        CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
+        matchingResultWriter.writeMatchedTrajectory(results, RANK_LENGTH, -1);
         return results;
     }
 
@@ -275,66 +380,9 @@ public class Main {
      * @param roadMap    underline road network
      * @return map-matching result for trajectory
      */
-    private static TrajectoryMatchResult startTrajectoryMatching(Trajectory trajectory, RoadNetworkGraph roadMap) throws IOException {
+    private static TrajectoryMatchingResult startGlobalTrajectoryMatching(Trajectory trajectory, RoadNetworkGraph roadMap) throws IOException {
         List<Trajectory> unmatchedTraj;
         NewsonHMM2009 mapMatching = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH);
-        TrajectoryMatchResult matchResult = mapMatching.trajectoryMatchingProcess(trajectory, roadMap);
-        List<TrajectoryMatchResult> results = new ArrayList<>();
-        results.add(matchResult);
-        unmatchedTraj = mapMatching.getUnmatchedTraj();
-        CSVTrajectoryWriter matchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        matchingResultWriter.matchedTrajectoryWriter(results, RANK_LENGTH);
-        CSVTrajectoryWriter unmatchedTrajWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
-        unmatchedTrajWriter.trajectoryWriter(unmatchedTraj);
-        return matchResult;
-    }
-
-    /**
-     * The data preprocessing step for Beijing dataset, including broken map generation and trajectory filter
-     *
-     * @throws IOException file read error
-     */
-    private static void dataPreprocessing() throws IOException {
-
-        // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
-        System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box");
-        CSVMapReader rawMapReader = new CSVMapReader(GT_MAP);
-        RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
-        CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
-        rawGTMapWriter.writeMap(0);
-//        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
-//        trajFilter.groundTruthMatchResultStatistics(roadNetworkGraph, RAW_TRAJECTORY);
-
-        // pre-processing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of
-        // road map
-        System.out.println("Start the trajectory filtering.");
-        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
-        trajFilter.rawTrajectoryParser(roadNetworkGraph, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT);
-
-        // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
-        System.out.println("Start manipulating the map according to the given road removal percentage:" + PERCENTAGE);
-//        CSVMapReader visitedMapReader = new CSVMapReader(INPUT_MAP);
-//        RoadNetworkGraph visitedGraph = visitedMapReader.readMap(0);
-        CSVMapWriter mapRemovalWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
-        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE);
-    }
-
-    /**
-     * Initialize the entire Beijing road map, set the visit frequency of each edge.
-     *
-     * @throws IOException file read error
-     */
-    private static void rawMapInitialization() throws IOException {
-
-        // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
-        System.out.println("Start reading the raw road map from SHP file and extract the map enclosed by the bounding box");
-        double[] boundingBox = new double[0];
-        RawMapReader shpReader = new RawMapReader(RAW_MAP, boundingBox);
-        RoadNetworkGraph roadNetworkGraph = shpReader.readNewBeijingMap();
-        RawFileOperation trajFilter = new RawFileOperation(-1, -1, -1);
-        trajFilter.trajectoryVisitAssignment(roadNetworkGraph, RAW_TRAJECTORY);
-        // write the visited map to the ground truth folder
-        CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
-        rawGTMapWriter.writeMap(0);
+        return mapMatching.trajectoryMatchingProcess(trajectory, roadMap);
     }
 }

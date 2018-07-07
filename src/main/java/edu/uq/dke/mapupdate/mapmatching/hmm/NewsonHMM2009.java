@@ -1,7 +1,7 @@
 package edu.uq.dke.mapupdate.mapmatching.hmm;
 
 import edu.uq.dke.mapupdate.util.function.GreatCircleDistanceFunction;
-import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
@@ -28,58 +28,54 @@ public class NewsonHMM2009 {
         this.rankLength = rankLength;
     }
 
-    public List<TrajectoryMatchResult> trajectoryListMatchingProcess(List<Trajectory> inputTrajectory, RoadNetworkGraph currMap) {
+    public List<TrajectoryMatchingResult> trajectoryListMatchingProcess(List<Trajectory> rawTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
         HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
         // sequential test
-        List<TrajectoryMatchResult> result = new ArrayList<>();
+        List<TrajectoryMatchingResult> result = new ArrayList<>();
         int matchCount = 0;
-        for (Trajectory traj : inputTrajectory) {
-            TrajectoryMatchResult matchResult = hmm.doMatching(traj);
+        for (Trajectory traj : rawTrajectory) {
+            TrajectoryMatchingResult matchResult = hmm.doMatching(traj);
             result.add(matchResult);
+            if (rawTrajectory.size() > 100)
+                if (matchCount % (rawTrajectory.size() / 100) == 0)
+                    System.out.println("Map matching finish " + matchCount / (rawTrajectory.size() / 100) + "%.");
             matchCount++;
-//            if (inputTrajectory.size() > 100)
-//                if (matchCount % (inputTrajectory.size() / 100) == 0)
-//                    System.out.println("Map matching finish " + matchCount / (inputTrajectory.size() / 100) + "%. Broken trajectory count:" + hmm.getBrokenTrajCount() + ".");
-//            matchCount++;
-            System.out.println("Matching finished:" + matchCount);
         }
         this.unmatchedTraj = hmm.getUnMatchedTraj();
         return result;
     }
 
-    public Stream<TrajectoryMatchResult> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory, RoadNetworkGraph currMap, int
+    public Stream<TrajectoryMatchingResult> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory, RoadNetworkGraph currMap, int
             numOfThreads) throws ExecutionException, InterruptedException {
 
         if (inputTrajectory == null) {
-            throw new IllegalArgumentException(
-                    "Trajectory stream for map-matching must not be null.");
+            throw new IllegalArgumentException("Trajectory stream for map-matching must not be null.");
         }
         if (currMap == null || currMap.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Road-Network-Graph for map-matching must not be empty nor null.");
+            throw new IllegalArgumentException("Road-Network-Graph for map-matching must not be empty nor null.");
         }
 
         final ThreadLocal<HMMMapMatching> matchingMethodThread =
-                new ThreadLocal<HMMMapMatching>();
+                new ThreadLocal<>();
 
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
         HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
         // sequential test
-        List<TrajectoryMatchResult> result = new ArrayList<>();
         ForkJoinPool forkJoinPool = new ForkJoinPool(numOfThreads);
-        ForkJoinTask<Stream<TrajectoryMatchResult>> taskResult =
+        ForkJoinTask<Stream<TrajectoryMatchingResult>> taskResult =
                 forkJoinPool.submit(() -> {
                     matchingMethodThread.set(hmm);
-                    Stream<TrajectoryMatchResult> matchResultStream =
+                    Stream<TrajectoryMatchingResult> matchResultStream =
                             inputTrajectory.parallel().map(trajectory -> {
-                                TrajectoryMatchResult matchPairs = matchingMethodThread.get()
+                                TrajectoryMatchingResult matchPairs = matchingMethodThread.get()
                                         .doMatching(trajectory);
                                 try {
                                     Thread.sleep(5);
                                 } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
                                 return matchPairs;
                             });
@@ -89,12 +85,12 @@ public class NewsonHMM2009 {
         return taskResult.get();
     }
 
-    public TrajectoryMatchResult trajectoryMatchingProcess(Trajectory inputTrajectory, RoadNetworkGraph currMap) {
+    public TrajectoryMatchingResult trajectoryMatchingProcess(Trajectory inputTrajectory, RoadNetworkGraph currMap) {
 
         GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
         HMMMapMatching hmm = new HMMMapMatching(distFunc, candidateRange, gapExtensionRange, rankLength, currMap);
         // sequential test
-        TrajectoryMatchResult matchResult = hmm.doMatching(inputTrajectory);
+        TrajectoryMatchingResult matchResult = hmm.doMatching(inputTrajectory);
 //            if (inputTrajectory.size() > 100)
 //                if (matchCount % (inputTrajectory.size() / 100) == 0)
 //                    System.out.println("Map matching finish " + matchCount / (inputTrajectory.size() / 100) + "%. Broken trajectory count:" + hmm.getBrokenTrajCount() + ".");

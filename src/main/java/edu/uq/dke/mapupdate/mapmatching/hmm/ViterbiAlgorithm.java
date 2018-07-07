@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
  * Author: Stefan Holder (stefan.holder@bmw.de)
+ * Modifier: Pingfu Chao (p.chao@uq.edu.au)
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,8 +100,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      */
     private Map<S, Double> message;
 
-    private double[] probabilities;
-
     private boolean isBroken = false;
 
     private List<Map<S, Double>> messageHistory; // For debugging only.
@@ -112,7 +111,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     ViterbiAlgorithm(int rankLength) {
         this(false);
         this.rankLength = rankLength;
-        this.probabilities = new double[rankLength];
     }
 
     /**
@@ -141,10 +139,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
     Map<S, Double> getMessage() {
         return this.message;
-    }
-
-    double[] getProbabilities() {
-        return this.probabilities;
     }
 
     void setMessage(Map<S, Double> message) {
@@ -264,14 +258,14 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      * with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
      * o_t is the observation at time step t and T is the number of time steps.
      */
-    List<List<SequenceState<S, O, D>>> computeMostLikelySequence(int rankLength) {
+    List<Pair<List<SequenceState<S, O, D>>, Double>> computeMostLikelySequence() {
         if (message == null) {
             // Return empty most likely sequence if there are no time steps or if initial
             // observations caused an HMM break.
             System.out.println("WARNING! No sequence can be generated.");
             return new ArrayList<>();
         } else {
-            return retrieveRankedSequences(rankLength);
+            return retrieveRankedSequences();
         }
     }
 
@@ -361,7 +355,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         lastExtendedStates = new LinkedHashMap<>();
         for (S candidate : candidates) {
             lastExtendedStates.put(candidate,
-                    new ExtendedState<S, O, D>(candidate, new ArrayList<>(), observation, new ArrayList<>(), new ArrayList<>()));
+                    new ExtendedState<>(candidate, new ArrayList<>(), observation, new ArrayList<>(), new ArrayList<>()));
         }
 
         prevCandidates = new ArrayList<>(candidates); // Defensive copy.
@@ -370,7 +364,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     /**
      * Stores additional information for each candidate. Each candidate contains the information of its top k predecessors.
      */
-    public static class ExtendedState<S, O, D> {
+    static class ExtendedState<S, O, D> {
 
         S state;
 
@@ -446,13 +440,14 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
                 lastRankedExtendedStateList.add(rankedExtendedState);
                 probabilities.add(optimalState.getProbability() + emissionLogProbabilities.get(curState));
                 int rankListSize = 1;
-                ItemWithProbability<S> currItem;
-                while ((currItem = topRankedCandidates.poll()) != null && rankListSize < rankLength) {
+                ItemWithProbability<S> currItem = topRankedCandidates.poll();
+                while (currItem != null && rankListSize < rankLength) {
                     transition = new Transition<>(currItem.getItem(), curState);
                     transitionDescriptionList.add(transitionDescriptors.get(transition));
                     rankedExtendedState = lastExtendedStates.get(currItem.getItem());
                     lastRankedExtendedStateList.add(rankedExtendedState);
                     probabilities.add(currItem.getProbability() + emissionLogProbabilities.get(curState));
+                    currItem = topRankedCandidates.poll();
                     rankListSize++;
                 }
 
@@ -490,33 +485,35 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             }
         }
         List<S> result = new ArrayList<>();
-        ItemWithProbability<S> currItem;
         int resultCount = 0;
-        while ((currItem = sortedItemList.poll()) != null && resultCount < rankLength) {
+        ItemWithProbability<S> currItem = sortedItemList.poll();
+        while (currItem != null && resultCount < rankLength) {
             result.add(currItem.getItem());
+            currItem = sortedItemList.poll();
             resultCount++;
         }
 
-        assert !result.isEmpty(); // Otherwise an HMM break would have occurred.
+        if (result.isEmpty()) // Otherwise an HMM break would have occurred.
+            System.out.println("ERROR! The HMM breaks without being detected.");
         return result;
     }
 
     /**
      * Retrieves top k most likely sequence from the internal back pointer sequence.
      */
-    private List<List<SequenceState<S, O, D>>> retrieveRankedSequences(int rankLength) {
-        if (rankLength > this.rankLength)
-            throw new IndexOutOfBoundsException("ERROR! Incorrect top k. The k selected is larger than what is stored.");
-
+    private List<Pair<List<SequenceState<S, O, D>>, Double>> retrieveRankedSequences() {
         // Otherwise an HMM break would have occurred and message would be null.
         assert !message.isEmpty();
 
         final List<S> lastState = topRankedFinalStates(rankLength);
-        double[] currRankedProbabilities = new double[rankLength];
+        double[] probabilityResult = new double[rankLength];
+
+        Map<Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>>, Double> probabilityToDest = new HashMap<>();  // for each
+        // extended state, the probability till its destination is store, it is used to retrieve the actual probability of a specific
+        // path passing this extended state
 
         // Retrieve top k most likely state sequence in reverse order
-        final List<List<SequenceState<S, O, D>>> result = new ArrayList<>(rankLength);
-        // TODO Consider using Guava's Optional.leastOf/greatestOf instead of priority queue for better performance.
+        final List<List<SequenceState<S, O, D>>> pathResult = new ArrayList<>(rankLength);
         Queue<ItemWithProbability<Pair<ExtendedState<S, O, D>, Integer>>> topRankedItems = new PriorityQueue<>();   // Pair<current state
         // and the i-th back pointer>
         List<Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>>> intermediateState = new ArrayList<>(); // each pair contains the
@@ -534,57 +531,96 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
                 SequenceState<S, O, D> currState = new SequenceState<>(es.state, es.observation, null);
                 List<SequenceState<S, O, D>> currStateList = new ArrayList<>();
                 currStateList.add(currState);
-                result.add(currStateList);
+                pathResult.add(currStateList);
+                int index = pathResult.size();
+                probabilityResult[index - 1] = message.get(state); // the probability of the break piece is simply added into the total
+                // probability
             }
-            return result;
+
+            return combineResult(pathResult, probabilityResult);
         }
         int candidateCount = 0;
         ItemWithProbability<Pair<ExtendedState<S, O, D>, Integer>> currItem;
-        // TODO check correctness
         // extract the top k previous state among all current candidate, stored in intermediateState
-        while ((currItem = topRankedItems.poll()) != null && candidateCount < rankLength) {
+        currItem = topRankedItems.poll();
+        while (currItem != null && candidateCount < rankLength) {
             ExtendedState<S, O, D> currES = currItem.getItem()._1();
             List<SequenceState<S, O, D>> currRouteSequence = new ArrayList<>();
             SequenceState<S, O, D> currRouteState = new SequenceState<>(currES.state, currES.observation, currES.transitionDescriptor.get
                     (currItem.getItem()._2()));
             currRouteSequence.add(currRouteState);
-            intermediateState.add(new Pair<>(currES.backPointer.get(currItem.getItem()._2()), currRouteSequence));
+            Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>> currIntermediateState = new Pair<>(currES.backPointer.get(currItem
+                    .getItem()._2()), currRouteSequence);
+            intermediateState.add(currIntermediateState);
+            probabilityToDest.put(currIntermediateState, currItem.getProbability());
+            currItem = topRankedItems.poll();
             candidateCount++;
         }
         while (!intermediateState.isEmpty()) {
             Queue<ItemWithProbability<Triplet<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>, Integer>>> topRankedIntermediateResult =
                     new PriorityQueue<>();
             for (Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>> item : intermediateState) {
+                double remainingProbability = probabilityToDest.get(item) - findMaxProbability(item._1());   // the probability of
+                // the combined transition and emission probability until the end of the match sequence
                 List<ExtendedState<S, O, D>> backPointer = item._1().backPointer;
                 for (int i = 0; i < backPointer.size(); i++) {
                     SequenceState<S, O, D> currRouteState = new SequenceState<>(item._1().state, item._1().observation, item._1()
                             .transitionDescriptor.get(i));
                     List<SequenceState<S, O, D>> currRouteSequence = new ArrayList<>(item._2());
                     currRouteSequence.add(currRouteState);
+                    Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>> currIntermediateState = new Pair<>(item._1().backPointer
+                            .get(i), currRouteSequence);
+                    probabilityToDest.put(currIntermediateState, item._1().probabilities.get(i) + remainingProbability);
                     topRankedIntermediateResult.add(new ItemWithProbability<>(new Triplet<>(item._1(), currRouteSequence, i), item._1()
-                            .probabilities.get(i)));
+                            .probabilities.get(i) + remainingProbability));
                 }
             }
             if (topRankedIntermediateResult.isEmpty()) {
                 // the full path has been retrieved, stop the loop and recover the top k paths
                 for (Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>> r : intermediateState) {
                     List<SequenceState<S, O, D>> rankedResult = r._2();
+                    double probability = probabilityToDest.get(r);
                     rankedResult.add(new SequenceState<>(r._1().state, r._1().observation, null));
                     Collections.reverse(rankedResult);
-                    result.add(rankedResult);
+                    pathResult.add(rankedResult);
+                    probabilityResult[pathResult.size() - 1] = probability;
                 }
-                return result;
+                return combineResult(pathResult, probabilityResult);
             }
             int currCandidateCount = 0;
-            ItemWithProbability<Triplet<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>, Integer>> currNewItem;
+            ItemWithProbability<Triplet<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>, Integer>> currNewItem = topRankedIntermediateResult.poll();
             intermediateState.clear();
-            while ((currNewItem = topRankedIntermediateResult.poll()) != null && currCandidateCount < rankLength) {
+            while (currNewItem != null && currCandidateCount < rankLength) {
                 ExtendedState<S, O, D> currES = currNewItem.getItem()._1();
                 intermediateState.add(new Pair<>(currES.backPointer.get(currNewItem.getItem()._3()), currNewItem.getItem()._2()));
+                currNewItem = topRankedIntermediateResult.poll();
                 currCandidateCount++;
             }
         }
-        System.out.println("ERROR! No match result can be extracted");
+        System.out.println("ERROR! No match result can be extracted.");
+        return new ArrayList<>();
+    }
+
+    private List<Pair<List<SequenceState<S, O, D>>, Double>> combineResult(List<List<SequenceState<S, O, D>>> pathResult, double[] probabilityResult) {
+        List<Pair<List<SequenceState<S, O, D>>, Double>> result = new ArrayList<>();
+        for (int i = 0; i < rankLength; i++) {
+            if (i < pathResult.size()) {
+                if (probabilityResult[i] == 0)
+                    System.out.println("ERROR! Zero probability for a valid match sequence: " + pathResult.get(i).toString());
+                result.add(new Pair<>(pathResult.get(i), probabilityResult[i]));
+            } else if (probabilityResult[i] != 0) {
+                System.out.println("ERROR! Positive probability for a null match sequence:" + probabilityResult[i]);
+                probabilityResult[i] = 0;
+            }
+        }
         return result;
+    }
+
+    private double findMaxProbability(ExtendedState<S, O, D> extendedState) {
+        double maxProbability = Double.NEGATIVE_INFINITY;
+        for (double prob : extendedState.probabilities)
+            if (prob > maxProbability)
+                maxProbability = prob;
+        return maxProbability;
     }
 }

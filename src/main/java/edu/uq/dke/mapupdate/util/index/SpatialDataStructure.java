@@ -7,6 +7,7 @@ import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.XYObject;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Circle;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
+import edu.uq.dke.mapupdate.util.object.spatialobject.Rectangle;
 import edu.uq.dke.mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.ArrayList;
@@ -158,9 +159,8 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
                 }
             }
         } else {
-            List<Point> boundaryPointList = new ArrayList<>();
-            boundaryPointList.addAll(getModel().getBoundary().getCoordinates());
-            List<Pair<Point, Double>> boundaryPointDistanceList = new ArrayList<>();
+            // if the first partition is empty, use the boundary point as the radius
+            List<Point> boundaryPointList = new ArrayList<>(getModel().getBoundary().getCoordinates());
             for (Point p : boundaryPointList) {
                 distance = distFunc.pointToPointDistance(x, y, p.x(), p.y());
                 if (distance > maxDistance) {
@@ -169,13 +169,13 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             }
         }
 
-        // build a circle made of the query object as center, and the distance
-        // from the query object to its nearest neighbor in the partition as radius
-        Circle range;
+        // build a square made of the query object as center, and the distance
+        // from the query object to its nearest neighbor in the partition as the distance to its edges
+        Rectangle range;
         if (maxDistance == 0) {
-            range = new Circle(x, y, minDistance);
+            range = new Rectangle(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
         } else {
-            range = new Circle(x, y, maxDistance);
+            range = new Rectangle(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
         }
 
         // get all partitions intersecting the circle region
@@ -226,7 +226,6 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
                         return 0;
                     }
                 };
-        // TODO report change, if the partition contains no element, the return should be null
         if (firstPartition != null) {
             // find the distance between the query point and the objects in this partition
             for (XYObject<T> obj : firstPartition.getObjectsList()) {
@@ -238,7 +237,6 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
             // build a circle made of the query object as center, and the distance
             // from the query object to its k-NN in the partition as radius
-            // TODO report change (k-1) to (distanceList.size()-1) done
 
             knnDistance = distanceList.get((k <= distanceList.size() ? k : distanceList.size()) - 1)._2();
         } else {
@@ -266,7 +264,6 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
         List<XYObject<T>> knnList = new ArrayList<>(k);
 
-        // TODO report change it into iterative so that k is guaranteed
         do {
             knnList.clear();
             Circle range = new Circle(x, y, knnDistance);
@@ -277,7 +274,6 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             // if there are more than k element inside, the k nearest neighbor is in this partition, no need to search further
             // kNN is already in this partition
             if (partitionsList.size() == 1) {
-                // TODO report change k>= to k<=
                 int count = k <= distanceList.size() ? k : distanceList.size();
                 for (int i = 0; i < count; i++) {
                     Pair<XYObject<T>, Double> pair = distanceList.get(i);
@@ -298,7 +294,6 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             }
 
             // check if there is at least k object in this range
-            // TODO change firstPartition.count() to distanceList.size()
             int count = distanceList.size();
             if (count < k) {
                 throw new SpatialQueryException("Partitions must contain at least k objects "

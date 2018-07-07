@@ -1,6 +1,7 @@
 import getopt
 import os
 import shutil
+import stat
 
 import cv
 import sys
@@ -16,14 +17,12 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = False  # True = home, False = school
+dataset_option = True  # True = home, False = school
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option is True else beijing_school_path
 root_path = root_folder + "mapInference/"
-
-
-# input_path = root_folder + "output/unmatchedNextInput/"
+input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
 
 def pairwise(iterable):
@@ -188,11 +187,6 @@ if __name__ == '__main__':
             sys.exit()
 
     # create output directory
-    if os.path.exists(root_path):
-        os.rename(root_path, root_folder + "remove/")
-        shutil.rmtree(root_folder + "remove/")
-
-    # create trips directory
     os.mkdir(root_path)
 
     k = KDE()

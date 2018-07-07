@@ -92,6 +92,7 @@ public class RoutingGraph {
 
     @SuppressWarnings("unchecked")
     // Calculate all shortest distance from given node
+    // TODO performance improvement
     public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
         double[] distance = new double[pointList.size()];   // the distance to every destination
         ArrayList<String>[] path = new ArrayList[pointList.size()];     // the path to every destination

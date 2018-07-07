@@ -1,7 +1,7 @@
 package edu.uq.dke.mapupdate.util.io;
 
 import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
-import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static edu.uq.dke.mapupdate.Main.MAX_TIME_INTERVAL;
 import static edu.uq.dke.mapupdate.Main.MIN_TRAJ_POINT_COUNT;
@@ -34,11 +32,20 @@ public class CSVTrajectoryWriter {
      *
      * @param matchingList matching result
      */
-    public void matchedTrajectoryWriter(List<TrajectoryMatchResult> matchingList, int rankLength) throws IOException {
-        File matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-        File roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+    public void writeMatchedTrajectory(List<TrajectoryMatchingResult> matchingList, int rankLength, int iteration) throws IOException {
+        File matchedResultFolder;
+        File roadIDListFolder;
+        if (iteration == -1) {
+            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+        } else {
+            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+        }
         int tripCount = 0;
         int pointCount = 0;
         if (!matchedResultFolder.exists()) {
@@ -59,7 +66,7 @@ public class CSVTrajectoryWriter {
                 }
             }
             DecimalFormat df = new DecimalFormat("0.00000");
-            for (TrajectoryMatchResult w : matchingList) {
+            for (TrajectoryMatchingResult w : matchingList) {
                 try {
                     BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(matchedResultFolder.toString() +
                             "/matchedtrip_" + w.getTrajID() + ".txt"));
@@ -122,11 +129,18 @@ public class CSVTrajectoryWriter {
      *
      * @param trajectoryList output trajectories
      */
-    public void trajectoryWriter(List<Trajectory> trajectoryList) throws IOException {
-        File outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-        File nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
-                MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
+    public void writeUnmatchedTrajectory(List<Trajectory> trajectoryList, int iteration) throws IOException {
+        File outputTrajectoryFolder;
+        File nextInputUnmatchedTrajectoryFolder;
+        if (iteration == -1) {
+            outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/");
+            nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/");
+        } else {
+            outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+            nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+                    MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
+        }
         int tripCount = 0;
         int pointCount = 1;
         if (!outputTrajectoryFolder.exists()) {
@@ -146,12 +160,24 @@ public class CSVTrajectoryWriter {
                     if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
+            Map<String, Integer> id2UnmatchedTrajCount = new HashMap<>();
             for (Trajectory w : trajectoryList) {
                 try {
-                    BufferedWriter bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" + w
-                            .getId() + ".txt"));
-                    BufferedWriter nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
-                            "/trip_" + w.getId() + ".txt"));
+                    BufferedWriter bwTrajectory;
+                    BufferedWriter nextInputUnmatchedTrajectory;
+                    if (!id2UnmatchedTrajCount.containsKey(w.getId())) {
+                        bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" + w
+                                .getId() + "_0.txt"));
+                        nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
+                                "/trip_" + w.getId() + "_0.txt"));
+                    } else {
+                        String additionalFileName = w.getId() + "_" + id2UnmatchedTrajCount.get(w.getId());
+                        bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" +
+                                additionalFileName + ".txt"));
+                        nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
+                                "/trip_" + additionalFileName + ".txt"));
+                        id2UnmatchedTrajCount.replace(w.getId(), id2UnmatchedTrajCount.get(w.getId()) + 1);
+                    }
                     Iterator<STPoint> iter = w.iterator();
                     int startPointCount = pointCount;
                     int matchingPointCount = w.getSTPoints().size();
@@ -168,7 +194,27 @@ public class CSVTrajectoryWriter {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Trajectory output path is incorrect:" + this.outputFolder);
+        } else System.err.println("Trajectory output path is incorrect:" + outputTrajectoryFolder.toString());
         System.out.println("Trajectories written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
+    }
+
+    public void writeMergedMatchedTrajectory(List<TrajectoryMatchingResult> rawMatches, List<TrajectoryMatchingResult> refinedMatches, int rankLength, int iteration) throws IOException {
+        Set<String> refinedMatchingResultSet = new HashSet<>();
+        for (TrajectoryMatchingResult mr : refinedMatches)
+            refinedMatchingResultSet.add(mr.getTrajID());
+        rawMatches.removeIf(next -> refinedMatchingResultSet.contains(next.getTrajID()));
+        rawMatches.addAll(refinedMatches);
+        writeMatchedTrajectory(rawMatches, rankLength, iteration);
+    }
+
+    public void writeMergedUnmatchedTrajectory(List<Trajectory> rawUnmatchedTrajectoryList, List<Trajectory>
+            refinedUnmatchedTrajectoryList, int iteration) throws IOException {
+        Set<String> refinedUnmatchedTrajSet = new HashSet<>();
+        for (Trajectory mr : refinedUnmatchedTrajectoryList)
+            refinedUnmatchedTrajSet.add(mr.getId());
+        rawUnmatchedTrajectoryList.removeIf(next -> refinedUnmatchedTrajSet.contains(next.getId()));
+        rawUnmatchedTrajectoryList.addAll(refinedUnmatchedTrajectoryList);
+        writeUnmatchedTrajectory(rawUnmatchedTrajectoryList, iteration);
+
     }
 }

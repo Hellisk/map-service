@@ -26,6 +26,7 @@ public class CSVRawMapReader {
         double maxLat = Double.NEGATIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY;
         double minLat = Double.POSITIVE_INFINITY, minLon = Double.POSITIVE_INFINITY;        // boarder of the map
         RoadNetworkGraph roadGraph = new RoadNetworkGraph();
+        roadGraph.setBeijingDataset(false);
         List<RoadNode> nodes = new ArrayList<RoadNode>();
         Map<String, RoadNode> index2Node = new HashMap<>();
         List<RoadWay> ways = new ArrayList<RoadWay>();

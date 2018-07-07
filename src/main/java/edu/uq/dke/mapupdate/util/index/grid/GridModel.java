@@ -187,7 +187,6 @@ public class GridModel implements SpatialIndexModel {
         return boundary;
     }
 
-    // 	TODO index out of bound
     @Override
     public String search(double x, double y) {
         if (!boundary.contains(x, y)) {
@@ -207,7 +206,6 @@ public class GridModel implements SpatialIndexModel {
     public HashSet<String> rangeSearch(SpatialObject obj) {
         HashSet<String> posList = new HashSet<>();
         // object is not in this grid
-        // TODO report logic confusion
         if (!boundary.intersects(obj)) return posList;
         // search the grid cells
         for (int i = 0; i < sizeX; i++) {

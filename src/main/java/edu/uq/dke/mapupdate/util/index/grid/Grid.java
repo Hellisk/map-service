@@ -177,13 +177,10 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
             throw new NullPointerException("Spatial object cannot be null.");
         }
         HashSet<String> indexList = gridModel.rangeSearch(obj);
-        // TODO report change, delete the size limit for result
         List<GridPartition<T>> result = new ArrayList<>();
         for (String index : indexList) {
             // find the cell containing this partition
             int pos[] = gridModel.getCellPosition(index);
-
-            // TODO report change, partition can be null if no elements there.
             if (!(partitions[pos[0]][pos[1]] == null)) {
                 result.add(partitions[pos[0]][pos[1]]);
             }

@@ -27,14 +27,12 @@ public class UnfoldingMapDisplay extends PApplet {
     private UnfoldingMap currMapDisplay;
     private UnfoldingMap fullMapDisplay;    // full map visualization
     private UnfoldingMap[] mapDisplay = new UnfoldingMap[10];   // specified type or level of map
-    private int options = 125;    // 0=nothing, 1= removed edges, 2= map, 3= raw trajectories, 4= trajectory matching result, 5=
-    // unmatched trajectory pieces, 6= ground truth matching result, 7= map comparison, 8= inferred map, 9= merged map
 
     public void setup() {
         int OPTION = 1;
         int specifiedTypeSeries = 0;
 
-        size(1440, 900, JAVA2D);
+        size(1760, 990, JAVA2D);
         this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
         MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
         for (int i = 0; i < mapDisplay.length; i++) {
@@ -45,7 +43,7 @@ public class UnfoldingMapDisplay extends PApplet {
         try {
             // read the complete map, fill into fullMapDisplay
             CSVMapReader csvRawMapReader = new CSVMapReader(INPUT_MAP);
-            RoadNetworkGraph roadNetworkGraph = csvRawMapReader.readMap(0);
+            RoadNetworkGraph roadNetworkGraph = csvRawMapReader.readMap(0, -1, false);
             List<Marker> weightedMapMarker = weightedRoadWayMarkerGen(roadNetworkGraph.getWays(), true);
             fullMapDisplay.addMarkers(weightedMapMarker);
 
@@ -90,7 +88,7 @@ public class UnfoldingMapDisplay extends PApplet {
 
     private List<Marker> weightedRoadWayMarkerGen(List<RoadWay> w, boolean statistic) {
         List<Marker> result = new ArrayList<>();
-        int colorGradeSize = w.size() / 256;   // calculate the rough size of each color grade
+        int colorGradeSize = w.size() / 256 > 0 ? w.size() / 256 : 1;   // calculate the rough size of each color grade
         Queue<RoadWay> weightedQueue = new PriorityQueue<>(Comparator.comparingInt(RoadWay::getVisitCount));
         weightedQueue.addAll(w);
         int processedRoadSize = 0;

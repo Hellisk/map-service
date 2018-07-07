@@ -370,7 +370,7 @@ class StreetMap:
             for transition_segment, from_segment, to_segment in query_result:
                 self.transitions[transition_segment] = (from_segment, to_segment)
         except:
-            print "Got an error reading "
+            print "Transitions not exist."
 
         print "done."
 
@@ -711,7 +711,7 @@ class StreetMap:
             # set edge visited flag to False
             edge.visited = False
 
-    def write_map_to_file(self, map_filename="map.txt"):
+    def write_map_to_file(self, map_filename="inferred_edges.txt"):
 
         # output that we are starting the writing process
         sys.stdout.write("\nWriting map to file... ")
@@ -724,10 +724,22 @@ class StreetMap:
         map_file = open(map_filename, 'w')
 
         # iterate through all map edges
-        for curr_edge in self.edges.values():
-            # output current edge to file
-            map_file.write("null|null|" + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|")
-            map_file.write(str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude) + "\n")
+        for curr_segment in self.segments.values():
+            confident_score = 0
+            edge_list = ""
+            count = 0
+            # insert all edge information to a string
+            for curr_edge in curr_segment.edges:
+                count += 1
+                edge_list += "null," + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|"
+                confident_score += curr_edge.weight
+                if count == len(curr_segment.edges):
+                    edge_list += "null," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude)
+
+            confident_score = confident_score / len(curr_segment.edges)
+
+            # output current edge to file, including 4 nulls, a confident score and a null for raw visit count, then mini edge list
+            map_file.write("null|-1|{}|0.0|" + str(confident_score) + "|0|" + edge_list + "\n")
 
         # close map file
         map_file.close()
@@ -750,8 +762,8 @@ if __name__ == '__main__':
 
     start_time = time.time()
     db_type = "graphdb"
-    db_filename = root_path + "skeleton_maps/skeleton_map_1m_mm2.db"
-    output_filename = root_path + "final_map.txt"
+    db_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1.db"
+    output_filename = root_path + "inferred_edges.txt"
 
     m = StreetMap()
 

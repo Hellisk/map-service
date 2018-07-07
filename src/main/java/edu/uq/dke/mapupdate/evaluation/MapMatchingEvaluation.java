@@ -34,7 +34,7 @@ public class MapMatchingEvaluation {
         Map<String, String> removedAdjacencyList = new HashMap<>();     // adjacency relationship in removed map
         Map<String, String> inferredMapPointMapping = new HashMap<>();
         Map<String, List<String>> farAwayPointAdjacentList = new HashMap<>(); // store all points that has no neighbor and their adjacent node list
-//        DecimalFormat df = new DecimalFormat(".00000");
+//        DecimalFormat df = new DecimalFormat("0.00000");
         // build grid index for removed map and raw map
         int avgNodePerGrid = 64;
         int cellNum;    // total number of cells

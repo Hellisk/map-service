@@ -6,14 +6,14 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrajectoryMatchResult {
+public class TrajectoryMatchingResult {
     private Trajectory trajectory;
     private List<List<PointMatch>> matchingResult;
     private List<List<String>> matchWayList;
     private double[] probabilities;
     private int rankLength;
 
-    public TrajectoryMatchResult(Trajectory traj, int rankLength) {
+    public TrajectoryMatchingResult(Trajectory traj, int rankLength) {
         if (rankLength < 1) throw new IndexOutOfBoundsException("ERROR! Rank should be at least 1");
         this.trajectory = traj;
         this.rankLength = rankLength;

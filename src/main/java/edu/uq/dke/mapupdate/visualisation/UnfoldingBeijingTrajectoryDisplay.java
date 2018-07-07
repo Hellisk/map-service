@@ -8,7 +8,7 @@ import de.fhpotsdam.unfolding.utils.MapUtils;
 import edu.uq.dke.mapupdate.util.io.CSVMapReader;
 import edu.uq.dke.mapupdate.util.io.CSVTrajectoryReader;
 import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
-import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchResult;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
@@ -27,14 +27,15 @@ import static edu.uq.dke.mapupdate.Main.*;
  * @author uqdalves
  */
 //http://unfoldingmaps.org/
-public class UnfoldingTrajectoryDisplay extends PApplet {
+public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
     private UnfoldingMap currTrajDisplay;
     private UnfoldingMap fullMapDisplay;    // full map visualization
-    private UnfoldingMap[] trajDisplay = new UnfoldingMap[6];   // 3= removed edges and unmatched trajectories
+    private UnfoldingMap[] trajDisplay = new UnfoldingMap[7];   // 0,1,2 = matching result comparison for three different trajectories,
+    // 3,4,5,6 = unmatched trajectory,initial inference road, merged road, refined road comparison
 
     public void setup() {
-        size(1440, 900, JAVA2D);
+        size(1760, 990, JAVA2D);
         this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
         MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
         for (int i = 0; i < trajDisplay.length; i++) {
@@ -45,11 +46,15 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
         int[] green = {102, 255, 178};
         int[] red = {255, 0, 0};
         int[] lightPurple = {255, 0, 255};
+        int[] pink = {255, 153, 153};
+
+        // the iteration to be visualized
+        int iteration = 1;
 
         try {
             // read the input map
             CSVMapReader csvInputMapReader = new CSVMapReader(INPUT_MAP);
-            RoadNetworkGraph roadNetworkGraph = csvInputMapReader.readMap(PERCENTAGE);
+            RoadNetworkGraph roadNetworkGraph = csvInputMapReader.readMap(PERCENTAGE, -1, false);
 
             // set the map center
             Location mapCenter = new Location((float) (roadNetworkGraph.getMaxLat() + roadNetworkGraph.getMinLat()) / 2, (float) (roadNetworkGraph
@@ -58,7 +63,8 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
             for (UnfoldingMap mapDisplay : trajDisplay)
                 mapDisplay.zoomAndPanTo(14, mapCenter);
 
-            List<RoadWay> removedRoadList = csvInputMapReader.readRemovedEdges(PERCENTAGE);
+            // read the removed roads
+            List<RoadWay> removedRoadList = csvInputMapReader.readRemovedEdges(PERCENTAGE, -1);
             List<Marker> baseMapMarker = roadWayMarkerGen(roadNetworkGraph.getWays(), blue);
             List<Marker> removedMapMarker = roadWayMarkerGen(removedRoadList, green);
             List<Marker> removedWeightedMapMarker = weightedRoadWayMarkerGen(removedRoadList);
@@ -66,39 +72,71 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
             fullMapDisplay.addMarkers(removedMapMarker);
             trajDisplay[3].addMarkers(removedWeightedMapMarker);
             trajDisplay[4].addMarkers(removedWeightedMapMarker);
+            trajDisplay[5].addMarkers(removedWeightedMapMarker);
+            trajDisplay[6].addMarkers(removedWeightedMapMarker);
 
-            // read the raw map for trajectory comparison
+            // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
             Map<String, RoadWay> id2RoadWay = new HashMap<>();
-            CSVMapReader csvRawMapReader = new CSVMapReader(GT_MAP);
-            RoadNetworkGraph rawRoadGraph = csvRawMapReader.readMap(0);
-            List<Marker> rawMapMarker = roadWayMarkerGen(rawRoadGraph.getWays(), blue);
+            CSVMapReader iterationMapReader = new CSVMapReader(CACHE_FOLDER);
+            RoadNetworkGraph iterationMap = iterationMapReader.readMap(PERCENTAGE, iteration, true);
             // update the road way mapping for the look up of matched result
-            for (RoadWay w : rawRoadGraph.getWays())
+            for (RoadWay w : iterationMap.getWays())
                 id2RoadWay.put(w.getId(), w);
-//            trajDisplay[0].addMarkers(rawMapMarker);
-//            trajDisplay[1].addMarkers(rawMapMarker);
-//            trajDisplay[2].addMarkers(rawMapMarker);
+            for (RoadWay w : removedRoadList)
+                id2RoadWay.put(w.getId(), w);
+            List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), blue);
+            trajDisplay[0].addMarkers(backGroundMapMarker);
+            trajDisplay[1].addMarkers(backGroundMapMarker);
+            trajDisplay[2].addMarkers(backGroundMapMarker);
 
             // read unmatched trajectory for break point evaluation
             CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-            List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(OUTPUT_FOLDER + "unmatchedTraj/TP" +
-                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-            List<Marker> unmatchedMarker = trajMarkerGen(unmatchedTraj, blue, 2);
-            trajDisplay[3].addMarkers(unmatchedMarker);
+            List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
+                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
+            for (Trajectory traj : unmatchedTraj)
+                trajDisplay[3].addMarkers(trajMarkerGen(traj, blue, 2));
+
+            // read inferred edges and display on the map
+            CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
+            List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
+            List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, blue);
+            trajDisplay[4].addMarkers(inferredEdgeMarker);
+
+            // read merged edges and display on the map
+            CSVMapReader mergedEdgeReader = new CSVMapReader(CACHE_FOLDER);
+            List<RoadWay> mergedEdges = mergedEdgeReader.readNewMapEdge(PERCENTAGE, 1, true);
+            List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, blue);
+            trajDisplay[5].addMarkers(mergedEdgeMarker);
+
+            // read refined edges and display on the map
+            List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
+            List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, blue);
+            trajDisplay[5].addMarkers(updatedMapMarker);
 
             // randomly select and visualize a trajectory and the corresponding matching result on the map
+            Map<String, Trajectory> id2rawTraj = new HashMap<>();
+            Map<String, TrajectoryMatchingResult> id2matchedTraj = new HashMap<>();
+            Map<String, List<String>> id2GroundTruthTraj = new HashMap<>();
             Random random = new Random();
             List<Trajectory> rawTraj = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
-            List<Marker> rawTrajMarker = trajMarkerGen(rawTraj, red, 3);
-            List<TrajectoryMatchResult> matchedTraj = csvTrajectoryReader.readMatchedResult(OUTPUT_FOLDER);
-            List<Marker> matchedTrajMarker = matchedTrajMarkerGen(matchedTraj, id2RoadWay, lightPurple);
+            for (Trajectory traj : rawTraj)
+                id2rawTraj.put(traj.getId(), traj);
+            List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(OUTPUT_FOLDER, -1);
+            for (TrajectoryMatchingResult matchingResult : matchedTraj)
+                id2matchedTraj.put(matchingResult.getTrajID(), matchingResult);
             List<Pair<Integer, List<String>>> groundTruthMatchingResult = csvTrajectoryReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
-            List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(groundTruthMatchingResult, id2RoadWay, green);
+            for (Pair<Integer, List<String>> gtMatchingResult : groundTruthMatchingResult) {
+                id2GroundTruthTraj.put(gtMatchingResult._1() + "", gtMatchingResult._2());
+            }
             for (int i = 0; i < 3; i++) {
-                int currIndex = random.nextInt(rawTraj.size());
-                trajDisplay[i].addMarkers(rawTrajMarker.get(currIndex));
-                trajDisplay[i].addMarkers(matchedTrajMarker.get(currIndex));
-                trajDisplay[i].addMarkers(groundTruthMatchedTrajMarker.get(currIndex));
+                String currIndex = random.nextInt(rawTraj.size()) + "";
+                List<Marker> rawTrajMarker = trajMarkerGen(id2rawTraj.get(currIndex), red, 1);
+                List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2matchedTraj.get(currIndex), id2RoadWay, lightPurple, 2);
+                List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(id2GroundTruthTraj.get(currIndex), id2RoadWay,
+                        green, 3);
+                trajDisplay[i].addMarkers(rawTrajMarker);
+                trajDisplay[i].addMarkers(groundTruthMatchedTrajMarker);
+                trajDisplay[i].addMarkers(matchedTrajMarker);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,7 +150,7 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
 
     private List<Marker> weightedRoadWayMarkerGen(List<RoadWay> w) {
         List<Marker> result = new ArrayList<>();
-        int colorGradeSize = w.size() / 256;   // calculate the rough size of each color grade
+        int colorGradeSize = w.size() / 256 > 0 ? w.size() / 256 : 1;   // calculate the rough size of each color grade
         Queue<RoadWay> weightedQueue = new PriorityQueue<>(Comparator.comparingInt(RoadWay::getVisitCount));
         weightedQueue.addAll(w);
         int processedRoadSize = 0;
@@ -158,57 +196,53 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
         return result;
     }
 
-    private List<Marker> trajMarkerGen(List<Trajectory> traj, int[] color, int weight) {
+    private List<Marker> trajMarkerGen(Trajectory traj, int[] color, int weight) {
         List<Marker> result = new ArrayList<>();
-        for (Trajectory currTraj : traj) {
+        List<Location> locationList = new ArrayList<>();
+        for (STPoint n : traj.getSTPoints()) {
+            Location pointLocation = new Location(n.y(), n.x());
+            locationList.add(pointLocation);
+        }
+        SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
+        currLineMarker.setColor(color(color[0], color[1], color[2]));
+        currLineMarker.setStrokeWeight(weight);
+        result.add(currLineMarker);
+        return result;
+    }
+
+    private List<Marker> matchedTrajMarkerGen(TrajectoryMatchingResult matchedTraj, Map<String, RoadWay> id2RoadWay, int[] color, int
+            weight) {
+        List<Marker> result = new ArrayList<>();
+        for (String s : matchedTraj.getBestMatchWayList()) {
             List<Location> locationList = new ArrayList<>();
-            for (STPoint n : currTraj.getSTPoints()) {
-                Location pointLocation = new Location(n.y(), n.x());
-                locationList.add(pointLocation);
-            }
-            SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
-            currLineMarker.setColor(color(color[0], color[1], color[2]));
-            currLineMarker.setStrokeWeight(weight);
-            result.add(currLineMarker);
-        }
-        return result;
-    }
-
-    private List<Marker> matchedTrajMarkerGen(List<TrajectoryMatchResult> matchedTraj, Map<String, RoadWay> id2RoadWay, int[] color) {
-        List<Marker> result = new ArrayList<>();
-        for (TrajectoryMatchResult matchResult : matchedTraj) {
-            for (String s : matchResult.getBestMatchWayList()) {
-                List<Location> locationList = new ArrayList<>();
-                if (id2RoadWay.containsKey(s)) {
-                    for (RoadNode n : id2RoadWay.get(s).getNodes()) {
-                        Location pointLocation = new Location(n.lat(), n.lon());
-                        locationList.add(pointLocation);
-                    }
-                    SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
-                    currLineMarker.setColor(color(color[0], color[1], color[2]));
-                    currLineMarker.setStrokeWeight(3);
-                    result.add(currLineMarker);
-                } else
-                    System.out.println("ERROR! Cannot find roadID:" + s);
-            }
-        }
-        return result;
-    }
-
-    private List<Marker> groundTruthMatchedTrajMarkerGen(List<Pair<Integer, List<String>>> groundTruthMatchingResult, Map<String, RoadWay> id2RoadWay, int[] color) {
-        List<Marker> result = new ArrayList<>();
-        for (Pair<Integer, List<String>> gtMatchResult : groundTruthMatchingResult) {
-            for (String s : gtMatchResult._2()) {
-                List<Location> locationList = new ArrayList<>();
+            if (id2RoadWay.containsKey(s)) {
                 for (RoadNode n : id2RoadWay.get(s).getNodes()) {
                     Location pointLocation = new Location(n.lat(), n.lon());
                     locationList.add(pointLocation);
                 }
                 SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
                 currLineMarker.setColor(color(color[0], color[1], color[2]));
-                currLineMarker.setStrokeWeight(3);
+                currLineMarker.setStrokeWeight(weight);
                 result.add(currLineMarker);
+            } else
+                System.out.println("ERROR! Cannot find roadID:" + s);
+        }
+        return result;
+    }
+
+    private List<Marker> groundTruthMatchedTrajMarkerGen(List<String> groundTruthMatchingResult, Map<String, RoadWay> id2RoadWay, int[]
+            color, int weight) {
+        List<Marker> result = new ArrayList<>();
+        for (String s : groundTruthMatchingResult) {
+            List<Location> locationList = new ArrayList<>();
+            for (RoadNode n : id2RoadWay.get(s).getNodes()) {
+                Location pointLocation = new Location(n.lat(), n.lon());
+                locationList.add(pointLocation);
             }
+            SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
+            currLineMarker.setColor(color(color[0], color[1], color[2]));
+            currLineMarker.setStrokeWeight(weight);
+            result.add(currLineMarker);
         }
         return result;
     }
@@ -239,10 +273,10 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
                 currTrajDisplay = trajDisplay[5];
                 break;
             }
-//            case '7': {
-//                currTrajDisplay = trajDisplay[6];
-//                break;
-//            }
+            case '7': {
+                currTrajDisplay = trajDisplay[6];
+                break;
+            }
 //            case '8': {
 //                currTrajDisplay = trajDisplay[7];
 //                break;
@@ -269,6 +303,6 @@ public class UnfoldingTrajectoryDisplay extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main(new String[]{UnfoldingTrajectoryDisplay.class.getName()});
+        PApplet.main(new String[]{UnfoldingBeijingTrajectoryDisplay.class.getName()});
     }
 }

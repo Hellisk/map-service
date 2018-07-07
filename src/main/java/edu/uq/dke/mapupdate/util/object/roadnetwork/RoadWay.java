@@ -66,7 +66,8 @@ public class RoadWay extends RoadNetworkPrimitive {
     private double influenceScore = 0;
 
     /**
-     * The new road indicator
+     * The new road indicator, if a road is new, it will not have valid road id, road level, road type and mini node id, but it will have
+     * influence score and confidence score
      */
     private boolean isNewRoad = false;
 
@@ -275,10 +276,10 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.00000");
         StringBuilder s = new StringBuilder(this.getId() + "|");
         s.append(this.getRoadWayLevel()).append("|").append(this.getRoadWayType().toString()).append("|");
-        s.append(this.getConfidenceScore()).append("|").append(this.getInfluenceScore()).append("|");
+        s.append(this.getInfluenceScore()).append("|").append(this.getConfidenceScore()).append("|");
         s.append(this.getVisitCount());
         for (RoadNode n : this.getNodes()) {
             s.append("|").append(n.getId()).append(",").append(df.format(n.lon())).append(",").append(df.format(n.lat()));
@@ -295,48 +296,66 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public static RoadWay parseRoadWay(String s, Map<String, RoadNode> index2Node) {
         String[] edgeInfo = s.split("\\|");
-        if (!edgeInfo[6].contains(","))
+        if (edgeInfo[5].contains(",") || !edgeInfo[6].contains(","))
             throw new IndexOutOfBoundsException("ERROR! Failed to read road way: input data format is wrong. " + s);
-        RoadWay newWay = new RoadWay(edgeInfo[0]);
+        RoadWay newWay;
         List<RoadNode> miniNode = new ArrayList<>();
-        // the road way record is complete and the endpoints exist
-        if (index2Node.containsKey(edgeInfo[6].split(",")[0]) && index2Node.containsKey(edgeInfo[edgeInfo.length - 1].split(",")[0])) {
-            for (int i = 6; i < edgeInfo.length; i++) {
-                String[] roadWayPoint = edgeInfo[i].split(",");
-                if (roadWayPoint.length == 3) {
-                    RoadNode newNode;
-                    if (i == 6) {
-                        newNode = index2Node.get(roadWayPoint[0]);
-                    } else if (i == edgeInfo.length - 1) {
-                        newNode = index2Node.get(roadWayPoint[0]);
-                    } else
-                        newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
-
-                    miniNode.add(newNode);
-                } else throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
-            }
-        } else if (index2Node.isEmpty()) {
-            for (int i = 6; i < edgeInfo.length; i++) {
-                String[] roadWayPoint = edgeInfo[i].split(",");
-                if (roadWayPoint.length == 3) {
-                    RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
-                    miniNode.add(newNode);
-                } else throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
-            }
-        } else return new RoadWay();
-        newWay.setRoadWayLevel(Short.parseShort(edgeInfo[1]));
-        String[] wayTypeList = edgeInfo[2].substring(1, edgeInfo[2].length() - 1).split(", ");
-        for (String type : wayTypeList) {
-            if (Integer.parseInt(type) < newWay.getRoadWayType().size())
-                newWay.getRoadWayType().set(Integer.parseInt(type));
-            else throw new IndexOutOfBoundsException("ERROR! The road type is incorrect." + type);
-        }
-        if (!edgeInfo[3].equals("0") || !edgeInfo[4].equals("0")) {
+        if (edgeInfo[0].equals("null") && edgeInfo[1].equals("-1") && edgeInfo[2].equals("{}")) {
+            newWay = new RoadWay("temp_" + edgeInfo[0]);
             newWay.setNewRoad(true);
-            newWay.setConfidenceScore(Double.parseDouble(edgeInfo[3]));
-            newWay.setInfluenceScore(Double.parseDouble(edgeInfo[4]));
+            for (int i = 6; i < edgeInfo.length; i++) {
+                String[] roadWayPoint = edgeInfo[i].split(",");
+                if (roadWayPoint.length == 3) {
+                    RoadNode newNode = new RoadNode("temp_" + roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
+                            (roadWayPoint[2]));
+                    miniNode.add(newNode);
+                } else
+                    throw new IllegalArgumentException("ERROR! Failed reading mini node for new road: input data format is wrong. " +
+                            edgeInfo[i]);
+            }
+        } else {
+            newWay = new RoadWay(edgeInfo[0]);
             newWay.setVisitCount(Integer.parseInt(edgeInfo[5]));
+            // the road way record is complete and the endpoints exist
+            if (index2Node.containsKey(edgeInfo[6].split(",")[0]) && index2Node.containsKey(edgeInfo[edgeInfo.length - 1].split(",")[0])) {
+                for (int i = 6; i < edgeInfo.length; i++) {
+                    String[] roadWayPoint = edgeInfo[i].split(",");
+                    if (roadWayPoint.length == 3) {
+                        RoadNode newNode;
+                        if (i == 6) {
+                            newNode = index2Node.get(roadWayPoint[0]);
+                        } else if (i == edgeInfo.length - 1) {
+                            newNode = index2Node.get(roadWayPoint[0]);
+                        } else
+                            newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
+
+                        miniNode.add(newNode);
+                    } else
+                        throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
+                }
+            } else if (index2Node.isEmpty()) {
+                for (int i = 6; i < edgeInfo.length; i++) {
+                    String[] roadWayPoint = edgeInfo[i].split(",");
+                    if (roadWayPoint.length == 3) {
+                        RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
+                        miniNode.add(newNode);
+                    } else
+                        throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
+                }
+            } else return new RoadWay();
         }
+
+        newWay.setRoadWayLevel(Short.parseShort(edgeInfo[1]));
+        if (!edgeInfo[2].equals("{}")) {
+            String[] wayTypeList = edgeInfo[2].substring(1, edgeInfo[2].length() - 1).split(", ");
+            for (String type : wayTypeList) {
+                if (Integer.parseInt(type) < newWay.getRoadWayType().size())
+                    newWay.getRoadWayType().set(Integer.parseInt(type));
+                else throw new IndexOutOfBoundsException("ERROR! The road type is incorrect." + type);
+            }
+        }
+        newWay.setInfluenceScore(Double.parseDouble(edgeInfo[3]));
+        newWay.setConfidenceScore(Double.parseDouble(edgeInfo[4]));
         newWay.setNodes(miniNode);
         return newWay;
     }

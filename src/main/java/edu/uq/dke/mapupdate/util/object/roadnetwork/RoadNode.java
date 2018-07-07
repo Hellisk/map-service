@@ -118,7 +118,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.00000");
         return getId() + "," + df.format(lon()) + "," + df.format(lat()) + "," + getNodeType();
     }
 
