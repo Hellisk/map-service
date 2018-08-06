@@ -5,7 +5,7 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import java.util.Comparator;
 
 /**
- * An immutable Point-to-Node match object for map-matching algorithms.
+ * An immutable Point-to-Vertex match object for map-matching algorithms.
  *
  * @author uqdalves
  */
@@ -17,7 +17,7 @@ public class PointNodePair extends Pair<STPoint, PointMatch> {
     private final double distance;
 
     /**
-     * Creates a Point-to-Node match pair object.
+     * Creates a Point-to-Vertex match pair object.
      * Set default distance as zero.
      *
      * @param point      The match point.
@@ -29,7 +29,7 @@ public class PointNodePair extends Pair<STPoint, PointMatch> {
     }
 
     /**
-     * Creates a Point-to-Node match pair object.
+     * Creates a Point-to-Vertex match pair object.
      *
      * @param point    The match point.
      * @param node     The match node.

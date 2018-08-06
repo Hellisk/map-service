@@ -175,10 +175,10 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
         if (maxDistance == 0) {
             range = new Rectangle(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
         } else {
-            range = new Rectangle(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
+            range = new Rectangle(x - maxDistance, y - maxDistance, x + maxDistance, y + maxDistance);
         }
 
-        // get all partitions intersecting the circle region
+        // get all partitions intersecting the rectangle region
         List<? extends SpatialPartition> partitionsList = rangePartitionSearch(range);
 
         // the nearest neighbor is in this partition, no need to search further
@@ -266,7 +266,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
         do {
             knnList.clear();
-            Circle range = new Circle(x, y, knnDistance);
+            Rectangle range = new Rectangle(x - knnDistance, y - knnDistance, x + knnDistance, y + knnDistance);
 
             // get all partitions intersecting the circle region
             List<? extends SpatialPartition> partitionsList = rangePartitionSearch(range);

@@ -1,15 +1,21 @@
 package edu.uq.dke.mapupdate.util.io;
 
+import edu.uq.dke.mapupdate.mapmatching.hmm.HMMMapMatching;
+import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
 import edu.uq.dke.mapupdate.util.function.GreatCircleDistanceFunction;
+import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
+import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static edu.uq.dke.mapupdate.Main.*;
+import static edu.uq.dke.mapupdate.Main.CANDIDATE_RANGE;
+import static edu.uq.dke.mapupdate.Main.GAP_EXTENSION_RANGE;
+import static edu.uq.dke.mapupdate.Main.RANK_LENGTH;
 
 /**
  * Created by uqpchao on 5/07/2017.
@@ -29,40 +35,40 @@ public class RawFileOperation {
     /**
      * read raw trajectories and assign visit count to the given map, each trajectory must be inside the map
      *
-     * @param rawMap          input map
-     * @param rawTrajectories input path for raw trajectories
+     * @param rawMap              Input map
+     * @param rawTrajectories     Input path for raw trajectories
+     * @param isGeneratedMatching The ground-truth matching result is from generated matching result or from raw data
      * @throws IOException IO exception
      */
-    public void trajectoryVisitAssignment(RoadNetworkGraph rawMap, String rawTrajectories) throws IOException {
+    public void trajectoryVisitAssignment(RoadNetworkGraph rawMap, String rawTrajectories, boolean isGeneratedMatching) throws
+            IOException {
         Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of trajectory
         // visited
+        Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
 
-        for (RoadWay w : rawMap.getWays())
-            if (!id2VisitCountMapping.containsKey(w.getId()))
-                id2VisitCountMapping.put(w.getId(), 0);
-            else System.out.println("ERROR! The same road ID occurs twice: " + w.getId());
+        initializeMapping(rawMap, id2VisitCountMapping, id2RoadWayMapping);
 
-        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
+        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + (isGeneratedMatching ?
+                "beijingTrajectoryNew" : "beijingTrajectory")));
 
         // create folders for further writing
         String line;
         int tripID = 0;
         while ((line = brTrajectory.readLine()) != null) {
             String[] trajectoryInfo = line.split(",");
-            String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-            String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
-
+            String[] rawTrajectory;
+            String[] matchedTrajectory;
+            if (isGeneratedMatching) {
+                rawTrajectory = trajectoryInfo[0].split("\\|");
+                matchedTrajectory = trajectoryInfo[1].split("\\|");
+            } else {
+                rawTrajectory = trajectoryInfo[28].split("\\|");
+                matchedTrajectory = trajectoryInfo[4].split("\\|");
+            }
             if (minTrajPointNum == -1 || rawTrajectory.length > minTrajPointNum) {
 
                 // test whether the matching result is included in the map
-                boolean isMatchResultInside = true;
-                for (String s : matchedTrajectory) {
-                    if (!id2VisitCountMapping.containsKey(s)) {
-                        isMatchResultInside = false;
-                        break;
-                    }
-                }
-                if (!isMatchResultInside)
+                if (isInvalidMatchingResult(id2VisitCountMapping, id2RoadWayMapping, matchedTrajectory))
                     continue;
 
                 // test whether the raw trajectory is within the map area
@@ -97,36 +103,42 @@ public class RawFileOperation {
             }
         }
 
+        int visitThreshold = 5;
+        int lowVisitCount = 0;  // count the total number of edges whose visit is less than a given threshold
+        rawMap.setMaxVisitCount(0);
         for (RoadWay w : rawMap.getWays()) {
-            int currCount = id2VisitCountMapping.get(w.getId());
+            int currCount = id2VisitCountMapping.get(w.getID());
             w.setVisitCount(currCount);
             rawMap.updateMaxVisitCount(currCount);
+            if (currCount <= visitThreshold)
+                lowVisitCount++;
         }
         System.out.println("Beijing map initialization is done. Total number of trajectory scanned: " + tripID + ". The max visit count " +
-                "is " + "" + rawMap.getMaxVisitCount() + ".");
+                "is " + "" + rawMap.getMaxVisitCount() + ", the percentage of roads visited by less than " + visitThreshold + " times is " +
+                lowVisitCount / (double) rawMap.getWays().size());
     }
 
     /**
      * read raw trajectories and filter them with a given size map, all trajectories that are completely inside the map bounds are outputted
      *
      * @param roadGraph                          Input given map
-     * @param rawTrajectories                    Input path for raw trajectorie
+     * @param rawTrajectories                    Input path for raw trajectories
      * @param initialTrajectories                Folder for output trajectories
      * @param outputGroundTruthMatchResultFolder Folder for all corresponding ground truth trajectory match result
      * @param minDist                            The minimum distance the two consecutive trajectory point should have
+     * @param isGeneratedMatchingResult          The ground-truth matching result is from generated matching result or from raw data
      * @throws IOException IO exception
      */
     public void rawTrajectoryParser(RoadNetworkGraph roadGraph, String rawTrajectories, String initialTrajectories, String
-            outputGroundTruthMatchResultFolder, double minDist) throws IOException {
+            outputGroundTruthMatchResultFolder, double minDist, boolean isGeneratedMatchingResult) throws IOException {
         Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of trajectory
         // visited
+        Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
 
-        for (RoadWay w : roadGraph.getWays())
-            if (!id2VisitCountMapping.containsKey(w.getId()))
-                id2VisitCountMapping.put(w.getId(), 0);
-            else System.out.println("ERROR! The same road ID occurs twice: " + w.getId());
+        initializeMapping(roadGraph, id2VisitCountMapping, id2RoadWayMapping);
 
-        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
+        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + (isGeneratedMatchingResult ?
+                "beijingTrajectoryNew" : "beijingTrajectory")));
 
         // create folders for further writing
         File createRawTrajFolder = new File(initialTrajectories);
@@ -144,48 +156,49 @@ public class RawFileOperation {
         // reset the cursor to the start of the current file
         while ((line = brTrajectory.readLine()) != null && (requiredRecordNum == -1 || tripID < requiredRecordNum)) {
             String[] trajectoryInfo = line.split(",");
-            String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-            String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
+            String[] rawTrajectoryPointID;
+            String[] matchedRoadWayID;
 
-            if (minTrajPointNum == -1 || rawTrajectory.length > minTrajPointNum) {
+            if (isGeneratedMatchingResult) {
+                rawTrajectoryPointID = trajectoryInfo[0].split("\\|");
+                matchedRoadWayID = trajectoryInfo[1].split("\\|");
+            } else {
+                rawTrajectoryPointID = trajectoryInfo[28].split("\\|");
+                matchedRoadWayID = trajectoryInfo[4].split("\\|");
+            }
+
+            if (minTrajPointNum == -1 || rawTrajectoryPointID.length > minTrajPointNum) {
 
                 // test whether the matching result is included in the map
-                boolean isMatchResultInside = true;
-                for (String s : matchedTrajectory) {
-                    if (!id2VisitCountMapping.containsKey(s)) {
-                        isMatchResultInside = false;
-                        break;
-                    }
-                }
-                if (!isMatchResultInside)
+                if (isInvalidMatchingResult(id2VisitCountMapping, id2RoadWayMapping, matchedRoadWayID))
                     continue;
 
                 // test whether the raw trajectory is within the map area
                 String trajectoryFile = "";
                 boolean isValidTrajectory = true;
-                double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
-                double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
+                double firstLon = Double.parseDouble(rawTrajectoryPointID[0].split(":")[0]) / 100000;
+                double firstLat = Double.parseDouble(rawTrajectoryPointID[0].split(":")[1]) / 100000;
                 int pointCount = 1;
                 long tempMaxTime = 0;
                 long tempTotalTime = 0;
                 if (isInside(firstLon, firstLat, roadGraph)) {
-                    long firstTime = Long.parseLong(rawTrajectory[0].split((":"))[3]);
+                    long firstTime = Long.parseLong(rawTrajectoryPointID[0].split((":"))[3]);
                     trajectoryFile += firstLon + " " + firstLat + " " + firstTime + "\n";
                     double prevLon = firstLon;
                     double prevLat = firstLat;
                     long prevTimeDiff = 0;
-                    for (int i = 1; i < rawTrajectory.length; i++) {
-                        double lon = firstLon + (Double.parseDouble(rawTrajectory[i].split(":")[0]) / 100000);
-                        double lat = firstLat + (Double.parseDouble(rawTrajectory[i].split(":")[1]) / 100000);
+                    for (int i = 1; i < rawTrajectoryPointID.length; i++) {
+                        double lon = firstLon + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[0]) / 100000);
+                        double lat = firstLat + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[1]) / 100000);
 
                         double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
                         if (distance < minDist)
                             continue;
-                        long currTime = Long.parseLong(rawTrajectory[i].split(":")[3]);
+                        long currTime = Long.parseLong(rawTrajectoryPointID[i].split(":")[3]);
                         long currTimeDiff = currTime - prevTimeDiff;
                         long time = firstTime + currTime;
                         // the new point is inside the area and satisfies the time constraint
-                        if (isInside(lon, lat, roadGraph) && currTimeDiff <= maxTimeInterval) {
+                        if (isInside(lon, lat, roadGraph) && currTimeDiff <= (maxTimeInterval == -1 ? Long.MAX_VALUE : maxTimeInterval)) {
                             tempMaxTime = tempMaxTime > currTimeDiff ? tempMaxTime : currTimeDiff;
                             tempTotalTime += currTimeDiff;
                             prevTimeDiff = currTime;
@@ -209,7 +222,7 @@ public class RawFileOperation {
                     BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(createMatchedTrajFolder.getAbsolutePath()
                             + "/realtrip_" + tripID + ".txt"));
 
-                    for (String s : matchedTrajectory) {
+                    for (String s : matchedRoadWayID) {
                         int currCount = id2VisitCountMapping.get(s);
                         id2VisitCountMapping.replace(s, currCount + 1);
                         bwMatchedTrajectory.write(s + "\n");
@@ -219,27 +232,63 @@ public class RawFileOperation {
                     bwMatchedTrajectory.close();
                     maxTimeDiff = maxTimeDiff > tempMaxTime ? maxTimeDiff : tempMaxTime;
                     totalTimeDiff += tempTotalTime;
-                    totalNumOfPoint += rawTrajectory.length;
+                    totalNumOfPoint += rawTrajectoryPointID.length;
                     tripID++;
 
                 }
             }
         }
 
+        roadGraph.setMaxVisitCount(0);
         for (RoadWay w : roadGraph.getWays()) {
-            w.setVisitCount(id2VisitCountMapping.get(w.getId()));
+            w.setVisitCount(id2VisitCountMapping.get(w.getID()));
         }
         System.out.println(tripID + " trajectories extracted, the average length is " + (int) (totalNumOfPoint / tripID));
         System.out.println("The maximum sampling interval is " + maxTimeDiff + "s, and the average time interval is " +
                 totalTimeDiff / (totalNumOfPoint - tripID));
     }
 
+    /**
+     * Check whether the ground-truth map-matching result satisfy the condition, all roads must be included in the map area and the
+     * map-matching result must be continuous.
+     *
+     * @param id2VisitCountMapping The road ID and the corresponding visit count.
+     * @param id2RoadWayMapping    The road ID and the corresponding road way object.
+     * @param matchedRoadWayID     The list of ground-truth map-matching result.
+     * @return False if all map-matching result satisfy the requirement, otherwise true.
+     */
+    private boolean isInvalidMatchingResult(Map<String, Integer> id2VisitCountMapping, Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+        RoadWay prevMatchRoad = null;
+        for (String s : matchedRoadWayID) {
+            if (!id2VisitCountMapping.containsKey(s)) {
+                return true;
+            } else if (prevMatchRoad != null) {    // check the connectivity of the match roadID
+                RoadWay currRoad = id2RoadWayMapping.get(s);
+                if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID())) {  // break happens
+                    return true;
+                } else
+                    prevMatchRoad = id2RoadWayMapping.get(s);
+            } else {
+                prevMatchRoad = id2RoadWayMapping.get(s);
+            }
+        }
+        return false;
+    }
+
+    private void initializeMapping(RoadNetworkGraph roadGraph, Map<String, Integer> id2VisitCountMapping, Map<String, RoadWay> id2RoadWayMapping) {
+        for (RoadWay w : roadGraph.getWays())
+            if (!id2VisitCountMapping.containsKey(w.getID())) {
+                id2VisitCountMapping.put(w.getID(), 0);
+                id2RoadWayMapping.put(w.getID(), w);
+            } else System.out.println("ERROR! The same road ID occurs twice: " + w.getID());
+    }
+
     public void groundTruthMatchResultStatistics(RoadNetworkGraph roadGraph, String rawTrajectories) throws IOException {
         Map<String, BitSet> id2WayType = new HashMap<>();
         Map<String, Short> id2WayLevel = new HashMap<>();
         for (RoadWay w : roadGraph.getWays()) {
-            id2WayType.put(w.getId(), w.getRoadWayType());
-            id2WayLevel.put(w.getId(), w.getRoadWayLevel());
+            id2WayType.put(w.getID(), w.getRoadWayType());
+            id2WayLevel.put(w.getID(), w.getRoadWayLevel());
         }
         BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
         int[] typeCount = new int[25];
@@ -295,5 +344,65 @@ public class RawFileOperation {
             if (pointY >= roadGraph.getMinLat() && pointY <= roadGraph.getMaxLat())
                 inside = true;
         return inside;
+    }
+
+    public void generateGTMatchingResult(RoadNetworkGraph roadNetworkGraph, String rawTrajectories, double minDist) throws IOException {
+        System.out.println("Generated ground-truth result required, start generating matching result.");
+        BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
+        BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(rawTrajectories + "beijingTrajectoryNew"));
+
+        HMMMapMatching hmm = new HMMMapMatching(distFunc, CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph);
+        DecimalFormat df = new DecimalFormat("0.00000");
+        String line;
+        int tripID = 0;
+
+        // reset the cursor to the start of the current file
+        while ((line = brTrajectory.readLine()) != null) {
+            String[] trajectoryInfo = line.split(",");
+            String rawTrajectoryPoints = trajectoryInfo[28];
+            String[] rawTrajectoryPointID = rawTrajectoryPoints.split("\\|");
+
+            // generate trajectory object
+            Trajectory traj = new Trajectory();
+            double firstLon = Double.parseDouble(rawTrajectoryPointID[0].split(":")[0]) / 100000;
+            double firstLat = Double.parseDouble(rawTrajectoryPointID[0].split(":")[1]) / 100000;
+            long firstTime = Long.parseLong(rawTrajectoryPointID[0].split((":"))[3]);
+            STPoint currPoint = new STPoint(firstLon, firstLat, firstTime);
+            traj.add(currPoint);
+            double prevLon = firstLon;
+            double prevLat = firstLat;
+            for (int i = 1; i < rawTrajectoryPointID.length; i++) {
+                double lon = firstLon + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[0]) / 100000);
+                double lat = firstLat + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[1]) / 100000);
+                long currTime = Long.parseLong(rawTrajectoryPointID[i].split(":")[3]);
+                double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
+                if (distance < minDist)
+                    continue;
+                long time = firstTime + currTime;
+                currPoint = new STPoint(lon, lat, time);
+                traj.add(currPoint);
+                prevLon = lon;
+                prevLat = lat;
+            }
+            TrajectoryMatchingResult matchResult = hmm.doMatching(traj);
+
+            if (matchResult.getBestMatchWayList().size() == 0) {
+                System.out.println("Trajectory " + rawTrajectoryPoints + " does not have matching result.");
+                continue;
+            }
+            bwRawTrajectory.write(rawTrajectoryPoints + ",");
+
+            List<String> bestMatchWayList = matchResult.getBestMatchWayList();
+            for (int i = 0; i < bestMatchWayList.size() - 1; i++) {
+                String s = bestMatchWayList.get(i);
+                bwRawTrajectory.write(s + "|");
+            }
+            bwRawTrajectory.write(bestMatchWayList.get(bestMatchWayList.size() - 1) + "\n");
+            tripID++;
+            if (tripID == 10 || tripID == 100 || tripID == 1000 || tripID == 10000 || tripID % 100000 == 0)
+                System.out.println("Matching complete: " + tripID);
+        }
+        bwRawTrajectory.close();
+        System.out.println("Ground-truth trajectory result generated.");
     }
 }

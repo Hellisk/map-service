@@ -58,19 +58,19 @@ public class RoadNetworkGraph implements MapInterface {
     }
 
     /**
-     * Adds the given Node to this road network graph.
+     * Adds the given Vertex to this road network graph.
      *
      * @param node The road node to add.
      */
     public void addNode(RoadNode node) {
         if (node != null) {
-            if (!nodeIDList.contains(node.getId())) {
+            if (!nodeIDList.contains(node.getID())) {
                 nodesList.add(node);
-                nodeIDList.add(node.getId());
+                nodeIDList.add(node.getID());
                 updateBoundingBox(node);
                 if (isBeijingDataset)
-                    maxRoadNodeID = Long.parseLong(node.getId()) > maxRoadNodeID ? Long.parseLong(node.getId()) : maxRoadNodeID;
-            } else System.out.println("ERROR! Node already exist: " + node.getId());
+                    maxRoadNodeID = Long.parseLong(node.getID()) > maxRoadNodeID ? Long.parseLong(node.getID()) : maxRoadNodeID;
+            } else System.out.println("ERROR! Vertex already exist: " + node.getID());
         }
     }
 
@@ -131,7 +131,7 @@ public class RoadNetworkGraph implements MapInterface {
         List<RoadNode> pointList = new ArrayList<>(this.getNodes());
         for (RoadWay w : this.getWays()) {
             for (RoadNode n : w.getNodes())
-                if (!this.nodeIDList.contains(n.getId()))
+                if (!this.nodeIDList.contains(n.getID()))
                     pointList.add(n);
         }
         return pointList;
@@ -144,9 +144,9 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void addWay(RoadWay way) {
         if (way != null) {
-            if (!wayIDList.contains(way.getId())) {
+            if (!wayIDList.contains(way.getID())) {
                 waysList.add(way);
-                wayIDList.add(way.getId());
+                wayIDList.add(way.getID());
                 way.getFromNode().increaseOutGoingDegree();
                 way.getToNode().increaseInComingDegree();
                 if (this.maxVisitCount < way.getVisitCount())
@@ -154,17 +154,17 @@ public class RoadNetworkGraph implements MapInterface {
                 for (RoadNode n : way.getNodes())
                     updateBoundingBox(n);
                 if (isBeijingDataset) {
-                    if (!way.getId().contains("temp_")) {
-                        maxAbsWayID = Math.abs(Long.parseLong(way.getId())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getId())) :
+                    if (!way.getID().contains("temp_")) {
+                        maxAbsWayID = Math.abs(Long.parseLong(way.getID())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getID())) :
                                 maxAbsWayID;
                         for (RoadNode n : way.getNodes()) {
-                            maxMiniNodeID = Integer.parseInt(n.getId().substring(0, n.getId().length() - 1)) > maxMiniNodeID ? Integer.parseInt(n
-                                    .getId().substring(0, n.getId().length() - 1)) : maxMiniNodeID;
+                            maxMiniNodeID = Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) > maxMiniNodeID ? Integer.parseInt(n
+                                    .getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
                         }
                     } else
                         System.out.println("ERROR! Temporary edges should not be included in the road map.");
                 }
-            } else System.out.println("Road way already exist: " + way.getId());
+            } else System.out.println("Road way already exist: " + way.getID());
         }
     }
 
@@ -273,7 +273,7 @@ public class RoadNetworkGraph implements MapInterface {
         for (RoadNode n : this.nodesList) {
             if (n.getDegree() == 0) {
                 removedRoadNodeList.add(n);
-                this.nodeIDList.remove(n.getId());
+                this.nodeIDList.remove(n.getID());
             }
         }
         this.nodesList.removeAll(removedRoadNodeList);
@@ -303,5 +303,9 @@ public class RoadNetworkGraph implements MapInterface {
 
     public void setBeijingDataset(boolean beijingDataset) {
         isBeijingDataset = beijingDataset;
+    }
+
+    public void setMaxVisitCount(int maxVisitCount) {
+        this.maxVisitCount = maxVisitCount;
     }
 }

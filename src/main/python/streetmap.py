@@ -739,7 +739,7 @@ class StreetMap:
             confident_score = confident_score / len(curr_segment.edges)
 
             # output current edge to file, including 4 nulls, a confident score and a null for raw visit count, then mini edge list
-            map_file.write("null|-1|{}|0.0|" + str(confident_score) + "|0|" + edge_list + "\n")
+            map_file.write("null|-1|{}|0.0|" + str(confident_score) + "|true|0|" + edge_list + "\n")
 
         # close map file
         map_file.close()

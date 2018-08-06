@@ -14,8 +14,6 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
 import java.util.*;
 
-import static edu.uq.dke.mapupdate.Main.U_TURN_PENALTY;
-
 /**
  * Implementation of Hidden Markov Model map-matching algorithm,
  * using the hmm-oldversion.
@@ -77,7 +75,7 @@ public class HMMMapMatching {
     /**
      * the threshold for extra indexing point, segments that exceed such threshold will generate extra indexing point(s)
      */
-    private double limitedLength;
+    private double intervalLength;
 
     /**
      * Creates a new HMM map-matching method with the
@@ -86,11 +84,11 @@ public class HMMMapMatching {
      * @param distFunc       The point-to-node distance function to use.
      * @param candidateRange The distance threshold for the candidate points.
      */
-    HMMMapMatching(GreatCircleDistanceFunction distFunc, double candidateRange, double gapExtensionRange, int rankLength, RoadNetworkGraph
+    public HMMMapMatching(GreatCircleDistanceFunction distFunc, double candidateRange, double gapExtensionRange, int rankLength, RoadNetworkGraph
             roadNetworkGraph) {
         this.distanceFunction = distFunc;
         this.candidateRange = candidateRange;
-        this.limitedLength = (2 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can
+        this.intervalLength = (2 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can
         // escape the grid search
         this.shortestPathGraph = new RoutingGraph(roadNetworkGraph);
         this.gapExtensionRange = gapExtensionRange;
@@ -99,7 +97,7 @@ public class HMMMapMatching {
         this.roadNetworkGraph = roadNetworkGraph;
     }
 
-    TrajectoryMatchingResult doMatching(Trajectory trajectory) {
+    public TrajectoryMatchingResult doMatching(Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
         int currBreakPointIndex = -1;   // the index of the last point before current broken position, -1: complete matching sequence
@@ -118,13 +116,10 @@ public class HMMMapMatching {
                 (rankLength);
         for (int i = 0; i < rankLength; i++) {       // first fill all top k results with empty array
             List<SequenceState<PointMatch, STPoint, RoadPath>> emptySequence = new ArrayList<>();
-            double zeroProbability = 0;
-            rankedRoadPositionList.put(i, new Pair<>(emptySequence, zeroProbability));
+            double initialProbability = Double.NEGATIVE_INFINITY;
+            rankedRoadPositionList.put(i, new Pair<>(emptySequence, initialProbability));
         }
-
         for (int i = 0; i < trajectory.size(); i++) {
-//            System.out.println("Last point spent:" + (System.currentTimeMillis() - endTime) + "ms, which was " + type);
-//            endTime = System.currentTimeMillis();
             Collection<PointMatch> candidates;
             TimeStep<PointMatch, STPoint, RoadPath> timeStep;
             STPoint gpsPoint = trajectory.get(i);
@@ -136,8 +131,6 @@ public class HMMMapMatching {
                 timeStep = new TimeStep<>(gpsPoint, candidates);
                 if (prevTimeStep == null) {     // start of the trajectory or the current matching has just been cut off
                     computeEmissionProbabilities(timeStep);
-                    if (currBreakPointIndex != -1)
-                        System.out.println("ERROR! The current break point should be none when initializing.");
                     viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
                             timeStep.emissionLogProbabilities);
                     breakPoints.remove(i);  // start the new match from the current point, so it is no longer a break point.
@@ -178,18 +171,13 @@ public class HMMMapMatching {
 
                     //  no time gap, continue the matching process
                     computeEmissionProbabilities(timeStep);
-//                endTime = System.currentTimeMillis();
                     computeTransitionProbabilitiesWithConnectivity(prevTimeStep, timeStep);
-//                System.out.println("shortest path:" + (System.currentTimeMillis() - endTime) + "ms");
-//                endTime = System.currentTimeMillis();
                     viterbi.nextStep(
                             timeStep.observation,
                             timeStep.candidates,
                             timeStep.emissionLogProbabilities,
                             timeStep.transitionLogProbabilities,
                             timeStep.roadPaths);
-//                System.out.println("HMM:" + (System.currentTimeMillis() - endTime) + "ms");
-//                endTime = System.currentTimeMillis();
 
                     if (viterbi.isBroken()) {
                         // the match stops due to no connection, add the current point and its predecessor to the broken list
@@ -426,7 +414,7 @@ public class HMMMapMatching {
                     distance = distanceFunction.pointToSegmentDistance(gpsPoint, s);
                     if (distance <= candidateRange) {
                         Point matchPoint = distanceFunction.findClosestPoint(gpsPoint, s);
-                        PointMatch currPointMatch = new PointMatch(matchPoint, s, way.getId());
+                        PointMatch currPointMatch = new PointMatch(matchPoint, s, way.getID());
                         candidatesMap.get(gpsPoint).add(currPointMatch);
                     }
                 }
@@ -488,8 +476,9 @@ public class HMMMapMatching {
         // calculate the total number of rows and columns. The size of each grid cell equals the candidate range
         double lonDistance = distanceFunction.pointToPointDistance(inputMap.getMaxLon(), 0d, inputMap.getMinLon(), 0d);
         double latDistance = distanceFunction.pointToPointDistance(0d, inputMap.getMaxLat(), 0d, inputMap.getMinLat());
-        columnNum = (int) Math.round(lonDistance / candidateRange);
-        rowNum = (int) Math.round(latDistance / candidateRange);
+        double gridRadius = candidateRange > 30 ? candidateRange : 30;
+        columnNum = (int) Math.round(lonDistance / gridRadius);
+        rowNum = (int) Math.round(latDistance / gridRadius);
         double lonPerCell = (inputMap.getMaxLon() - inputMap.getMinLon()) / columnNum;
         double latPerCell = (inputMap.getMaxLat() - inputMap.getMinLat()) / columnNum;
 
@@ -505,9 +494,9 @@ public class HMMMapMatching {
         for (RoadWay t : inputMap.getWays()) {
             for (Segment s : t.getEdges()) {
                 // -1: left endpoint of the segment, 0: right endpoint of the segment, >0: intermediate point
-                SegmentIndexItem segmentItemLeft = new SegmentIndexItem(s, -1, t.getId(), limitedLength);
+                SegmentIndexItem segmentItemLeft = new SegmentIndexItem(s, -1, t.getID(), intervalLength);
                 XYObject<SegmentIndexItem> segmentIndexLeft = new XYObject<>(segmentItemLeft.x(), segmentItemLeft.y(), segmentItemLeft);
-                SegmentIndexItem segmentItemRight = new SegmentIndexItem(s, 0, t.getId(), limitedLength);
+                SegmentIndexItem segmentItemRight = new SegmentIndexItem(s, 0, t.getID(), intervalLength);
                 XYObject<SegmentIndexItem> segmentIndexRight = new XYObject<>(segmentItemRight.x(), segmentItemRight.y(),
                         segmentItemRight);
                 this.grid.insert(segmentIndexLeft);
@@ -518,12 +507,12 @@ public class HMMMapMatching {
                 // segment
                 double segmentDistance = distanceFunction.distance(s.p1(), s.p2());
                 int intermediateID = 1;
-                while (segmentDistance > limitedLength) {
-                    SegmentIndexItem segmentItemIntermediate = new SegmentIndexItem(s, intermediateID, t.getId(), limitedLength);
+                while (segmentDistance > intervalLength) {
+                    SegmentIndexItem segmentItemIntermediate = new SegmentIndexItem(s, intermediateID, t.getID(), intervalLength);
                     XYObject<SegmentIndexItem> segmentIndexIntermediate = new XYObject<>(segmentItemIntermediate.x(), segmentItemIntermediate.y(),
                             segmentItemIntermediate);
                     this.grid.insert(segmentIndexIntermediate);
-                    segmentDistance = segmentDistance - limitedLength;
+                    segmentDistance = segmentDistance - intervalLength;
                     intermediateID++;
                     intermediatePointCount++;
                     pointCount++;
@@ -564,7 +553,8 @@ public class HMMMapMatching {
                 prevTimeStep.observation.x(), prevTimeStep.observation.y(),
                 timeStep.observation.x(), timeStep.observation.y());
         final double timeDiff = (timeStep.observation.time() - prevTimeStep.observation.time());
-        double maxDistance = (50 * timeDiff) < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8; // limit the maximum speed to 180km/h
+        double maxDistance = (50 * timeDiff) < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8; // limit the maximum speed to
+        // 108km/h
         for (PointMatch from : prevTimeStep.candidates) {
             List<PointMatch> candidates = new ArrayList<>(timeStep.candidates);
             List<Pair<Double, List<String>>> shortestPathResultList = shortestPathGraph.calculateShortestDistanceList(from, candidates, maxDistance);
@@ -573,10 +563,10 @@ public class HMMMapMatching {
                     timeStep.addRoadPath(from, candidates.get(i), new RoadPath(from, candidates.get(i), shortestPathResultList.get(i)._2()));
                     double transitionLogProbability = hmmProbabilities.transitionLogProbability(shortestPathResultList.get(i)._1(),
                             linearDistance, timeDiff);
-                    // apply the penalty if the path incurs an u-turn
-                    if (!from.getRoadID().equals(candidates.get(i).getRoadID()) && Math.abs(Long.parseLong(from.getRoadID())) == Math.abs
-                            (Long.parseLong(candidates.get(i).getRoadID())))
-                        transitionLogProbability += U_TURN_PENALTY;
+//                    // apply the penalty if the path incurs an u-turn
+//                    if (!from.getRoadID().equals(candidates.get(i).getRoadID()) && Math.abs(Long.parseLong(from.getRoadID())) == Math.abs
+//                            (Long.parseLong(candidates.get(i).getRoadID())))
+//                        transitionLogProbability += U_TURN_PENALTY;
                     timeStep.addTransitionLogProbability(from, candidates.get(i), transitionLogProbability);
                 }
             }
@@ -588,7 +578,7 @@ public class HMMMapMatching {
      * HMM algorithm result.
      *
      * @param roadPositionList The Viterbi algorithm result (best match).
-     * @return A list of Point-to-Node pairs with distance.
+     * @return A list of Point-to-Vertex pairs with distance.
      */
     private TrajectoryMatchingResult getResult(Trajectory traj, Map<Integer, Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>>
             roadPositionList) {
@@ -608,12 +598,17 @@ public class HMMMapMatching {
                     throw new NullPointerException("ERROR! Matching result should not have NULL value");
                 }
                 if (sequence.transitionDescriptor != null) {
+                    if (sequence.transitionDescriptor.from != null)
+                        path.add(sequence.transitionDescriptor.from.getRoadID());
                     path.addAll(sequence.transitionDescriptor.passingRoadID);
+                    if (sequence.transitionDescriptor.to != null)
+                        path.add(sequence.transitionDescriptor.to.getRoadID());
                 }
             }
             result.setMatchingResult(matchPairs, rank);
             result.setMatchWayList(new ArrayList<>(path), rank);
-            probabilities[roadPosition.getKey()] = roadPosition.getValue()._2();
+            // the probability should be converted to non-log mode
+            probabilities[roadPosition.getKey()] = roadPosition.getValue()._2() == 0 ? 0 : Math.exp(roadPosition.getValue()._2());
         }
         result.setProbabilities(probabilities);
         return result;
@@ -634,7 +629,9 @@ public class HMMMapMatching {
     }
 
     /**
-     * Insert the partial matching result into the final result, the broken points along the way should be inserted as well
+     * Insert the partial matching result into the final result, the broken points along the way should be inserted as well. The broken
+     * points are matched to its geographically closest point or null if no point is close to it. In addition, the probability is
+     * accumulated, but it will turn to zero if either the previous or the current probability is zero.
      *
      * @param rankedRoadPositionList final matching result list
      * @param temporalRoadPositions  current temporal matching result list
@@ -647,33 +644,45 @@ public class HMMMapMatching {
                              List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions, Trajectory
                                      trajectory, Map<Integer, Boolean> breakPoints, int destinationIndex, Map<STPoint,
             Collection<PointMatch>> candidatesMap) {
-        for (int j = 0; j < rankLength; j++) {
-            if (j < temporalRoadPositions.size()) {    // the rank j result exists
+        for (int rank = 0; rank < rankLength; rank++) {
+            if (rank < temporalRoadPositions.size()) {    // the rank result exists
                 int cursor = 0;
-                for (int k = rankedRoadPositionList.get(j)._1().size(); k < destinationIndex; k++) {
-                    List<SequenceState<PointMatch, STPoint, RoadPath>> roadPositionList = rankedRoadPositionList.get(j)._1();
-                    double probability = rankedRoadPositionList.get(j)._2();
+                List<SequenceState<PointMatch, STPoint, RoadPath>> roadPositionList = rankedRoadPositionList.get(rank)._1();
+                double unmatchProbability = 0;  // for each unmatched trajectory point, we assign a emission probability
+                for (int k = rankedRoadPositionList.get(rank)._1().size(); k < destinationIndex; k++) {
                     // if the current point is a breaking point
                     if (breakPoints.containsKey(k)) {
-                        if (breakPoints.get(k))  // if the point does not have candidate
+                        if (breakPoints.get(k)) { // if the point does not have candidate
                             roadPositionList.add(new SequenceState<>(new PointMatch(), trajectory.get(k), null));
-                        else {
+                            unmatchProbability += hmmProbabilities.emissionLogProbability(candidateRange);
+                        } else {
                             List<String> roadIdList = new ArrayList<>();
                             PointMatch closestMatch = findNearestMatch(trajectory.get(k), candidatesMap.get(trajectory.get(k)));
                             roadIdList.add(closestMatch.getRoadID());
                             roadPositionList.add(new SequenceState<>(closestMatch, trajectory.get(k), new RoadPath(null, null,
                                     roadIdList)));
+                            double distance = distanceFunction.distance(closestMatch.getMatchPoint(), trajectory.get(k));
+                            unmatchProbability += hmmProbabilities.emissionLogProbability(distance);
                         }
                     } else {
-                        roadPositionList.add(temporalRoadPositions.get(j)._1().get(cursor));
-                        rankedRoadPositionList.get(j).set_2(rankedRoadPositionList.get(j)._2() + temporalRoadPositions.get(j)._2());
+                        roadPositionList.add(temporalRoadPositions.get(rank)._1().get(cursor));
                         cursor++;
                     }
                 }
+                double prevProbability = rankedRoadPositionList.get(rank)._2();
+                double currProbability = temporalRoadPositions.get(rank)._2();
+                // add probability, probability = 0 if either of the probability is 0
+                if (prevProbability == 0 || currProbability == 0)
+                    rankedRoadPositionList.get(rank).set_2(0d);
+                else if (prevProbability == Double.NEGATIVE_INFINITY)
+                    rankedRoadPositionList.get(rank).set_2(currProbability + unmatchProbability);
+                else
+                    rankedRoadPositionList.get(rank).set_2(prevProbability + currProbability + unmatchProbability);
             } else {
-                for (int k = rankedRoadPositionList.get(j)._1().size(); k < destinationIndex; k++) {
-                    rankedRoadPositionList.get(j)._1().add(new SequenceState<>(new PointMatch(), trajectory.get(k), null));
+                for (int k = rankedRoadPositionList.get(rank)._1().size(); k < destinationIndex; k++) {
+                    rankedRoadPositionList.get(rank)._1().add(new SequenceState<>(new PointMatch(), trajectory.get(k), null));
                 }
+                rankedRoadPositionList.get(rank).set_2(0d);
             }
         }
     }

@@ -12,7 +12,7 @@ public class DataPreprocessing {
      *
      * @throws IOException file read error
      */
-    public static void dataPreprocessing() throws IOException {
+    public static void dataPreprocessing(boolean isGeneratedMatchingResult) throws IOException {
 
         // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
         System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box");
@@ -27,14 +27,13 @@ public class DataPreprocessing {
         // road map
         System.out.println("Start the trajectory filtering.");
         RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
-        trajFilter.rawTrajectoryParser(roadNetworkGraph, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT, 2 * SIGMA);
+        trajFilter.rawTrajectoryParser(roadNetworkGraph, RAW_TRAJECTORY, INPUT_TRAJECTORY, GT_MATCHING_RESULT, 2 * SIGMA,
+                isGeneratedMatchingResult);
 
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
         System.out.println("Start manipulating the map according to the given road removal percentage:" + PERCENTAGE);
-//        CSVMapReader visitedMapReader = new CSVMapReader(INPUT_MAP);
-//        RoadNetworkGraph visitedGraph = visitedMapReader.readMap(0);
         CSVMapWriter mapRemovalWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
-        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE);
+        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE, CANDIDATE_RANGE);
     }
 
     /**
@@ -42,15 +41,18 @@ public class DataPreprocessing {
      *
      * @throws IOException file read error
      */
-    public static void rawMapInitialization() throws IOException {
+    public static void rawMapInitialization(boolean isGeneratedMatchingResult) throws IOException {
 
         // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
-        System.out.println("Start reading the raw road map from SHP file and extract the map enclosed by the bounding box");
+        System.out.println("Start reading the raw road map from SHP file.");
         double[] boundingBox = new double[0];
         RawMapReader shpReader = new RawMapReader(RAW_MAP, boundingBox);
         RoadNetworkGraph roadNetworkGraph = shpReader.readNewBeijingMap();
         RawFileOperation trajFilter = new RawFileOperation(-1, -1, -1);
-        trajFilter.trajectoryVisitAssignment(roadNetworkGraph, RAW_TRAJECTORY);
+        if (isGeneratedMatchingResult) {
+            trajFilter.generateGTMatchingResult(roadNetworkGraph, RAW_TRAJECTORY, 2 * SIGMA);
+        }
+        trajFilter.trajectoryVisitAssignment(roadNetworkGraph, RAW_TRAJECTORY, isGeneratedMatchingResult);
         // write the visited map to the ground truth folder
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
         rawGTMapWriter.writeMap(0, -1, false);

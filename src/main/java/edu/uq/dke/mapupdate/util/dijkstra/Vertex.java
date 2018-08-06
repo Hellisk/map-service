@@ -1,11 +1,12 @@
 package edu.uq.dke.mapupdate.util.dijkstra;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Node implements Comparable<Node> {
+public class Vertex implements Comparable<Vertex> {
     private double distanceFromSource = Double.POSITIVE_INFINITY;
-    private boolean visit = false;
-    private ArrayList<Edge> edges = new ArrayList<Edge>(); // now we must create edges
+    private boolean visited = false;
+    private List<Edge> outGoingEdges = new ArrayList<Edge>(); // now we must create outGoingEdges
     private int index;
 
     public double getDistanceFromSource() {
@@ -17,25 +18,25 @@ public class Node implements Comparable<Node> {
     }
 
     public boolean isVisited() {
-        return visit;
+        return visited;
     }
 
     public void setVisit(boolean visited) {
-        this.visit = visited;
+        this.visited = visited;
     }
 
-    public ArrayList<Edge> getEdges() {
-        return edges;
+    public List<Edge> getOutGoingEdges() {
+        return outGoingEdges;
     }
 
-    public void setEdges(ArrayList<Edge> edges) {
-        this.edges = edges;
+    public void setOutGoingEdges(ArrayList<Edge> outGoingEdges) {
+        this.outGoingEdges = outGoingEdges;
     }
 
     @Override
-    public int compareTo(Node o) {
+    public int compareTo(Vertex o) {
         if (o == null) {
-            System.out.println("ERROR! Node to compare is NULL!");
+            System.out.println("ERROR! Vertex to compare is NULL!");
             return -1;
         }
         return Double.compare(this.distanceFromSource, o.getDistanceFromSource());

@@ -4,6 +4,7 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
+import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import edu.uq.dke.mapupdate.util.io.CSVMapReader;
 import edu.uq.dke.mapupdate.util.io.CSVTrajectoryReader;
@@ -75,20 +76,6 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             trajDisplay[5].addMarkers(removedWeightedMapMarker);
             trajDisplay[6].addMarkers(removedWeightedMapMarker);
 
-            // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
-            Map<String, RoadWay> id2RoadWay = new HashMap<>();
-            CSVMapReader iterationMapReader = new CSVMapReader(CACHE_FOLDER);
-            RoadNetworkGraph iterationMap = iterationMapReader.readMap(PERCENTAGE, iteration, true);
-            // update the road way mapping for the look up of matched result
-            for (RoadWay w : iterationMap.getWays())
-                id2RoadWay.put(w.getId(), w);
-            for (RoadWay w : removedRoadList)
-                id2RoadWay.put(w.getId(), w);
-            List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), blue);
-            trajDisplay[0].addMarkers(backGroundMapMarker);
-            trajDisplay[1].addMarkers(backGroundMapMarker);
-            trajDisplay[2].addMarkers(backGroundMapMarker);
-
             // read unmatched trajectory for break point evaluation
             CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
             List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
@@ -108,10 +95,24 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, blue);
             trajDisplay[5].addMarkers(mergedEdgeMarker);
 
+            // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
+            Map<String, RoadWay> id2RoadWay = new HashMap<>();
+            CSVMapReader iterationMapReader = new CSVMapReader(CACHE_FOLDER);
+            RoadNetworkGraph iterationMap = iterationMapReader.readMap(PERCENTAGE, iteration, true);
+            // update the road way mapping for the look up of matched result
+            for (RoadWay w : iterationMap.getWays())
+                id2RoadWay.put(w.getID(), w);
+            for (RoadWay w : removedRoadList)
+                id2RoadWay.put(w.getID(), w);
+            List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), blue);
+            trajDisplay[0].addMarkers(backGroundMapMarker);
+            trajDisplay[1].addMarkers(backGroundMapMarker);
+            trajDisplay[2].addMarkers(backGroundMapMarker);
+
             // read refined edges and display on the map
             List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
             List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, blue);
-            trajDisplay[5].addMarkers(updatedMapMarker);
+            trajDisplay[6].addMarkers(updatedMapMarker);
 
             // randomly select and visualize a trajectory and the corresponding matching result on the map
             Map<String, Trajectory> id2rawTraj = new HashMap<>();

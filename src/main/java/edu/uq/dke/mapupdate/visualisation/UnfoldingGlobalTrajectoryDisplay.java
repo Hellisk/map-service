@@ -36,7 +36,6 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
 
     public void setup() {
         size(1760, 990, JAVA2D);
-
         int[] blue = {0, 128, 255};
         int[] green = {102, 255, 178};
         int[] red = {255, 0, 0};
@@ -52,11 +51,11 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
                 id2MatchingResult.put(mr.getTrajID(), mr);
             }
             for (int i = 0; i < trajDisplay.length; i++) {
-                int trajNum = 90 + i;
+                int trajNum = 10 + i;
                 RoadNetworkGraph currMap = mapReader.readRawMap(trajNum);
                 Map<String, RoadWay> id2RoadWay = new HashMap<>();
                 for (RoadWay w : currMap.getWays()) {
-                    id2RoadWay.put(w.getId(), w);
+                    id2RoadWay.put(w.getID(), w);
                 }
                 Trajectory traj = trajReader.readInputTrajectory(trajNum);
                 List<String> groundTruthResult = trajReader.readGroundTruthMatchResult(trajNum);
@@ -68,7 +67,7 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
                 trajDisplay[i].zoomAndPanTo(14, mapCenter);
 
                 List<Marker> rawTrajMarker = trajMarkerGen(traj, red, 2);
-                List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2MatchingResult.get(traj.getId()), id2RoadWay, lightPurple, 3);
+                List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2MatchingResult.get(traj.getId()), id2RoadWay, lightPurple, 4);
                 List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(groundTruthResult, id2RoadWay, green, 2);
                 trajDisplay[i].addMarkers(rawTrajMarker);
                 trajDisplay[i].addMarkers(matchedTrajMarker);

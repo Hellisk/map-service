@@ -90,7 +90,7 @@ public class RoadRelation extends RoadNetworkPrimitive {
      */
     @Override
     public RoadRelation clone() {
-        RoadRelation clone = new RoadRelation(getId(), getTimeStamp());
+        RoadRelation clone = new RoadRelation(getID(), getTimeStamp());
         for (Member m : members) {
             clone.addMember(m.role, m.type, m.ref);
         }
@@ -99,7 +99,7 @@ public class RoadRelation extends RoadNetworkPrimitive {
 
     @Override
     public String toString() {
-        String s = getId() + "";
+        String s = getID() + "";
         for (Member mm : members) {
             s += " ( TYPE " + mm.type + " REF " + mm.ref + " ROLE " + mm.role + " )";
         }
@@ -123,7 +123,7 @@ public class RoadRelation extends RoadNetworkPrimitive {
         RoadRelation other = (RoadRelation) obj;
         if (this.size() != other.size())
             return false;
-        return this.getId().equals(other.getId());
+        return this.getID().equals(other.getID());
     }
 
     /**

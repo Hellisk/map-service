@@ -87,8 +87,12 @@ public class RawMapReader {
                     String pointID = feature.getAttribute(2).toString();
                     short nodeType = Short.parseShort(feature.getAttribute(5).toString());
                     RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y, nodeType);
-                    id2Node.put(pointID, newRoadNode);
-                    roadNodeList.add(newRoadNode);
+                    if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
+                        pointID = pointID.substring(5);
+                    } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
+                        pointID = pointID.substring(3);
+                    }
+                    insertNode(roadNodeList, id2Node, pointID, newRoadNode);
                 }
             }
         } catch (IllegalThreadStateException e) {
@@ -122,8 +126,10 @@ public class RawMapReader {
                     roadLevelConverter(newRoadWay, roadLevel);
                     if (roadTypeDictionary.containsKey(roadType))
                         newRoadWay.setRoadWayTypeBit(roadTypeDictionary.get(roadType));
-                    else
-                        System.out.println("test");
+                    // check whether the current road is for pedestrian, cycling or bus, if so, ignore it
+                    if (newRoadWay.getRoadWayLevel() == 7 || newRoadWay.getRoadWayLevel() == 9 || newRoadWay.getRoadWayType().get(9)
+                            || newRoadWay.getRoadWayType().get(10))
+                        continue;
                 } else if (numOfType > 1) {
                     String[] roadTypeList = feature.getAttribute(4).toString().split("\\|");
                     String roadLevel = roadTypeList[0].substring(0, 2);
@@ -133,8 +139,12 @@ public class RawMapReader {
                             newRoadWay.setRoadWayTypeBit(roadTypeDictionary.get(roadTypeList[i].substring(2)));
                         else System.out.println("ERROR! Incorrect road type: " + roadTypeList[i].substring(2));
                     }
+                    // check whether the current road is for pedestrian, cycling or bus, if so, ignore it
+                    if (newRoadWay.getRoadWayLevel() == 7 || newRoadWay.getRoadWayLevel() == 9 || newRoadWay.getRoadWayType().get(9)
+                            || newRoadWay.getRoadWayType().get(10))
+                        continue;
                 } else
-                    System.out.println("test");
+                    System.out.println("ERROR! Incorrect number of road types.");
 
                 List<RoadNode> miniNode = new ArrayList<>();
                 Coordinate[] coordinates = edges.getCoordinates();
@@ -143,9 +153,21 @@ public class RawMapReader {
                     continue;
                 for (int i = 0; i < coordinates.length; i++) {
                     if (i == 0) {
-                        miniNode.add(id2Node.get(feature.getAttribute(10).toString()));
+                        String pointID = feature.getAttribute(10).toString();
+                        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
+                            pointID = pointID.substring(5);
+                        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
+                            pointID = pointID.substring(3);
+                        }
+                        miniNode.add(id2Node.get(pointID));
                     } else if (i == coordinates.length - 1) {
-                        miniNode.add(id2Node.get(feature.getAttribute(11).toString()));
+                        String pointID = feature.getAttribute(11).toString();
+                        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
+                            pointID = pointID.substring(5);
+                        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
+                            pointID = pointID.substring(3);
+                        }
+                        miniNode.add(id2Node.get(pointID));
                     } else {
                         miniNode.add(new RoadNode(roadWayPointID + "-", coordinates[i].x, coordinates[i].y));
                         roadWayPointID++;
@@ -181,7 +203,7 @@ public class RawMapReader {
                         break;
                     }
                     default: {
-                        System.out.println("Error direction number:" + feature.getAttribute(6).toString());
+                        System.out.println("ERROR! The direction indicator number is wrong: " + feature.getAttribute(6).toString());
                         break;
                     }
                 }
@@ -202,6 +224,17 @@ public class RawMapReader {
         dataStoreEdge.dispose();
 
         return this.roadGraph;
+    }
+
+    private void insertNode(List<RoadNode> roadNodeList, Map<String, RoadNode> id2Node, String pointID, RoadNode newRoadNode) {
+        if (!id2Node.containsKey(pointID)) {
+            id2Node.put(pointID, newRoadNode);
+            roadNodeList.add(newRoadNode);
+        } else {
+            RoadNode existingNode = id2Node.get(pointID);
+            if (existingNode.lon() != newRoadNode.lon() || existingNode.lat() != newRoadNode.lat())
+                System.out.println("ERROR! The same road node has different location");
+        }
     }
 
     private void roadLevelConverter(RoadWay newRoadWay, String roadLevel) {

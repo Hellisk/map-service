@@ -10,7 +10,7 @@ public class MinPriorityQueue {
     private HashMap<Integer, Item> insertedNodes;     // the index and the corresponding node
     private Item lastItem;
 
-    public MinPriorityQueue(Node initialPoint) {
+    public MinPriorityQueue(Vertex initialPoint) {
         Item rootPoint = new Item(initialPoint.getDistanceFromSource(), initialPoint.getIndex());
         rootPoint.parent = rootPoint;
         this.root = rootPoint;

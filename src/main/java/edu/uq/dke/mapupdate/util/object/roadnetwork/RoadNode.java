@@ -2,11 +2,10 @@ package edu.uq.dke.mapupdate.util.object.roadnetwork;
 
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 
 /**
- * A node in the road network graph (OSM Node).
+ * A node in the road network graph (OSM Vertex).
  * <br> The spatial coordinates of the node are immutable.
  *
  * @author uqdalves
@@ -31,7 +30,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
     private int outGoingDegree = 0;
 
     /**
-     * Node type, 0 = non-intersection node, 1 = sub-node of the intersection, 2 = single-node intersection, 3 = main node of the
+     * Vertex type, 0 = non-intersection node, 1 = sub-node of the intersection, 2 = single-node intersection, 3 = main node of the
      * intersection, 4 = mini node, -1 = unknown
      */
     private short nodeType;
@@ -47,7 +46,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
     /**
      * Create a road node.
      *
-     * @param id  Node ID
+     * @param id  Vertex ID
      * @param lon Longitude coordinate (x)
      * @param lat Latitude coordinate (y)
      */
@@ -60,7 +59,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
     /**
      * Create a road node.
      *
-     * @param id       Node ID
+     * @param id       Vertex ID
      * @param lon      Longitude coordinate (x)
      * @param lat      Latitude coordinate (y)
      * @param nodeType Type of the node (intersection/non-intersection)
@@ -77,7 +76,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
     /**
      * Create a road node.
      *
-     * @param id             Node ID
+     * @param id             Vertex ID
      * @param lon            Longitude coordinate (x)
      * @param lat            Latitude coordinate (y)
      * @param inComingDegree Incoming degree
@@ -93,14 +92,14 @@ public final class RoadNode extends RoadNetworkPrimitive {
     }
 
     /**
-     * Node longitude value.
+     * Vertex longitude value.
      */
     public double lon() {
         return lon;
     }
 
     /**
-     * Node latitude value.
+     * Vertex latitude value.
      */
     public double lat() {
         return lat;
@@ -112,14 +111,14 @@ public final class RoadNode extends RoadNetworkPrimitive {
      */
     public Point toPoint() {
         Point p = new Point(lon, lat);
-        p.setId(getId());
+        p.setId(getID());
         return p;
     }
 
     @Override
     public String toString() {
         DecimalFormat df = new DecimalFormat("0.00000");
-        return getId() + "," + df.format(lon()) + "," + df.format(lat()) + "," + getNodeType();
+        return getID() + "," + df.format(lon()) + "," + df.format(lat()) + "," + getNodeType();
     }
 
     public static RoadNode parseRoadNode(String s) {
@@ -133,7 +132,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
      */
     @Override
     public RoadNode clone() {
-        return new RoadNode(getId(), lon, lat, inComingDegree, outGoingDegree, nodeType);
+        return new RoadNode(getID(), lon, lat, inComingDegree, outGoingDegree, nodeType);
     }
 
     @Override

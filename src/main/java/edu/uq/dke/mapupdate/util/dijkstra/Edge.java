@@ -25,18 +25,6 @@ public class Edge {
         return length;
     }
 
-    // determines the neighbouring node of a supplied node, based on the two nodes connected by this edge
-    public int getNeighbourIndex(int nodeIndex) {
-        if (this.fromNodeIndex == nodeIndex) {
-            return this.toNodeIndex;
-        } else if (this.toNodeIndex == nodeIndex) {
-            return this.fromNodeIndex;
-        } else {
-            System.out.println("ERROR! Cannot find the neighbour node index of the given node");
-            return nodeIndex;
-        }
-    }
-
     public int getIndex() {
         return index;
     }

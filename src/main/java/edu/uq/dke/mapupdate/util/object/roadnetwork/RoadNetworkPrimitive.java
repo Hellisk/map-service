@@ -48,7 +48,7 @@ public abstract class RoadNetworkPrimitive implements MapInterface, Cloneable {
     /**
      * @return The identifier of this road network primitive.
      */
-    public String getId() {
+    public String getID() {
         if (id == null) {
             return "";
         }

@@ -15,37 +15,63 @@ import static edu.uq.dke.mapupdate.Main.ROOT_PATH;
  * Created by uqpchao on 10/07/2017.
  */
 public class TrajMatchingEvaluation {
-    public void beijingPrecisionRecallCalc(List<TrajectoryMatchingResult> matchedResult, List<Pair<Integer, List<String>>> groundTruthResult) {
-        // insert all ground truth road match into globalCompareList
-        Map<Integer, HashSet<String>> globalCompareList = new HashMap<>();
-        int gtResultCount = 0;
-        for (Pair<Integer, List<String>> aGroundTruthResult : groundTruthResult) {
-            HashSet<String> gtRoadIDList = new HashSet<>(aGroundTruthResult._2());
-            globalCompareList.put(aGroundTruthResult._1(), gtRoadIDList);
-            gtResultCount += gtRoadIDList.size();
+
+    /**
+     * Evaluate the precision and recall of the Beijing map-matching
+     *
+     * @param matchedResult     The matching results of map-matching algorithm
+     * @param groundTruthResult The ground-truth matching results
+     * @param currentMap        The map used in current map-matching
+     * @param removedEdges      The removed edges, the combination of removed edges and currentMap will generate a complete road way dictionary
+     */
+    public void beijingPrecisionRecallCalc(List<TrajectoryMatchingResult> matchedResult, List<Pair<Integer, List<String>>>
+            groundTruthResult, RoadNetworkGraph currentMap, List<RoadWay> removedEdges) {
+        // insert all ground truth road match into gtResultList
+        Map<Integer, HashSet<String>> gtResultList = new HashMap<>();
+        for (Pair<Integer, List<String>> gtResult : groundTruthResult) {
+            HashSet<String> gtRoadIDList = new HashSet<>(gtResult._2());
+            gtResultList.put(gtResult._1(), gtRoadIDList);
         }
 
+        // prepare the mapping of road id to road way length
+        Map<String, Double> id2RoadLength = new HashMap<>();
+        for (RoadWay w : currentMap.getWays())
+            id2RoadLength.put(w.getID(), w.getRoadLength());
+        for (RoadWay w : removedEdges) {
+            if (!id2RoadLength.containsKey(w.getID()))
+                id2RoadLength.put(w.getID(), w.getRoadLength());
+        }
         // start the count
-        int totalHitCount = 0;      // number of perfectly matched road ways
-        int totalMatchingResultCount = 0;    // number of road ways that are matched incorrectly
+        double totalCorrectlyMatchedLength = 0;      // total length of perfectly matched road ways
+        double totalMatchedLength = 0;    // total length of the road ways that are matched incorrectly
+        double totalGroundTruthLength = 0;    // total length of the ground-truth road ways
 
         for (TrajectoryMatchingResult r : matchedResult) {
-            List<String> matchRoadIDList = r.getBestMatchWayList();
-            // insert all unique road way ID into the list
-            totalMatchingResultCount += matchRoadIDList.size();
-            int hitCount = 0;
+            Set<String> matchRoadIDSet = new LinkedHashSet<>(r.getBestMatchWayList());
+            double currMatchedLength = 0;
+            // summarize all matched road length
+            for (String s : matchRoadIDSet) {
+                currMatchedLength += id2RoadLength.get(s);
+            }
+            double correctlyMatchedLength = 0;
             // check the coverage of the roads found in our match
-            HashSet<String> groundTruthIDList = globalCompareList.get(Integer.parseInt(r.getTrajID()));
-            for (String s : matchRoadIDList) {
-                if (groundTruthIDList.contains(s)) {
-                    hitCount++;
+            HashSet<String> groundTruthIDList = gtResultList.get(Integer.parseInt(r.getTrajID()));
+            double currGroundTruthLength = 0;
+            for (String s : groundTruthIDList) {
+                double currLength = id2RoadLength.get(s);
+                currGroundTruthLength += currLength;
+                if (matchRoadIDSet.contains(s)) {
+                    correctlyMatchedLength += currLength;
                 }
             }
-            totalHitCount += hitCount;
+
+            totalCorrectlyMatchedLength += correctlyMatchedLength;
+            totalMatchedLength += currMatchedLength;
+            totalGroundTruthLength += currGroundTruthLength;
         }
 
-        double precision = (double) totalHitCount / (double) (totalMatchingResultCount);
-        double recall = (double) totalHitCount / (double) (gtResultCount);
+        double precision = totalCorrectlyMatchedLength / totalMatchedLength;
+        double recall = totalCorrectlyMatchedLength / totalGroundTruthLength;
 
         System.out.println("Map-matching result evaluated, the precision is: " + precision * 100 + "%, the recall is:" + recall * 100 + "%");
     }
@@ -78,7 +104,7 @@ public class TrajMatchingEvaluation {
             RoadNetworkGraph currMap = mapReader.readRawMap(Integer.parseInt(r.getTrajID()));
             Map<String, Double> id2RoadLength = new HashMap<>();
             for (RoadWay w : currMap.getWays())
-                id2RoadLength.put(w.getId(), w.getRoadLength());
+                id2RoadLength.put(w.getID(), w.getRoadLength());
 
             Set<String> matchRoadIDSet = new LinkedHashSet<>(r.getBestMatchWayList());
             double currMatchedLength = 0;

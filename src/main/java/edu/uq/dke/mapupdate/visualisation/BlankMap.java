@@ -7,8 +7,6 @@ import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-import static edu.uq.dke.mapupdate.Main.CODE_ROOT_PATH;
-
 public class BlankMap {
 
     public static abstract class BlankMapProvider extends OpenStreetMap.OpenStreetMapProvider {
@@ -34,7 +32,8 @@ public class BlankMap {
 
     public static class BlankProvider extends BlankMapProvider {
         public String[] getTileUrls(Coordinate coordinate) {
-            String url = "file:///" + CODE_ROOT_PATH + "files/blank tile.png";
+            String localDir = System.getProperty("user.dir");
+            String url = "file:///" + localDir + "/files/blank tile.png";
             return new String[]{url};
         }
     }

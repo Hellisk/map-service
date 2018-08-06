@@ -4,6 +4,10 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
+import de.fhpotsdam.unfolding.providers.Google;
+import de.fhpotsdam.unfolding.providers.Microsoft;
+import de.fhpotsdam.unfolding.providers.OpenMapSurferProvider;
+import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import edu.uq.dke.mapupdate.util.io.CSVMapReader;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
@@ -31,9 +35,10 @@ public class UnfoldingMapDisplay extends PApplet {
     public void setup() {
         int OPTION = 1;
         int specifiedTypeSeries = 0;
-
         size(1760, 990, JAVA2D);
+        this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OpenStreetMapProvider());
         this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
+//        this.fullMapDisplay = new UnfoldingMap(this, new Google.GoogleMapProvider());
         MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
         for (int i = 0; i < mapDisplay.length; i++) {
             this.mapDisplay[i] = new UnfoldingMap(this, new BlankMap.BlankProvider());
@@ -112,6 +117,7 @@ public class UnfoldingMapDisplay extends PApplet {
                 currColor = lastColor;
             } else System.out.println("ERROR! The visit count should not decrease.");
             currLineMarker.setColor(color(255, 255 - currColor, 0));
+//            currLineMarker.setColor(color(192, 192, 192));
             currLineMarker.setStrokeWeight(1);
             prevVisitCount = currWay.getVisitCount();
             lastColor = currColor;

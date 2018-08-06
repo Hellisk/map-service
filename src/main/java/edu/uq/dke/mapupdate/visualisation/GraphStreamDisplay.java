@@ -58,9 +58,9 @@ public class GraphStreamDisplay {
                         nodeIDMap.add(idJ);
                     }
 
-                    if (graph.getEdge(way.getId() + "_GE" + i) == null) {
-                        graph.addEdge(way.getId() + "_GE" + i, idI + "_G", idJ + "_G");
-                    } else System.out.println(way.getId());
+                    if (graph.getEdge(way.getID() + "_GE" + i) == null) {
+                        graph.addEdge(way.getID() + "_GE" + i, idI + "_G", idJ + "_G");
+                    } else System.out.println(way.getID());
                 }
             }
         }
@@ -93,9 +93,9 @@ public class GraphStreamDisplay {
                         nodeIDSet.add(idJ);
                     }
 
-                    if (graph.getEdge(way.getId() + "_RE" + i) == null) {
-                        graph.addEdge(way.getId() + "_RE" + i, idI + "_R", idJ + "_R").addAttribute("ui.class", "rawtrajectory");
-                    } else System.out.println(way.getId());
+                    if (graph.getEdge(way.getID() + "_RE" + i) == null) {
+                        graph.addEdge(way.getID() + "_RE" + i, idI + "_R", idJ + "_R").addAttribute("ui.class", "rawtrajectory");
+                    } else System.out.println(way.getID());
                 }
             }
         }

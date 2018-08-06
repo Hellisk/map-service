@@ -34,7 +34,8 @@ public class RoadWay extends RoadNetworkPrimitive {
     private Point virtualCenter;
 
     /**
-     * Number of times that the road way is visited
+     * Number of times that the road way is visited by trajectories. Also used in map merge where the visitCount is set to 1 when it is
+     * processed
      */
     private int visitCount = 0;
 
@@ -181,7 +182,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public RoadNode getNode(int index) {
         if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException("Node index out of bounds. "
+            throw new IndexOutOfBoundsException("Vertex index out of bounds. "
                     + "Index should be greater than or equals to 0, or less than " + size());
         }
         return nodeList.get(index);
@@ -248,7 +249,7 @@ public class RoadWay extends RoadNetworkPrimitive {
             node1 = nodeList.get(i);
             node2 = nodeList.get(i + 1);
             Segment currSegment = new Segment(node1.lon(), node1.lat(), node2.lon(), node2.lat());
-            currSegment.setId(this.getId());
+            currSegment.setId(this.getID());
             sList.add(currSegment);
         }
         return sList;
@@ -259,7 +260,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     @Override
     public RoadWay clone() {
-        RoadWay clone = new RoadWay(getId(), getTimeStamp(), this.distFunc);
+        RoadWay clone = new RoadWay(getID(), getTimeStamp(), this.distFunc);
         clone.addNodes(nodeList);
         clone.setNewRoad(isNewRoad);
         clone.setVisitCount(visitCount);
@@ -270,19 +271,20 @@ public class RoadWay extends RoadNetworkPrimitive {
 
     /**
      * Convert the road way into string, for write purpose. The format is as follows:
-     * ID|RoadLevel|RoadType|ConScore|InfScore|RoadNode1,RoadNode2...
+     * ID|RoadLevel|RoadType|InfScore|ConScore|isNewRoad|visitCount|RoadNode1,RoadNode2...
      *
      * @return String that contains all road way information
      */
     @Override
     public String toString() {
         DecimalFormat df = new DecimalFormat("0.00000");
-        StringBuilder s = new StringBuilder(this.getId() + "|");
+        StringBuilder s = new StringBuilder(this.getID() + "|");
         s.append(this.getRoadWayLevel()).append("|").append(this.getRoadWayType().toString()).append("|");
         s.append(this.getInfluenceScore()).append("|").append(this.getConfidenceScore()).append("|");
+        s.append(this.isNewRoad ? "true" : "false").append("|");
         s.append(this.getVisitCount());
         for (RoadNode n : this.getNodes()) {
-            s.append("|").append(n.getId()).append(",").append(df.format(n.lon())).append(",").append(df.format(n.lat()));
+            s.append("|").append(n.getID()).append(",").append(df.format(n.lon())).append(",").append(df.format(n.lat()));
         }
         return s.toString();
     }
@@ -296,17 +298,19 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public static RoadWay parseRoadWay(String s, Map<String, RoadNode> index2Node) {
         String[] edgeInfo = s.split("\\|");
-        if (edgeInfo[5].contains(",") || !edgeInfo[6].contains(","))
+        if (edgeInfo[6].contains(",") || !edgeInfo[7].contains(","))
             throw new IndexOutOfBoundsException("ERROR! Failed to read road way: input data format is wrong. " + s);
         RoadWay newWay;
         List<RoadNode> miniNode = new ArrayList<>();
-        if (edgeInfo[0].equals("null") && edgeInfo[1].equals("-1") && edgeInfo[2].equals("{}")) {
-            newWay = new RoadWay("temp_" + edgeInfo[0]);
-            newWay.setNewRoad(true);
-            for (int i = 6; i < edgeInfo.length; i++) {
+        newWay = new RoadWay(edgeInfo[0]);
+        newWay.setVisitCount(Integer.parseInt(edgeInfo[6]));
+        newWay.setNewRoad(edgeInfo[5].equals("true"));
+        if (edgeInfo[0].equals("null")) {
+            // the current edge is not yet processed by map merge, the endpoints are not able to be matched to existing intersections
+            for (int i = 7; i < edgeInfo.length; i++) {
                 String[] roadWayPoint = edgeInfo[i].split(",");
                 if (roadWayPoint.length == 3) {
-                    RoadNode newNode = new RoadNode("temp_" + roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
+                    RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
                             (roadWayPoint[2]));
                     miniNode.add(newNode);
                 } else
@@ -314,27 +318,26 @@ public class RoadWay extends RoadNetworkPrimitive {
                             edgeInfo[i]);
             }
         } else {
-            newWay = new RoadWay(edgeInfo[0]);
-            newWay.setVisitCount(Integer.parseInt(edgeInfo[5]));
             // the road way record is complete and the endpoints exist
-            if (index2Node.containsKey(edgeInfo[6].split(",")[0]) && index2Node.containsKey(edgeInfo[edgeInfo.length - 1].split(",")[0])) {
-                for (int i = 6; i < edgeInfo.length; i++) {
+            if (index2Node.containsKey(edgeInfo[7].split(",")[0]) && index2Node.containsKey(edgeInfo[edgeInfo.length - 1].split(",")[0])) {
+                for (int i = 7; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
                         RoadNode newNode;
-                        if (i == 6) {
+                        if (i == 7) {
                             newNode = index2Node.get(roadWayPoint[0]);
                         } else if (i == edgeInfo.length - 1) {
                             newNode = index2Node.get(roadWayPoint[0]);
-                        } else
+                        } else {
                             newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
-
+                        }
                         miniNode.add(newNode);
                     } else
                         throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
                 }
             } else if (index2Node.isEmpty()) {
-                for (int i = 6; i < edgeInfo.length; i++) {
+                // the read only happens in map road
+                for (int i = 7; i < edgeInfo.length; i++) {
                     String[] roadWayPoint = edgeInfo[i].split(",");
                     if (roadWayPoint.length == 3) {
                         RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble(roadWayPoint[2]));
@@ -342,7 +345,9 @@ public class RoadWay extends RoadNetworkPrimitive {
                     } else
                         throw new IllegalArgumentException("ERROR! Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
                 }
-            } else return new RoadWay();
+            } else {
+                return new RoadWay();
+            }
         }
 
         newWay.setRoadWayLevel(Short.parseShort(edgeInfo[1]));
@@ -374,7 +379,7 @@ public class RoadWay extends RoadNetworkPrimitive {
         if (!(obj instanceof RoadWay))
             return false;
         RoadWay other = (RoadWay) obj;
-        return this.size() == other.size() && this.getId().equals(other.getId());
+        return this.size() == other.size() && this.getID().equals(other.getID());
     }
 
     /**

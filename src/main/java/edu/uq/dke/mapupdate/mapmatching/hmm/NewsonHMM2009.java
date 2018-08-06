@@ -36,10 +36,12 @@ public class NewsonHMM2009 {
         List<TrajectoryMatchingResult> result = new ArrayList<>();
         int matchCount = 0;
         for (Trajectory traj : rawTrajectory) {
+//            if(traj.getId().equals("1027"))
+//                System.out.println("test");
             TrajectoryMatchingResult matchResult = hmm.doMatching(traj);
             result.add(matchResult);
             if (rawTrajectory.size() > 100)
-                if (matchCount % (rawTrajectory.size() / 100) == 0)
+                if (matchCount % (rawTrajectory.size() / 100) == 0 && matchCount / (rawTrajectory.size() / 100) <= 100)
                     System.out.println("Map matching finish " + matchCount / (rawTrajectory.size() / 100) + "%.");
             matchCount++;
         }

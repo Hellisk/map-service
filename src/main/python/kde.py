@@ -17,10 +17,11 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = True  # True = home, False = school
+dataset_option = 1  # 1 = home, 2 = school, 3 = server
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
-root_folder = beijing_home_path if dataset_option is True else beijing_school_path
+beijing_server_path = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/"  # the root folder of all data
+root_folder = beijing_home_path if dataset_option == 1 else beijing_school_path if dataset_option == 2 else beijing_server_path
 root_path = root_folder + "mapInference/"
 input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
@@ -41,9 +42,6 @@ class KDE:
         print "trips path: " + str(input_path)
         print "cell size: " + str(cell_size)
         print "gaussian blur: " + str(gaussian_blur)
-
-        # flag to save images
-        save_images = True
 
         sys.stdout.write("\nFinding bounding box... ")
         sys.stdout.flush()

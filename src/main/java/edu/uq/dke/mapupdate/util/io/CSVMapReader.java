@@ -6,7 +6,6 @@ import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -47,7 +46,7 @@ public class CSVMapReader implements SpatialInterface {
         while ((line = brVertices.readLine()) != null) {
             RoadNode newNode = RoadNode.parseRoadNode(line);
             nodes.add(newNode);
-            index2Node.put(newNode.getId(), newNode);
+            index2Node.put(newNode.getID(), newNode);
         }
         brVertices.close();
 
@@ -94,7 +93,7 @@ public class CSVMapReader implements SpatialInterface {
             RoadNode currNode = RoadNode.parseRoadNode(line);
             if (isInside(currNode.lon(), currNode.lat(), roadGraph)) {
                 nodeList.add(currNode);
-                index2Node.put(currNode.getId(), currNode);
+                index2Node.put(currNode.getID(), currNode);
             }
         }
         brVertices.close();
@@ -112,8 +111,8 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodeList);
         roadGraph.addWays(wayList);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-        System.out.println("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + nodeList.size() + ", total" +
-                " roads:" + wayList.size());
+        System.out.println("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
+                ", total" + " roads:" + roadGraph.getWays().size());
         return roadGraph;
     }
 
@@ -189,6 +188,7 @@ public class CSVMapReader implements SpatialInterface {
         String line;
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
+            newWay.setId("temp_" + newWay.getID());
             inferredRoads.add(newWay);
         }
         return inferredRoads;

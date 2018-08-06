@@ -200,8 +200,8 @@ public class TrajectoryLoader {
         // maintain an index for points
         HashMap<String, GPSPoint> newPointList = new HashMap<>();
 
-        String directoryPath = inputFile.getPath().substring(0, inputFile.getPath().lastIndexOf("\\") + 1);
-        String fileName = inputFile.getPath().substring(inputFile.getPath().lastIndexOf("\\") + 1);
+        String directoryPath = inputFile.getPath().substring(0, inputFile.getPath().lastIndexOf("/") + 1);
+        String fileName = inputFile.getPath().substring(inputFile.getPath().lastIndexOf("/") + 1);
 
         try {
             if (fileName.startsWith("trip_")) {

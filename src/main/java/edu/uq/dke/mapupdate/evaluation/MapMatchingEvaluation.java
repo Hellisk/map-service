@@ -52,7 +52,7 @@ public class MapMatchingEvaluation {
         // add map points into grid
         for (RoadNode p : rawMap.getNodes()) {
             Point point = new Point(p.lon(), p.lat());
-            point.setId(p.getId());
+            point.setId(p.getID());
             XYObject<Point> xyPoint = new XYObject<>(point.x(), point.y(), point);
             rawGridIndex.insert(xyPoint);
             pointCategoryMapping.put(p.lon() + "_" + p.lat(), false);
@@ -63,14 +63,14 @@ public class MapMatchingEvaluation {
             for (int i = 1; i < t.getNodes().size(); i++) {
                 if (!pointCategoryMapping.containsKey(t.getNode(i).lon() + "_" + t.getNode(i).lat())) {
                     Point point = new Point(t.getNode(i).lon(), t.getNode(i).lat());
-                    point.setId(t.getNode(i).getId());
+                    point.setId(t.getNode(i).getID());
                     XYObject<Point> xyPoint = new XYObject<>(point.x(), point.y(), point);
                     rawGridIndex.insert(xyPoint);
                     pointCategoryMapping.put(t.getNode(i).lon() + "_" + t.getNode(i).lat(), false);
                     actualRawNodeCount++;
                 }
                 for (int j = 0; j < i; j++) {
-                    rawAdjacencyList.put(t.getNode(j).lon() + "_" + t.getNode(j).lat() + "," + t.getNode(i).lon() + "_" + t.getNode(i).lat(), t.getId());
+                    rawAdjacencyList.put(t.getNode(j).lon() + "_" + t.getNode(j).lat() + "," + t.getNode(i).lon() + "_" + t.getNode(i).lat(), t.getID());
                 }
             }
         }
@@ -82,7 +82,7 @@ public class MapMatchingEvaluation {
             if (pointCategoryMapping.containsKey(n.lon() + "_" + n.lat())) {
                 pointCategoryMapping.replace(n.lon() + "_" + n.lat(), true);
                 Point point = new Point(n.lon(), n.lat());
-                point.setId(n.getId());
+                point.setId(n.getID());
                 XYObject<Point> xyPoint = new XYObject<>(point.x(), point.y(), point);
                 removedGridIndex.insert(xyPoint);
             } else {
@@ -98,7 +98,7 @@ public class MapMatchingEvaluation {
                     Point firstPoint = firstSegment.getCoordinates().get(0);
                     Point secondPoint = endSegment.getCoordinates().get(1);
                     if (pointCategoryMapping.containsKey(firstPoint.x() + "_" + firstPoint.y()) && pointCategoryMapping.containsKey(secondPoint.x() + "_" + secondPoint.y())) {
-                        removedAdjacencyList.put(firstPoint.x() + "_" + firstPoint.y() + "," + secondPoint.x() + "_" + secondPoint.y(), w.getId());
+                        removedAdjacencyList.put(firstPoint.x() + "_" + firstPoint.y() + "," + secondPoint.x() + "_" + secondPoint.y(), w.getID());
                         if (!pointCategoryMapping.get(firstPoint.x() + "_" + firstPoint.y())) {
                             pointCategoryMapping.replace(firstPoint.x() + "_" + firstPoint.y(), true);
                             Point point = new Point(firstPoint.x(), firstPoint.y());

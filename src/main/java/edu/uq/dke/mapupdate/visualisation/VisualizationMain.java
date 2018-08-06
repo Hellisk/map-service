@@ -5,10 +5,10 @@ public class VisualizationMain {
         // visualization
 //        UnfoldingMapDisplay mapDisplay = new UnfoldingMapDisplay();
 //        mapDisplay.display();
-//        UnfoldingBeijingTrajectoryDisplay trajDisplay = new UnfoldingBeijingTrajectoryDisplay();
-//        trajDisplay.display();
+        UnfoldingBeijingTrajectoryDisplay trajDisplay = new UnfoldingBeijingTrajectoryDisplay();
+        trajDisplay.display();
 
-        UnfoldingGlobalTrajectoryDisplay globalTrajectoryDisplay = new UnfoldingGlobalTrajectoryDisplay();
-        globalTrajectoryDisplay.display();
+//        UnfoldingGlobalTrajectoryDisplay globalTrajectoryDisplay = new UnfoldingGlobalTrajectoryDisplay();
+//        globalTrajectoryDisplay.display();
     }
 }

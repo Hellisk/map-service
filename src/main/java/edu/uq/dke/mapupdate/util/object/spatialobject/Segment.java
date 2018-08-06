@@ -180,7 +180,7 @@ public class Segment extends SimpleSpatialObject {
 			return this.touches((Segment)obj);
 		}
 		if (!obj.isClosed()) {
-			for(Segment s : obj.getEdges()){
+			for(Segment s : obj.getOutGoingEdges()){
 				if(this.touches(s)){
 					return true;
 				}
