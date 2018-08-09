@@ -1,8 +1,8 @@
 package edu.uq.dke.mapupdate.util.io;
 
-import edu.uq.dke.mapupdate.mapmatching.hmm.HMMMapMatching;
 import edu.uq.dke.mapupdate.mapmatching.hmm.NewsonHMM2009;
 import edu.uq.dke.mapupdate.util.function.GreatCircleDistanceFunction;
+import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
@@ -12,10 +12,13 @@ import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static edu.uq.dke.mapupdate.Main.CANDIDATE_RANGE;
-import static edu.uq.dke.mapupdate.Main.GAP_EXTENSION_RANGE;
-import static edu.uq.dke.mapupdate.Main.RANK_LENGTH;
+import static edu.uq.dke.mapupdate.Main.*;
 
 /**
  * Created by uqpchao on 5/07/2017.
@@ -346,15 +349,15 @@ public class RawFileOperation {
         return inside;
     }
 
-    public void generateGTMatchingResult(RoadNetworkGraph roadNetworkGraph, String rawTrajectories, double minDist) throws IOException {
+    public void generateGTMatchingResult(RoadNetworkGraph roadNetworkGraph, String rawTrajectories, double minDist) throws IOException, ExecutionException, InterruptedException {
         System.out.println("Generated ground-truth result required, start generating matching result.");
         BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
         BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(rawTrajectories + "beijingTrajectoryNew"));
 
-        HMMMapMatching hmm = new HMMMapMatching(distFunc, CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph);
-        DecimalFormat df = new DecimalFormat("0.00000");
+//        NewsonHMM2009 mapMatching = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH, roadNetworkGraph);
         String line;
-        int tripID = 0;
+        int tripCount = 0;
+        List<Pair<Trajectory, String>> inputTrajList = new ArrayList<>();
 
         // reset the cursor to the start of the current file
         while ((line = brTrajectory.readLine()) != null) {
@@ -384,24 +387,42 @@ public class RawFileOperation {
                 prevLon = lon;
                 prevLat = lat;
             }
-            TrajectoryMatchingResult matchResult = hmm.doMatching(traj);
-
-            if (matchResult.getBestMatchWayList().size() == 0) {
-                System.out.println("Trajectory " + rawTrajectoryPoints + " does not have matching result.");
-                continue;
-            }
-            bwRawTrajectory.write(rawTrajectoryPoints + ",");
-
-            List<String> bestMatchWayList = matchResult.getBestMatchWayList();
-            for (int i = 0; i < bestMatchWayList.size() - 1; i++) {
-                String s = bestMatchWayList.get(i);
-                bwRawTrajectory.write(s + "|");
-            }
-            bwRawTrajectory.write(bestMatchWayList.get(bestMatchWayList.size() - 1) + "\n");
-            tripID++;
-            if (tripID == 10 || tripID == 100 || tripID == 1000 || tripID == 10000 || tripID % 100000 == 0)
-                System.out.println("Matching complete: " + tripID);
+            inputTrajList.add(new Pair<>(traj, rawTrajectoryPoints));
         }
+
+        System.out.println("Start ground-truth generation, total number of input trajectory: " + inputTrajList.size());
+
+        Stream<Pair<Trajectory, String>> inputTrajStream = inputTrajList.stream();
+        NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph);
+
+        // parallel processing
+        ForkJoinPool forkJoinPool = new ForkJoinPool(NUM_OF_THREADS);
+        ForkJoinTask<Stream<String>> matchedResultStream = forkJoinPool.submit(() -> inputTrajStream.parallel().map
+                (trajectory -> {
+                    Pair<TrajectoryMatchingResult, List<Trajectory>> result = hmm.doMatching(trajectory._1());
+                    if (result._1().getBestMatchWayList().size() == 0 || !result._2().isEmpty()) {
+                        // matching result is empty or result contains breaks, waive the current trajectory
+                        return null;
+                    }
+                    StringBuilder resultString = new StringBuilder();
+                    resultString.append(trajectory._2()).append(",");
+                    List<String> bestMatchWayList = result._1().getBestMatchWayList();
+                    for (int i = 0; i < bestMatchWayList.size() - 1; i++) {
+                        String s = bestMatchWayList.get(i);
+                        resultString.append(s).append("|");
+                    }
+                    resultString.append(bestMatchWayList.get(bestMatchWayList.size() - 1)).append("\n");
+                    return resultString.toString();
+                }));
+
+        List<String> matchedResultList = matchedResultStream.get().collect(Collectors.toList());
+        for (String s : matchedResultList) {
+            if (s != null) {
+                bwRawTrajectory.write(s);
+                tripCount++;
+            }
+        }
+        System.out.println("Ground-truth matching complete, total number of matched trajectories: " + tripCount + " start writing file");
         bwRawTrajectory.close();
         System.out.println("Ground-truth trajectory result generated.");
     }

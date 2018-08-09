@@ -181,6 +181,9 @@ public class CSVTrajectoryReader {
      */
     public Stream<Trajectory> readTrajectoryFilesStream(String csvTrajectoryPath) {
         // read input data
+        File inputFile = new File(csvTrajectoryPath);
+        if (!inputFile.exists())
+            System.out.println("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         Stream<File> dataFiles =
                 IOService.getFiles(csvTrajectoryPath);
         return dataFiles.parallel().map(

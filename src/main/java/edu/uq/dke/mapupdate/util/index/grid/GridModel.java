@@ -244,8 +244,9 @@ public class GridModel implements SpatialIndexModel {
      */
     public HashSet<String> adjacentSearch(final String index) {
         if (index == null || index.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Grid index must not be empty.");
+            return new HashSet<>();
+//            throw new IllegalArgumentException(
+//                    "Grid index must not be empty.");
         }
         int[] pos = getCellPosition(index);
         return adjacentSearch(pos[0], pos[1]);

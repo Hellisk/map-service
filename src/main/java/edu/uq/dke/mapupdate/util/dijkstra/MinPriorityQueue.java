@@ -10,17 +10,7 @@ public class MinPriorityQueue {
     private HashMap<Integer, Item> insertedNodes;     // the index and the corresponding node
     private Item lastItem;
 
-    public MinPriorityQueue(Vertex initialPoint) {
-        Item rootPoint = new Item(initialPoint.getDistanceFromSource(), initialPoint.getIndex());
-        rootPoint.parent = rootPoint;
-        this.root = rootPoint;
-        this.lastItem = rootPoint;
-        this.insertedNodes = new HashMap<>();
-        this.insertedNodes.put(rootPoint.arrayIndex, rootPoint);
-        this.heapSize = 1;
-    }
-
-    public MinPriorityQueue() {
+    MinPriorityQueue() {
         this.root = null;
         this.heapSize = 0;
         this.insertedNodes = new HashMap<>();
@@ -32,7 +22,7 @@ public class MinPriorityQueue {
      *
      * @return the index of the next node, returns -1 if all points are visited
      */
-    public int extractMin() {
+    int extractMin() {
 //        double distance = root.distance;
         if (this.heapSize > 1) {
             int index = root.arrayIndex;
@@ -66,7 +56,7 @@ public class MinPriorityQueue {
      * @param distance the current calculated distance
      * @return false if the distance is not smaller than the previous one, otherwise true
      */
-    public boolean decreaseKey(int index, double distance) {
+    boolean decreaseKey(int index, double distance) {
         if (insertedNodes.containsKey(index)) {   // the coming key already exists
             Item queryNode = insertedNodes.get(index);
             if (distance < queryNode.distance) {  // the update is valid
@@ -154,9 +144,9 @@ public class MinPriorityQueue {
     /**
      * validate the depth of each branch, only apply when both branches are balanced
      *
-     * @param branch1
-     * @param branch2
-     * @return
+     * @param branch1   The first item
+     * @param branch2   The second item
+     * @return True if they are in the same depth, otherwise false
      */
     private boolean isSameDepth(Item branch1, Item branch2) {
         while (branch1.leftChild != null) {
@@ -303,11 +293,11 @@ public class MinPriorityQueue {
         }
     }
 
-    public double min() {
-        return root.distance;
-    }
+//    public double min() {
+//        return root.distance;
+//    }
 
-    public boolean isPowerOfTwo(int x) {
+    private boolean isPowerOfTwo(int x) {
         return x > 0 & (x & (x - 1)) == 0;
     }
 
@@ -321,7 +311,7 @@ public class MinPriorityQueue {
         private Item nextNode;  // the node which located in the right of the current
         private Item lastNode;  // the node which located in the left of the current
 
-        public Item(double distance, int arrayIndex) {
+        Item(double distance, int arrayIndex) {
             this.distance = distance;
             this.arrayIndex = arrayIndex;
             this.leftChild = null;

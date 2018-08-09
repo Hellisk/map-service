@@ -1,5 +1,6 @@
 package edu.uq.dke.mapupdate.util.object.roadnetwork;
 
+import java.awt.print.Printable;
 import java.io.Serializable;
 
 /**
@@ -8,9 +9,6 @@ import java.io.Serializable;
  * @author uqdalves
  */
 public interface MapInterface extends Serializable {
-    /**
-     * Infinity (big) value
-     */
-    double INFINITY = Double.POSITIVE_INFINITY;
+
 }
 

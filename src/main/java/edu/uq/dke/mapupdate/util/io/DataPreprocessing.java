@@ -3,6 +3,7 @@ package edu.uq.dke.mapupdate.util.io;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import static edu.uq.dke.mapupdate.Main.*;
 
@@ -33,7 +34,7 @@ public class DataPreprocessing {
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
         System.out.println("Start manipulating the map according to the given road removal percentage:" + PERCENTAGE);
         CSVMapWriter mapRemovalWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
-        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE, CANDIDATE_RANGE);
+        mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE, CANDIDATE_RANGE / 2);
     }
 
     /**
@@ -41,7 +42,7 @@ public class DataPreprocessing {
      *
      * @throws IOException file read error
      */
-    public static void rawMapInitialization(boolean isGeneratedMatchingResult) throws IOException {
+    public static void rawMapInitialization(boolean isGeneratedMatchingResult) throws IOException, ExecutionException, InterruptedException {
 
         // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
         System.out.println("Start reading the raw road map from SHP file.");

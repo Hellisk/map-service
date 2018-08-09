@@ -226,6 +226,12 @@ public class CSVMapWriter implements SpatialInterface {
                 "roads: " + removedWayList.size() + ", total removed nodes:" + removedNodeCount);
     }
 
+    /**
+     * Generate grid index for the virtual center point of each roadway, which is used for road removal selection.
+     *
+     * @param distance Grid index cell radius.
+     * @return Grid index
+     */
     private Grid<Point> buildGridIndexForCenterPoints(int distance) {
         // calculate the grid settings
         int rowNum;     // number of rows

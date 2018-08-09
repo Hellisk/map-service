@@ -32,8 +32,8 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
     private UnfoldingMap currTrajDisplay;
     private UnfoldingMap fullMapDisplay;    // full map visualization
-    private UnfoldingMap[] trajDisplay = new UnfoldingMap[7];   // 0,1,2 = matching result comparison for three different trajectories,
-    // 3,4,5,6 = unmatched trajectory,initial inference road, merged road, refined road comparison
+    private UnfoldingMap[] trajDisplay = new UnfoldingMap[10];   // 0~6 = matching result comparison for three different trajectories,
+    // 7~10 = unmatched trajectory,initial inference road, merged road, refined road comparison
 
     public void setup() {
         size(1760, 990, JAVA2D);
@@ -71,29 +71,29 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             List<Marker> removedWeightedMapMarker = weightedRoadWayMarkerGen(removedRoadList);
             fullMapDisplay.addMarkers(baseMapMarker);
             fullMapDisplay.addMarkers(removedMapMarker);
-            trajDisplay[3].addMarkers(removedWeightedMapMarker);
-            trajDisplay[4].addMarkers(removedWeightedMapMarker);
-            trajDisplay[5].addMarkers(removedWeightedMapMarker);
             trajDisplay[6].addMarkers(removedWeightedMapMarker);
+            trajDisplay[7].addMarkers(removedWeightedMapMarker);
+            trajDisplay[8].addMarkers(removedWeightedMapMarker);
+            trajDisplay[9].addMarkers(removedWeightedMapMarker);
 
             // read unmatched trajectory for break point evaluation
             CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
             List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
                     MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
             for (Trajectory traj : unmatchedTraj)
-                trajDisplay[3].addMarkers(trajMarkerGen(traj, blue, 2));
+                trajDisplay[6].addMarkers(trajMarkerGen(traj, blue, 2));
 
             // read inferred edges and display on the map
             CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
             List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
             List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, blue);
-            trajDisplay[4].addMarkers(inferredEdgeMarker);
+            trajDisplay[7].addMarkers(inferredEdgeMarker);
 
             // read merged edges and display on the map
             CSVMapReader mergedEdgeReader = new CSVMapReader(CACHE_FOLDER);
             List<RoadWay> mergedEdges = mergedEdgeReader.readNewMapEdge(PERCENTAGE, 1, true);
             List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, blue);
-            trajDisplay[5].addMarkers(mergedEdgeMarker);
+            trajDisplay[8].addMarkers(mergedEdgeMarker);
 
             // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
             Map<String, RoadWay> id2RoadWay = new HashMap<>();
@@ -108,11 +108,14 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             trajDisplay[0].addMarkers(backGroundMapMarker);
             trajDisplay[1].addMarkers(backGroundMapMarker);
             trajDisplay[2].addMarkers(backGroundMapMarker);
+            trajDisplay[3].addMarkers(backGroundMapMarker);
+            trajDisplay[4].addMarkers(backGroundMapMarker);
+            trajDisplay[5].addMarkers(backGroundMapMarker);
 
             // read refined edges and display on the map
             List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
             List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, blue);
-            trajDisplay[6].addMarkers(updatedMapMarker);
+            trajDisplay[9].addMarkers(updatedMapMarker);
 
             // randomly select and visualize a trajectory and the corresponding matching result on the map
             Map<String, Trajectory> id2rawTraj = new HashMap<>();
@@ -129,12 +132,12 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             for (Pair<Integer, List<String>> gtMatchingResult : groundTruthMatchingResult) {
                 id2GroundTruthTraj.put(gtMatchingResult._1() + "", gtMatchingResult._2());
             }
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 6; i++) {
                 String currIndex = random.nextInt(rawTraj.size()) + "";
-                List<Marker> rawTrajMarker = trajMarkerGen(id2rawTraj.get(currIndex), red, 1);
+                List<Marker> rawTrajMarker = trajMarkerGen(id2rawTraj.get(currIndex), red, 2);
                 List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2matchedTraj.get(currIndex), id2RoadWay, lightPurple, 2);
                 List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(id2GroundTruthTraj.get(currIndex), id2RoadWay,
-                        green, 3);
+                        green, 4);
                 trajDisplay[i].addMarkers(rawTrajMarker);
                 trajDisplay[i].addMarkers(groundTruthMatchedTrajMarker);
                 trajDisplay[i].addMarkers(matchedTrajMarker);
@@ -278,18 +281,18 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currTrajDisplay = trajDisplay[6];
                 break;
             }
-//            case '8': {
-//                currTrajDisplay = trajDisplay[7];
-//                break;
-//            }
-//            case '9': {
-//                currTrajDisplay = trajDisplay[8];
-//                break;
-//            }
-//            case '0': {
-//                currTrajDisplay = trajDisplay[9];
-//                break;
-//            }
+            case '8': {
+                currTrajDisplay = trajDisplay[7];
+                break;
+            }
+            case '9': {
+                currTrajDisplay = trajDisplay[8];
+                break;
+            }
+            case '0': {
+                currTrajDisplay = trajDisplay[9];
+                break;
+            }
             case '-': {
                 currTrajDisplay = fullMapDisplay;
                 break;

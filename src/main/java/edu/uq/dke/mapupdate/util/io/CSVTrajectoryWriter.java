@@ -1,5 +1,6 @@
 package edu.uq.dke.mapupdate.util.io;
 
+import edu.uq.dke.mapupdate.util.object.datastructure.Pair;
 import edu.uq.dke.mapupdate.util.object.datastructure.PointMatch;
 import edu.uq.dke.mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import edu.uq.dke.mapupdate.util.object.spatialobject.STPoint;
@@ -11,10 +12,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Stream;
 
-import static edu.uq.dke.mapupdate.Main.MAX_TIME_INTERVAL;
-import static edu.uq.dke.mapupdate.Main.MIN_TRAJ_POINT_COUNT;
-import static edu.uq.dke.mapupdate.Main.TRAJECTORY_COUNT;
+import static edu.uq.dke.mapupdate.Main.*;
 
 /**
  * Created by uqpchao on 23/05/2017.
@@ -46,8 +48,6 @@ public class CSVTrajectoryWriter {
             roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
         }
-        int tripCount = 0;
-        int pointCount = 0;
         if (!matchedResultFolder.exists()) {
             if (!matchedResultFolder.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
@@ -65,63 +65,80 @@ public class CSVTrajectoryWriter {
                     if (!f.delete()) throw new IOException("ERROR! Failed to delete file.");
                 }
             }
-            DecimalFormat df = new DecimalFormat("0.00000");
-            for (TrajectoryMatchingResult w : matchingList) {
+            Stream<TrajectoryMatchingResult> trajectoryMatchingStream = matchingList.stream();
+
+            if (trajectoryMatchingStream == null)
+                throw new NullPointerException("ERROR! The input matching result list is empty.");
+
+            // parallel processing
+            ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+            forkJoinPool.submit(() -> trajectoryMatchingStream.parallel().forEach(matchingResult -> {
+                writeMatchedTrajectoryRecord(matchedResultFolder, roadIDListFolder, matchingResult, rankLength);
+            }));
+            while (Objects.requireNonNull(matchedResultFolder.list()).length != matchingList.size() && Objects.requireNonNull(roadIDListFolder.list())
+                    .length != matchingList.size()) {
                 try {
-                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(matchedResultFolder.toString() +
-                            "/matchedtrip_" + w.getTrajID() + ".txt"));
-                    BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(roadIDListFolder.toString() + "/matchedtripID_"
-                            + w.getTrajID() + ".txt"));
-
-                    // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
-                    // roadID|...)
-                    for (int i = 0; i < w.getTrajLength(); i++) {
-
-                        bwMatchedTrajectory.write(df.format(w.getTrajPoint(i).x()) + " " + df.format(w.getTrajPoint(i).y()) + " " + w
-                                .getTrajPoint(i).time());
-                        int maxRank = w.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
-                        for (int j = 0; j < rankLength; j++) {
-                            if (j < maxRank && w.getMatchingResult(j).size() > i) {
-                                PointMatch currMatch = w.getMatchingResult(j).get(i);
-                                if (!currMatch.getRoadID().equals(""))
-                                    // write the information of trajectory matching result, including match point, match segment and road id
-                                    bwMatchedTrajectory.write("|" + df.format(currMatch.lon()) + "," + df.format(currMatch.lat()) + "," +
-                                            df.format(currMatch.getMatchedSegment().x1()) + "," + df.format(currMatch.getMatchedSegment()
-                                            .y1()) + "," + df.format(currMatch.getMatchedSegment().x2()) + "," + df.format(currMatch
-                                            .getMatchedSegment().y2()) + "," + currMatch.getRoadID());
-                                else bwMatchedTrajectory.write("|null");
-                            } else {
-                                // no point matched, use null instead
-                                bwMatchedTrajectory.write("|null");
-                            }
-                        }
-                        bwMatchedTrajectory.write("\n");
-
-                        pointCount++;
-                    }
-
-                    // start writing road way list, each line refers to one rank, format(roadID,roadID,...|probability)
-                    for (int i = 0; i < rankLength; i++) {
-                        List<String> matchWayList = w.getMatchWayList(i);
-                        for (int j = 0; j < matchWayList.size() - 1; j++) {
-                            roadIDFromTrajectory.write(matchWayList.get(j) + ",");
-                        }
-                        if (matchWayList.size() != 0) {
-                            roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
-                        } else
-                            roadIDFromTrajectory.write("null|");
-
-                        roadIDFromTrajectory.write(w.getProbability(i) + "" + "\n");
-                    }
-                    tripCount += 1;
-                    bwMatchedTrajectory.close();
-                    roadIDFromTrajectory.close();
-                } catch (IOException e) {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Matched trajectory output path is incorrect:" + this.outputFolder);
-        System.out.println("Matched road ways written, total files:" + tripCount + ", total trajectory points:" + pointCount);
+        } else System.err.println("Matched trajectory output path is incorrect: " + this.outputFolder);
+        System.out.println("Matched road ways written, total files: " + matchingList.size());
+    }
+
+    private void writeMatchedTrajectoryRecord(File matchedResultFolder, File roadIDListFolder, TrajectoryMatchingResult matchingResult,
+                                              int rankLength) {
+        DecimalFormat df = new DecimalFormat("0.00000");
+        try {
+            BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(matchedResultFolder.toString() +
+                    "/matchedtrip_" + matchingResult.getTrajID() + ".txt"));
+            BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(roadIDListFolder.toString() + "/matchedtripID_"
+                    + matchingResult.getTrajID() + ".txt"));
+
+            // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
+            // roadID|...)
+            for (int i = 0; i < matchingResult.getTrajLength(); i++) {
+
+                bwMatchedTrajectory.write(df.format(matchingResult.getTrajPoint(i).x()) + " " + df.format(matchingResult.getTrajPoint(i).y()) + " " + matchingResult
+                        .getTrajPoint(i).time());
+                int maxRank = matchingResult.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
+                for (int j = 0; j < rankLength; j++) {
+                    if (j < maxRank && matchingResult.getMatchingResult(j).size() > i) {
+                        PointMatch currMatch = matchingResult.getMatchingResult(j).get(i);
+                        if (!currMatch.getRoadID().equals(""))
+                            // write the information of trajectory matching result, including match point, match segment and road id
+                            bwMatchedTrajectory.write("|" + df.format(currMatch.lon()) + "," + df.format(currMatch.lat()) + "," +
+                                    df.format(currMatch.getMatchedSegment().x1()) + "," + df.format(currMatch.getMatchedSegment()
+                                    .y1()) + "," + df.format(currMatch.getMatchedSegment().x2()) + "," + df.format(currMatch
+                                    .getMatchedSegment().y2()) + "," + currMatch.getRoadID());
+                        else bwMatchedTrajectory.write("|null");
+                    } else {
+                        // no point matched, use null instead
+                        bwMatchedTrajectory.write("|null");
+                    }
+                }
+                bwMatchedTrajectory.write("\n");
+            }
+
+            // start writing road way list, each line refers to one rank, format(roadID,roadID,...|probability)
+            for (int i = 0; i < rankLength; i++) {
+                List<String> matchWayList = matchingResult.getMatchWayList(i);
+                for (int j = 0; j < matchWayList.size() - 1; j++) {
+                    roadIDFromTrajectory.write(matchWayList.get(j) + ",");
+                }
+                if (matchWayList.size() != 0) {
+                    roadIDFromTrajectory.write(matchWayList.get(matchWayList.size() - 1) + "|");
+                } else
+                    roadIDFromTrajectory.write("null|");
+
+                roadIDFromTrajectory.write(matchingResult.getProbability(i) + "" + "\n");
+            }
+            bwMatchedTrajectory.close();
+            roadIDFromTrajectory.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
