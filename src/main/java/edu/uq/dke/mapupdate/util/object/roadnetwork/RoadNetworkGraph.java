@@ -58,7 +58,7 @@ public class RoadNetworkGraph implements MapInterface {
     }
 
     /**
-     * Adds the given Vertex to this road network graph.
+     * Adds the given node to this road network graph.
      *
      * @param node The road node to add.
      */
@@ -70,7 +70,7 @@ public class RoadNetworkGraph implements MapInterface {
                 updateBoundingBox(node);
                 if (isBeijingDataset)
                     maxRoadNodeID = Long.parseLong(node.getID()) > maxRoadNodeID ? Long.parseLong(node.getID()) : maxRoadNodeID;
-            } else System.out.println("ERROR! Vertex already exist: " + node.getID());
+            } else System.out.println("ERROR! Node already exist: " + node.getID());
         }
     }
 
@@ -81,8 +81,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void addNodes(List<RoadNode> nodes) {
         if (nodes == null) {
-            throw new NullPointerException(
-                    "ERROR! List of road nodes to add must not be null.");
+            throw new NullPointerException("ERROR! List of road nodes to add must not be null.");
         } else {
             for (RoadNode node : nodes) {
                 updateBoundingBox(node);
@@ -175,8 +174,7 @@ public class RoadNetworkGraph implements MapInterface {
      */
     public void addWays(List<RoadWay> waysList) {
         if (waysList == null) {
-            throw new NullPointerException(
-                    "List of road ways to add must not be null.");
+            throw new NullPointerException("List of road ways to add must not be null.");
         }
         for (RoadWay way : waysList)
             addWay(way);

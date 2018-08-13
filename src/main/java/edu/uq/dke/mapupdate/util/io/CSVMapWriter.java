@@ -166,7 +166,7 @@ public class CSVMapWriter implements SpatialInterface {
         BufferedWriter bwRemovedEdges = new BufferedWriter(new FileWriter(csvMapPath + "removedEdges_" + percentage + ".txt"));
 
         List<RoadWay> wayList = roadGraph.getWays();
-        Set<String> removedEdgeIDSet = new LinkedHashSet<>();
+        Set<String> removedEdgeIDSet = new LinkedHashSet<>();   // set of removed road ID
         Random random = new Random(10);
         List<RoadWay> removedWayList = new ArrayList<>();
         List<RoadWay> satisfiedRoadList = new ArrayList<>();    // list of road ways that satisfy the conditions
@@ -184,9 +184,11 @@ public class CSVMapWriter implements SpatialInterface {
                     "removal percentage.");
         while (removedWayList.size() * 100 / (double) wayList.size() < percentage) {
             int currIndex = random.nextInt(satisfiedRoadList.size());
-            removedWayList.add(satisfiedRoadList.get(currIndex));
+            if (removedEdgeIDSet.contains(satisfiedRoadList.get(currIndex).getID()))
+                continue;
             removedEdgeIDSet.add(satisfiedRoadList.get(currIndex).getID());
-            // put the inverse direction road to the removed road list
+            removedWayList.add(satisfiedRoadList.get(currIndex));
+            // put the reversed direction road to the removed road list
             if (satisfiedRoadList.get(currIndex).getID().contains("-")) {
                 String reversedRoadID = satisfiedRoadList.get(currIndex).getID().substring(1);
                 if (id2RoadWay.containsKey(reversedRoadID))

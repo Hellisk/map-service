@@ -134,11 +134,11 @@ if __name__ == '__main__':
                   "<graphdb_filename>] [-t <trip_directory>] [-o <output_directory>] [-h] "
             exit()
 
-    print "constraint length: " + str(constraint_length)
-    print "max dist: " + str(max_dist)
-    print "graphdb filename: " + str(graphdb_filename)
-    print "trip directory: " + str(trip_directory)
-    print "output directory: " + str(output_directory)
+    # print "constraint length: " + str(constraint_length)
+    # print "max dist: " + str(max_dist)
+    # print "graphdb filename: " + str(graphdb_filename)
+    # print "trip directory: " + str(trip_directory)
+    # print "output directory: " + str(output_directory)
 
     # create match result directory
     if not os.path.exists(output_directory):
@@ -150,10 +150,10 @@ if __name__ == '__main__':
     all_trip_files = filter(lambda x: x.startswith("trip_") and x.endswith(".txt"), os.listdir(trip_directory))
 
     for i in range(0, len(all_trip_files)):
-        sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trip_files)) + "... ")
+        # sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trip_files)) + "... ")
         sys.stdout.flush()
 
         match_graphdb.process_trip(trip_directory, all_trip_files[i], output_directory)
 
-    sys.stdout.write("done.\n")
+    # sys.stdout.write("done.\n")
     sys.stdout.flush()

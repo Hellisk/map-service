@@ -1,12 +1,12 @@
 package edu.uq.dke.mapupdate.util.dijkstra;
 
-public class Edge {
+public class RoutingEdge {
     private int fromNodeIndex;
     private int toNodeIndex;
     private double length;
     private int index;
 
-    public Edge(int fromNodeIndex, int toNodeIndex, double length) {
+    public RoutingEdge(int fromNodeIndex, int toNodeIndex, double length) {
         this.fromNodeIndex = fromNodeIndex;
         this.toNodeIndex = toNodeIndex;
         this.length = length;

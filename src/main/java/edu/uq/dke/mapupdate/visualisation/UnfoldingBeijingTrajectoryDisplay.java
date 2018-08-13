@@ -36,8 +36,9 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
     // 7~10 = unmatched trajectory,initial inference road, merged road, refined road comparison
 
     public void setup() {
+        boolean isActualMap = false;
         size(1760, 990, JAVA2D);
-        this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
+        this.fullMapDisplay = new UnfoldingMap(this, isActualMap ? new Google.GoogleMapProvider() : new BlankMap.BlankProvider());
         MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
         for (int i = 0; i < trajDisplay.length; i++) {
             this.trajDisplay[i] = new UnfoldingMap(this, new BlankMap.BlankProvider());
@@ -293,7 +294,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currTrajDisplay = trajDisplay[9];
                 break;
             }
-            case '-': {
+            case '·': {
                 currTrajDisplay = fullMapDisplay;
                 break;
             }

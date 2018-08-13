@@ -166,6 +166,7 @@ public class CSVMapReader implements SpatialInterface {
     }
 
     public List<RoadWay> readRemovedEdges(int percentage, int iteration) throws IOException {
+        HashSet<String> removedRoadIdSet = new HashSet<>();
         if (percentage == 0)    // no removed edge when percentage is 0
             return new ArrayList<>();
         List<RoadWay> removedRoads = new ArrayList<>();
@@ -176,7 +177,11 @@ public class CSVMapReader implements SpatialInterface {
         BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "removedEdges_" + percentage + ".txt"));
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
-            removedRoads.add(newWay);
+            if (!removedRoadIdSet.contains(newWay.getID())) {
+                removedRoadIdSet.add(newWay.getID());
+                removedRoads.add(newWay);
+            } else
+                System.out.println("ERROR! Duplicated removed road.");
         }
         return removedRoads;
     }

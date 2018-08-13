@@ -161,7 +161,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
 //        if (obj instanceof Circle) {
 //            return ((Circle) obj).touches(this);
 //        }
-//        for (Segment s : obj.getOutGoingEdges()) {
+//        for (Segment s : obj.getOutGoingRoutingEdges()) {
 //            if (s.touches(getPoint())) {
 //                return true;
 //            }

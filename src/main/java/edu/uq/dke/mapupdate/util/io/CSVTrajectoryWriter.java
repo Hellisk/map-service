@@ -215,13 +215,15 @@ public class CSVTrajectoryWriter {
         System.out.println("Trajectories written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
     }
 
-    public void writeMergedMatchedTrajectory(List<TrajectoryMatchingResult> rawMatches, List<TrajectoryMatchingResult> refinedMatches, int rankLength, int iteration) throws IOException {
+    public List<TrajectoryMatchingResult> writeMergedMatchedTrajectory(List<TrajectoryMatchingResult> rawMatches,
+                                                                       List<TrajectoryMatchingResult> refinedMatches, int rankLength, int iteration) throws IOException {
         Set<String> refinedMatchingResultSet = new HashSet<>();
         for (TrajectoryMatchingResult mr : refinedMatches)
             refinedMatchingResultSet.add(mr.getTrajID());
         rawMatches.removeIf(next -> refinedMatchingResultSet.contains(next.getTrajID()));
         rawMatches.addAll(refinedMatches);
         writeMatchedTrajectory(rawMatches, rankLength, iteration);
+        return rawMatches;
     }
 
     public void writeMergedUnmatchedTrajectory(List<Trajectory> rawUnmatchedTrajectoryList, List<Trajectory>

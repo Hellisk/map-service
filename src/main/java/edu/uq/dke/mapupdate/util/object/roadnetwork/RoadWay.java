@@ -182,8 +182,7 @@ public class RoadWay extends RoadNetworkPrimitive {
      */
     public RoadNode getNode(int index) {
         if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException("Vertex index out of bounds. "
-                    + "Index should be greater than or equals to 0, or less than " + size());
+            throw new IndexOutOfBoundsException("Node index out of bounds. Index should be greater than or equals to 0, or less than " + size());
         }
         return nodeList.get(index);
     }

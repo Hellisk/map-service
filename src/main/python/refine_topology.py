@@ -13,7 +13,7 @@ class RefineTopology:
         self.graphdb.load_graphdb(graphdb_filename)
 
     def process(self, matched_traces_filename, output_db_filename):
-        sys.stdout.write("Loading matched traces... ")
+        # sys.stdout.write("Loading matched traces... ")
         sys.stdout.flush()
 
         matched_traces_file = open(matched_traces_filename, 'r')
@@ -48,7 +48,7 @@ class RefineTopology:
 
         matched_traces_file.close()
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
         #
@@ -56,7 +56,7 @@ class RefineTopology:
         #
         #
 
-        sys.stdout.write("Refining intersections... ")
+        # sys.stdout.write("Refining intersections... ")
         sys.stdout.flush()
 
         node_id = max(self.graphdb.nodes.keys()) + 1
@@ -99,7 +99,7 @@ class RefineTopology:
                 self.graphdb.nodes[node_id] = new_intersection
                 node_id += 1
 
-                print "new intersection: " + str(new_intersection.id)
+                # print "new intersection: " + str(new_intersection.id)
 
                 new_intersection.in_nodes.extend(segment_head_node.in_nodes)
                 new_intersection.in_nodes.extend(segment_tail_node.in_nodes)
@@ -133,8 +133,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                            (neighbor, new_intersection)) + " = " + str(edge)
+                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                        #     (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -149,8 +149,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                            (new_intersection, neighbor)) + " = " + str(edge)
+                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                        #     (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -171,8 +171,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                            (neighbor, new_intersection)) + " = " + str(edge)
+                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                        #     (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -187,8 +187,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                            (new_intersection, neighbor)) + " = " + str(edge)
+                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                        #     (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -200,10 +200,10 @@ class RefineTopology:
 
                 # del self.graphdb.segments[segment.id]
                 # continue
-                print "segment: " + str(segment.id)
-
-                print "touched edges: " + str(len(touched_edges))
-                print "set touched edges: " + str(len(set(touched_edges)))
+                # print "segment: " + str(segment.id)
+                #
+                # print "touched edges: " + str(len(touched_edges))
+                # print "set touched edges: " + str(len(set(touched_edges)))
 
                 if (len(touched_edges) == 0):
                     del self.graphdb.nodes[node_id - 1]
@@ -301,10 +301,10 @@ class RefineTopology:
                 closed_segments_list.append(segment)
                 print ""
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Saving new map... ")
+        # sys.stdout.write("Saving new map... ")
         sys.stdout.flush()
 
         try:
@@ -348,7 +348,7 @@ class RefineTopology:
         conn.commit()
         conn.close()
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
 
@@ -373,9 +373,9 @@ if __name__ == '__main__':
             print "Usage: python refine_topology.py [-d <graphdb_filename>] [-t <matched_traces_filename>] [-o <output_filename>] [-h]"
             exit()
 
-    print "graphdb filename: " + str(graphdb_filename)
-    print "matched traces filename: " + str(matched_traces_filename)
-    print "output filename: " + str(output_filename)
+    # print "graphdb filename: " + str(graphdb_filename)
+    # print "matched traces filename: " + str(matched_traces_filename)
+    # print "output filename: " + str(output_filename)
 
     r = RefineTopology(graphdb_filename)
     r.process(matched_traces_filename, output_filename)

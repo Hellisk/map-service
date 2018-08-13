@@ -18,7 +18,7 @@ public class RoutingGraph implements MapInterface {
     // way id, format: (x1_x2,y1_y2,id)
     private HashMap<Integer, Pair<Integer, Integer>> edgeIndex2EndpointsIndex = new HashMap<>();  // find the end point indices given the mini edge index
     private HashMap<Pair<Integer, Integer>, Integer> endPointsIndex2EdgeIndex = new HashMap<>();  // find the mini edge index given the end point indices
-    private Vertex[] vertices;
+    private RoutingVertex[] vertices;
     private PointDistanceFunction distFunc = new GreatCircleDistanceFunction();
 
     public RoutingGraph(RoadNetworkGraph roadNetwork) {
@@ -34,7 +34,7 @@ public class RoutingGraph implements MapInterface {
             noOfVertices++;
         }
 
-        List<Edge> edgeList = new ArrayList<>();
+        List<RoutingEdge> routingEdgeList = new ArrayList<>();
         int noOfEdges = 0;
         for (RoadWay way : roadNetwork.getWays()) {
             // insert all the mini vertices to the node list
@@ -47,7 +47,7 @@ public class RoutingGraph implements MapInterface {
                 noOfVertices++;
             }
 
-            // insert mini edges to the edge list
+            // insert mini routingEdges to the edge list
             for (int i = 0; i < way.getNodes().size() - 1; i++) {
                 RoadNode startNode = way.getNode(i);
                 RoadNode endNode = way.getNode(i + 1);
@@ -58,35 +58,35 @@ public class RoutingGraph implements MapInterface {
                 Pair<Integer, Integer> endPointIndices = new Pair<>(startID, endID);
                 edgeIndex2EndpointsIndex.put(noOfEdges, endPointIndices);
                 endPointsIndex2EdgeIndex.put(endPointIndices, noOfEdges);
-                Edge currEdge = new Edge(startID, endID, distFunc.pointToPointDistance(startNode.lon(), startNode.lat(), endNode.lon(), endNode.lat()));
-                currEdge.setIndex(noOfEdges);
-                edgeList.add(currEdge);
+                RoutingEdge currRoutingEdge = new RoutingEdge(startID, endID, distFunc.distance(startNode.toPoint(), endNode.toPoint()));
+                currRoutingEdge.setIndex(noOfEdges);
+                routingEdgeList.add(currRoutingEdge);
                 noOfEdges++;
             }
         }
-        Edge[] edges = edgeList.toArray(new Edge[0]);
+        RoutingEdge[] routingEdges = routingEdgeList.toArray(new RoutingEdge[0]);
 
-        // create all vertices ready to be updated with the edges
-        this.vertices = new Vertex[noOfVertices];
+        // create all vertices ready to be updated with the routingEdges
+        this.vertices = new RoutingVertex[noOfVertices];
         for (int n = 0; n < noOfVertices; n++) {
-            this.vertices[n] = new Vertex();
+            this.vertices[n] = new RoutingVertex();
             this.vertices[n].setIndex(n);
         }
-        // add all the edges to the vertices, each edge added to only from vertices
+        // add all the routingEdges to the vertices, each edge added to only from vertices
         for (int i = 0; i < noOfEdges; i++) {
-            this.vertices[edges[i].getFromNodeIndex()].getOutGoingEdges().add(edges[i]);
+            this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().add(routingEdges[i]);
         }
 
         // check the completeness of the graph
-        for (Vertex n : this.vertices) {
-            if (n.getOutGoingEdges().size() != 0) {
-                for (Edge e : n.getOutGoingEdges()) {
+        for (RoutingVertex n : this.vertices) {
+            if (n.getOutGoingRoutingEdges().size() != 0) {
+                for (RoutingEdge e : n.getOutGoingRoutingEdges()) {
                     outGoingNodeSet.add(e.getToNodeIndex());
                 }
             }
         }
         for (int i = 0; i < vertices.length; i++) {
-            if (!outGoingNodeSet.contains(i) && this.vertices[i].getOutGoingEdges().size() == 0)
+            if (!outGoingNodeSet.contains(i) && this.vertices[i].getOutGoingRoutingEdges().size() == 0)
                 System.out.println("ERROR! Isolated node detected: No. " + i);
         }
         System.out.println("Shortest path graph generated. Total vertices:" + noOfVertices + ", total edges:" + noOfEdges);
@@ -112,7 +112,7 @@ public class RoutingGraph implements MapInterface {
         String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() + "," + source.getMatchedSegment()
                 .x2() + "_" + source.getMatchedSegment().y2() + "," + source.getRoadID();
         if (!this.endPointLoc2Index.containsKey(sourceLocID)) {
-            System.out.println("Shortest distance calculation failed: Source node is not found.");
+            System.err.println("ERROR! Shortest distance calculation failed: Source node is not found.");
             result = new ArrayList<>(resultOutput(distance, path));
             return result;
         }
@@ -122,7 +122,7 @@ public class RoutingGraph implements MapInterface {
         String startRoadID = index2RoadIDAndSN.get(startEdgeIndex).split(",")[0];
         int startRoadSN = Integer.parseInt(index2RoadIDAndSN.get(startEdgeIndex).split(",")[1]);
         int startNodeIndex = edgeIndex2EndpointsIndex.get(startEdgeIndex)._2();
-        double sourceDistance = this.distFunc.pointToPointDistance(source.lon(), source.lat(), source.getMatchedSegment().x2(), source.getMatchedSegment().y2());
+        double sourceDistance = this.distFunc.distance(source.getMatchPoint(), source.getMatchedSegment().p2());
 
         // attach all destination points to the graph
         int destPointCount = pointList.size();
@@ -138,7 +138,12 @@ public class RoutingGraph implements MapInterface {
                 String destRoadID = index2RoadIDAndSN.get(destEdgeIndex).split(",")[0];
                 if (destRoadID.equals(startRoadID)) {   // two segments refer to the same road
                     if (destEdgeIndex == startEdgeIndex) {   // two segments refer to the same mini edge
-                        distance[i] = distFunc.pointToPointDistance(source.lon(), source.lat(), pointList.get(i).lon(), pointList.get(i).lat());
+                        if (distFunc.distance(source.getMatchPoint(), source.getMatchedSegment().p2()) > distFunc.distance(pointList.get(i)
+                                .getMatchPoint(), pointList.get(i).getMatchedSegment().p2()))   // the source point is farther than dest
+                            // point to the end of matching segment
+                            distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
+                        else
+                            distance[i] = 2 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
                         path[i].add(pointList.get(i).getRoadID());
                         destPointCount--;
                     } else {
@@ -150,20 +155,19 @@ public class RoutingGraph implements MapInterface {
                             int currIndex = startNodeIndex;
                             int currEdgeIndex = startEdgeIndex;
                             while (currIndex != destNodeIndex) {
-                                List<Edge> outGoingEdgeList = this.vertices[currIndex].getOutGoingEdges();
-                                if (outGoingEdgeList.size() > 2)
-                                    System.out.println("ERROR! Current mini node has more than two outgoing edges:" + currIndex);
-                                for (Edge edge : outGoingEdgeList) {
-                                    if (edge.getIndex() != currEdgeIndex) {    // the current edge is not the reverse edge
-                                        distance[i] += edge.getLength();
-                                        currEdgeIndex = edge.getIndex();
-                                        currIndex = edge.getToNodeIndex();
+                                List<RoutingEdge> outGoingRoutingEdgeList = this.vertices[currIndex].getOutGoingRoutingEdges();
+                                if (outGoingRoutingEdgeList.size() > 2)
+                                    System.err.println("ERROR! Current mini node has more than two outgoing edges:" + currIndex);
+                                for (RoutingEdge routingEdge : outGoingRoutingEdgeList) {
+                                    if (routingEdge.getIndex() != currEdgeIndex) {    // the current routingEdge is not the reverse routingEdge
+                                        distance[i] += routingEdge.getLength();
+                                        currEdgeIndex = routingEdge.getIndex();
+                                        currIndex = routingEdge.getToNodeIndex();
                                         break;
                                     }
                                 }
                             }
-                            distance[i] += distFunc.pointToPointDistance(pointList.get(i).getMatchedSegment().x1(), pointList.get(i)
-                                    .getMatchedSegment().y1(), pointList.get(i).lon(), pointList.get(i).lat());
+                            distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList.get(i).getMatchPoint());
                             path[i].add(pointList.get(i).getRoadID());
                             destPointCount--;
                         } else {
@@ -177,17 +181,17 @@ public class RoutingGraph implements MapInterface {
         }
 
         // the rest of the destinations are on different roads, now set the end of the current road as start vertex
-        boolean isTheSameRoad = true;
+        boolean isTheSameRoad = true;   // find the end of the current road as the start of the new sequence
         while (isTheSameRoad) {
-            List<Edge> outGoingEdgeList = this.vertices[startNodeIndex].getOutGoingEdges();
-            if (outGoingEdgeList.size() == 0)
+            List<RoutingEdge> outGoingRoutingEdgeList = this.vertices[startNodeIndex].getOutGoingRoutingEdges();
+            if (outGoingRoutingEdgeList.size() == 0)
                 isTheSameRoad = false;
-            for (Edge edge : outGoingEdgeList) {
-                if (edge.getIndex() != startEdgeIndex) {    // the current edge is not the reverse edge
-                    if (index2RoadIDAndSN.get(edge.getIndex()).split(",")[0].equals(startRoadID)) {  // still on the same road
-                        sourceDistance += edge.getLength();
-                        startEdgeIndex = edge.getIndex();
-                        startNodeIndex = edge.getToNodeIndex();
+            for (RoutingEdge routingEdge : outGoingRoutingEdgeList) {
+                if (routingEdge.getIndex() != startEdgeIndex) {    // the current routingEdge is not the reverse routingEdge
+                    if (index2RoadIDAndSN.get(routingEdge.getIndex()).split(",")[0].equals(startRoadID)) {  // still on the same road
+                        sourceDistance += routingEdge.getLength();
+                        startEdgeIndex = routingEdge.getIndex();
+                        startNodeIndex = routingEdge.getToNodeIndex();
                         break;
                     } else {
                         isTheSameRoad = false;
@@ -206,13 +210,13 @@ public class RoutingGraph implements MapInterface {
 
 //        System.out.println("start new shortest distance");
             // visit every node
-            while (currIndex != -1 && vertexDistFromSource.get(currIndex) < maxDistance) {
+            while (currIndex != -1 && vertexDistFromSource.get(currIndex) < (maxDistance - sourceDistance)) {
                 // loop around the edges of current node
 //            System.out.println(vertices[currIndex].getDistanceFromSource());
-                List<Edge> currentOutgoingEdges = vertices[currIndex].getOutGoingEdges();
-                for (Edge currentNodeEdge : currentOutgoingEdges) {
-                    int nextVertexIndex = currentNodeEdge.getToNodeIndex();
-                    double tentative = vertexDistFromSource.get(currIndex) + currentNodeEdge.getLength();
+                List<RoutingEdge> currentOutgoingRoutingEdges = vertices[currIndex].getOutGoingRoutingEdges();
+                for (RoutingEdge currentNodeRoutingEdge : currentOutgoingRoutingEdges) {
+                    int nextVertexIndex = currentNodeRoutingEdge.getToNodeIndex();
+                    double tentative = vertexDistFromSource.get(currIndex) + currentNodeRoutingEdge.getLength();
                     if (!vertexVisited.contains(nextVertexIndex) && minHeap.decreaseKey(nextVertexIndex, tentative)) {
                         vertexDistFromSource.put(nextVertexIndex, tentative);
                         parent.put(nextVertexIndex, currIndex);
@@ -225,8 +229,8 @@ public class RoutingGraph implements MapInterface {
                         destPointCount--;
                         distance[resultIndex] = vertexDistFromSource.get(currIndex);
                         distance[resultIndex] += sourceDistance;
-                        distance[resultIndex] += distFunc.pointToPointDistance(pointList.get(resultIndex).getMatchedSegment().x1(), pointList
-                                .get(resultIndex).getMatchedSegment().y1(), pointList.get(resultIndex).lon(), pointList.get(resultIndex).lat());
+                        distance[resultIndex] += distFunc.distance(pointList.get(resultIndex).getMatchedSegment().p1(), pointList
+                                .get(resultIndex).getMatchPoint());
                         path[resultIndex] = findPath(currIndex, parent);
                     }
                 }

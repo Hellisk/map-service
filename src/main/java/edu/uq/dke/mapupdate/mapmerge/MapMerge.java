@@ -246,7 +246,7 @@ public class MapMerge {
 
         for (RoadWay w : inferredWayList) {
             // find an possible intersection pair which the edge can be added to, prioritize the intersection pairs of the removed edge.
-            System.out.println("start current road way connection, road length:" + w.getRoadLength());
+//            System.out.println("start current road way connection, road length:" + w.getRoadLength());
             List<Pair<Point, Double>> startPointMatchCandidate = findPointMatchCandidate(w.getFromNode().lon(), w.getFromNode().lat(),
                     mergeCandidateDistance, distFunc);
             List<Pair<Point, Double>> endPointMatchCandidate = findPointMatchCandidate(w.getToNode().lon(), w.getToNode().lat(),
@@ -262,7 +262,7 @@ public class MapMerge {
 
                 if (startPoint != null) {
                     // at least one pair of intersections is found
-                    System.out.println("Both endpoints can be matched to the map");
+//                    System.out.println("Both endpoints can be matched to the map");
                     if (!currRoadID.equals("")) {
                         // the inferred road has been assigned to a removed road
                         RoadWay newWay = roadMapConnection(w, startPoint, endPoint);
@@ -272,11 +272,11 @@ public class MapMerge {
                         roadRefinement(w, startPoint, endPoint, mergeCandidateDistance);
                     }
                 } else {
-                    System.out.println("The current endpoints match is absurd: The start point and end point is the same.");
+//                    System.out.println("The current endpoints match is absurd: The start point and end point is the same.");
                     findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
                 }
             } else {
-                System.out.println("Not all endpoint can be matched to the map, start subRoadConnection");
+//                System.out.println("Not all endpoint can be matched to the map, start subRoadConnection");
                 findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
             }
         }
@@ -454,9 +454,10 @@ public class MapMerge {
                         if (loc2RemovedWayID.containsKey(locIndex) || distFunc.distance(bestMatch._1(), bestMatch._2()) > MIN_ROAD_LENGTH) {
                             // a removed road found or an inferred road is long enough
                             String currID = bestMatch._3();
-                            if (loc2RoadWayMapping.containsKey(locIndex))
+                            if (loc2RoadWayMapping.containsKey(locIndex)) {
+                                currID = loc2RoadWayMapping.get(locIndex).getID();
                                 System.out.println("Found existing edge: " + loc2RoadWayMapping.get(locIndex));
-                            else if (!loc2RemovedWayID.containsKey(locIndex)) {
+                            } else if (!loc2RemovedWayID.containsKey(locIndex)) {
                                 currID = (++maxAbsRoadWayID) + "";
                                 System.out.println("Found new edge: " + currID);
                             }

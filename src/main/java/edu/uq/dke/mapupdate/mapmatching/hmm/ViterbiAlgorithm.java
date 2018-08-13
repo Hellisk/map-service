@@ -1,19 +1,19 @@
-/**
- * Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
- * Author: Stefan Holder (stefan.holder@bmw.de)
- * Modifier: Pingfu Chao (p.chao@uq.edu.au)
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (C) 2015-2016, BMW Car IT GmbH and BMW AG
+  Author: Stefan Holder (stefan.holder@bmw.de)
+  Modifier: Pingfu Chao (p.chao@uq.edu.au)
+  <p>
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  <p>
+  http://www.apache.org/licenses/LICENSE-2.0
+  <p>
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
 
 package edu.uq.dke.mapupdate.mapmatching.hmm;
@@ -35,7 +35,7 @@ import java.util.*;
  * small probability values.
  *
  * <p>This algorithm supports storing transition objects in
- * {@link #nextStep(Object, Collection, Map, Map, Map)}. For instance if a HMM is
+ * {@link #nextStep(Object, Collection, Collection, Map, Map, Map)}. For instance if a HMM is
  * used for map matching, this could be routes between road position candidates.
  * The transition descriptors of the most likely sequence can be retrieved later in
  * {@link SequenceState#transitionDescriptor} and hence do not need to be stored by the
@@ -84,9 +84,9 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      */
     private Map<S, ExtendedState<S, O, D>> lastExtendedStates;
 
-    private Collection<S> prevCandidates;
+//    private Collection<S> prevCandidates;
 
-    private int rankLength = 1; // the length of the ranked list, default = 1
+    private int rankLength; // the length of the ranked list, default = 1
 
     /**
      * For each state s_t of the current time step t, message.get(s_t) contains the log
@@ -127,14 +127,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
     void setLastExtendedStates(Map<S, ExtendedState<S, O, D>> lastExtendedStates) {
         this.lastExtendedStates = lastExtendedStates;
-    }
-
-    public Collection<S> getPrevCandidates() {
-        return prevCandidates;
-    }
-
-    void setPrevCandidates(Collection<S> prevCandidates) {
-        this.prevCandidates = prevCandidates;
     }
 
     Map<S, Double> getMessage() {
@@ -206,7 +198,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      *                               {@link #startWithInitialObservation(Object, Collection, Map)}
      *                               has not been called before or if this method is called after an HMM break has occurred
      */
-    void nextStep(O observation, Collection<S> candidates,
+    void nextStep(O observation, Collection<S> candidates, Collection<S> prevCandidates,
                   Map<S, Double> emissionLogProbabilities,
                   Map<Transition<S>, Double> transitionLogProbabilities,
                   Map<Transition<S>, D> transitionDescriptors) {
@@ -232,21 +224,10 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         message = forwardStepResult.newMessage;
         lastExtendedStates = forwardStepResult.newExtendedStates;
 
-        prevCandidates = new ArrayList<>(candidates); // Defensive copy.
     }
 
-    void setBroken(boolean broken) {
-        this.isBroken = broken;
-    }
-
-    /**
-     * See {@link #nextStep(Object, Collection, Map, Map, Map)}
-     */
-    public void nextStep(O observation, Collection<S> candidates,
-                         Map<S, Double> emissionLogProbabilities,
-                         Map<Transition<S>, Double> transitionLogProbabilities) {
-        nextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities,
-                new LinkedHashMap<Transition<S>, D>());
+    void setToUnbroken() {
+        this.isBroken = false;
     }
 
     /**
@@ -260,9 +241,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
      */
     List<Pair<List<SequenceState<S, O, D>>, Double>> computeMostLikelySequence() {
         if (message == null) {
-            // Return empty most likely sequence if there are no time steps or if initial
-            // observations caused an HMM break.
-            System.out.println("WARNING! No sequence can be generated.");
+            // Return empty sequence if there is no time steps, it only happens at the last trajectory point when it is the only trajectory
+            // point in the sequence but it doesn't have candidate.
             return new ArrayList<>();
         } else {
             return retrieveRankedSequences();
@@ -292,7 +272,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         }
 
         final StringBuilder sb = new StringBuilder();
-        sb.append("Message history with log probabilies\n\n");
+        sb.append("Message history with log probabilities\n\n");
         int i = 0;
         for (Map<S, Double> message : messageHistory) {
             sb.append("Time step ").append(i).append("\n");
@@ -324,7 +304,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     private void initializeStateProbabilities(O observation, Collection<S> candidates,
                                               Map<S, Double> initialLogProbabilities) {
         if (message != null) {
-            System.out.println("Error! The message should be empty");
+            System.err.println("ERROR! The message should be empty");
             message = null;
         }
         isBroken = false;
@@ -343,7 +323,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
         isBroken = hmmBreak(initialMessage);
         if (isBroken) {
-            System.out.println("ERROR! The initial state is broken.");
+            System.err.println("ERROR! The initial state is broken.");
             return;
         }
 
@@ -357,8 +337,6 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             lastExtendedStates.put(candidate,
                     new ExtendedState<>(candidate, new ArrayList<>(), observation, new ArrayList<>(), new ArrayList<>()));
         }
-
-        prevCandidates = new ArrayList<>(candidates); // Defensive copy.
     }
 
     /**
@@ -417,7 +395,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             // use priority queue to sort and pick up the top k probable predecessor
             Queue<ItemWithProbability<S>> topRankedCandidates = new PriorityQueue<>();
             for (S prevState : prevCandidates) {
-                final double logProbability = message.get(prevState) + transitionLogProbability(
+                final double logProbability = message.get(prevState) + getTransitionLogProbability(
                         prevState, curState, transitionLogProbabilities);
                 if (logProbability > Double.NEGATIVE_INFINITY) {
                     topRankedCandidates.add(new ItemWithProbability<>(prevState, logProbability));
@@ -460,7 +438,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         return result;
     }
 
-    private double transitionLogProbability(S prevState, S curState, Map<Transition<S>,
+    private double getTransitionLogProbability(S prevState, S curState, Map<Transition<S>,
             Double> transitionLogProbabilities) {
         final Double transitionLogProbability =
                 transitionLogProbabilities.get(new Transition<>(prevState, curState));
@@ -505,7 +483,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         // Otherwise an HMM break would have occurred and message would be null.
         assert !message.isEmpty();
 
-        final List<S> lastState = topRankedFinalStates(rankLength);
+        final List<S> lastState = topRankedFinalStates(rankLength);     // top ranked final states, no more than rankLength
         double[] probabilityResult = new double[rankLength];
 
         Map<Pair<ExtendedState<S, O, D>, List<SequenceState<S, O, D>>>, Double> probabilityToDest = new HashMap<>();  // for each
@@ -532,11 +510,11 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
                 List<SequenceState<S, O, D>> currStateList = new ArrayList<>();
                 currStateList.add(currState);
                 pathResult.add(currStateList);
-                int index = pathResult.size();
-                probabilityResult[index - 1] = message.get(state); // the probability of the break piece is simply added into the total
+                probabilityResult[pathResult.size() - 1] = message.get(state); // the probability of the break piece is simply added into the total
                 // probability
             }
-
+            message = null;
+            lastExtendedStates = null;
             return combineResult(pathResult, probabilityResult);
         }
         int candidateCount = 0;
@@ -585,6 +563,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
                     pathResult.add(rankedResult);
                     probabilityResult[pathResult.size() - 1] = probability;
                 }
+                message = null;
+                lastExtendedStates = null;
                 return combineResult(pathResult, probabilityResult);
             }
             int currCandidateCount = 0;
@@ -598,6 +578,8 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             }
         }
         System.out.println("ERROR! No match result can be extracted.");
+        message = null;
+        lastExtendedStates = null;
         return new ArrayList<>();
     }
 
