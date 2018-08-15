@@ -17,6 +17,17 @@ import static edu.uq.dke.mapupdate.Main.ROOT_PATH;
  */
 public class ResultEvaluation {
 
+    public List<String> getMapMatchingResult() {
+        return mapMatchingResult;
+    }
+
+    public List<String> getMapUpdateResult() {
+        return mapUpdateResult;
+    }
+
+    private List<String> mapMatchingResult = new ArrayList<>();
+    private List<String> mapUpdateResult = new ArrayList<>();
+
     /**
      * Evaluate the precision, recall and F-score of the Beijing map-matching
      *
@@ -28,7 +39,7 @@ public class ResultEvaluation {
     public void beijingMapMatchingEval(List<TrajectoryMatchingResult> matchedResult, List<Pair<Integer, List<String>>>
             groundTruthResult, RoadNetworkGraph currentMap, List<RoadWay> removedEdges) {
 
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.000");
         // insert all ground truth road match into gtResultList
         Map<Integer, HashSet<String>> gtResultList = new HashMap<>();
         for (Pair<Integer, List<String>> gtResult : groundTruthResult) {
@@ -59,6 +70,8 @@ public class ResultEvaluation {
             double correctlyMatchedLength = 0;
             // check the coverage of the roads found in our match
             HashSet<String> groundTruthIDList = gtResultList.get(Integer.parseInt(r.getTrajID()));
+            if (groundTruthIDList == null)
+                throw new NullPointerException("ERROR! Ground-truth of " + r.getTrajID() + " is not found.");
             double currGroundTruthLength = 0;
             for (String s : groundTruthIDList) {
                 double currLength = id2RoadLength.get(s);
@@ -76,8 +89,12 @@ public class ResultEvaluation {
         double precision = totalCorrectlyMatchedLength / totalMatchedLength;
         double recall = totalCorrectlyMatchedLength / totalGroundTruthLength;
         double fScore = 2 * (precision * recall / (precision + recall));
-        System.out.println("Map-matching result evaluated, precision: " + df.format(precision * 100) + "%, recall:" + df.format(recall * 100) +
-                "%, F-score: " + df.format(fScore * 100) + "%.");
+        String precisionString = df.format(precision * 100);
+        String recallString = df.format(recall * 100);
+        String fMeasureString = df.format(fScore * 100);
+        mapMatchingResult.add(precisionString + "," + recallString + "," + fMeasureString);
+        System.out.println("Map-matching result evaluated, precision: " + precisionString + "%, recall:" + recallString +
+                "%, F-score: " + fMeasureString + "%.");
     }
 
     /**
@@ -149,7 +166,7 @@ public class ResultEvaluation {
      */
     public void beijingMapUpdateEval(RoadNetworkGraph inferenceMap, List<RoadWay> removedWayList, RoadNetworkGraph inputMap) {
         // insert all ground truth road match into gtResultList
-        DecimalFormat df = new DecimalFormat(".00000");
+        DecimalFormat df = new DecimalFormat("0.000");
         HashSet<String> originalRoadSet = new HashSet<>();
         HashMap<String, Double> id2RemovedLength = new HashMap<>();
         HashSet<String> inferenceRoadSet = new HashSet<>();
@@ -191,9 +208,12 @@ public class ResultEvaluation {
         double fScore = 2 * (precision * recall / (precision + recall));
         double roadDiff = Math.abs(totalFoundRoadLength - totalFoundRoadOriginalLength) / totalFoundRoadOriginalLength;
 
-        // TODO Incorrect precision
-        System.out.println("Map update result evaluation complete, precision: " + df.format(precision * 100) + "%, recall:" + df.format(recall * 100) +
-                "%, F-score: " + df.format(fScore * 100) + "%.");
+        String precisionString = df.format(precision * 100);
+        String recallString = df.format(recall * 100);
+        String fMeasureString = df.format(fScore * 100);
+        mapMatchingResult.add(precisionString + "," + recallString + "," + fMeasureString);
+        System.out.println("Map update result evaluation complete, precision: " + precisionString + "%, recall:" + recallString +
+                "%, F-score: " + fMeasureString + "%.");
         System.out.println("Total number of roads found: " + totalFoundRoadCount + ", missing roads: " + (removedWayList.size() - totalFoundRoadCount) + ", wrong roads: " + totalNewRoadCount + ".");
 
         if (totalFoundRoadLength > totalFoundRoadOriginalLength)

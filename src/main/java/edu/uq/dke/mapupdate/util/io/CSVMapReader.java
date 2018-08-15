@@ -6,6 +6,7 @@ import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadNode;
 import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -64,8 +65,8 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-        System.out.println("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
-                ways.size());
+//        System.out.println("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
+//                ways.size());
         return roadGraph;
     }
 
@@ -111,8 +112,8 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodeList);
         roadGraph.addWays(wayList);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-        System.out.println("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
-                ", total" + " roads:" + roadGraph.getWays().size());
+//        System.out.println("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
+//                ", total" + " roads:" + roadGraph.getWays().size());
         return roadGraph;
     }
 
@@ -189,11 +190,15 @@ public class CSVMapReader implements SpatialInterface {
     public List<RoadWay> readInferredEdges() throws IOException {
         List<RoadWay> inferredRoads = new ArrayList<>();
         // read inferred road ways
+        File inferenceFile = new File(this.csvMapPath + "inferred_edges.txt");
+        if (!inferenceFile.exists())
+            return inferredRoads;
         BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "inferred_edges.txt"));
         String line;
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
             newWay.setId("temp_" + newWay.getID());
+            newWay.setNewRoad(true);
             inferredRoads.add(newWay);
         }
         return inferredRoads;

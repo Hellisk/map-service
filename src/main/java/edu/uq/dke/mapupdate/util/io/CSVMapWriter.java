@@ -70,7 +70,7 @@ public class CSVMapWriter implements SpatialInterface {
         for (RoadWay w : roadGraph.getWays())
             bwEdges.write(w.toString() + "\n");
         bwEdges.close();
-        System.out.println("Write " + percentage + "% road map finished.");
+//        System.out.println("Write " + percentage + "% road map finished.");
     }
 
     public void randomRoadRemoval(int percentage) throws IOException {
@@ -170,6 +170,7 @@ public class CSVMapWriter implements SpatialInterface {
         Random random = new Random(10);
         List<RoadWay> removedWayList = new ArrayList<>();
         List<RoadWay> satisfiedRoadList = new ArrayList<>();    // list of road ways that satisfy the conditions
+        HashMap<String, Integer> id2NodeDegreeMapping = new HashMap<>();
         Map<String, RoadWay> id2RoadWay = new HashMap<>();
         for (RoadWay w : wayList) {
             if (isSatisfiedRoad(w, distance, gridIndex)) {
@@ -186,24 +187,49 @@ public class CSVMapWriter implements SpatialInterface {
             int currIndex = random.nextInt(satisfiedRoadList.size());
             if (removedEdgeIDSet.contains(satisfiedRoadList.get(currIndex).getID()))
                 continue;
-            removedEdgeIDSet.add(satisfiedRoadList.get(currIndex).getID());
-            removedWayList.add(satisfiedRoadList.get(currIndex));
+            List<RoadWay> tempRemovedWayList = new ArrayList<>();
+            tempRemovedWayList.add(satisfiedRoadList.get(currIndex));
             // put the reversed direction road to the removed road list
             if (satisfiedRoadList.get(currIndex).getID().contains("-")) {
                 String reversedRoadID = satisfiedRoadList.get(currIndex).getID().substring(1);
                 if (id2RoadWay.containsKey(reversedRoadID))
                     if (!removedEdgeIDSet.contains(reversedRoadID)) {
-                        removedWayList.add(id2RoadWay.get(reversedRoadID));
-                        removedEdgeIDSet.add(reversedRoadID);
+                        tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
                     }
             } else {
                 String reversedRoadID = "-" + satisfiedRoadList.get(currIndex).getID();
                 if (id2RoadWay.containsKey(reversedRoadID))
                     if (!removedEdgeIDSet.contains(reversedRoadID)) {
-                        removedWayList.add(id2RoadWay.get(reversedRoadID));
-                        removedEdgeIDSet.add(reversedRoadID);
+                        tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
                     }
             }
+            // avoid road node removal
+            if (tempRemovedWayList.get(0).getFromNode().getDegree() <= tempRemovedWayList.size() || tempRemovedWayList.get(0).getToNode().getDegree() <= tempRemovedWayList.size())
+                continue;
+            if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getFromNode().getID())) {
+                if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) <= tempRemovedWayList.size())
+                    continue;
+                else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getFromNode().getID(),
+                        id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) - tempRemovedWayList.size());
+            } else {
+                id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getFromNode().getID(),
+                        tempRemovedWayList.get(0).getFromNode().getDegree() - tempRemovedWayList.size());
+            }
+            if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getToNode().getID())) {
+                if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) <= tempRemovedWayList.size())
+                    continue;
+                else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getToNode().getID(),
+                        id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) - tempRemovedWayList.size());
+            } else {
+                id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getToNode().getID(),
+                        tempRemovedWayList.get(0).getToNode().getDegree() - tempRemovedWayList.size());
+            }
+
+            for (RoadWay w : tempRemovedWayList) {
+                removedEdgeIDSet.add(w.getID());
+                removedWayList.add(w);
+            }
+
         }
 
         List<RoadNode> nodeList = this.roadGraph.getNodes();
@@ -212,6 +238,8 @@ public class CSVMapWriter implements SpatialInterface {
         newGraph.setNodes(nodeList);
         newGraph.addWays(wayList);
         int removedNodeCount = newGraph.isolatedNodeRemoval();
+        if (removedNodeCount != 0)
+            throw new IllegalStateException("ERROR! The removed node should be zero: " + removedNodeCount);
 
         // write result to the files
         for (RoadNode n : newGraph.getNodes())
@@ -225,7 +253,7 @@ public class CSVMapWriter implements SpatialInterface {
         bwRemovedEdges.close();
 
         System.out.println("Random road Removal done. Total number of satisfied roads: " + satisfiedRoadCount + ", total removed " +
-                "roads: " + removedWayList.size() + ", total removed nodes:" + removedNodeCount);
+                "roads: " + removedWayList.size() + ".");
     }
 
     /**
@@ -254,7 +282,7 @@ public class CSVMapWriter implements SpatialInterface {
         Grid<Point> grid = new Grid<>(columnNum + 2, rowNum + 2, roadGraph.getMinLon() - lonPerCell, roadGraph.getMinLat() -
                 latPerCell, roadGraph.getMaxLon() + lonPerCell, roadGraph.getMaxLat() + latPerCell);
 
-        System.out.println("The grid contains " + (rowNum + 2) + " rows and " + (columnNum + 2) + " columns");
+//        System.out.println("The grid contains " + (rowNum + 2) + " rows and " + (columnNum + 2) + " columns");
 
         int pointCount = 0;
 
@@ -271,7 +299,7 @@ public class CSVMapWriter implements SpatialInterface {
             }
         }
 
-        System.out.println("Grid index build successfully, total number of segment center points in grid index: " + pointCount + ", ");
+//        System.out.println("Grid index build successfully, total number of segment center points in grid index: " + pointCount + ", ");
         return grid;
     }
 

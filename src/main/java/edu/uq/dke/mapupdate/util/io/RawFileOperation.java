@@ -98,19 +98,25 @@ public class RawFileOperation {
             }
         }
 
+        DecimalFormat df = new DecimalFormat(".00000");
         int visitThreshold = 5;
-        int lowVisitCount = 0;  // count the total number of edges whose visit is less than a given threshold
+        int totalHighVisitCount = 0;  // count the total number of edges whose visit is less than a given threshold
+        int totalVisitCount = 0;  // count the total number of edges whose visit is less than a given threshold
         rawMap.setMaxVisitCount(0);
         for (RoadWay w : rawMap.getWays()) {
             int currCount = id2VisitCountMapping.get(w.getID());
             w.setVisitCount(currCount);
             rawMap.updateMaxVisitCount(currCount);
-            if (currCount <= visitThreshold)
-                lowVisitCount++;
+            if (currCount > 0) {
+                totalVisitCount++;
+                if (currCount > visitThreshold) {
+                    totalHighVisitCount++;
+                }
+            }
         }
-        System.out.println("Beijing map initialization is done. Total number of trajectory scanned: " + tripID + ". The max visit count " +
-                "is " + "" + rawMap.getMaxVisitCount() + ", the percentage of roads visited by less than " + visitThreshold + " times is " +
-                lowVisitCount / (double) rawMap.getWays().size());
+        System.out.println("Beijing map initialization is done. Total number of trajectories: " + tripID + ", max visit count: " +
+                rawMap.getMaxVisitCount() + ", roads visited percentage: " + df.format(totalVisitCount / (double) rawMap.getWays().size() * 100) +
+                "%, high visit:" + df.format(totalHighVisitCount / (double) rawMap.getWays().size() * 100));
     }
 
     /**
@@ -236,24 +242,26 @@ public class RawFileOperation {
     }
 
     void rawTrajManualGTResultFilter(RoadNetworkGraph roadGraph, RoadNetworkGraph rawGrantMap) throws IOException, InterruptedException, ExecutionException {
-        final Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
-        // trajectory visited
+        final Map<String, Integer> id2VisitCountSmallMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
+        // trajectory visited in current map
+        final Map<String, Integer> id2VisitCountLargeMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
+        // trajectory visited in the original map
         final Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
 
-        initializeMapping(roadGraph, id2VisitCountMapping, id2RoadWayMapping);
+        initializeMapping(roadGraph, id2VisitCountSmallMapping, id2RoadWayMapping);
 
         BufferedReader brTrajectory = new BufferedReader(new FileReader(RAW_TRAJECTORY + "beijingTrajectory"));
 
         // create folders for further writing, if the folders exist and records appears, stop the process
         File createRawTrajFolder = new File(INPUT_TRAJECTORY);
-        if (createRawTrajFolder.isDirectory() && Objects.requireNonNull(createRawTrajFolder.list()).length != 0)
+        if (createRawTrajFolder.isDirectory() && Objects.requireNonNull(createRawTrajFolder.list()).length != 0) {
+            System.out.println("Raw trajectories are already filtered, skip the process");
             return;
-        else cleanPath(createRawTrajFolder);
+        } else
+            cleanPath(createRawTrajFolder);
 
         File createMatchedTrajFolder = new File(GT_MATCHING_RESULT);
-        if (createMatchedTrajFolder.exists() && Objects.requireNonNull(createMatchedTrajFolder.list()).length > 0)
-            return;
-        else cleanPath(createMatchedTrajFolder);
+        cleanPath(createMatchedTrajFolder);
 
         List<Trajectory> tempTrajList = new ArrayList<>();
         HashMap<Integer, String[]> id2MatchResult = new HashMap<>();
@@ -330,7 +338,7 @@ public class RawFileOperation {
                         return null;
                     String[] bestMatchWayList = result._1().getBestMatchWayList().toArray(new String[0]);
                     // test whether the matching result is included in the map
-                    if (isInvalidMatchingResult(id2VisitCountMapping, id2RoadWayMapping, bestMatchWayList))
+                    if (isInvalidMatchingResult(id2VisitCountSmallMapping, id2RoadWayMapping, bestMatchWayList))
                         return null;
                     return new Pair<>(Integer.parseInt(trajectory.getId()), bestMatchWayList);
                 }));
@@ -355,8 +363,8 @@ public class RawFileOperation {
 
                 String[] matchedRoadWayID = id2MatchResult.get(Integer.parseInt(currTraj.getId()));
                 for (String s : matchedRoadWayID) {
-                    int currCount = id2VisitCountMapping.get(s);
-                    id2VisitCountMapping.replace(s, currCount + 1);
+                    int currCount = id2VisitCountSmallMapping.get(s);
+                    id2VisitCountSmallMapping.replace(s, currCount + 1);
                     newMatchingResult._2().add(s);
                 }
                 currTraj.setId(tripID + "");
@@ -374,22 +382,41 @@ public class RawFileOperation {
 
         // visit statistics
         int visitThreshold = 5;
-        int totalHighVisitCount = 0;
-        int totalVisitCount = 0;
+        int totalHighVisitSmallCount = 0;
+        int totalHighVisitLargeCount = 0;
+        int totalVisitSmallCount = 0;
+        int totalVisitLargeCount = 0;
+        for (RoadWay w : rawGrantMap.getWays()) {
+            id2VisitCountLargeMapping.put(w.getID(), w.getVisitCount());
+        }
         roadGraph.setMaxVisitCount(0);
         for (RoadWay w : roadGraph.getWays()) {
-            int visitCount = id2VisitCountMapping.get(w.getID());
-            w.setVisitCount(visitCount);
-            if (visitCount > 0) {
-                totalVisitCount++;
-                if (visitCount >= 5) {
-                    totalHighVisitCount++;
+            int visitSmallCount = id2VisitCountSmallMapping.get(w.getID());
+            w.setVisitCount(visitSmallCount);
+            if (visitSmallCount > 0) {
+                totalVisitSmallCount++;
+                if (visitSmallCount >= 5) {
+                    totalHighVisitSmallCount++;
                 }
             }
+            if (id2VisitCountLargeMapping.containsKey(w.getID())) {
+                int visitLargeCount = id2VisitCountLargeMapping.get(w.getID());
+                if (visitLargeCount > 0) {
+                    totalVisitLargeCount++;
+                    if (visitLargeCount >= visitThreshold) {
+                        totalHighVisitLargeCount++;
+                    }
+                }
+            } else
+                System.out.println("ERROR! Road in new map doesn't exist in the original map");
         }
-        System.out.println(tripID + " trajectories extracted, the average length: " + (int) (totalNumOfPoint / tripID) + ", max visit count: " +
-                +roadGraph.getMaxVisitCount() + ", visit percentage: " + totalVisitCount / (double) roadGraph.getWays().size() + ", high " +
-                "visit(>=" + visitThreshold + "times): " + totalHighVisitCount / (double) roadGraph.getWays().size());
+        DecimalFormat df = new DecimalFormat(".00000");
+        System.out.println(tripID + " trajectories extracted, the average length: " + (int) (totalNumOfPoint / tripID) + ", max visit " +
+                "count: " + roadGraph.getMaxVisitCount() + ".");
+        System.out.println("Visit percentage: " + df.format((totalVisitSmallCount / (double) roadGraph.getWays().size()) * 100) + "%/" +
+                df.format((totalVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%, high visit(>=" + visitThreshold +
+                "times): " + df.format((totalHighVisitSmallCount / (double) roadGraph.getWays().size()) * 100) + "%/" +
+                df.format((totalHighVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%.");
     }
 
     private void writeTrajectoryFilterResult(List<Trajectory> resultTrajList, List<Pair<Integer, List<String>>> gtResultRoadWayList, File createRawTrajFolder, File createMatchedTrajFolder) {
@@ -428,7 +455,7 @@ public class RawFileOperation {
                 e.printStackTrace();
             }
         }));
-        while (Objects.requireNonNull(createRawTrajFolder.list()).length != resultTrajList.size() && Objects.requireNonNull
+        while (Objects.requireNonNull(createRawTrajFolder.list()).length != resultTrajList.size() || Objects.requireNonNull
                 (createMatchedTrajFolder.list()).length != gtResultRoadWayList.size()) {
             try {
                 Thread.sleep(5);

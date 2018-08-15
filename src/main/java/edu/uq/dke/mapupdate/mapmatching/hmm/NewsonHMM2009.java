@@ -59,8 +59,7 @@ public class NewsonHMM2009 implements MapInterface {
         this.candidateRange = candidateRange;
         this.gapExtensionRange = unmatchedTrajThreshold;
         this.rankLength = rankLength;
-        this.intervalLength = (2 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can
-        // escape the grid search
+        this.intervalLength = candidateRange;   // given such length limit, none of the candidate segment can escape the grid search
         buildGridIndex(roadNetworkGraph);   // build grid index
         this.routingGraph = new RoutingGraph(roadNetworkGraph);
     }
@@ -146,9 +145,9 @@ public class NewsonHMM2009 implements MapInterface {
         // calculate the total number of rows and columns. The size of each grid cell equals the candidate range
         double lonDistance = distanceFunction.pointToPointDistance(inputMap.getMaxLon(), 0d, inputMap.getMinLon(), 0d);
         double latDistance = distanceFunction.pointToPointDistance(0d, inputMap.getMaxLat(), 0d, inputMap.getMinLat());
-        double gridRadius = candidateRange > 30 ? candidateRange : 30;
-        columnNum = (int) Math.round(lonDistance / gridRadius);
-        rowNum = (int) Math.round(latDistance / gridRadius);
+        double gridRadius = candidateRange >= 15 ? candidateRange * Math.sqrt(5) : 15 * Math.sqrt(5);
+        columnNum = (int) Math.floor(lonDistance / gridRadius);
+        rowNum = (int) Math.floor(latDistance / gridRadius);
         double lonPerCell = (inputMap.getMaxLon() - inputMap.getMinLon()) / columnNum;
         double latPerCell = (inputMap.getMaxLat() - inputMap.getMinLat()) / columnNum;
 
@@ -156,7 +155,7 @@ public class NewsonHMM2009 implements MapInterface {
         this.grid = new Grid<>(columnNum + 2, rowNum + 2, inputMap.getMinLon() - lonPerCell, inputMap.getMinLat() - latPerCell, inputMap
                 .getMaxLon() + lonPerCell, inputMap.getMaxLat() + latPerCell);
 
-        System.out.println("The grid contains " + rowNum + 2 + " rows and " + columnNum + 2 + " columns");
+//        System.out.println("The grid contains " + rowNum + 2 + " rows and " + columnNum + 2 + " columns");
 
         int pointCount = 0;
         int intermediatePointCount = 0;
@@ -190,8 +189,8 @@ public class NewsonHMM2009 implements MapInterface {
             }
         }
 
-        System.out.println("Grid index build successfully, total number of segment items in grid index: " + pointCount + ", number of " +
-                "newly created middle points: " + intermediatePointCount);
+//        System.out.println("Grid index build successfully, total number of segment items in grid index: " + pointCount + ", number of " +
+//                "newly created middle points: " + intermediatePointCount);
     }
 
     /*

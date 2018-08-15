@@ -16,23 +16,25 @@ public class DataPreprocessing {
     public static void dataPreprocessing(boolean isManualGTRequired) throws IOException, ExecutionException, InterruptedException {
 
         // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
-        System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box.");
+//        System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box.");
         CSVMapReader rawMapReader = new CSVMapReader(GT_MAP);
         RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
         rawGTMapWriter.writeMap(0, -1, false);
+        CSVMapReader resizedMapReader = new CSVMapReader(INPUT_MAP);
+        RoadNetworkGraph resizedMap = resizedMapReader.readMap(0, -1, false);
 
         // pre-processing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of
         // road map
-        if (isManualGTRequired)
-            System.out.println("Start the trajectory filtering and ground-truth result generation.");
-        else System.out.println("Start the trajectory filtering.");
+//        if (isManualGTRequired)
+//            System.out.println("Start the trajectory filtering and ground-truth result generation.");
+//        else System.out.println("Start the trajectory filtering.");
         RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
         if (isManualGTRequired) {
             double[] emptyBoundingBox = {};
             RoadNetworkGraph rawGrantMap = rawMapReader.extractMapWithBoundary(emptyBoundingBox);
-            trajFilter.rawTrajManualGTResultFilter(roadNetworkGraph, rawGrantMap);
-        } else trajFilter.rawTrajGTResultFilter(roadNetworkGraph);
+            trajFilter.rawTrajManualGTResultFilter(resizedMap, rawGrantMap);
+        } else trajFilter.rawTrajGTResultFilter(resizedMap);
 
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
         System.out.println("Start manipulating the map according to the given road removal percentage: " + PERCENTAGE);

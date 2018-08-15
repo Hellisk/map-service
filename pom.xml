@@ -54,10 +54,10 @@
                 </executions>
                 <configuration>
                     <mainClass>edu.uq.dke.mapupdate.Main</mainClass>
-                    <daemonThreadJoinTimeout>15000</daemonThreadJoinTimeout>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
                     <arguments>
                         <argument>-Xms2g</argument>
-                        <argument>-Xmx12g</argument>
+                        <argument>-Xmx20g</argument>
                     </arguments>
                     <systemProperties>
                         <systemProperty>

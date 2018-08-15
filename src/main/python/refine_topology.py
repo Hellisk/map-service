@@ -99,7 +99,7 @@ class RefineTopology:
                 self.graphdb.nodes[node_id] = new_intersection
                 node_id += 1
 
-                # print "new intersection: " + str(new_intersection.id)
+                print "new intersection: " + str(new_intersection.id)
 
                 new_intersection.in_nodes.extend(segment_head_node.in_nodes)
                 new_intersection.in_nodes.extend(segment_tail_node.in_nodes)
@@ -133,8 +133,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                        #     (neighbor, new_intersection)) + " = " + str(edge)
+                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                            (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -149,8 +149,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                        #     (new_intersection, neighbor)) + " = " + str(edge)
+                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                            (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -171,8 +171,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                        #     (neighbor, new_intersection)) + " = " + str(edge)
+                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                            (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -187,8 +187,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                        #     (new_intersection, neighbor)) + " = " + str(edge)
+                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                            (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -219,7 +219,7 @@ class RefineTopology:
                 for touched_segment in touched_segments:
                     bag_of_edges.update(touched_segment.edges)
 
-                print "bag of edges: " + str(len(bag_of_edges))
+                # print "bag of edges: " + str(len(bag_of_edges))
 
                 segment_obs = map(lambda segment: all_segment_obs[segment.id], touched_segments)
                 # print "segment obs: " + str(len(segment_obs))
@@ -255,7 +255,7 @@ class RefineTopology:
                         trace_rmse = math.sqrt(float(trace_error) / float(len(trace)))
 
                         if (trace_rmse > 12.0):
-                            print "trace rmse: " + str(trace_rmse)
+                            # print "trace rmse: " + str(trace_rmse)
                             all_traces_pass = False
                             break
 
@@ -276,10 +276,10 @@ class RefineTopology:
                     del self.graphdb.segments[segment.id]
 
                 else:
-                    print "at least one trace failed! boo! :-(\n"
+                    # print "at least one trace failed! boo! :-(\n"
                     for edge in touched_edges:
-                        print "delete " + str((edge.in_node.id, edge.out_node.id)) + ": " + str(
-                            (edge.in_node, edge.out_node)) + " = " + str(edge)
+                        # print "delete " + str((edge.in_node.id, edge.out_node.id)) + ": " + str(
+                        #     (edge.in_node, edge.out_node)) + " = " + str(edge)
 
                         del self.graphdb.edge_lookup_table[(edge.in_node, edge.out_node)]
                         self.graphdb.edge_lookup_table[edge.old_key] = edge
@@ -299,7 +299,7 @@ class RefineTopology:
                     node_id -= 1
 
                 closed_segments_list.append(segment)
-                print ""
+                # print ""
 
         # sys.stdout.write("done.\n")
         sys.stdout.flush()

@@ -179,7 +179,7 @@ class StreetMap:
             # create and store node in nodes dictionary
             self.nodes[int(id)] = Node(float(lat), float(lon), int(id))
 
-        # print "done."
+        print "done."
 
         # output that we are loading edges
         # sys.stdout.write("Loading edges... ")
@@ -255,7 +255,7 @@ class StreetMap:
                         if (out_node.id not in valid_edge_nodes.keys()):
                             valid_edge_nodes[out_node.id] = out_node
 
-        # print "done."
+        print "done."
 
         # close connection to OSMDB
         conn.close()
@@ -285,7 +285,7 @@ class StreetMap:
         cur = conn.cursor()
 
         # output that we are loading nodes
-        # sys.stdout.write("\nLoading nodes... ")
+        sys.stdout.write("\nLoading nodes... ")
         sys.stdout.flush()
 
         # execute query on nodes table
@@ -297,10 +297,10 @@ class StreetMap:
             # create and store node in nodes dictionary
             self.nodes[id] = Node(latitude, longitude, id, weight)
 
-        # print "done."
+        print "done."
 
         # output that we are loading edges
-        # sys.stdout.write("Loading edges... ")
+        sys.stdout.write("Loading edges... ")
         sys.stdout.flush()
 
         # execute query on ways table
@@ -372,7 +372,7 @@ class StreetMap:
         except:
             print "Transitions not exist."
 
-        # print "done."
+        print "done."
 
         # close connection to graph db
         conn.close()
@@ -517,7 +517,7 @@ class StreetMap:
                 # store first node in previous node's out_nodes list
                 prev_node.out_nodes.append(first_node)
 
-        # print "done."
+        print "done."
 
         # close connection to gtfs db
         conn.close()
@@ -546,7 +546,7 @@ class StreetMap:
             # insert node into spatial index
             self.node_spatial_index.insert(curr_node.id, (curr_node.longitude, curr_node.latitude))
 
-        # print "done."
+        print "done."
 
     def _index_edges(self):
 
@@ -583,7 +583,7 @@ class StreetMap:
                 # add in edge to in edges list
                 edge.in_edges.append(self.edge_lookup_table[(in_node_neighbor, edge.in_node)])
 
-        # print "done."
+        print "done."
 
     def _find_and_index_intersections(self):
 
@@ -635,7 +635,7 @@ class StreetMap:
                 self.intersection_spatial_index.insert(new_intersection.id,
                                                        (new_intersection.longitude, new_intersection.latitude))
 
-        # print "done."
+        print "done."
 
     def _get_node(self, node_id):
 
@@ -714,7 +714,7 @@ class StreetMap:
     def write_map_to_file(self, map_filename="inferred_edges.txt"):
 
         # output that we are starting the writing process
-        sys.stdout.write("\nWriting map to file... ")
+        sys.stdout.write("Writing map to file... ")
         sys.stdout.flush()
 
         if os.path.exists(map_filename):
@@ -782,4 +782,4 @@ if __name__ == '__main__':
     else:
         print "Error! '" + str(db_type) + "' is an unknown database type"
 
-    # print "\nMap operations complete (in " + str(time.time() - start_time) + " seconds).\n"
+    print "\nMap operations complete (in " + str(time.time() - start_time) + " seconds).\n"

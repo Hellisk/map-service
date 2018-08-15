@@ -8,6 +8,7 @@ import edu.uq.dke.mapupdate.util.object.roadnetwork.RoadWay;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Point;
 import edu.uq.dke.mapupdate.util.object.spatialobject.Trajectory;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static edu.uq.dke.mapupdate.Main.SCORE_THRESHOLD;
@@ -30,9 +31,10 @@ public class CoOptimizationFunc {
         // save all new roads into the mapping for road lookup
         for (RoadWay w : roadMap.getWays()) {
             if (w.isNewRoad()) {
-                if (!id2NewRoadWay.containsKey(w.getID()))
+                if (!id2NewRoadWay.containsKey(w.getID())) {
                     id2NewRoadWay.put(w.getID(), w);
-                else System.out.println("ERROR! The new road has been added to the new road way mapping: " + w.getID());
+                    w.setInfluenceScore(0);
+                } else System.out.println("ERROR! The new road has been added to the new road way mapping: " + w.getID());
             }
 
             if (!id2RoadWay.containsKey(w.getID()))
@@ -47,9 +49,9 @@ public class CoOptimizationFunc {
 
                 boolean isNewRoadWayInvolved = false;
                 for (int i = 0; i < matchingResult.getNumOfPositiveRank(); i++) {
-                    if (prevMatchingResult.getProbability(i) > matchingResult.getProbability(i)) {
-                        System.out.println("ERROR! The previous matching probability is larger than the current one.");
-                    }
+//                    if (prevMatchingResult.getProbability(i) > matchingResult.getProbability(i)) {
+//                        System.out.println("ERROR! The previous matching probability is larger than the current one.");
+//                    }
                     for (String id : matchingResult.getMatchWayList(i)) {
                         if (id2NewRoadWay.containsKey(id)) {
                             isNewRoadWayInvolved = true;
@@ -62,7 +64,7 @@ public class CoOptimizationFunc {
                 if (!isNewRoadWayInvolved)
                     System.out.println("ERROR! The matching probability changes without matching to new roads.");
                 else {
-                    double certaintyDiff = certaintyCalc(matchingResult) - certaintyCalc(prevMatchingResult);
+                    double certaintyDiff = Math.abs(certaintyCalc(matchingResult) - certaintyCalc(prevMatchingResult));
                     if (certaintyDiff <= 0) {
                         System.out.println("ERROR! The certainty difference should be larger than zero.");
                         continue;
@@ -74,12 +76,14 @@ public class CoOptimizationFunc {
         }
 
         for (RoadWay w : roadMap.getWays()) {
-            if (w.isNewRoad() && wayID2InfluenceScore.containsKey(w.getID())) {
-                w.setInfluenceScore(wayID2InfluenceScore.get(w.getID()));
-            } else if (!w.isNewRoad() && wayID2InfluenceScore.containsKey(w.getID())) {
-                System.out.println("ERROR! The old road should not be assigned influence score.");
+            if (w.isNewRoad()) {
+                if (wayID2InfluenceScore.containsKey(w.getID()))
+                    w.setInfluenceScore(wayID2InfluenceScore.get(w.getID()));
+                else
+                    w.setInfluenceScore(0);
             }
         }
+
         return roadMap;
     }
 
@@ -133,10 +137,15 @@ public class CoOptimizationFunc {
     }
 
     public Triplet<RoadNetworkGraph, List<Trajectory>, Double> costFunctionCal(Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph,
-            List<Trajectory>> matchingResultTriplet) {
+            List<Trajectory>> matchingResultTriplet, List<RoadWay> removedRoadWayList, double lastCost) {
+        DecimalFormat df = new DecimalFormat(".00000");
         Set<RoadWay> removedRoadWaySet = new HashSet<>();
         Set<String> removedRoadIDSet = new HashSet<>();
         List<Trajectory> rematchTrajectoryList = new ArrayList<>();
+        HashSet<String> removedIDSet = new HashSet<>();
+        for (RoadWay w : removedRoadWayList) {
+            removedIDSet.add(w.getID());
+        }
         // Normalize the influence score and confidence score
         double maxInfluenceScore = Double.NEGATIVE_INFINITY;
         double maxConfidenceScore = Double.NEGATIVE_INFINITY;
@@ -144,6 +153,8 @@ public class CoOptimizationFunc {
         List<Double> confidenceScoreList = new ArrayList<>();
         for (RoadWay w : matchingResultTriplet._2().getWays()) {
             if (w.isNewRoad()) {
+                if (Double.isNaN(w.getInfluenceScore()))
+                    w.setInfluenceScore(0);
                 maxInfluenceScore = w.getInfluenceScore() > maxInfluenceScore ? w.getInfluenceScore() : maxInfluenceScore;
                 influenceScoreList.add(w.getInfluenceScore());
                 maxConfidenceScore = w.getConfidenceScore() > maxConfidenceScore ? w.getConfidenceScore() : maxConfidenceScore;
@@ -151,38 +162,55 @@ public class CoOptimizationFunc {
             }
         }
         Collections.sort(influenceScoreList);
+        Collections.reverse(influenceScoreList);
         Collections.sort(confidenceScoreList);
-        double medianInfluence = influenceScoreList.size() % 2 == 0 ? influenceScoreList.get(influenceScoreList.size() / 2 - 1)
-                : influenceScoreList.get((influenceScoreList.size() - 1) / 2);
-        double medianConfidence = confidenceScoreList.size() % 2 == 0 ? confidenceScoreList.get(confidenceScoreList.size() / 2 - 1)
-                : confidenceScoreList.get((confidenceScoreList.size() - 1) / 2);
+        Collections.reverse(confidenceScoreList);
+        int influencePosition = (int) (Math.floor(influenceScoreList.size() / (double) 100 * SCORE_THRESHOLD));
+        int confidencePosition = (int) (Math.floor(confidenceScoreList.size() / (double) 100 * SCORE_THRESHOLD));
+        double influenceThreshold = influenceScoreList.get(influencePosition == influenceScoreList.size() ? influenceScoreList.size() - 1 :
+                influencePosition);
+        double confidenceThreshold = confidenceScoreList.get(confidencePosition == confidenceScoreList.size() ?
+                confidenceScoreList.size() - 1 : confidencePosition);
+//        System.out.println(influenceThreshold + ", " + confidenceThreshold);
         double highILowC = 0;
         double highIHighC = 0;
         double lowILowC = 0;
         double lowIHighC = 0;
+        int highILowCHit = 0;
+        int highIHighCHit = 0;
+        int lowILowCHit = 0;
+        int lowIHighCHit = 0;
         List<String> highILowCList = new ArrayList<>();
         List<String> highIHighCList = new ArrayList<>();
         List<String> lowILowCList = new ArrayList<>();
         List<String> lowIHighCList = new ArrayList<>();
         for (RoadWay w : matchingResultTriplet._2().getWays()) {
             if (w.isNewRoad()) {
-                System.out.println("Road: " + w.getID() + ", " + w.getInfluenceScore() + ", " + w.getConfidenceScore());
-                if (w.getInfluenceScore() > medianInfluence && w.getConfidenceScore() > medianConfidence) {
+//                System.out.println("Road: " + w.getID() + ", " + w.getInfluenceScore() + ", " + w.getConfidenceScore());
+                if (w.getInfluenceScore() >= influenceThreshold && w.getConfidenceScore() >= confidenceThreshold) {
                     highIHighC += w.getInfluenceScore() * w.getConfidenceScore();
                     highIHighCList.add(w.getID());
-                } else if (w.getInfluenceScore() > medianInfluence && w.getConfidenceScore() < medianConfidence) {
+                    if (removedIDSet.contains(w.getID()))
+                        highIHighCHit++;
+                } else if (w.getInfluenceScore() >= influenceThreshold && w.getConfidenceScore() < confidenceThreshold) {
                     highILowC += w.getInfluenceScore() * w.getConfidenceScore();
                     highILowCList.add(w.getID());
-                } else if (w.getInfluenceScore() < medianInfluence && w.getConfidenceScore() < medianConfidence) {
+                    if (removedIDSet.contains(w.getID()))
+                        highILowCHit++;
+                } else if (w.getInfluenceScore() < influenceThreshold && w.getConfidenceScore() < confidenceThreshold) {
                     lowILowC += w.getInfluenceScore() * w.getConfidenceScore();
                     lowILowCList.add(w.getID());
                     removedRoadWaySet.add(w);
                     removedRoadIDSet.add(w.getID());
-                } else if (w.getInfluenceScore() < medianInfluence && w.getConfidenceScore() > medianConfidence) {
+                    if (removedIDSet.contains(w.getID()))
+                        lowILowCHit++;
+                } else if (w.getInfluenceScore() < influenceThreshold && w.getConfidenceScore() >= confidenceThreshold) {
                     lowIHighC += w.getInfluenceScore() * w.getConfidenceScore();
                     lowIHighCList.add(w.getID());
                     removedRoadWaySet.add(w);
                     removedRoadIDSet.add(w.getID());
+                    if (removedIDSet.contains(w.getID()))
+                        lowIHighCHit++;
                 }
             }
         }
@@ -206,13 +234,18 @@ public class CoOptimizationFunc {
         RoadNetworkGraph finalMap = matchingResultTriplet._2();
         finalMap.getWays().removeAll(removedRoadWaySet);
         finalMap.isolatedNodeRemoval();
-        double totalBenefit = highIHighC + highILowC - lowILowC - lowIHighC;
+        double totalBenefit = (highIHighC + highILowC) - lastCost > 0 ? (lowIHighC + lowILowC) : -1;
         System.out.println("Map refinement finished, total road removed: " + removedRoadWaySet.size() + ", trajectory affected: " +
-                rematchTrajectoryList.size());
-        System.out.println("High Influence Low Confident edges: " + Arrays.toString(highILowCList.toArray()).concat(","));
-        System.out.println("High Influence High Confident edges: " + Arrays.toString(highIHighCList.toArray()).concat(","));
-        System.out.println("Low Influence Low Confident edges: " + Arrays.toString(lowILowCList.toArray()).concat(","));
-        System.out.println("Low Influence High Confident edges: " + Arrays.toString(lowIHighCList.toArray()).concat(","));
+                rematchTrajectoryList.size() + ", max Influence score: " + df.format(maxInfluenceScore) + ", max confidence score: " + df.format(maxConfidenceScore));
+        System.out.println("High Influence High Confidence score:" + df.format(highIHighC) + ", count: " + highIHighCList.size() + ", " +
+                "accuracy: " + (highIHighCList.size() != 0 ? df.format(highIHighCHit / (double) highIHighCList.size() * 100) : 0) + "%.");
+        System.out.println("High Influence Low Confidence score:" + df.format(highILowC) + ", count: " + highILowCList.size() + ", " +
+                "accuracy: " + (highILowCList.size() != 0 ? df.format(highILowCHit / (double) highILowCList.size() * 100) : 0) + "%.");
+        System.out.println("Low Influence High Confidence score: " + df.format(lowIHighC) + ", count: " + lowIHighCList.size() + ", " +
+                "accuracy: " + (lowIHighCList.size() != 0 ? df.format(lowIHighCHit / (double) lowIHighCList.size() * 100) : 0) + "%.");
+        System.out.println("Low Influence Low Confidence score: " + df.format(lowILowC) + ", count: " + lowILowCList.size() + ", accuracy" +
+                ": " + (lowILowCList.size() != 0 ? df.format(lowILowCHit / (double) lowILowCList.size() * 100) : 0) + "%.");
+        System.out.println("Remaining items score: " + df.format(highIHighC + highILowC) + ", remove items score: " + df.format(lowILowC + lowIHighC));
 
         return new Triplet<>(finalMap, rematchTrajectoryList, totalBenefit);
     }

@@ -203,7 +203,7 @@ class Graph:
 
     def find_main_crossings_and_segments(self, skeleton):
         crossing_pixels = np.where(skeleton == 2)
-        print "crossing_pixels: " + str(len(crossing_pixels[0]))
+        # print "crossing_pixels: " + str(len(crossing_pixels[0]))
 
         curr_count = 1
         total_count = len(crossing_pixels[0])
@@ -437,7 +437,7 @@ class Graph:
 
     def identify_crossing_points(self, skeleton):
         fg_pixels = np.where(skeleton == 1)
-        print "fg_pixels: " + str(len(fg_pixels[0]))
+        # print "fg_pixels: " + str(len(fg_pixels[0]))
 
         curr_count = 1
         total_count = len(fg_pixels[0])

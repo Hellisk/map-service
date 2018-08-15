@@ -5,7 +5,7 @@ import java.io.IOException;
 public class BiagioniKDE2012 {
     private KDEMapInference mapInference;
 
-    public BiagioniKDE2012(double cellSize, int blur) {
+    public BiagioniKDE2012(int cellSize, int blur) {
         this.mapInference = new KDEMapInference(cellSize, blur);
     }
 

@@ -33,10 +33,10 @@ class GraphDBMatcher(GPSMatcher):
                 return 0
             return emission_probabilities[int(distance)]
 
-        sys.stdout.write("Initiating GPS matcher... ")
+        # sys.stdout.write("Initiating GPS matcher... ")
         sys.stdout.flush()
         GPSMatcher.__init__(self, hmm, emission_probability, constraint_length, MAX_DIST, priors={'unknown': 1.0})
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
     #    
@@ -92,16 +92,16 @@ class GraphDBMatcher(GPSMatcher):
         themap.load_graphdb(mapdb)
         # themap.load_osmdb(mapdb)
 
-        sys.stdout.write("Subdividing map... ")
+        # sys.stdout.write("Subdividing map... ")
         sys.stdout.flush()
 
         # subdivide the map in 20 m segments
         self.map_subdivide(themap)
 
-        sys.stdout.write("into " + str(len(themap.nodes)) + " nodes.\n")
+        # sys.stdout.write("into " + str(len(themap.nodes)) + " nodes.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Creating HMM... ")
+        # sys.stdout.write("Creating HMM... ")
         sys.stdout.flush()
 
         hmm = {}

@@ -49,6 +49,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
         int[] red = {255, 0, 0};
         int[] lightPurple = {255, 0, 255};
         int[] pink = {255, 153, 153};
+        int[] black = {0, 0, 0};
 
         // the iteration to be visualized
         int iteration = 1;
@@ -67,7 +68,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
             // read the removed roads
             List<RoadWay> removedRoadList = csvInputMapReader.readRemovedEdges(PERCENTAGE, -1);
-            List<Marker> baseMapMarker = roadWayMarkerGen(roadNetworkGraph.getWays(), blue);
+            List<Marker> baseMapMarker = roadWayMarkerGen(roadNetworkGraph.getWays(), isActualMap ? black : blue);
             List<Marker> removedMapMarker = roadWayMarkerGen(removedRoadList, green);
             List<Marker> removedWeightedMapMarker = weightedRoadWayMarkerGen(removedRoadList);
             fullMapDisplay.addMarkers(baseMapMarker);
@@ -79,62 +80,85 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
             // read unmatched trajectory for break point evaluation
             CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-            List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
-                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
-            for (Trajectory traj : unmatchedTraj)
-                trajDisplay[6].addMarkers(trajMarkerGen(traj, blue, 2));
-
-            // read inferred edges and display on the map
-            CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
-            List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
-            List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, blue);
-            trajDisplay[7].addMarkers(inferredEdgeMarker);
-
-            // read merged edges and display on the map
-            CSVMapReader mergedEdgeReader = new CSVMapReader(CACHE_FOLDER);
-            List<RoadWay> mergedEdges = mergedEdgeReader.readNewMapEdge(PERCENTAGE, 1, true);
-            List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, blue);
-            trajDisplay[8].addMarkers(mergedEdgeMarker);
-
-            // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
             Map<String, RoadWay> id2RoadWay = new HashMap<>();
-            CSVMapReader iterationMapReader = new CSVMapReader(CACHE_FOLDER);
-            RoadNetworkGraph iterationMap = iterationMapReader.readMap(PERCENTAGE, iteration, true);
-            // update the road way mapping for the look up of matched result
-            for (RoadWay w : iterationMap.getWays())
-                id2RoadWay.put(w.getID(), w);
-            for (RoadWay w : removedRoadList)
-                id2RoadWay.put(w.getID(), w);
-            List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), blue);
-            trajDisplay[0].addMarkers(backGroundMapMarker);
-            trajDisplay[1].addMarkers(backGroundMapMarker);
-            trajDisplay[2].addMarkers(backGroundMapMarker);
-            trajDisplay[3].addMarkers(backGroundMapMarker);
-            trajDisplay[4].addMarkers(backGroundMapMarker);
-            trajDisplay[5].addMarkers(backGroundMapMarker);
-
-            // read refined edges and display on the map
-            List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
-            List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, blue);
-            trajDisplay[9].addMarkers(updatedMapMarker);
-
-            // randomly select and visualize a trajectory and the corresponding matching result on the map
             Map<String, Trajectory> id2rawTraj = new HashMap<>();
             Map<String, TrajectoryMatchingResult> id2matchedTraj = new HashMap<>();
             Map<String, List<String>> id2GroundTruthTraj = new HashMap<>();
             Random random = new Random();
+            List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
+                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
+            for (Trajectory traj : unmatchedTraj)
+                trajDisplay[6].addMarkers(trajMarkerGen(traj, isActualMap ? black : blue, 2));
+
+            if (PERCENTAGE != 0) {
+                // read inferred edges and display on the map
+                CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
+                List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
+                List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, isActualMap ? black : blue);
+                trajDisplay[7].addMarkers(inferredEdgeMarker);
+
+                // read merged edges and display on the map
+                CSVMapReader mergedEdgeReader = new CSVMapReader(CACHE_FOLDER);
+                List<RoadWay> mergedEdges = mergedEdgeReader.readNewMapEdge(PERCENTAGE, 1, true);
+                List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, isActualMap ? black : blue);
+                trajDisplay[8].addMarkers(mergedEdgeMarker);
+
+                // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
+                CSVMapReader iterationMapReader = new CSVMapReader(CACHE_FOLDER);
+                RoadNetworkGraph iterationMap = iterationMapReader.readMap(PERCENTAGE, iteration, true);
+                // update the road way mapping for the look up of matched result
+                for (RoadWay w : iterationMap.getWays())
+                    id2RoadWay.put(w.getID(), w);
+                for (RoadWay w : removedRoadList)
+                    id2RoadWay.put(w.getID(), w);
+                List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), isActualMap ? black : blue);
+                trajDisplay[0].addMarkers(backGroundMapMarker);
+                trajDisplay[1].addMarkers(backGroundMapMarker);
+                trajDisplay[2].addMarkers(backGroundMapMarker);
+                trajDisplay[3].addMarkers(backGroundMapMarker);
+                trajDisplay[4].addMarkers(backGroundMapMarker);
+                trajDisplay[5].addMarkers(backGroundMapMarker);
+                // read refined edges and display on the map
+                List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
+                List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, isActualMap ? black : blue);
+                trajDisplay[9].addMarkers(updatedMapMarker);
+
+                // randomly select and visualize a trajectory and the corresponding matching result on the map
+                List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(OUTPUT_FOLDER, -1);
+                for (TrajectoryMatchingResult matchingResult : matchedTraj)
+                    id2matchedTraj.put(matchingResult.getTrajID(), matchingResult);
+            } else {
+                CSVMapReader rawMapReader = new CSVMapReader(INPUT_MAP);
+                RoadNetworkGraph rawMap = rawMapReader.readMap(PERCENTAGE, -1, false);
+                // update the road way mapping for the look up of matched result
+                for (RoadWay w : rawMap.getWays())
+                    id2RoadWay.put(w.getID(), w);
+                List<Marker> backGroundMapMarker = roadWayMarkerGen(rawMap.getWays(), isActualMap ? black : blue);
+                trajDisplay[0].addMarkers(backGroundMapMarker);
+                trajDisplay[1].addMarkers(backGroundMapMarker);
+                trajDisplay[2].addMarkers(backGroundMapMarker);
+                trajDisplay[3].addMarkers(backGroundMapMarker);
+                trajDisplay[4].addMarkers(backGroundMapMarker);
+                trajDisplay[5].addMarkers(backGroundMapMarker);
+
+                // randomly select and visualize a trajectory and the corresponding matching result on the map
+                List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(CACHE_FOLDER, 0);
+                for (TrajectoryMatchingResult matchingResult : matchedTraj)
+                    id2matchedTraj.put(matchingResult.getTrajID(), matchingResult);
+            }
+
             List<Trajectory> rawTraj = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
             for (Trajectory traj : rawTraj)
                 id2rawTraj.put(traj.getId(), traj);
-            List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(OUTPUT_FOLDER, -1);
-            for (TrajectoryMatchingResult matchingResult : matchedTraj)
-                id2matchedTraj.put(matchingResult.getTrajID(), matchingResult);
             List<Pair<Integer, List<String>>> groundTruthMatchingResult = csvTrajectoryReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
             for (Pair<Integer, List<String>> gtMatchingResult : groundTruthMatchingResult) {
                 id2GroundTruthTraj.put(gtMatchingResult._1() + "", gtMatchingResult._2());
             }
-            for (int i = 0; i < 6; i++) {
-                String currIndex = random.nextInt(rawTraj.size()) + "";
+
+            String[] id = {"743"};
+            for (int i = 0; i < 1; i++) {
+//                String currIndex = random.nextInt(rawTraj.size()) + "";
+                String currIndex = id[i];
                 List<Marker> rawTrajMarker = trajMarkerGen(id2rawTraj.get(currIndex), red, 2);
                 List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2matchedTraj.get(currIndex), id2RoadWay, lightPurple, 2);
                 List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(id2GroundTruthTraj.get(currIndex), id2RoadWay,
@@ -143,6 +167,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 trajDisplay[i].addMarkers(groundTruthMatchedTrajMarker);
                 trajDisplay[i].addMarkers(matchedTrajMarker);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

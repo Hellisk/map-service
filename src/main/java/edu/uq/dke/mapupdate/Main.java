@@ -27,52 +27,39 @@ import static edu.uq.dke.mapupdate.util.io.DataPreprocessing.rawMapInitializatio
 
 public class Main {
 
-    // global parameters
-    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
+    /* environmental settings */
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
-    private final static int BB_OPTION = 3;          // 1 = Beijing-S, 2 = Beijing-M, 3 = Beijing-L
-    private final static int WORKSPACE = 3; // 1 = home, 2 = school, 3 = server
-    public final static boolean STATISTIC_MODE = false; // true = test and statistics mode, false = normal process
-    public final static int TRAJECTORY_COUNT = -1; // total number of trajectories extracted. -1 = extract all
+    private final static int BB_OPTION = 1;          // 1 = Beijing-S, 2 = Beijing-M, 3 = Beijing-L
+    public final static int WORKSPACE = 1; // 1 = home, 2 = school, 3 = server
     public final static int MIN_TRAJ_POINT_COUNT = 5; // the minimal number of point required in a trajectory. -1 = no requirement
     public final static int MAX_TIME_INTERVAL = 120; // the maximum time interval within a trajectory -1 = no requirement
 
-    // after the change of bounding box, the existing trajectories should be deleted manually
-    // use the initial map, Beijing-L
-    private final static double[] BB_BEIJING_L = {};
-    //    // preset the map boundary, smaller san huan, Beijing-M
-//    private final static double[] BB_BEIJING_M = {116.32, 116.459, 39.87, 39.95};   //
-    // preset the map boundary, er huan, Beijing-M
-    private final static double[] BB_BEIJING_M = {116.34, 116.44, 39.89, 39.95};
-    // preset the map boundary, N-E outside 2 ring, Beijing-S
-    private final static double[] BB_BEIJING_S = {116.4, 116.43, 39.95, 39.98}; // 9,443 trajectories
+    /* tunable parameters */
+    public final static int PERCENTAGE = 4;         // percentage of removed road ways (max = 100)
+    public final static int GAP_EXTENSION_RANGE = 15;  // the trajectory point will be extended as unmatched point if no candidate is
+    public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
+    public final static double SCORE_THRESHOLD = 20;   // the value that divide the high and low influence/confidence score
+    public final static int TRAJECTORY_COUNT = -1; // total number of trajectories extracted. -1 = extract all
 
-
+    /* fixed settings */
+    /* bounding boxes */
+    private final static double[] BB_BEIJING_S = {116.4, 116.435, 39.95, 39.98};    // preset the map boundary, N-E outside 2 ring, Beijing-S
+    private final static double[] BB_BEIJING_M = {116.34, 116.44, 39.89, 39.95};    // preset the map boundary, er huan, Beijing-M
+    private final static double[] BB_BEIJING_L = {};    // use the initial map, Beijing-L
     public final static double[] BOUNDING_BOX = BB_OPTION == 1 ? BB_BEIJING_S : (BB_OPTION == 2 ? BB_BEIJING_M : BB_BEIJING_L);
     /* parameters for KDE-based map inference */
-    private final static double CELL_SIZE = 1;    // the size of each cell unit, default is 1
+    private final static int CELL_SIZE = 1;    // the size of each cell unit, default is 1
     private final static int GAUSSIAN_BLUR = 17;  // Gaussian blur filter, default is 17
-
-    /* parameters for incremental trace merge */
-    public final static double AHMED_EPSILON = 0.0020;    // in meter
-
     /* parameters for HMM-based map matching */
+    public final static int CANDIDATE_RANGE = 60;  // the radius of the candidate generation range in meter
     public final static double SIGMA = 4.07;    // parameter for emission probability calculation, also used to filter unnecessary
     // trajectory points (points whose distance is closer than 2*SIGMA will be removed)
     public final static double BETA = 0.08;    // parameter for transition probability calculation
-
-    public final static int CANDIDATE_RANGE = 60;  // the radius of the candidate generation range in meter
-    public final static int GAP_EXTENSION_RANGE = 15;  // the trajectory point will be extended as unmatched point if no candidate is
-    // within the circle of this radius in meter
-    public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
-
-    // parameters for map merge
+    /* parameters for map merge */
     public final static int MIN_ROAD_LENGTH = 30;     // the minimum length of a new road
-    private final static int SUB_TRAJECTORY_MERGE_DISTANCE = 10;   // the maximum allowed distance to attach a end point to an intersection
+    private final static int SUB_TRAJECTORY_MERGE_DISTANCE = 15;   // the maximum allowed distance to attach a end point to an intersection
 
-    // parameters for co-optimization function
-    public final static double SCORE_THRESHOLD = 50;   // the value that divide the high and low influence/confidence score
-
+    /* settings of folders */
     private final static String BEIJING_HOME_PATH = "F:/data/beijingTrajectory/";         // the root folder of all data
     private final static String BEIJING_SCHOOL_PATH = "C:/data/beijingTrajectory/";       // the root folder of all data
     private final static String BEIJING_SERVER_PATH = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/";       // the root
@@ -95,16 +82,15 @@ public class Main {
             ROOT_PATH + "input/trajectory/M" + BB_OPTION + "_TP" + MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";    // input trajectory dataset
     public final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
     public final static String CACHE_FOLDER = ROOT_PATH + "cache/";
-    public final static String INFERENCE_FOLDER = ROOT_PATH + "mapInference/";
+    public final static String INFERENCE_FOLDER = WORKSPACE == 3 ? "/home/uqpchao/data/mapInference/" : ROOT_PATH + "mapInference/";
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
 
-        System.out.println("Co-optimization process start.");
         BasicConfigurator.configure();
         long startTaskTime = System.currentTimeMillis();
         if (DATASET_OPTION == 0) {  // complete algorithm on beijing dataset
 
-            System.out.println("Start working on the beijing dataset...");
+//            System.out.println("Start working on the beijing dataset...");
             long prevTime = startTaskTime;
 
 //            // process the raw data and convert them into standard format
@@ -113,10 +99,10 @@ public class Main {
 //            System.out.print("Initialization done.");
 
             // pre-processing the data so that the map and the trajectories are filtered
-            System.out.println("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
+//            System.out.println("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
             dataPreprocessing(true);
-            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds, start the " +
-                    "map-matching process.");
+//            System.out.println("Initialisation done in " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds, start the " +
+//                    "map-matching process.");
             prevTime = System.currentTimeMillis();
 
             // initialization step, read the input first
@@ -137,18 +123,19 @@ public class Main {
             System.out.println("Initial map matching finished, time elapsed:" + (System.currentTimeMillis() - prevTime) / 1000 +
                     " seconds");
             prevTime = System.currentTimeMillis();
+            startTaskTime = prevTime;
+            int matchingTime = 0;
+            int updateTime = 0;
 
             // evaluation: initial map matching evaluation
             ResultEvaluation resultEvaluation = new ResultEvaluation();
-            resultEvaluation.beijingMapMatchingEval(initialMatchingResultTriplet._1(), gtMatchingResult, initialMap, removedWayList);
+//            resultEvaluation.beijingMapMatchingEval(initialMatchingResultTriplet._1(), gtMatchingResult, initialMap, removedWayList);
 
             if (PERCENTAGE != 0) {
                 int iteration = 1;  // start the iteration
-                double prevBenefitGain = Double.POSITIVE_INFINITY;
-                double currBenefitGain = Double.POSITIVE_INFINITY;
-                while (currBenefitGain <= prevBenefitGain && currBenefitGain >= 0) {
+                double costFunc = 0;
+                while (costFunc >= 0) {
 
-                    prevBenefitGain = currBenefitGain;
                     System.out.println("Start the " + iteration + " round of iteration.");
                     long currIterationStartTime = System.currentTimeMillis();
 
@@ -158,13 +145,14 @@ public class Main {
                     mapInference.KDEMapInferenceProcess(localDir + "/src/main/python/", CACHE_FOLDER + "unmatchedNextInput/TP" +
                             MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
                     System.out.println("Map inference finished, time elapsed: " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
+                    updateTime += (System.currentTimeMillis() - prevTime) / 1000;
                     prevTime = System.currentTimeMillis();
 
                     // step 2: map merge
                     CSVMapReader inferenceEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
                     List<RoadWay> inferredEdges = inferenceEdgeReader.readInferredEdges();
                     if (inferredEdges.size() == 0) {
-                        System.out.println("ERROR! Current iteration does not have new road inferred.");
+                        System.out.println("Current iteration does not have new road inferred. Finish the iteration.");
                         break;
                     }
                     RoadNetworkGraph prevMap;
@@ -176,25 +164,36 @@ public class Main {
                         prevMap = prevMapReader.readMap(PERCENTAGE, iteration - 1, false);
                     }
                     MapMerge spMapMerge = new MapMerge(prevMap, inferredEdges, removedWayList, CANDIDATE_RANGE, SUB_TRAJECTORY_MERGE_DISTANCE);
-                    RoadNetworkGraph mergedMap = spMapMerge.nearestNeighbourMapMerge();
-                    CSVMapWriter updatedMapWriter = new CSVMapWriter(mergedMap, CACHE_FOLDER);
+                    Pair<RoadNetworkGraph, Boolean> mergedMapResult = spMapMerge.nearestNeighbourMapMerge();
+                    if (mergedMapResult._2()) {
+                        System.out.println("Current iteration does not have new road added. Finish the iteration.");
+                        break;
+                    }
+                    CSVMapWriter updatedMapWriter = new CSVMapWriter(mergedMapResult._1(), CACHE_FOLDER);
                     updatedMapWriter.writeMap(PERCENTAGE, iteration, true);
 
                     // step 3: map-matching process on updated map
                     CSVMapReader updatedMapReader = new CSVMapReader(CACHE_FOLDER);
                     RoadNetworkGraph updatedMap = updatedMapReader.readMap(PERCENTAGE, iteration, true);
+                    resultEvaluation.beijingMapUpdateEval(updatedMap, removedWayList, initialMap);
 
                     Stream<Trajectory> inputTrajectoryStream = csvTrajectoryReader.readTrajectoryFilesStream(INPUT_TRAJECTORY);
                     Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> matchingResultTriplet =
                             parallelMapMatchingBeijing(inputTrajectoryStream, updatedMap, iteration, false);
+                    if (iteration == 1)
+                        resultEvaluation.beijingMapMatchingEval(matchingResultTriplet._1(), gtMatchingResult, updatedMap,
+                                removedWayList);
+
 //                Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> matchingResultTriplet = mapMatchingBeijing
 //                        (rawTrajectoryList, updatedMap, iteration, false);
                     System.out.println("Map matching finished, time elapsed: " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
+                    matchingTime += (System.currentTimeMillis() - prevTime) / 1000;
                     prevTime = System.currentTimeMillis();
 
                     // step 4: co-optimization model
                     CoOptimizationFunc coOptimizationFunc = new CoOptimizationFunc();
-                    Triplet<RoadNetworkGraph, List<Trajectory>, Double> refinementResult = coOptimizationFunc.costFunctionCal(matchingResultTriplet);
+                    Triplet<RoadNetworkGraph, List<Trajectory>, Double> refinementResult =
+                            coOptimizationFunc.costFunctionCal(matchingResultTriplet, removedWayList, costFunc);
                     Stream<Trajectory> refinedTrajectory = refinementResult._2().stream();
                     Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> refinedMatchingResult = parallelMapMatchingBeijing
                             (refinedTrajectory, refinementResult._1(), iteration, true);
@@ -206,8 +205,8 @@ public class Main {
                             mergedMatchingResultWriter.writeMergedMatchedTrajectory(matchingResultTriplet._1(), refinedMatchingResult._1(), RANK_LENGTH, iteration);
 
                     mergedMatchingResultWriter.writeMergedUnmatchedTrajectory(matchingResultTriplet._3(), refinedMatchingResult._3(), iteration);
-                    currBenefitGain = refinementResult._3();
-                    System.out.println("Result refinement finished, the benefit gain is " + currBenefitGain + ", time elapsed: " +
+                    costFunc = refinementResult._3();
+                    System.out.println("Result refinement finished, the cost function: " + costFunc + ", time elapsed: " +
                             (System.currentTimeMillis() - prevTime) / 1000 + " seconds.");
                     System.out.println("Finish the " + iteration + " round of iteration, total time elapsed: " + (System.currentTimeMillis()
                             - currIterationStartTime) / 1000 + " seconds.");
@@ -216,7 +215,6 @@ public class Main {
                     resultEvaluation.beijingMapMatchingEval(iterationFinalMatchingResult, gtMatchingResult, refinementResult._1(), removedWayList);
                     // evaluation: map update evaluation
                     System.out.println("Evaluate the map update result and compare the map accuracy before and after refinement.");
-                    resultEvaluation.beijingMapUpdateEval(updatedMap, removedWayList, initialMap);
                     resultEvaluation.beijingMapUpdateEval(refinementResult._1(), removedWayList, initialMap);
 
                     prevTime = System.currentTimeMillis();
@@ -233,9 +231,21 @@ public class Main {
                 CSVTrajectoryWriter finalMatchingResultWriter = new CSVTrajectoryWriter(OUTPUT_FOLDER);
                 finalMatchingResultWriter.writeMatchedTrajectory(finalMatchingResult, RANK_LENGTH, -1);
 
-                System.out.println("Iterative process done. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 + " " +
-                        "seconds");
-
+                System.out.println("Map matching precision/recall/f-measure:");
+                int count = 0;
+                for (String s : resultEvaluation.getMapMatchingResult()) {
+                    System.out.println(count + "," + s);
+                    count++;
+                }
+                System.out.println("Map update precision/recall/f-measure:");
+                count = 0;
+                for (String s : resultEvaluation.getMapUpdateResult()) {
+                    System.out.println(count + "," + s);
+                    count++;
+                }
+                System.out.println("Co-optimization finish. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 +
+                        " seconds, matching time: " + matchingTime + ", update time: " + updateTime + ", refinement time: " +
+                        ((System.currentTimeMillis() - startTaskTime) / 1000 - matchingTime - updateTime) + " total number of iterations: " + (iteration - 1));
             }
         } else if (DATASET_OPTION == 1) {    // map-matching evaluation dataset
 

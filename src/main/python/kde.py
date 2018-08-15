@@ -17,12 +17,12 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = 3  # 1 = home, 2 = school, 3 = server
+dataset_option = 1  # 1 = home, 2 = school, 3 = server
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 beijing_server_path = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option == 1 else beijing_school_path if dataset_option == 2 else beijing_server_path
-root_path = root_folder + "mapInference/"
+root_path = root_folder + "mapInference/" if dataset_option != 3 else "/home/uqpchao/data/mapInference/"
 input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
 
@@ -39,11 +39,11 @@ class KDE:
 
     def create_kde_with_trips(self, all_trips):
 
-        print "trips path: " + str(input_path)
-        print "cell size: " + str(cell_size)
-        print "gaussian blur: " + str(gaussian_blur)
+        # print "trips path: " + str(input_path)
+        # print "cell size: " + str(cell_size)
+        # print "gaussian blur: " + str(gaussian_blur)
 
-        # sys.stdout.write("\nFinding bounding box... ")
+        sys.stdout.write("\nFinding bounding box... ")
         sys.stdout.flush()
 
         min_lat = all_trips[0].locations[0].latitude
@@ -65,7 +65,7 @@ class KDE:
                 if location.longitude > max_lon:
                     max_lon = location.longitude
 
-        # print "done."
+        print "done."
 
         # find bounding box for data
         min_lat -= 0.003
@@ -90,7 +90,7 @@ class KDE:
         # close bounding box file
         boundingbox_file.close()
 
-        # print "done."
+        print "done."
 
         # print min_lat, min_lon, max_lat, max_lon
 
@@ -136,7 +136,7 @@ class KDE:
         lines = cv.CreateMat(height, width, cv.CV_8U)
         cv.SetZero(lines)
 
-        # print "done."
+        print "done."
 
         trip_counter = 1
 
@@ -157,16 +157,16 @@ class KDE:
         # save the lines
         cv.SaveImage(root_path + "raw_data.png", lines)
 
-        # print "done."
-        # print "Intensity map acquired."
-        # sys.stdout.write("Smoothing... ")
+        print "done."
+        print "Intensity map acquired."
+        sys.stdout.write("Smoothing... ")
         sys.stdout.flush()
 
         # # create the mask and compute the contour
         cv.Smooth(themap, themap, cv.CV_GAUSSIAN, gaussian_blur, gaussian_blur)
         cv.SaveImage(root_path + "kde.png", themap)
 
-        # print "done."
+        print "done."
         print "\nKDE generation complete."
 
 

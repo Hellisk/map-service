@@ -163,7 +163,7 @@ public class RoadNetworkGraph implements MapInterface {
                     } else
                         System.out.println("ERROR! Temporary edges should not be included in the road map.");
                 }
-            } else System.out.println("Road way already exist: " + way.getID());
+            }
         }
     }
 

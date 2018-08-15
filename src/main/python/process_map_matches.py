@@ -19,7 +19,7 @@ class ProcessMapMatches:
         self.graphdb = StreetMap()
         self.graphdb.load_graphdb(output_db_filename)
 
-        sys.stdout.write("Coalescing segments... ")
+        # sys.stdout.write("Coalescing segments... ")
         sys.stdout.flush()
 
         while (True):

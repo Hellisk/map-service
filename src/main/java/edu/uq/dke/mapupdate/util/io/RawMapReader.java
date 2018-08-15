@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static edu.uq.dke.mapupdate.Main.STATISTIC_MODE;
-
 /**
  * Created by uqpchao on 3/07/2017.
  */
