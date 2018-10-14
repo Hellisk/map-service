@@ -273,8 +273,8 @@ class StreetMap:
         self._find_and_index_intersections()
 
         # output map statistics
-        print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges and " + str(
-            len(self.intersections)) + " intersections."
+        # print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges and " + str(
+        #     len(self.intersections)) + " intersections."
 
     def load_graphdb(self, grapdb_filename):
 
@@ -390,8 +390,8 @@ class StreetMap:
         # self._find_and_index_intersections()
 
         # output map statistics
-        print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges, " + str(
-            len(self.segments)) + " segments and " + str(len(self.intersections)) + " intersections."
+        # print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges, " + str(
+        #     len(self.segments)) + " segments and " + str(len(self.intersections)) + " intersections."
 
     def load_shapedb(self, shapedb_filename):
 
@@ -532,8 +532,8 @@ class StreetMap:
         self._find_and_index_intersections()
 
         # output map statistics
-        print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges and " + str(
-            len(self.intersections)) + " intersections."
+        # print "Map has " + str(len(self.nodes)) + " nodes, " + str(len(self.edges)) + " edges and " + str(
+        #     len(self.intersections)) + " intersections."
 
     def _index_nodes(self):
 

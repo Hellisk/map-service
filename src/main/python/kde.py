@@ -162,7 +162,7 @@ class KDE:
         sys.stdout.write("Smoothing... ")
         sys.stdout.flush()
 
-        # # create the mask and compute the contour
+        # create the mask and compute the contour
         cv.Smooth(themap, themap, cv.CV_GAUSSIAN, gaussian_blur, gaussian_blur)
         cv.SaveImage(root_path + "kde.png", themap)
 

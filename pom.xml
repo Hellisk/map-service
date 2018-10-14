@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.uq.dke</groupId>
-    <artifactId>MapUpdate</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>map-update</artifactId>
+    <version>1.0</version>
 
     <build>
         <plugins>
@@ -24,7 +24,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.uq.dke.mapupdate.Main</mainClass>
+                            <mainClass>mapupdate.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -53,7 +53,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>edu.uq.dke.mapupdate.Main</mainClass>
+                    <mainClass>mapupdate.Main</mainClass>
                     <cleanupDaemonThreads>false</cleanupDaemonThreads>
                     <arguments>
                         <argument>-Xms2g</argument>

@@ -99,7 +99,7 @@ class RefineTopology:
                 self.graphdb.nodes[node_id] = new_intersection
                 node_id += 1
 
-                print "new intersection: " + str(new_intersection.id)
+                # print "new intersection: " + str(new_intersection.id)
 
                 new_intersection.in_nodes.extend(segment_head_node.in_nodes)
                 new_intersection.in_nodes.extend(segment_tail_node.in_nodes)
@@ -133,8 +133,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                            (neighbor, new_intersection)) + " = " + str(edge)
+                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                        #     (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -149,8 +149,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                            (new_intersection, neighbor)) + " = " + str(edge)
+                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                        #     (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -171,8 +171,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.out_node = new_intersection
-                        print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
-                            (neighbor, new_intersection)) + " = " + str(edge)
+                        # print "adding key " + str((neighbor.id, new_intersection.id)) + ": " + str(
+                        #     (neighbor, new_intersection)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(neighbor, new_intersection)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 
@@ -187,8 +187,8 @@ class RefineTopology:
                         edge = self.graphdb.edge_lookup_table[edge_key]
 
                         edge.in_node = new_intersection
-                        print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
-                            (new_intersection, neighbor)) + " = " + str(edge)
+                        # print "adding key " + str((new_intersection.id, neighbor.id)) + ": " + str(
+                        #     (new_intersection, neighbor)) + " = " + str(edge)
                         self.graphdb.edge_lookup_table[(new_intersection, neighbor)] = edge
                         del self.graphdb.edge_lookup_table[edge_key]
 

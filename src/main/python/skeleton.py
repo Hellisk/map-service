@@ -26,14 +26,14 @@ class GrayscaleSkeleton:
         prev_binary_image = np.zeros_like(image)
 
         image_bit_depth = (image.dtype.itemsize * 8) / 2
-        print "image_bit_depth: " + str(image_bit_depth)
+        # print "image_bit_depth: " + str(image_bit_depth)
 
         # image_thresholds = range(2**image_bit_depth,-1,-16)
         image_thresholds = [2 ** x for x in range(image_bit_depth, 3, -1)] + range(15, 0, -1)
-        print "image_thresholds: " + str(image_thresholds)
+        # print "image_thresholds: " + str(image_thresholds)
 
         for curr_threshold in image_thresholds:
-            print "curr_threshold: " + str(curr_threshold)
+            # print "curr_threshold: " + str(curr_threshold)
 
             curr_thresh_image = threshold(image, curr_threshold)
 
@@ -43,7 +43,7 @@ class GrayscaleSkeleton:
             curr_sum_image = (prev_binary_image + curr_binary_image)
             curr_skeleton_image = self.thin_pixels(curr_sum_image)
             imsave(skeleton_images_path + "skeleton_" + str(curr_threshold) + ".png", curr_skeleton_image)
-            print "curr_skeleton max: " + str(curr_skeleton_image.max())
+            # print "curr_skeleton max: " + str(curr_skeleton_image.max())
 
             prev_binary_image = curr_skeleton_image
 
