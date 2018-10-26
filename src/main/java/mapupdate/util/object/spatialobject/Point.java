@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Implements a simple 2D point entity, with (x,y) coordinates.
  * <p>
@@ -231,7 +233,7 @@ public class Point extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("POINT (" + toString() + ")");
+        LOGGER.info("POINT (" + toString() + ")");
     }
 
     @Override

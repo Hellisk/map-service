@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
 import static mapupdate.Main.MIN_ROAD_LENGTH;
 
 /**
@@ -69,7 +70,7 @@ public class CSVMapWriter implements SpatialInterface {
         for (RoadWay w : roadGraph.getWays())
             bwEdges.write(w.toString() + "\n");
         bwEdges.close();
-//        System.out.println("Write " + percentage + "% road map finished.");
+//        LOGGER.info("Write " + percentage + "% road map finished.");
     }
 
     public void randomRoadRemoval(int percentage) throws IOException {
@@ -134,7 +135,7 @@ public class CSVMapWriter implements SpatialInterface {
             }
         }
 
-        System.out.println("Random road Removal done. Total removed roads: " + roadRemovalCount + ", total removed nodes:" + vertexRemovalCount);
+        LOGGER.info("Random road Removal done. Total removed roads: " + roadRemovalCount + ", total removed nodes:" + vertexRemovalCount);
         bwVertices.close();
     }
 
@@ -150,7 +151,7 @@ public class CSVMapWriter implements SpatialInterface {
         // build index for neighbour search
         Grid<Point> gridIndex = buildGridIndexForCenterPoints(distance);
         if (percentage == 0) {
-            System.out.println("WARNING! The required remove road ratio is " + percentage + ", the removal is not needed.");
+            LOGGER.warning("WARNING! The required remove road ratio is " + percentage + ", the removal is not needed.");
             return;
         }
 
@@ -251,7 +252,7 @@ public class CSVMapWriter implements SpatialInterface {
         bwEdges.close();
         bwRemovedEdges.close();
 
-        System.out.println("Random road Removal done. Total number of satisfied roads: " + satisfiedRoadCount + ", total removed " +
+        LOGGER.info("Random road Removal done. Total number of satisfied roads: " + satisfiedRoadCount + ", total removed " +
                 "roads: " + removedWayList.size() + ".");
     }
 
@@ -281,7 +282,7 @@ public class CSVMapWriter implements SpatialInterface {
         Grid<Point> grid = new Grid<>(columnNum + 2, rowNum + 2, roadGraph.getMinLon() - lonPerCell, roadGraph.getMinLat() -
                 latPerCell, roadGraph.getMaxLon() + lonPerCell, roadGraph.getMaxLat() + latPerCell);
 
-//        System.out.println("The grid contains " + (rowNum + 2) + " rows and " + (columnNum + 2) + " columns");
+//        LOGGER.info("The grid contains " + (rowNum + 2) + " rows and " + (columnNum + 2) + " columns");
 
         int pointCount = 0;
 
@@ -298,7 +299,7 @@ public class CSVMapWriter implements SpatialInterface {
             }
         }
 
-//        System.out.println("Grid index build successfully, total number of segment center points in grid index: " + pointCount + ", ");
+//        LOGGER.info("Grid index build successfully, total number of segment center points in grid index: " + pointCount + ", ");
         return grid;
     }
 

@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Base interface for spatial data structures, and Spatial partitioning methods.
  *
@@ -196,7 +198,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             }
         }
         if (nearest == null) {
-            System.out.println("Nearest neighbour is too far away.");
+            LOGGER.info("Nearest neighbour is too far away.");
         }
         return nearest;
     }

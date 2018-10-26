@@ -12,6 +12,7 @@ import mapupdate.util.object.spatialobject.Point;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
 import static mapupdate.Main.MIN_ROAD_LENGTH;
 
 public class MapMerge {
@@ -42,11 +43,11 @@ public class MapMerge {
         if (mergeCandidateDistance > 0)
             this.mergeCandidateDistance = mergeCandidateDistance;
         else
-            System.out.println("ERROR! The merge candidate search range is illegal: " + mergeCandidateDistance);
+            LOGGER.severe("ERROR! The merge candidate search range is illegal: " + mergeCandidateDistance);
         if (subTrajectoryMergeDistance > 0)
             this.subTrajectoryMergeDistance = subTrajectoryMergeDistance;
         else
-            System.out.println("ERROR! The sub-trajectory merge candidate search range is illegal: " + subTrajectoryMergeDistance);
+            LOGGER.severe("ERROR! The sub-trajectory merge candidate search range is illegal: " + subTrajectoryMergeDistance);
         for (RoadWay w : rawMap.getWays())
             loc2RoadWayMapping.put(w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode()
                     .lat(), w);
@@ -73,7 +74,7 @@ public class MapMerge {
             insertWay2Index(w, toLocIndex);
         }
 
-//        System.out.println("Total number of inferred road is: " + inferredWayList.size() + ", number of additional nodes is: " + tempPoint2EdgeIndexMapping.entrySet().size());
+//        LOGGER.info("Total number of inferred road is: " + inferredWayList.size() + ", number of additional nodes is: " + tempPoint2EdgeIndexMapping.entrySet().size());
 
         List<RoadWay> roadWayResult = new ArrayList<>();
         for (RoadWay w : inferredWayList) {
@@ -88,9 +89,9 @@ public class MapMerge {
 
         for (Map.Entry<String, List<RoadWay>> entry : tempPoint2EdgeIndexMapping.entrySet()) {
             if (entry.getValue().size() != 0)
-                System.out.println("ERROR! Unvisited road remaining.");
+                LOGGER.severe("ERROR! Unvisited road remaining.");
         }
-//        System.out.println("Total number of roads after conjunction: " + roadWayResult.size());
+//        LOGGER.info("Total number of roads after conjunction: " + roadWayResult.size());
         return roadWayResult;
     }
 
@@ -193,7 +194,7 @@ public class MapMerge {
         // check if the intersection is correct
         if (!((currWay.getFromNode().toPoint().equals2D(intersectPoint) || currWay.getToNode().toPoint().equals2D(intersectPoint)) &&
                 (mergingWay.getFromNode().toPoint().equals2D(intersectPoint) || mergingWay.getToNode().toPoint().equals2D(intersectPoint))))
-            System.out.println("ERROR! The merging road ways are not connected.");
+            LOGGER.severe("ERROR! The merging road ways are not connected.");
 
         if (currWay.getFromNode().toPoint().equals2D(intersectPoint)) {
             // the intersection is the start point of the existing road, insert the new road first
@@ -246,7 +247,7 @@ public class MapMerge {
 
         for (RoadWay w : inferredWayList) {
             // find an possible intersection pair which the edge can be added to, prioritize the intersection pairs of the removed edge.
-//            System.out.println("start current road way connection, road length:" + w.getRoadLength());
+//            LOGGER.info("start current road way connection, road length:" + w.getRoadLength());
             List<Pair<Point, Double>> startPointMatchCandidate = findPointMatchCandidate(w.getFromNode().lon(), w.getFromNode().lat(),
                     mergeCandidateDistance, distFunc);
             List<Pair<Point, Double>> endPointMatchCandidate = findPointMatchCandidate(w.getToNode().lon(), w.getToNode().lat(),
@@ -262,7 +263,7 @@ public class MapMerge {
 
                 if (startPoint != null) {
                     // at least one pair of intersections is found
-//                    System.out.println("Both endpoints can be matched to the map");
+//                    LOGGER.info("Both endpoints can be matched to the map");
                     if (!currRoadID.equals("")) {
                         // the inferred road has been assigned to a removed road
                         RoadWay newWay = roadMapConnection(w, startPoint, endPoint);
@@ -272,15 +273,15 @@ public class MapMerge {
                         roadRefinement(w, startPoint, endPoint, mergeCandidateDistance);
                     }
                 } else {
-//                    System.out.println("The current endpoints match is absurd: The start point and end point is the same.");
+//                    LOGGER.info("The current endpoints match is absurd: The start point and end point is the same.");
                     findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
                 }
             } else {
-//                System.out.println("Not all endpoint can be matched to the map, start subRoadConnection");
+//                LOGGER.info("Not all endpoint can be matched to the map, start subRoadConnection");
                 findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
             }
         }
-        System.out.println("Nearest neighbour map merge completed. Total number of road way added:" + (rawMap.getWays().size() - prevWayListSize));
+        LOGGER.info("Nearest neighbour map merge completed. Total number of road way added:" + (rawMap.getWays().size() - prevWayListSize));
         return new Pair<>(rawMap, (rawMap.getWays().size() - prevWayListSize) == 0);
     }
 
@@ -301,10 +302,10 @@ public class MapMerge {
                         String locIndex = prevMatchPoint.x() + "_" + prevMatchPoint.y() + "," + end._1().x() + "_" + end._1().y();
                         if (loc2RemovedWayID.containsKey(locIndex)) {
                             String currRemovedID = loc2RemovedWayID.get(locIndex);
-//                            System.out.println("Found removed edge: " + currRemovedID);
+//                            LOGGER.info("Found removed edge: " + currRemovedID);
                             List<RoadNode> roadNodeList = new ArrayList<>();
                             if (!point2RoadNodeMapping.containsKey(prevMatchPoint) || !point2RoadNodeMapping.containsKey(end._1()))
-                                System.out.println("ERROR! The matched point cannot be found in the road node list.");
+                                LOGGER.severe("ERROR! The matched point cannot be found in the road node list.");
                             roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
                             roadNodeList.addAll(currRoadIntermediatePoint);
                             roadNodeList.add(point2RoadNodeMapping.get(end._1()));
@@ -335,7 +336,7 @@ public class MapMerge {
         String locIndex = prevMatchPoint.x() + "_" + prevMatchPoint.y() + "," + endPoint.x() + "_" + endPoint.y();
         if (loc2RemovedWayID.containsKey(locIndex)) {
             String currRemovedID = loc2RemovedWayID.get(locIndex);
-//            System.out.println("Found removed edge: " + currRemovedID);
+//            LOGGER.info("Found removed edge: " + currRemovedID);
             List<RoadNode> roadNodeList = new ArrayList<>();
             roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
             roadNodeList.addAll(currRoadIntermediatePoint);
@@ -344,7 +345,7 @@ public class MapMerge {
             doubleDirectedRoadWayInsertion(newWay, currRemovedID, currRoad.getConfidenceScore());
         } else if (!loc2RoadWayMapping.containsKey(locIndex) && !removedRoadFound) {
             String currNewID = (++maxAbsRoadWayID) + "";
-//            System.out.println("Create new edge: " + currNewID);
+//            LOGGER.info("Create new edge: " + currNewID);
             List<RoadNode> roadNodeList = new ArrayList<>();
             roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
             roadNodeList.addAll(currRoadIntermediatePoint);
@@ -397,7 +398,7 @@ public class MapMerge {
                     startPoint = start._1();
                     endPoint = end._1();
                     currRoadID = loc2RemovedWayID.get(locIndex);
-//                    System.out.println("Found removed road:" + currRoadID);
+//                    LOGGER.info("Found removed road:" + currRoadID);
                     containsRemovedRoad = true;
                 } else if (!containsRemovedRoad && (start._2() + end._2()) / 2 < currDistance) {
                     // a regular road is selected if 1) no removed road exist 2) closer than existing candidate 3) not in the mapping
@@ -456,10 +457,10 @@ public class MapMerge {
                             String currID = bestMatch._3();
                             if (loc2RoadWayMapping.containsKey(locIndex)) {
                                 currID = loc2RoadWayMapping.get(locIndex).getID();
-//                                System.out.println("Found existing edge: " + loc2RoadWayMapping.get(locIndex));
+//                                LOGGER.info("Found existing edge: " + loc2RoadWayMapping.get(locIndex));
                             } else if (!loc2RemovedWayID.containsKey(locIndex)) {
                                 currID = (++maxAbsRoadWayID) + "";
-//                                System.out.println("Found new edge: " + currID);
+//                                LOGGER.info("Found new edge: " + currID);
                             }
                             List<RoadNode> roadNodeList = new ArrayList<>();
                             roadNodeList.add(point2RoadNodeMapping.get(bestMatch._1()));
@@ -536,7 +537,7 @@ public class MapMerge {
 //                    nodeLocationList.add(n.lon() + "_" + n.lat());
 //                    nodeCount++;
 //                } else {
-//                    System.out.println("Duplicated road nodes in nearest neighbour network index");
+//                    LOGGER.info("Duplicated road nodes in nearest neighbour network index");
 //                }
 //            }
 //        }
@@ -562,7 +563,7 @@ public class MapMerge {
             this.point2RoadNodeMapping.put(nodeIndex, n);
         }
 
-//        System.out.println("Total number of nodes in grid index:" + rawMap.getNodes().size());
-//        System.out.println("The grid contains " + rowNum + " rows and columns");
+//        LOGGER.info("Total number of nodes in grid index:" + rawMap.getNodes().size());
+//        LOGGER.info("The grid contains " + rowNum + " rows and columns");
     }
 }

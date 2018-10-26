@@ -113,7 +113,7 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
                 currLineMarker.setStrokeWeight(weight);
                 result.add(currLineMarker);
             } else
-                System.out.println("ERROR! Cannot find roadID:" + s);
+                LOGGER.severe("ERROR! Cannot find roadID:" + s);
         }
         return result;
     }

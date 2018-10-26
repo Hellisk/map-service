@@ -1,5 +1,7 @@
 package mapupdate.util.object.spatialobject;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A 2D Spatial-Temporal line segment (segment with temporal features).
  * Line segment from coordinate points (x1,y1) to (x2,y2) and
@@ -293,6 +295,6 @@ public class STSegment extends Segment implements SpatialTemporalObject {
 
     @Override
     public void print() {
-        System.out.println("ST_SEGMENT " + toString());
+        LOGGER.info("ST_SEGMENT " + toString());
     }
 }

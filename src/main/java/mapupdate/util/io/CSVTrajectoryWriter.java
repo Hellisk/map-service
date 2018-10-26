@@ -81,8 +81,8 @@ public class CSVTrajectoryWriter {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Matched trajectory output path is incorrect: " + this.outputFolder);
-        System.out.println("Matched road ways written, total files: " + matchingList.size());
+        } else LOGGER.severe("Matched trajectory output path is incorrect: " + this.outputFolder);
+        LOGGER.info("Matched road ways written, total files: " + matchingList.size());
     }
 
     private void writeMatchedTrajectoryRecord(File matchedResultFolder, File roadIDListFolder, TrajectoryMatchingResult matchingResult,
@@ -96,7 +96,7 @@ public class CSVTrajectoryWriter {
 
             // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
             // roadID|...)
-            for (int i = 0; i < matchingResult.getTrajLength(); i++) {
+            for (int i = 0; i < matchingResult.getTrajSize(); i++) {
 
                 bwMatchedTrajectory.write(df.format(matchingResult.getTrajPoint(i).x()) + " " + df.format(matchingResult.getTrajPoint(i).y()) + " " + matchingResult
                         .getTrajPoint(i).time());
@@ -209,8 +209,8 @@ public class CSVTrajectoryWriter {
                     e.printStackTrace();
                 }
             }
-        } else System.err.println("Trajectory output path is incorrect:" + outputTrajectoryFolder.toString());
-        System.out.println("Trajectories written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
+        } else LOGGER.severe("Trajectory output path is incorrect:" + outputTrajectoryFolder.toString());
+        LOGGER.info("Trajectories written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
     }
 
     public List<TrajectoryMatchingResult> writeMergedMatchedTrajectory(List<TrajectoryMatchingResult> rawMatches,

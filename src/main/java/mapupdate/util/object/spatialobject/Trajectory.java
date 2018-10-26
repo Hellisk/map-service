@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A 2D spatial-temporal trajectory entity.
  * Discrete list of spatial-temporal points.
@@ -430,7 +432,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     @Override
     public void print() {
-        System.out.println("TRAJECTORY ( " + toString() + " )");
+        LOGGER.info("TRAJECTORY ( " + toString() + " )");
     }
 
     /**

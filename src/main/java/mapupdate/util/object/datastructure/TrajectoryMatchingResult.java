@@ -6,6 +6,8 @@ import mapupdate.util.object.spatialobject.Trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 public class TrajectoryMatchingResult {
     private Trajectory trajectory;
     private List<List<PointMatch>> matchingResult;
@@ -36,7 +38,7 @@ public class TrajectoryMatchingResult {
         return this.trajectory;
     }
 
-    public int getTrajLength() {
+    public int getTrajSize() {
         return this.trajectory.size();
     }
 
@@ -73,7 +75,7 @@ public class TrajectoryMatchingResult {
     public void setMatchingResult(List<PointMatch> result, int rank) {
         if (rank > rankLength) throw new IndexOutOfBoundsException("ERROR! Matching result set failed: the specified rank is out of range" +
                 ".");
-        if (result.size() != trajectory.size() && !result.isEmpty()) System.out.println("Match result size is different from the raw " +
+        if (result.size() != trajectory.size() && !result.isEmpty()) LOGGER.info("Match result size is different from the raw " +
                 "trajectory:" + result.size() + ":" + trajectory.size());
         this.matchingResult.set(rank, result);
     }

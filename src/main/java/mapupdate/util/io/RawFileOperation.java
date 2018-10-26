@@ -114,7 +114,7 @@ public class RawFileOperation {
                 }
             }
         }
-        System.out.println("Beijing map initialization is done. Total number of trajectories: " + tripID + ", max visit count: " +
+        LOGGER.info("Beijing map initialization is done. Total number of trajectories: " + tripID + ", max visit count: " +
                 rawMap.getMaxVisitCount() + ", roads visited percentage: " + df.format(totalVisitCount / (double) rawMap.getWays().size() * 100) +
                 "%, high visit:" + df.format(totalHighVisitCount / (double) rawMap.getWays().size() * 100) + "%");
     }
@@ -236,8 +236,8 @@ public class RawFileOperation {
         for (RoadWay w : roadGraph.getWays()) {
             w.setVisitCount(id2VisitCountMapping.get(w.getID()));
         }
-        System.out.println(tripID + " trajectories extracted, the average length is " + (int) (totalNumOfPoint / tripID));
-        System.out.println("The maximum sampling interval is " + maxTimeDiff + "s, and the average time interval is " +
+        LOGGER.info(tripID + " trajectories extracted, the average length is " + (int) (totalNumOfPoint / tripID));
+        LOGGER.info("The maximum sampling interval is " + maxTimeDiff + "s, and the average time interval is " +
                 totalTimeDiff / (totalNumOfPoint - tripID));
     }
 
@@ -245,8 +245,8 @@ public class RawFileOperation {
      * Map-matching the trajectory to the ground-truth map so as to generate the ground-truth matching result. Used when the provided
      * ground-truth result is not reliable.
      *
-     * @param roadGraph   The
-     * @param rawGrantMap
+     * @param roadGraph   The resized map
+     * @param rawGrantMap   The map cropped by the bounding box
      * @throws IOException
      * @throws InterruptedException
      * @throws ExecutionException
@@ -265,7 +265,7 @@ public class RawFileOperation {
         // create folders for further writing, if the folders exist and records appears, stop the process
         File createRawTrajFolder = new File(INPUT_TRAJECTORY);
         if (createRawTrajFolder.isDirectory() && Objects.requireNonNull(createRawTrajFolder.list()).length != 0) {
-            System.out.println("Raw trajectories are already filtered, skip the process");
+            LOGGER.info("Raw trajectories are already filtered, skip the process");
             return;
         } else
             cleanPath(createRawTrajFolder);
@@ -333,7 +333,7 @@ public class RawFileOperation {
                 }
             }
         }
-        System.out.println("Trajectory filter finished, total number of candidates: " + tripID + ". Start the ground-truth map-matching.");
+        LOGGER.info("Trajectory filter finished, total number of candidates: " + tripID + ". Start the ground-truth map-matching.");
 
         // start the generation of ground-truth map-matching result
         NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, rawGrantMap);
@@ -363,7 +363,7 @@ public class RawFileOperation {
                 id2MatchResult.put(matchedResult._1(), matchedResult._2());
             }
         }
-        System.out.println("Ground-truth matching complete. Total number of valid matching result: " + matchedResultCount);
+        LOGGER.info("Ground-truth matching complete. Total number of valid matching result: " + matchedResultCount);
 
         tripID = 0;     // reset the trip ID for final trajectory id assignment
         for (Trajectory currTraj : tempTrajList) {
@@ -386,7 +386,7 @@ public class RawFileOperation {
         }
         if (requiredRecordNum != -1 && tempTrajList.size() == 2 * requiredRecordNum && tripID < requiredRecordNum)
             throw new IllegalArgumentException("ERROR! The cache for trajectory filter is too small. The final trajectory size is :" + tripID);
-        System.out.println("Ground-truth trajectory result generated.");
+        LOGGER.info("Ground-truth trajectory result generated.");
 
         writeTrajectoryFilterResult(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
 
@@ -418,12 +418,12 @@ public class RawFileOperation {
                     }
                 }
             } else
-                System.out.println("ERROR! Road in new map doesn't exist in the original map");
+                LOGGER.severe("ERROR! Road in new map doesn't exist in the original map");
         }
         DecimalFormat df = new DecimalFormat(".00000");
-        System.out.println(tripID + " trajectories extracted, the average length: " + (int) (totalNumOfPoint / tripID) + ", max visit " +
+        LOGGER.info(tripID + " trajectories extracted, the average length: " + (int) (totalNumOfPoint / tripID) + ", max visit " +
                 "count: " + roadGraph.getMaxVisitCount() + ".");
-        System.out.println("Visit percentage: " + df.format((totalVisitSmallCount / (double) roadGraph.getWays().size()) * 100) + "%/" +
+        LOGGER.info("Visit percentage: " + df.format((totalVisitSmallCount / (double) roadGraph.getWays().size()) * 100) + "%/" +
                 df.format((totalVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%, high visit(>=" + visitThreshold +
                 "times): " + df.format((totalHighVisitSmallCount / (double) roadGraph.getWays().size()) * 100) + "%/" +
                 df.format((totalHighVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%.");
@@ -507,7 +507,7 @@ public class RawFileOperation {
             if (!id2VisitCountMapping.containsKey(w.getID())) {
                 id2VisitCountMapping.put(w.getID(), 0);
                 id2RoadWayMapping.put(w.getID(), w);
-            } else System.out.println("ERROR! The same road ID occurs twice: " + w.getID());
+            } else LOGGER.severe("ERROR! The same road ID occurs twice: " + w.getID());
     }
 
     public void groundTruthMatchResultStatistics(RoadNetworkGraph roadGraph, String rawTrajectories) throws IOException {
@@ -524,7 +524,7 @@ public class RawFileOperation {
         String line;
         while ((line = brTrajectory.readLine()) != null) {
             if (trajectoryCount % 50000 == 0)
-                System.out.println(trajectoryCount + " trajectory visited.");
+                LOGGER.info(trajectoryCount + " trajectory visited.");
             String[] trajectoryInfo = line.split(",");
             String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
             for (String s : matchedTrajectory) {
@@ -535,21 +535,21 @@ public class RawFileOperation {
                             typeCount[i]++;
                     }
                 } else
-                    System.out.println("ERROR! Cannot find road" + s);
+                    LOGGER.severe("ERROR! Cannot find road" + s);
                 if (id2WayLevel.containsKey(s))
                     levelCount[id2WayLevel.get(s)]++;
                 else
-                    System.out.println("ERROR! Cannot find road" + s);
+                    LOGGER.severe("ERROR! Cannot find road" + s);
             }
             trajectoryCount++;
         }
-        System.out.println("All trajectory visited. Total count: " + trajectoryCount);
+        LOGGER.info("All trajectory visited. Total count: " + trajectoryCount);
 
         for (int i = 0; i < 10; i++)
-            System.out.println("Way level " + i + " has " + levelCount[i] + " hits.");
+            LOGGER.info("Way level " + i + " has " + levelCount[i] + " hits.");
 
         for (int i = 0; i < 25; i++)
-            System.out.println("Way type " + i + " has " + typeCount[i] + " hits.");
+            LOGGER.info("Way type " + i + " has " + typeCount[i] + " hits.");
     }
 
     private void cleanPath(File currFolder) throws IOException {
@@ -574,7 +574,7 @@ public class RawFileOperation {
     }
 
     public void generateGTMatchingResult(RoadNetworkGraph roadNetworkGraph, String rawTrajectories, double minDist) throws IOException, ExecutionException, InterruptedException {
-        System.out.println("Generated ground-truth result required, start generating matching result.");
+        LOGGER.info("Generated ground-truth result required, start generating matching result.");
         BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
         BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(rawTrajectories + "beijingTrajectoryNew"));
 
@@ -614,7 +614,7 @@ public class RawFileOperation {
             inputTrajList.add(new Pair<>(traj, rawTrajectoryPoints));
         }
 
-        System.out.println("Start ground-truth generation, total number of input trajectory: " + inputTrajList.size());
+        LOGGER.info("Start ground-truth generation, total number of input trajectory: " + inputTrajList.size());
 
         Stream<Pair<Trajectory, String>> inputTrajStream = inputTrajList.stream();
         NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph);
@@ -646,9 +646,9 @@ public class RawFileOperation {
                 tripCount++;
             }
         }
-        System.out.println("Ground-truth matching complete, total number of matched trajectories: " + tripCount + " start writing file");
+        LOGGER.info("Ground-truth matching complete, total number of matched trajectories: " + tripCount + " start writing file");
         bwRawTrajectory.close();
-        System.out.println("Ground-truth trajectory result generated.");
+        LOGGER.info("Ground-truth trajectory result generated.");
     }
 
 }

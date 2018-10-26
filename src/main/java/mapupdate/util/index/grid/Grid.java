@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A grid partition data structure made of n x m cells.
  * This Grid can hold any type of spatial object in 2D.
@@ -163,7 +165,7 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
             int pos[] = gridModel.getCellPosition(index);
 
 //            if (partitions[pos[0]][pos[1]] == null) {
-//                System.err.println("Error partition" + pos[0] + "," + pos[1]);
+//                LOGGER.severe("Error partition" + pos[0] + "," + pos[1]);
 //            }
             return partitions[pos[0]][pos[1]];
         }
@@ -233,14 +235,13 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
     public void print() {
         for (GridPartition<T> cell : getPartitions()) {
             String id = cell.getPartitionId();
-            System.out.println("[" + id + "]: " + cell.count());
+            LOGGER.info("[" + id + "]: " + cell.count());
             Rectangle boundary = cell.getBoundary();
-            System.out.println("BOUNDARY " + boundary.toString());
+            LOGGER.info("BOUNDARY " + boundary.toString());
             // print content
             for (XYObject<T> obj : cell.getObjectsList()) {
                 obj.print();
             }
-            System.out.println();
         }
     }
 }

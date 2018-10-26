@@ -8,6 +8,8 @@ import mapupdate.util.object.spatialobject.Segment;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A way in the road network graph (OSM Way).
  *
@@ -366,7 +368,7 @@ public class RoadWay extends RoadNetworkPrimitive {
 
     @Override
     public void print() {
-        System.out.println("Road way ( " + toString() + " )");
+        LOGGER.info("Road way ( " + toString() + " )");
     }
 
     @Override

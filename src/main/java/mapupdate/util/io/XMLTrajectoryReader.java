@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Created by uqpchao on 23/05/2017.
  */
@@ -103,13 +105,13 @@ public class XMLTrajectoryReader {
                         if (feature.getAttribute("key").equals("feature")) {
                             currFeatures.put(feature.getAttribute("value"), "");
                         } else
-                            System.out.println(feature.getAttribute("key"));
+                            LOGGER.info(feature.getAttribute("key"));
                     }
                     trajectoryFeature.put(r, currFeatures);
                 } else
-                    System.out.println(nNode.getNodeName() + " is not a record");
+                    LOGGER.info(nNode.getNodeName() + " is not a record");
             }
-            System.out.println("Initialization finished.");
+            LOGGER.info("Initialization finished.");
             isInitialized = true;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();

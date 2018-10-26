@@ -15,8 +15,10 @@ public class DataPreprocessing {
      */
     public static void dataPreprocessing(boolean isManualGTRequired) throws IOException, ExecutionException, InterruptedException {
 
+        LOGGER.info("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
+
         // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
-//        System.out.println("Start extracting the map from the ground-truth and resizing it by the bounding box.");
+        LOGGER.info("Start extracting the map from the ground-truth and resizing it by the bounding box.");
         CSVMapReader rawMapReader = new CSVMapReader(GT_MAP);
         RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
@@ -27,8 +29,8 @@ public class DataPreprocessing {
         // pre-processing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of
         // road map
 //        if (isManualGTRequired)
-//            System.out.println("Start the trajectory filtering and ground-truth result generation.");
-//        else System.out.println("Start the trajectory filtering.");
+//            LOGGER.info("Start the trajectory filtering and ground-truth result generation.");
+//        else LOGGER.info("Start the trajectory filtering.");
         RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
         if (isManualGTRequired) {
             double[] emptyBoundingBox = {};
@@ -37,9 +39,11 @@ public class DataPreprocessing {
         } else trajFilter.rawTrajGTResultFilter(resizedMap);
 
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
-        System.out.println("Start manipulating the map according to the given road removal percentage: " + PERCENTAGE);
+        LOGGER.info("Start manipulating the map according to the given road removal percentage: " + PERCENTAGE);
         CSVMapWriter mapRemovalWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
         mapRemovalWriter.popularityBasedRoadRemoval(PERCENTAGE, CANDIDATE_RANGE / 2);
+
+        LOGGER.info("Initialisation done. start the map-matching process.");
     }
 
     /**
@@ -49,8 +53,10 @@ public class DataPreprocessing {
      */
     public static void rawMapInitialization() throws IOException, ExecutionException, InterruptedException {
 
+        LOGGER.info("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
+
         // pre-processing step 1: read raw map shape file and convert into csv file with default boundaries
-        System.out.println("Start reading the raw road map from SHP file.");
+        LOGGER.info("Start reading the raw road map from SHP file.");
         double[] boundingBox = new double[0];
         RawMapReader shpReader = new RawMapReader(RAW_MAP, boundingBox);
         RoadNetworkGraph roadNetworkGraph = shpReader.readNewBeijingMap();
@@ -59,5 +65,7 @@ public class DataPreprocessing {
         // write the visited map to the ground truth folder
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, GT_MAP);
         rawGTMapWriter.writeMap(0, -1, false);
+
+        LOGGER.info("Initialization done.");
     }
 }

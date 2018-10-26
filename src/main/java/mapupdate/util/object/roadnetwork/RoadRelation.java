@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A relation in the road network graph (OSM Relation).
  * <p>
@@ -109,7 +111,7 @@ public class RoadRelation extends RoadNetworkPrimitive {
 
     @Override
     public void print() {
-        System.out.println("ROAD RELATION ( " + toString() + " )");
+        LOGGER.info("ROAD RELATION ( " + toString() + " )");
     }
 
     @Override

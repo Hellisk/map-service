@@ -4,6 +4,8 @@ import mapupdate.util.object.spatialobject.Point;
 
 import java.text.DecimalFormat;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A node in the road network graph (OSM Vertex).
  * <br> The spatial coordinates of the node are immutable.
@@ -137,7 +139,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
 
     @Override
     public void print() {
-        System.out.println("ROAD NODE ( " + toString() + " )");
+        LOGGER.info("ROAD NODE ( " + toString() + " )");
     }
 
     @Override

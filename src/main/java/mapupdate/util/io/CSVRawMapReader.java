@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static mapupdate.Main.LOGGER;
 import static mapupdate.util.io.XMLTrajectoryReader.stringFormatter;
 
 public class CSVRawMapReader {
@@ -78,7 +79,7 @@ public class CSVRawMapReader {
                 newWay.setNodes(miniNode);
                 ways.add(newWay);
                 roadCount++;
-            } else System.out.println("Road endpoint doesn't exist: " + edgeInfo[0] + "," + edgeInfo[1]);
+            } else LOGGER.info("Road endpoint doesn't exist: " + edgeInfo[0] + "," + edgeInfo[1]);
         }
         brEdges.close();
 
@@ -92,7 +93,7 @@ public class CSVRawMapReader {
             }
         }
         roadGraph.getNodes().removeAll(removedRoadNodeList);
-        System.out.println("Read " + trajNum + " road map, isolate nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size() + ", total roads:" + ways.size());
+        LOGGER.info("Read " + trajNum + " road map, isolate nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size() + ", total roads:" + ways.size());
         return roadGraph;
     }
 }

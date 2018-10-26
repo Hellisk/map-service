@@ -9,6 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A 2D circle, defined by its center (x,y) coordinates
  * and radius.
@@ -460,7 +462,7 @@ public class Circle extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("CIRCLE " + toString());
+        LOGGER.info("CIRCLE " + toString());
     }
 
     @Override

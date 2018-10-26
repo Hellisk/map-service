@@ -7,6 +7,8 @@ public class VisualizationMain {
 //        mapDisplay.display();
         UnfoldingBeijingTrajectoryDisplay trajDisplay = new UnfoldingBeijingTrajectoryDisplay();
         trajDisplay.display();
+//        UnfoldingBeijingTrajectoryManualDisplay trajectoryManualDisplay = new UnfoldingBeijingTrajectoryManualDisplay();
+//        trajectoryManualDisplay.display();
 
 //        UnfoldingGlobalTrajectoryDisplay globalTrajectoryDisplay = new UnfoldingGlobalTrajectoryDisplay();
 //        globalTrajectoryDisplay.display();

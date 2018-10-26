@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
 import static mapupdate.Main.ROOT_PATH;
 
 /**
@@ -93,7 +94,7 @@ public class ResultEvaluation {
         String recallString = df.format(recall * 100);
         String fMeasureString = df.format(fScore * 100);
         mapMatchingResult.add(precisionString + "," + recallString + "," + fMeasureString);
-        System.out.println("Map-matching result evaluated, precision: " + precisionString + "%, recall:" + recallString +
+        LOGGER.info("Map-matching result evaluated, precision: " + precisionString + "%, recall:" + recallString +
                 "%, F-score: " + fMeasureString + "%.");
     }
 
@@ -143,7 +144,7 @@ public class ResultEvaluation {
                     correctlyMatchedLength += currLength;
                 }
             }
-            System.out.println("Trajectory " + r.getTrajID() + ": Precision=" + correctlyMatchedLength / currMatchedLength + ", " +
+            LOGGER.info("Trajectory " + r.getTrajID() + ": Precision=" + correctlyMatchedLength / currMatchedLength + ", " +
                     "recall=" + correctlyMatchedLength / currGroundTruthLength);
             totalMatchedLength += currMatchedLength;
             totalCorrectlyMatchedLength += correctlyMatchedLength;
@@ -153,7 +154,7 @@ public class ResultEvaluation {
         double precision = totalCorrectlyMatchedLength / totalMatchedLength;
         double recall = totalCorrectlyMatchedLength / totalGroundTruthLength;
         double fScore = 2 * (precision * recall / (precision + recall));
-        System.out.println("Map-matching result evaluated, precision: " + df.format(precision * 100) + "%, recall:" + df.format(recall * 100) +
+        LOGGER.info("Map-matching result evaluated, precision: " + df.format(precision * 100) + "%, recall:" + df.format(recall * 100) +
                 "%, F-score: " + df.format(fScore * 100) + "%.");
     }
 
@@ -186,13 +187,13 @@ public class ResultEvaluation {
                 id2RemovedLength.put(removedEdges.getID(), removedEdges.getRoadLength());
                 totalGroundTruthLength += removedEdges.getRoadLength();
             } else
-                System.out.println("ERROR! The road " + removedEdges.getID() + " has been removed more than once.");
+                LOGGER.severe("ERROR! The road " + removedEdges.getID() + " has been removed more than once.");
         }
 
         for (RoadWay w : inferenceMap.getWays()) {
             if (!inferenceRoadSet.contains(w.getID())) {
                 inferenceRoadSet.add(w.getID());
-            } else System.out.println("ERROR! Same road ID occurs more than once!");
+            } else LOGGER.severe("ERROR! Same road ID occurs more than once!");
             if (id2RemovedLength.containsKey(w.getID())) {
                 totalFoundRoadLength += w.getRoadLength();
                 totalFoundRoadOriginalLength += id2RemovedLength.get(w.getID());
@@ -212,14 +213,16 @@ public class ResultEvaluation {
         String recallString = df.format(recall * 100);
         String fMeasureString = df.format(fScore * 100);
         mapUpdateResult.add(precisionString + "," + recallString + "," + fMeasureString);
-        System.out.println("Map update result evaluation complete, precision: " + precisionString + "%, recall:" + recallString +
+        LOGGER.info("Map update result evaluation complete, precision: " + precisionString + "%, recall:" + recallString +
                 "%, F-score: " + fMeasureString + "%.");
-        System.out.println("Total number of roads found: " + totalFoundRoadCount + ", missing roads: " + (removedWayList.size() - totalFoundRoadCount) + ", wrong roads: " + totalNewRoadCount + ".");
+        LOGGER.info("Total number of roads found: " + totalFoundRoadCount + ", missing roads: " + (removedWayList.size() - totalFoundRoadCount) + ", wrong roads: " + totalNewRoadCount + ".");
 
+        String print = "";
         if (totalFoundRoadLength > totalFoundRoadOriginalLength)
-            System.out.print("Overall, the inferred roads are longer than original road by ");
+            print += "Overall, the inferred roads are longer than original road by ";
         else
-            System.out.print("Overall, the inferred roads are longer than original road by ");
-        System.out.println(df.format(roadDiff * 100) + "%");
+            print += "Overall, the inferred roads are longer than original road by ";
+        print += df.format(roadDiff * 100) + "%";
+        LOGGER.info(print);
     }
 }

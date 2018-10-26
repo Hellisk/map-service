@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Implements a mutable 2D Polygon entity.
  * <p>
@@ -313,7 +315,7 @@ public class Polygon extends ComplexSpatialObject<Point> {
 
     @Override
     public void print() {
-        System.out.println("POLYGON " + toString());
+        LOGGER.info("POLYGON " + toString());
     }
 
     @Override

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A Road Network Graph object, based on OpenStreetMap (OSM) data model.
  *
@@ -70,7 +72,7 @@ public class RoadNetworkGraph implements MapInterface {
                 updateBoundingBox(node);
                 if (isBeijingDataset)
                     maxRoadNodeID = Long.parseLong(node.getID()) > maxRoadNodeID ? Long.parseLong(node.getID()) : maxRoadNodeID;
-            } else System.out.println("ERROR! Node already exist: " + node.getID());
+            } else LOGGER.severe("ERROR! Node already exist: " + node.getID());
         }
     }
 
@@ -161,7 +163,7 @@ public class RoadNetworkGraph implements MapInterface {
                                     .getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
                         }
                     } else
-                        System.out.println("ERROR! Temporary edges should not be included in the road map.");
+                        LOGGER.severe("ERROR! Temporary edges should not be included in the road map.");
                 }
             }
         }

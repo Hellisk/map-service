@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Created by uqpchao on 22/05/2017.
  */
@@ -65,7 +67,7 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-//        System.out.println("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
+//        LOGGER.info("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
 //                ways.size());
         return roadGraph;
     }
@@ -112,7 +114,7 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodeList);
         roadGraph.addWays(wayList);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-//        System.out.println("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
+//        LOGGER.info("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
 //                ", total" + " roads:" + roadGraph.getWays().size());
         return roadGraph;
     }
@@ -174,7 +176,7 @@ public class CSVMapReader implements SpatialInterface {
         String line;
         // read removed road ways
         if (iteration != -1)
-            System.out.println("ERROR! Removed road ways is only read outside the iteration.");
+            LOGGER.severe("ERROR! Removed road ways is only read outside the iteration.");
         BufferedReader brEdges = new BufferedReader(new FileReader(this.csvMapPath + "removedEdges_" + percentage + ".txt"));
         while ((line = brEdges.readLine()) != null) {
             RoadWay newWay = RoadWay.parseRoadWay(line, new HashMap<>());
@@ -182,7 +184,7 @@ public class CSVMapReader implements SpatialInterface {
                 removedRoadIdSet.add(newWay.getID());
                 removedRoads.add(newWay);
             } else
-                System.out.println("ERROR! Duplicated removed road.");
+                LOGGER.severe("ERROR! Duplicated removed road.");
         }
         return removedRoads;
     }

@@ -12,6 +12,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A 2D rectangle defined by its bottom-left and
  * upper-right coordinates, and whose edges are
@@ -291,7 +293,7 @@ public class Rectangle extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("RECTANGLE " + toString());
+        LOGGER.info("RECTANGLE " + toString());
     }
 
     @Override

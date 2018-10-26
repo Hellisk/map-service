@@ -24,7 +24,7 @@ public class CSVTrajectoryReader {
     public CSVTrajectoryReader() {
     }
 
-    private Trajectory readTrajectory(File trajectoryFile) throws IOException {
+    public Trajectory readTrajectory(File trajectoryFile) throws IOException {
         BufferedReader brTrajectory = new BufferedReader(new FileReader(trajectoryFile));
         Trajectory newTrajectory = new Trajectory();
         String line;
@@ -89,10 +89,10 @@ public class CSVTrajectoryReader {
                                                 (matchPointInfo[5]));
                                         PointMatch currMatchPoint = new PointMatch(matchPoint, matchSegment, matchPointInfo[6]);
                                         matchingPointSet.get(j).add(currMatchPoint);
-                                    } else System.out.println("ERROR! Incorrect match result length." + roadIDFileList[i].getName());
+                                    } else LOGGER.severe("ERROR! Incorrect match result length." + roadIDFileList[i].getName());
                                 }
                             }
-                        } else System.out.println("ERROR! Inconsistent rank length during trajectory reading: " + matchInfo.length);
+                        } else LOGGER.severe("ERROR! Inconsistent rank length during trajectory reading: " + matchInfo.length);
                     }
                     int rowCount = 0;
                     while ((line = brRoadIDTrajectory.readLine()) != null && rowCount < RANK_LENGTH) {
@@ -107,7 +107,7 @@ public class CSVTrajectoryReader {
                             roadWayIDList.set(rowCount, matchWayList);
                             probabilities[rowCount] = Double.parseDouble(roadWayInfo[1]);
                             rowCount++;
-                        } else System.out.println("ERROR! Wrong length of the road way info.");
+                        } else LOGGER.severe("ERROR! Wrong length of the road way info.");
                     }
                     brMatchingTrajectory.close();
                     brRoadIDTrajectory.close();
@@ -152,7 +152,7 @@ public class CSVTrajectoryReader {
         File inputFile = new File(csvTrajectoryPath);
         List<Trajectory> trajectoryList = new ArrayList<>();
         if (!inputFile.exists())
-            System.out.println("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
+            LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         if (inputFile.isDirectory()) {
             File[] trajectoryFiles = inputFile.listFiles();
             if (trajectoryFiles != null) {
@@ -161,7 +161,7 @@ public class CSVTrajectoryReader {
                     newTrajectory.setId(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
                     trajectoryList.add(newTrajectory);
                 }
-            } else System.out.println("ERROR! The input trajectory dictionary is empty: " + csvTrajectoryPath);
+            } else LOGGER.severe("ERROR! The input trajectory dictionary is empty: " + csvTrajectoryPath);
         } else {
             trajectoryList.add(readTrajectory(inputFile));
         }
@@ -169,7 +169,7 @@ public class CSVTrajectoryReader {
         for (Trajectory t : trajectoryList) {
             count += t.getCoordinates().size();
         }
-        System.out.println("Trajectory read finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
+        LOGGER.info("Trajectory read finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
         return trajectoryList;
     }
 
@@ -183,7 +183,7 @@ public class CSVTrajectoryReader {
         // read input data
         File inputFile = new File(csvTrajectoryPath);
         if (!inputFile.exists())
-            System.out.println("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
+            LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         Stream<File> dataFiles =
                 IOService.getFiles(csvTrajectoryPath);
         return dataFiles.parallel().map(

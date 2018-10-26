@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Segment element for index purpose. The index is built based on
  * the position of its endpoints or virtual middle points (if the
@@ -39,10 +41,6 @@ public class SegmentIndexItem extends SimpleSpatialObject {
         this.selectPosition = selectPosition;
         this.roadID = roadID;
         this.intervalLength = intervalLength;
-    }
-
-    public Point toPoint() {
-        return new Point(x(), y());
     }
 
     public double x() {
@@ -206,7 +204,7 @@ public class SegmentIndexItem extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("POINT (" + toString() + ")");
+        LOGGER.info("POINT (" + toString() + ")");
     }
 
     @Override

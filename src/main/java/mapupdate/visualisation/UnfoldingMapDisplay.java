@@ -77,7 +77,7 @@ public class UnfoldingMapDisplay extends PApplet {
                     break;
                 }
                 default: {
-                    System.out.println("ERROR! Incorrect visualization option: " + OPTION);
+                    LOGGER.severe("ERROR! Incorrect visualization option: " + OPTION);
                     break;
                 }
             }
@@ -107,12 +107,12 @@ public class UnfoldingMapDisplay extends PApplet {
             int currColor = 0;
             if (currWay.getVisitCount() > prevVisitCount) {
                 if (statistic && prevVisitCount == 0)
-                    System.out.println("The current map contains " + processedRoadSize + " unvisited roads, which accounts for " +
+                    LOGGER.info("The current map contains " + processedRoadSize + " unvisited roads, which accounts for " +
                             processedRoadSize / (double) w.size() * 100 + "% percentage");
                 currColor = colorGradeSize == 0 ? 0 : processedRoadSize / colorGradeSize;
             } else if (currWay.getVisitCount() == prevVisitCount) {
                 currColor = lastColor;
-            } else System.out.println("ERROR! The visit count should not decrease.");
+            } else LOGGER.severe("ERROR! The visit count should not decrease.");
             currLineMarker.setColor(color(255, 255 - currColor, 0));
 //            currLineMarker.setColor(color(192, 192, 192));
             currLineMarker.setStrokeWeight(1);

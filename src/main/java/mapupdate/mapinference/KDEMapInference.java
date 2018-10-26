@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static mapupdate.Main.INFERENCE_FOLDER;
+import static mapupdate.Main.LOGGER;
 import static mapupdate.Main.WORKSPACE;
 
 class KDEMapInference {
@@ -62,7 +63,7 @@ class KDEMapInference {
                 BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String line = "";
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
+                    LOGGER.info(line);
                 }
             }
         } else {
@@ -82,7 +83,7 @@ class KDEMapInference {
                 if (line == null) {
                     break;
                 }
-                System.out.println(line);
+                LOGGER.info(line);
             }
         }
     }

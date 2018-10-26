@@ -6,6 +6,8 @@ import mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.HashSet;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A static grid index model made of n x m cells.
  * <p>
@@ -315,7 +317,7 @@ public class GridModel implements SpatialIndexModel {
 
     @Override
     public void print() {
-        System.out.println("[GRID] [" + sizeX + " x " + sizeY + "]");
+        LOGGER.info("[GRID] [" + sizeX + " x " + sizeY + "]");
         Rectangle cell;
         for (int j = sizeY - 1; j >= 0; j--) {
             for (int i = 0; i < sizeX; i++) {
@@ -324,15 +326,12 @@ public class GridModel implements SpatialIndexModel {
                         cell.minX(), cell.maxY(),
                         cell.maxX(), cell.maxY());
             }
-            System.out.println();
             for (int i = 0; i < sizeX; i++) {
                 cell = grid[i][j];
                 System.out.format("[(%.2f,%.2f)(%.2f,%.2f)] ",
                         cell.minX(), cell.minY(),
                         cell.maxX(), cell.minY());
             }
-            System.out.println();
-            System.out.println();
         }
     }
 

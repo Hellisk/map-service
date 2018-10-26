@@ -6,6 +6,8 @@ import mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.Comparator;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * An immutable container for a simpler representation of
  * any spatial object as a 2D (x,y) coordinate point.
@@ -111,7 +113,7 @@ public final class XYObject<T extends SpatialObject> implements SpatialInterface
      * Print this XYObject to the system output.
      */
     public void print() {
-        System.out.println("XYOBJECT ( " + toString() + " )");
+        LOGGER.info("XYOBJECT ( " + toString() + " )");
     }
 
     /**

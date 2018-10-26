@@ -79,6 +79,19 @@ class HMMProbabilities implements Serializable {
     }
 
     /**
+     * Returns the maximum transition probability so as to fill the breaking gap.
+     *
+     * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
+     * @param timeDiff       time difference [s] between two consecutive GPS measurements.
+     */
+    public double maxTransitionLogProbability(double linearDistance, double timeDiff) {
+        double maxRouteLength = 50 * timeDiff < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8;    // limit the maximum speed to
+//        double maxRouteLength = 50 * timeDiff;
+        double transitionMetric = normalizedTransitionMetric(maxRouteLength, linearDistance, timeDiff);
+        return Distributions.logExponentialDistribution(beta, transitionMetric);
+    }
+
+    /**
      * Returns a transition metric for the transition between two consecutive map matching
      * candidates.
      * <p>

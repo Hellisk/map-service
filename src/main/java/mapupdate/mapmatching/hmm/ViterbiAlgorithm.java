@@ -25,6 +25,8 @@ import mapupdate.util.object.datastructure.Triplet;
 import java.io.Serializable;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Implementation of the Viterbi algorithm for time-inhomogeneous Markov processes,
  * meaning that the set of states and state transition probabilities are not necessarily fixed
@@ -299,19 +301,18 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
     }
 
     /**
-     * @param observation Use only if HMM only starts with first observation.
+     * @param observation Use only when HMM starts with first observation.
      */
     private void initializeStateProbabilities(O observation, Collection<S> candidates,
                                               Map<S, Double> initialLogProbabilities) {
         if (message != null) {
-            System.err.println("ERROR! The message should be empty");
+            LOGGER.severe("ERROR! The message should be empty");
             message = null;
         }
         isBroken = false;
 
-        // Set initial log probability for each start state candidate based on first observation.
-        // Do not assign initialLogProbabilities directly to message to not rely on its iteration
-        // order.
+        // Set initial log probability for each start state candidate based on first observation. Do not assign initialLogProbabilities
+        // directly to message which do not rely on its iteration order.
         final Map<S, Double> initialMessage = new LinkedHashMap<>();
         for (S candidate : candidates) {
             final Double logProbability = initialLogProbabilities.get(candidate);
@@ -323,7 +324,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
 
         isBroken = hmmBreak(initialMessage);
         if (isBroken) {
-            System.err.println("ERROR! The initial state is broken.");
+            LOGGER.severe("ERROR! The initial state is broken.");
             return;
         }
 
@@ -472,12 +473,12 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         }
 
         if (result.isEmpty()) // Otherwise an HMM break would have occurred.
-            System.out.println("ERROR! The HMM breaks without being detected.");
+            LOGGER.severe("ERROR! The HMM breaks without being detected.");
         return result;
     }
 
     /**
-     * Retrieves top k most likely sequence from the internal back pointer sequence.
+     * Retrieves top k most likely sequence from the internal back pointer sequence. The return item can be less than k.
      */
     private List<Pair<List<SequenceState<S, O, D>>, Double>> retrieveRankedSequences() {
         // Otherwise an HMM break would have occurred and message would be null.
@@ -503,7 +504,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
             }
         }
         if (topRankedItems.isEmpty()) {
-            // the matching sequence only contains one point, which is the end point
+            // the matching sequence only contains one  point, which is the end point
             for (S state : lastState) {
                 ExtendedState<S, O, D> es = lastExtendedStates.get(state);
                 SequenceState<S, O, D> currState = new SequenceState<>(es.state, es.observation, null);
@@ -577,7 +578,7 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
                 currCandidateCount++;
             }
         }
-        System.out.println("ERROR! No match result can be extracted.");
+        LOGGER.severe("ERROR! No match result can be extracted.");
         message = null;
         lastExtendedStates = null;
         return new ArrayList<>();
@@ -588,10 +589,10 @@ public class ViterbiAlgorithm<S, O, D> implements Serializable {
         for (int i = 0; i < rankLength; i++) {
             if (i < pathResult.size()) {
                 if (probabilityResult[i] == 0)
-                    System.out.println("ERROR! Zero probability for a valid match sequence: " + pathResult.get(i).toString());
+                    LOGGER.severe("ERROR! Zero probability for a valid match sequence: " + pathResult.get(i).toString());
                 result.add(new Pair<>(pathResult.get(i), probabilityResult[i]));
             } else if (probabilityResult[i] != 0) {
-                System.out.println("ERROR! Positive probability for a null match sequence:" + probabilityResult[i]);
+                LOGGER.severe("ERROR! Positive probability for a null match sequence:" + probabilityResult[i]);
                 probabilityResult[i] = 0;
             }
         }

@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Created by uqpchao on 3/07/2017.
  */
@@ -135,14 +137,14 @@ public class RawMapReader {
                     for (int i = 0; i < numOfType; i++) {
                         if (roadTypeDictionary.containsKey(roadTypeList[i].substring(2)))
                             newRoadWay.setRoadWayTypeBit(roadTypeDictionary.get(roadTypeList[i].substring(2)));
-                        else System.out.println("ERROR! Incorrect road type: " + roadTypeList[i].substring(2));
+                        else LOGGER.severe("ERROR! Incorrect road type: " + roadTypeList[i].substring(2));
                     }
                     // check whether the current road is for pedestrian, cycling or bus, if so, ignore it
                     if (newRoadWay.getRoadWayLevel() == 7 || newRoadWay.getRoadWayLevel() == 9 || newRoadWay.getRoadWayType().get(9)
                             || newRoadWay.getRoadWayType().get(10))
                         continue;
                 } else
-                    System.out.println("ERROR! Incorrect number of road types.");
+                    LOGGER.severe("ERROR! Incorrect number of road types.");
 
                 List<RoadNode> miniNode = new ArrayList<>();
                 Coordinate[] coordinates = edges.getCoordinates();
@@ -201,7 +203,7 @@ public class RawMapReader {
                         break;
                     }
                     default: {
-                        System.out.println("ERROR! The direction indicator number is wrong: " + feature.getAttribute(6).toString());
+                        LOGGER.severe("ERROR! The direction indicator number is wrong: " + feature.getAttribute(6).toString());
                         break;
                     }
                 }
@@ -216,7 +218,7 @@ public class RawMapReader {
         }
 
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-        System.out.println("Raw map read finish, " + removedNodeCount + " nodes are removed due to no edges connected. Total " +
+        LOGGER.info("Raw map read finish, " + removedNodeCount + " nodes are removed due to no edges connected. Total " +
                 "intersections:" + roadGraph.getNodes().size() + ", total intermediate road node points:" + roadWayPointID +
                 ", total road ways: " + roadWayList.size() + ", average road way length: " + roadLength / roadGraph.getWays().size());
         dataStoreEdge.dispose();
@@ -231,7 +233,7 @@ public class RawMapReader {
         } else {
             RoadNode existingNode = id2Node.get(pointID);
             if (existingNode.lon() != newRoadNode.lon() || existingNode.lat() != newRoadNode.lat())
-                System.out.println("ERROR! The same road node has different location");
+                LOGGER.severe("ERROR! The same road node has different location");
         }
     }
 
@@ -324,7 +326,7 @@ public class RawMapReader {
                 for (String p : intermediateNodes) {
                     String[] interNodeInfo = p.split(" ");
                     if (interNodeInfo.length < 2)
-                        System.out.println(p);
+                        LOGGER.info(p);
                     nodeList.add(new RoadNode(miniNodeCount + "-", Double.parseDouble(df.format(Double.parseDouble(interNodeInfo[1]))),
                             Double.parseDouble
                                     (df.format(Double.parseDouble(interNodeInfo[0])))));
@@ -340,7 +342,7 @@ public class RawMapReader {
         this.roadGraph.addNodes(nodes);
         this.roadGraph.addWays(ways);
         mapFileReader.close();
-        System.out.println("Old Beijing map read finish, total intersections: " + nodes.size() + ", total road node points:" +
+        LOGGER.info("Old Beijing map read finish, total intersections: " + nodes.size() + ", total road node points:" +
                 miniNodeCount + ", total road ways: " + ways.size());
         return roadGraph;
     }

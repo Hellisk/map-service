@@ -13,6 +13,8 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * A 2D line segment object. Line segment from coordinate
  * points (x1,y1) to (x2,y2).
@@ -513,7 +515,7 @@ public class Segment extends SimpleSpatialObject {
 
     @Override
     public void print() {
-        System.out.println("SEGMENT " + toString());
+        LOGGER.info("SEGMENT " + toString());
     }
 
     @Override

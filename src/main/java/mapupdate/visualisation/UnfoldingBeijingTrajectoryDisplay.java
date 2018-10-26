@@ -25,7 +25,7 @@ import static mapupdate.Main.*;
 /**
  * Simple Unfolding map app demo.
  *
- * @author uqdalves
+ * @author uqpchao
  */
 //http://unfoldingmaps.org/
 public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
@@ -36,9 +36,9 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
     // 7~10 = unmatched trajectory,initial inference road, merged road, refined road comparison
 
     public void setup() {
-        boolean isActualMap = false;
+        boolean displayActualMap = false;
         size(1760, 990, JAVA2D);
-        this.fullMapDisplay = new UnfoldingMap(this, isActualMap ? new Google.GoogleMapProvider() : new BlankMap.BlankProvider());
+        this.fullMapDisplay = new UnfoldingMap(this, displayActualMap ? new Google.GoogleMapProvider() : new BlankMap.BlankProvider());
         MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
         for (int i = 0; i < trajDisplay.length; i++) {
             this.trajDisplay[i] = new UnfoldingMap(this, new BlankMap.BlankProvider());
@@ -68,7 +68,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
             // read the removed roads
             List<RoadWay> removedRoadList = csvInputMapReader.readRemovedEdges(PERCENTAGE, -1);
-            List<Marker> baseMapMarker = roadWayMarkerGen(roadNetworkGraph.getWays(), isActualMap ? black : blue);
+            List<Marker> baseMapMarker = roadWayMarkerGen(roadNetworkGraph.getWays(), displayActualMap ? black : blue);
             List<Marker> removedMapMarker = roadWayMarkerGen(removedRoadList, green);
             List<Marker> removedWeightedMapMarker = weightedRoadWayMarkerGen(removedRoadList);
             fullMapDisplay.addMarkers(baseMapMarker);
@@ -88,19 +88,19 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
                     MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
             for (Trajectory traj : unmatchedTraj)
-                trajDisplay[6].addMarkers(trajMarkerGen(traj, isActualMap ? black : blue, 2));
+                trajDisplay[6].addMarkers(trajMarkerGen(traj, displayActualMap ? black : blue, 2));
 
             if (PERCENTAGE != 0) {
                 // read inferred edges and display on the map
                 CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
                 List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
-                List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, isActualMap ? black : blue);
+                List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, displayActualMap ? black : blue);
                 trajDisplay[7].addMarkers(inferredEdgeMarker);
 
                 // read merged edges and display on the map
                 CSVMapReader mergedEdgeReader = new CSVMapReader(CACHE_FOLDER);
                 List<RoadWay> mergedEdges = mergedEdgeReader.readNewMapEdge(PERCENTAGE, iteration, true);
-                List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, isActualMap ? black : blue);
+                List<Marker> mergedEdgeMarker = roadWayMarkerGen(mergedEdges, displayActualMap ? black : blue);
                 trajDisplay[8].addMarkers(mergedEdgeMarker);
 
                 // read the most completed map for trajectory comparison. the map before refinement has the most number of roads
@@ -111,7 +111,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                     id2RoadWay.put(w.getID(), w);
                 for (RoadWay w : removedRoadList)
                     id2RoadWay.put(w.getID(), w);
-                List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), isActualMap ? black : blue);
+                List<Marker> backGroundMapMarker = roadWayMarkerGen(iterationMap.getWays(), displayActualMap ? black : blue);
                 trajDisplay[0].addMarkers(backGroundMapMarker);
                 trajDisplay[1].addMarkers(backGroundMapMarker);
                 trajDisplay[2].addMarkers(backGroundMapMarker);
@@ -120,7 +120,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 trajDisplay[5].addMarkers(backGroundMapMarker);
                 // read refined edges and display on the map
                 List<RoadWay> updatedMap = iterationMapReader.readNewMapEdge(PERCENTAGE, 1, false);
-                List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, isActualMap ? black : blue);
+                List<Marker> updatedMapMarker = roadWayMarkerGen(updatedMap, displayActualMap ? black : blue);
                 trajDisplay[9].addMarkers(updatedMapMarker);
 
                 // randomly select and visualize a trajectory and the corresponding matching result on the map
@@ -133,7 +133,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 // update the road way mapping for the look up of matched result
                 for (RoadWay w : rawMap.getWays())
                     id2RoadWay.put(w.getID(), w);
-                List<Marker> backGroundMapMarker = roadWayMarkerGen(rawMap.getWays(), isActualMap ? black : blue);
+                List<Marker> backGroundMapMarker = roadWayMarkerGen(rawMap.getWays(), displayActualMap ? black : blue);
                 trajDisplay[0].addMarkers(backGroundMapMarker);
                 trajDisplay[1].addMarkers(backGroundMapMarker);
                 trajDisplay[2].addMarkers(backGroundMapMarker);
@@ -199,7 +199,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currColor = colorGradeSize == 0 ? 0 : processedRoadSize / colorGradeSize;
             } else if (currWay.getVisitCount() == prevVisitCount) {
                 currColor = lastColor;
-            } else System.out.println("ERROR! The visit count should not decrease.");
+            } else LOGGER.severe("ERROR! The visit count should not decrease.");
             currLineMarker.setColor(color(255, 255 - currColor, 0));
             currLineMarker.setStrokeWeight(1);
             prevVisitCount = currWay.getVisitCount();
@@ -255,7 +255,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currLineMarker.setStrokeWeight(weight);
                 result.add(currLineMarker);
             } else
-                System.out.println("ERROR! Cannot find roadID:" + s);
+                LOGGER.severe("ERROR! Cannot find roadID:" + s);
         }
         return result;
     }

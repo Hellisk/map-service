@@ -2,6 +2,8 @@ package mapupdate.util.object.spatialobject;
 
 import java.util.Comparator;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Implements a simple Spatial-Temporal point (point with time-stamp),
  * with (x,y) coordinates and time-stamp.
@@ -124,6 +126,6 @@ public class STPoint extends Point implements SpatialTemporalObject {
 
     @Override
     public void print() {
-        System.out.println("ST_POINT ( " + toString() + " )");
+        LOGGER.info("ST_POINT ( " + toString() + " )");
     }
 }

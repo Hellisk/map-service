@@ -2,6 +2,8 @@ package mapupdate.util.object.spatialobject;
 
 import mapupdate.util.object.SpatialInterface;
 
+import static mapupdate.Main.LOGGER;
+
 /**
  * Implements a generic immutable 2D vector entity.
  * <br> Vectors starting from origin (0,0) to (vx,vy).
@@ -191,7 +193,7 @@ public class Vector2D
      * Print this Vector to the system output.
      */
     public void print() {
-        System.out.println("VECTOR2D " + toString());
+        LOGGER.info("VECTOR2D " + toString());
     }
 
     @Override
