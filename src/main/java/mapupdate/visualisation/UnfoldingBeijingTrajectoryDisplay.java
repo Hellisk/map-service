@@ -13,7 +13,7 @@ import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 import processing.core.PApplet;
 
@@ -86,7 +86,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             Map<String, List<String>> id2GroundTruthTraj = new HashMap<>();
             Random random = new Random();
             List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
-                    MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
+                    MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
             for (Trajectory traj : unmatchedTraj)
                 trajDisplay[6].addMarkers(trajMarkerGen(traj, displayActualMap ? black : blue, 2));
 
@@ -229,7 +229,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
     private List<Marker> trajMarkerGen(Trajectory traj, int[] color, int weight) {
         List<Marker> result = new ArrayList<>();
         List<Location> locationList = new ArrayList<>();
-        for (STPoint n : traj.getSTPoints()) {
+        for (TrajectoryPoint n : traj.getSTPoints()) {
             Location pointLocation = new Location(n.y(), n.x());
             locationList.add(pointLocation);
         }

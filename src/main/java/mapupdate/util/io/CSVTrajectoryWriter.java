@@ -2,7 +2,7 @@ package mapupdate.util.io;
 
 import mapupdate.util.object.datastructure.PointMatch;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 
 import java.io.BufferedWriter;
@@ -36,14 +36,14 @@ public class CSVTrajectoryWriter {
         File matchedResultFolder;
         File roadIDListFolder;
         if (iteration == -1) {
-            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
         } else {
-            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            matchedResultFolder = new File(this.outputFolder + "matchedResult/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
-            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            roadIDListFolder = new File(this.outputFolder + "matchedRoadID/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
         }
         if (!matchedResultFolder.exists()) {
@@ -151,9 +151,9 @@ public class CSVTrajectoryWriter {
             outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/");
             nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/");
         } else {
-            outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            outputTrajectoryFolder = new File(this.outputFolder + "unmatchedTraj/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
-            nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            nextInputUnmatchedTrajectoryFolder = new File(this.outputFolder + "unmatchedNextInput/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
         }
         int tripCount = 0;
@@ -185,6 +185,7 @@ public class CSVTrajectoryWriter {
                                 .getId() + "_0.txt"));
                         nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
                                 "/trip_" + w.getId() + "_0.txt"));
+                        id2UnmatchedTrajCount.put(w.getId(), 1);
                     } else {
                         String additionalFileName = w.getId() + "_" + id2UnmatchedTrajCount.get(w.getId());
                         bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" +
@@ -193,12 +194,12 @@ public class CSVTrajectoryWriter {
                                 "/trip_" + additionalFileName + ".txt"));
                         id2UnmatchedTrajCount.replace(w.getId(), id2UnmatchedTrajCount.get(w.getId()) + 1);
                     }
-                    Iterator<STPoint> iter = w.iterator();
+                    Iterator<TrajectoryPoint> iter = w.iterator();
                     int startPointCount = pointCount;
                     int matchingPointCount = w.getSTPoints().size();
                     while (iter.hasNext()) {
-                        STPoint p = iter.next();
-                        bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + "\n");
+                        TrajectoryPoint p = iter.next();
+                        bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + "" + p.speed() + " " + p.heading() + "\n");
                         nextInputUnmatchedTrajectory.write(pointCount + "," + p.y() + "," + p.x() + "," + p.time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
                         pointCount++;
                     }

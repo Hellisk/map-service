@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
-import mapupdate.util.function.EuclideanDistanceFunction;
+import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.function.PointDistanceFunction;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -119,10 +119,10 @@ public class Segment extends SimpleSpatialObject {
 
     /**
      * @return The length of this line segment, using default
-     * Euclidean distance.
+     * GreatCircle distance.
      */
     public double length() {
-        return length(new EuclideanDistanceFunction());
+        return length(new GreatCircleDistanceFunction());
     }
 
     /**
@@ -230,8 +230,8 @@ public class Segment extends SimpleSpatialObject {
     /**
      * Check whether the given point p = (x,y) is on this segment.
      *
-     * @param x
-     * @param y
+     * @param x X coordinate.
+     * @param y Y coordinate.
      * @return True if this segment contains the point p = (x,y).
      */
     public boolean contains(double x, double y) {
@@ -259,7 +259,7 @@ public class Segment extends SimpleSpatialObject {
      * Find and return the point where these two line segments
      * intersect (if any).
      *
-     * @param s
+     * @param s Query segment.
      * @return The intersection point between this segment and s.
      * Return null if they do not cross.
      */
@@ -292,8 +292,8 @@ public class Segment extends SimpleSpatialObject {
      * Calculate the projection of the given point p = (x,y)
      * onto this line segment.
      *
-     * @param x
-     * @param y
+     * @param x X coordinate.
+     * @param y Y coordinate.
      * @return The projection of p = (x,y) onto this line segment.
      */
     public Point getProjection(double x, double y) {
@@ -319,62 +319,62 @@ public class Segment extends SimpleSpatialObject {
     }
 
     /**
-     * Calculates the Euclidean distance between this line segment
+     * Calculates the GreatCircle distance between this line segment
      * and the given point (shortest distance).
      *
-     * @param p
-     * @return Point-to-segment Euclidean distance.
+     * @param p Query point.
+     * @return Point-to-segment GreatCircle distance.
      */
     public double distance(Point p) {
         if (p == null) {
             throw new NullPointerException("Point for point-segment "
                     + "distance calculation must not be null.");
         }
-        return new EuclideanDistanceFunction().pointToSegmentDistance(
+        return new GreatCircleDistanceFunction().pointToSegmentDistance(
                 p.x(), p.y(), x1, y1, x2, y2);
     }
 
     /**
-     * Calculates the Euclidean distance between this line segment
+     * Calculates the GreatCircle distance between this line segment
      * and the given point p = (x,y) (shortest distance).
      *
-     * @param x
-     * @param y
-     * @return Point-to-segment Euclidean distance.
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     * @return Point-to-segment GreatCircle distance.
      */
     public double distance(double x, double y) {
-        return new EuclideanDistanceFunction().pointToSegmentDistance(
+        return new GreatCircleDistanceFunction().pointToSegmentDistance(
                 x, y, x1, y1, x2, y2);
     }
 
     /**
-     * Calculates the Euclidean distance between these two
+     * Calculates the GreatCircle distance between these two
      * line segments (shortest distance).
      *
-     * @param s
-     * @return Segment-to-segment Euclidean distance.
+     * @param s Query segment.
+     * @return Segment-to-segment GreatCircle distance.
      */
     public double distance(Segment s) {
         if (s == null) {
             throw new NullPointerException("Segment for segment-segment "
                     + "distance calculation must not be null.");
         }
-        return new EuclideanDistanceFunction().segmentToSegmentDistance(
+        return new GreatCircleDistanceFunction().segmentToSegmentDistance(
                 s.x1, s.x2, s.y1, s.y2, x1, y1, x2, y2);
     }
 
     /**
-     * Calculates the Euclidean distance between this line segment
+     * Calculates the GreatCircle distance between this line segment
      * and the segment s = (x1,y1)(x2,y2) (shortest distance).
      *
      * @param x1 Segment S start-point.
      * @param y1 Segment S start-point.
      * @param x2 Segment S end-point.
      * @param y2 Segment S end-point.
-     * @return Segment-to-segment Euclidean distance.
+     * @return Segment-to-segment GreatCircle distance.
      */
     public double distance(double x1, double y1, double x2, double y2) {
-        return new EuclideanDistanceFunction().segmentToSegmentDistance(
+        return new GreatCircleDistanceFunction().segmentToSegmentDistance(
                 x1, y1, x2, y2, this.x1, this.y1, this.x2, this.y2);
     }
 

@@ -4,7 +4,7 @@ import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.PointMatch;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Segment;
 import mapupdate.util.object.spatialobject.Trajectory;
 
@@ -30,8 +30,9 @@ public class CSVTrajectoryReader {
         String line;
         while ((line = brTrajectory.readLine()) != null) {
             String[] pointInfo = line.split(" ");
-            STPoint newSTPoint = new STPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), (long) Double.parseDouble(pointInfo[2]));
-            newTrajectory.add(newSTPoint);
+            TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
+                    Long.parseLong(pointInfo[2]),Double.parseDouble(pointInfo[3]),Double.parseDouble(pointInfo[4]));
+            newTrajectory.add(newTrajectoryPoint);
         }
         brTrajectory.close();
         return newTrajectory;
@@ -41,14 +42,14 @@ public class CSVTrajectoryReader {
         File matchingPointFileFolder;
         File roadIDFileFolder;
         if (iteration == -1) {
-            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
-            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/");
         } else {
-            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            matchingPointFileFolder = new File(trajectoryFilePath + "matchedResult/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
-            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_POINT_COUNT + "_TI" +
+            roadIDFileFolder = new File(trajectoryFilePath + "matchedRoadID/TP" + MIN_TRAJ_TIME_SPAN + "_TI" +
                     MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + iteration + "/");
         }
         List<TrajectoryMatchingResult> gtResult = new ArrayList<>();
@@ -74,8 +75,8 @@ public class CSVTrajectoryReader {
                         String[] matchInfo = line.split("\\|");
                         if (matchInfo.length == RANK_LENGTH + 1) {
                             String[] pointInfo = matchInfo[0].split(" ");
-                            STPoint currPoint = new STPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), Long
-                                    .parseLong(pointInfo[2]));
+                            TrajectoryPoint currPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), Long
+                                    .parseLong(pointInfo[2]),Double.parseDouble(pointInfo[3]),Double.parseDouble(pointInfo[4]));
                             rawTraj.add(currPoint);
                             for (int j = 0; j < RANK_LENGTH; j++) {
                                 if (matchInfo[j + 1].equals("null")) {

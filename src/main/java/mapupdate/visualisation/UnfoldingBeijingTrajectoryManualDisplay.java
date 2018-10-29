@@ -8,12 +8,10 @@ import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import mapupdate.util.io.CSVMapReader;
 import mapupdate.util.io.CSVTrajectoryReader;
-import mapupdate.util.object.datastructure.Pair;
-import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 import processing.core.PApplet;
 
@@ -158,7 +156,7 @@ public class UnfoldingBeijingTrajectoryManualDisplay extends PApplet {
     private List<Marker> trajMarkerGen(Trajectory traj, int[] color, int weight) {
         List<Marker> result = new ArrayList<>();
         List<Location> locationList = new ArrayList<>();
-        for (STPoint n : traj.getSTPoints()) {
+        for (TrajectoryPoint n : traj.getSTPoints()) {
             Location pointLocation = new Location(n.y(), n.x());
             locationList.add(pointLocation);
         }

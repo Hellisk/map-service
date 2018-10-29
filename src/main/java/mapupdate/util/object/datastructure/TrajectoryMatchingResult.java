@@ -1,6 +1,6 @@
 package mapupdate.util.object.datastructure;
 
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class TrajectoryMatchingResult {
         return this.trajectory.size();
     }
 
-    public STPoint getTrajPoint(int position) {
+    public TrajectoryPoint getTrajPoint(int position) {
         return this.trajectory.get(position);
     }
 

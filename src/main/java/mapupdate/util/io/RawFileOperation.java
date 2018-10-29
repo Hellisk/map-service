@@ -6,7 +6,7 @@ import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadWay;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 
 import java.io.*;
@@ -25,13 +25,13 @@ import static mapupdate.Main.*;
  */
 public class RawFileOperation {
     private int requiredRecordNum;
-    private int minTrajPointNum;
+    private int minTrajTimeSpan;
     private int maxTimeInterval;
     private GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
 
-    public RawFileOperation(int trajCount, int minTrajPointCount, int maxTimeInterval) {
+    RawFileOperation(int trajCount, int minTrajTimeSpan, int maxTimeInterval) {
         this.requiredRecordNum = trajCount;
-        this.minTrajPointNum = minTrajPointCount;
+        this.minTrajTimeSpan = minTrajTimeSpan;
         this.maxTimeInterval = maxTimeInterval;
     }
 
@@ -60,41 +60,41 @@ public class RawFileOperation {
             String[] rawTrajectory = trajectoryInfo[28].split("\\|");
             String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
 
-            if (minTrajPointNum == -1 || rawTrajectory.length > minTrajPointNum) {
+            // test whether the matching result is included in the map
+            if (isMatchingResultNotEnclosed(id2RoadWayMapping, matchedTrajectory)) {
+                continue;
+            }
 
-                // test whether the matching result is included in the map
-                if (isInvalidMatchingResult(id2VisitCountMapping, id2RoadWayMapping, matchedTrajectory))
-                    continue;
-
-                // test whether the raw trajectory is within the map area
-                boolean isInsideTrajectory = true;
-                double firstLon = Double.parseDouble(rawTrajectory[0].split(":")[0]) / 100000;
-                double firstLat = Double.parseDouble(rawTrajectory[0].split(":")[1]) / 100000;
-                if (isInside(firstLon, firstLat, rawMap)) {
-                    long prevTimeDiff = 0;
-                    for (int i = 1; i < rawTrajectory.length; i++) {
-                        double lon = firstLon + (Double.parseDouble(rawTrajectory[i].split(":")[0]) / 100000);
-                        double lat = firstLat + (Double.parseDouble(rawTrajectory[i].split(":")[1]) / 100000);
-                        long currTime = Long.parseLong(rawTrajectory[i].split(":")[3]);
-                        long currTimeDiff = currTime - prevTimeDiff;
-                        if (isInside(lon, lat, rawMap) && (maxTimeInterval == -1 || currTimeDiff <= maxTimeInterval)) {
-                            prevTimeDiff = currTime;
-                        } else {
-                            isInsideTrajectory = false;
-                            break;
-                        }
+            // test whether the raw trajectory is within the map area
+            boolean isInsideTrajectory = true;
+            String[] firstTrajectoryPoint = rawTrajectory[0].split(":");
+            double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
+            double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
+            if (isInside(firstLon, firstLat, rawMap)) {
+                long prevTimeDiff = 0;
+                for (int i = 1; i < rawTrajectory.length; i++) {
+                    String[] currTrajectoryPoint = rawTrajectory[i].split(":");
+                    double lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                    double lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+                    long currTime = Long.parseLong(currTrajectoryPoint[3]);
+                    long currTimeDiff = currTime - prevTimeDiff;
+                    if (isInside(lon, lat, rawMap) && (maxTimeInterval == -1 || currTimeDiff <= maxTimeInterval)) {
+                        prevTimeDiff = currTime;
+                    } else {
+                        isInsideTrajectory = false;
+                        break;
                     }
-                } else {
-                    continue;   // the point is outside the road map area, skip the current trajectory
                 }
+            } else {
+                continue;   // the first point is outside the road map area, skip the current trajectory
+            }
 
-                if (isInsideTrajectory) {   // the current trajectory is selected
-                    for (String s : matchedTrajectory) {
-                        int currCount = id2VisitCountMapping.get(s);
-                        id2VisitCountMapping.replace(s, currCount + 1);
-                    }
-                    tripID++;
+            if (isInsideTrajectory) {   // the current trajectory is selected
+                for (String s : matchedTrajectory) {
+                    int currCount = id2VisitCountMapping.get(s);
+                    id2VisitCountMapping.replace(s, currCount + 1);
                 }
+                tripID++;
             }
         }
 
@@ -116,19 +116,20 @@ public class RawFileOperation {
         }
         LOGGER.info("Beijing map initialization is done. Total number of trajectories: " + tripID + ", max visit count: " +
                 rawMap.getMaxVisitCount() + ", roads visited percentage: " + df.format(totalVisitCount / (double) rawMap.getWays().size() * 100) +
-                "%, high visit:" + df.format(totalHighVisitCount / (double) rawMap.getWays().size() * 100) + "%");
+                "%, visit more than " + visitThreshold + " times :" + df.format(totalHighVisitCount / (double) rawMap.getWays().size() * 100) + "%");
     }
 
     /**
-     * read raw trajectories and filter them with a given size map, all trajectories that are completely inside the map bounds are outputted
+     * Read raw trajectories and filter them with a given size map, all trajectories that pass through the map area for a long period of
+     * time are outputted
      *
      * @param roadGraph Input given map
      * @throws IOException IO exception
      */
     void rawTrajGTResultFilter(RoadNetworkGraph roadGraph) throws IOException {
-        Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of trajectory
-        // visited
-        Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
+        final Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
+        // trajectory visited
+        final Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
 
         initializeMapping(roadGraph, id2VisitCountMapping, id2RoadWayMapping);
 
@@ -147,98 +148,116 @@ public class RawFileOperation {
         long maxTimeDiff = 0;   // the maximum time difference
         long totalTimeDiff = 0;  // total time difference
         long totalNumOfPoint = 0;
+        int numOfCompleteTraj = 0;
+        int numOfPartialTraj = 0;
         // reset the cursor to the start of the current file
         while ((line = brTrajectory.readLine()) != null && (requiredRecordNum == -1 || tripID < requiredRecordNum)) {
             String[] trajectoryInfo = line.split(",");
             String[] rawTrajectoryPointID = trajectoryInfo[28].split("\\|");
             String[] matchedRoadWayID = trajectoryInfo[4].split("\\|");
 
-            if (minTrajPointNum == -1 || rawTrajectoryPointID.length > minTrajPointNum) {
+            // test whether the matching result pass through the area and continuous
+            if (isMatchingResultNotContinuous(id2RoadWayMapping, matchedRoadWayID))
+                continue;
 
-                // test whether the matching result is included in the map
-                if (isInvalidMatchingResult(id2VisitCountMapping, id2RoadWayMapping, matchedRoadWayID))
-                    continue;
+            Trajectory newTraj = new Trajectory();
 
-                Trajectory newTraj = new Trajectory();
-                // test whether the raw trajectory is within the map area
-//                String trajectoryFile = "";
-                boolean isValidTrajectory = true;
-                double firstLon = Double.parseDouble(rawTrajectoryPointID[0].split(":")[0]) / 100000;
-                double firstLat = Double.parseDouble(rawTrajectoryPointID[0].split(":")[1]) / 100000;
-                long tempMaxTime = 0;
-                long tempTotalTime = 0;
-                if (isInside(firstLon, firstLat, roadGraph)) {
-                    long firstTime = Long.parseLong(rawTrajectoryPointID[0].split((":"))[3]);
-                    newTraj.add(firstLon, firstLat, firstTime);
-//                    trajectoryFile += firstLon + " " + firstLat + " " + firstTime + "\n";
-                    double prevLon = firstLon;
-                    double prevLat = firstLat;
-                    long prevTimeDiff = 0;
-                    for (int i = 1; i < rawTrajectoryPointID.length; i++) {
-                        double lon = firstLon + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[0]) / 100000);
-                        double lat = firstLat + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[1]) / 100000);
+            String[] firstTrajectoryPoint = rawTrajectoryPointID[0].split(":");
+            double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
+            double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
+            long firstTime = Long.parseLong(firstTrajectoryPoint[3]);
+            int currIndex = 0;
+            double lon = firstLon;
+            double lat = firstLat;
+            while (!isInside(lon, lat, roadGraph) && currIndex < rawTrajectoryPointID.length - 1) {
+                currIndex++;
+                String[] currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+                lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+            }
+            if (currIndex == rawTrajectoryPointID.length - 1)  // the current trajectory is out of range
+                continue;
+            int startIndex = currIndex;
+            String[] currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+            double currSpeed = Double.parseDouble(currTrajectoryPoint[2]);
+            double currHeading = Double.parseDouble(currTrajectoryPoint[4]);
+            long currTimeOffset = Long.parseLong(currTrajectoryPoint[3]);
+            long time = startIndex == 0 ? firstTime : firstTime + currTimeOffset;
+            newTraj.add(lon, lat, time, currSpeed, currHeading);
+            long currMaxTimeDiff = 0;
+            long currTotalTimeDiff = 0;
+            long prevTimeOffset = time - firstTime;
+            for (currIndex = currIndex + 1; currIndex < rawTrajectoryPointID.length; currIndex++) {
+                currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+                lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+//                double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
+//                if (distance < 2 * SIGMA)
+//                    continue;
+                currTimeOffset = Long.parseLong(currTrajectoryPoint[3]);
+                long currTimeDiff = currTimeOffset - prevTimeOffset;
+                time = firstTime + currTimeOffset;
+                // the new point is inside the area and satisfies the time constraint
+                if (isInside(lon, lat, roadGraph) && currTimeDiff <= (maxTimeInterval == -1 ? Long.MAX_VALUE : maxTimeInterval)) {
+                    currMaxTimeDiff = currMaxTimeDiff > currTimeDiff ? currMaxTimeDiff : currTimeDiff;
+                    currTotalTimeDiff += currTimeDiff;
+                    currSpeed = Double.parseDouble(currTrajectoryPoint[2]);
+                    currHeading = Double.parseDouble(currTrajectoryPoint[4]);
+                    prevTimeOffset = currTimeOffset;
+                    newTraj.add(lon, lat, time, currSpeed, currHeading);
+//                        prevLon = lon;
+//                        prevLat = lat;
+                } else {
+                    break;
+                }
+            }
 
-                        double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
-                        if (distance < 2 * SIGMA)
-                            continue;
-                        long currTime = Long.parseLong(rawTrajectoryPointID[i].split(":")[3]);
-                        long currTimeDiff = currTime - prevTimeDiff;
-                        long time = firstTime + currTime;
-                        // the new point is inside the area and satisfies the time constraint
-                        if (isInside(lon, lat, roadGraph) && currTimeDiff <= (maxTimeInterval == -1 ? Long.MAX_VALUE : maxTimeInterval)) {
-                            tempMaxTime = tempMaxTime > currTimeDiff ? tempMaxTime : currTimeDiff;
-                            tempTotalTime += currTimeDiff;
-                            prevTimeDiff = currTime;
-                            newTraj.add(lon, lat, time);
-//                            trajectoryFile += df.format(lon) + " " + df.format(lat) + " " + time + "\n";
-                            prevLon = lon;
-                            prevLat = lat;
-                        } else {
-                            isValidTrajectory = false;
-                            break;
+            GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
+            if (newTraj.duration() >= minTrajTimeSpan && newTraj.length(distFunc) >= 3 * minTrajTimeSpan) {   // the minimum average
+                // speed should be larger than 10.8km/h
+                newTraj.setId(tripID + "");
+                Pair<Integer, List<String>> newMatchingResult = new Pair<>(tripID, new ArrayList<>());
+                if (startIndex == 0 && currIndex == rawTrajectoryPointID.length) {
+                    for (String s : matchedRoadWayID) {
+                        if (id2VisitCountMapping.containsKey(s)) {
+                            int currCount = id2VisitCountMapping.get(s);
+                            id2VisitCountMapping.replace(s, currCount + 1);
+                            newMatchingResult._2().add(s);
                         }
                     }
+                    numOfCompleteTraj++;
                 } else {
-                    continue;   // the point is outside the road map area, skip the current trajectory
-                }
-
-                if (isValidTrajectory && newTraj.size() > minTrajPointNum) {   // the current trajectory is selected
-//                    BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(createRawTrajFolder.getAbsolutePath() +
-//                            "/trip_" + tripID + ".txt"));
-//                    bwRawTrajectory.write(trajectoryFile);
-//                    BufferedWriter bwMatchedTrajectory = new BufferedWriter(new FileWriter(createMatchedTrajFolder.getAbsolutePath()
-//                            + "/realtrip_" + tripID + ".txt"));
-                    newTraj.setId(tripID + "");
-                    Pair<Integer, List<String>> newMatchingResult = new Pair<>(tripID, new ArrayList<>());
-
+//                    continue;
+                    // only part of the trajectory is selected as the raw trajectory
                     for (String s : matchedRoadWayID) {
-                        int currCount = id2VisitCountMapping.get(s);
-                        id2VisitCountMapping.replace(s, currCount + 1);
-                        newMatchingResult._2().add(s);
-//                        bwMatchedTrajectory.write(s + "\n");
+                        if (id2VisitCountMapping.containsKey(s)) {
+                            int currCount = id2VisitCountMapping.get(s);
+                            id2VisitCountMapping.replace(s, currCount + 1);
+                            newMatchingResult._2().add(s);
+                        }
                     }
-
-                    resultTrajList.add(newTraj);
-                    gtResultRoadWayList.add(newMatchingResult);
-//                    bwRawTrajectory.close();
-//                    bwMatchedTrajectory.close();
-                    maxTimeDiff = maxTimeDiff > tempMaxTime ? maxTimeDiff : tempMaxTime;
-                    totalTimeDiff += tempTotalTime;
-                    totalNumOfPoint += newTraj.size();
-                    tripID++;
+                    numOfPartialTraj++;
                 }
+
+                resultTrajList.add(newTraj);
+                gtResultRoadWayList.add(newMatchingResult);
+                maxTimeDiff = maxTimeDiff > currMaxTimeDiff ? maxTimeDiff : currMaxTimeDiff;
+                totalTimeDiff += currTotalTimeDiff;
+                totalNumOfPoint += newTraj.size();
+                tripID++;
             }
         }
 
-        writeTrajectoryFilterResult(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
+        writeTrajectoryFile(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
 
         roadGraph.setMaxVisitCount(0);
         for (RoadWay w : roadGraph.getWays()) {
             w.setVisitCount(id2VisitCountMapping.get(w.getID()));
         }
-        LOGGER.info(tripID + " trajectories extracted, the average length is " + (int) (totalNumOfPoint / tripID));
+        LOGGER.info(tripID + " trajectories extracted, including " + numOfCompleteTraj + " complete trajectories and " + numOfPartialTraj +
+                " partial ones. The average length is " + (int) (totalNumOfPoint / tripID));
         LOGGER.info("The maximum sampling interval is " + maxTimeDiff + "s, and the average time interval is " +
-                totalTimeDiff / (totalNumOfPoint - tripID));
+                totalTimeDiff / (totalNumOfPoint - tripID) + ".");
     }
 
     /**
@@ -246,7 +265,7 @@ public class RawFileOperation {
      * ground-truth result is not reliable.
      *
      * @param roadGraph   The resized map
-     * @param rawGrantMap   The map cropped by the bounding box
+     * @param rawGrantMap The map cropped by the bounding box
      * @throws IOException
      * @throws InterruptedException
      * @throws ExecutionException
@@ -274,63 +293,76 @@ public class RawFileOperation {
         cleanPath(createMatchedTrajFolder);
 
         List<Trajectory> tempTrajList = new ArrayList<>();
-        HashMap<Integer, String[]> id2MatchResult = new HashMap<>();
+        HashMap<Integer, String[]> id2MatchingResult = new HashMap<>();
         List<Trajectory> resultTrajList = new ArrayList<>();
         List<Pair<Integer, List<String>>> gtResultRoadWayList = new ArrayList<>();
         String line;
         int tripID = 0;
         long totalNumOfPoint = 0;
         // reset the cursor to the start of the current file
-        while ((line = brTrajectory.readLine()) != null && (requiredRecordNum == -1 || tempTrajList.size() < 2 * requiredRecordNum)) {
+        while ((line = brTrajectory.readLine()) != null && (requiredRecordNum == -1 || tempTrajList.size() < 1.5 * requiredRecordNum)) {
             String[] trajectoryInfo = line.split(",");
             String[] rawTrajectoryPointID = trajectoryInfo[28].split("\\|");
+            String[] matchedRoadWayID = trajectoryInfo[4].split("\\|");
 
-            if (minTrajPointNum == -1 || rawTrajectoryPointID.length > minTrajPointNum) {
+            // test whether the matching result pass through the area and continuous
+            if (isMatchingResultNotContinuous(id2RoadWayMapping, matchedRoadWayID))
+                continue;
 
-                Trajectory newTraj = new Trajectory();
-                // test whether the raw trajectory is within the map area
-//                String trajectoryFile = "";
-                boolean isValidTrajectory = true;
-                double firstLon = Double.parseDouble(rawTrajectoryPointID[0].split(":")[0]) / 100000;
-                double firstLat = Double.parseDouble(rawTrajectoryPointID[0].split(":")[1]) / 100000;
-                if (isInside(firstLon, firstLat, roadGraph)) {
-                    long firstTime = Long.parseLong(rawTrajectoryPointID[0].split((":"))[3]);
-                    newTraj.add(firstLon, firstLat, firstTime);
-//                    trajectoryFile += firstLon + " " + firstLat + " " + firstTime + "\n";
-                    double prevLon = firstLon;
-                    double prevLat = firstLat;
-                    long prevTimeDiff = 0;
-                    for (int i = 1; i < rawTrajectoryPointID.length; i++) {
-                        double lon = firstLon + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[0]) / 100000);
-                        double lat = firstLat + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[1]) / 100000);
+            Trajectory newTraj = new Trajectory();
 
-                        double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
-                        if (distance < 2 * SIGMA)
-                            continue;
-                        long currTime = Long.parseLong(rawTrajectoryPointID[i].split(":")[3]);
-                        long currTimeDiff = currTime - prevTimeDiff;
-                        long time = firstTime + currTime;
-                        // the new point is inside the area and satisfies the time constraint
-                        if (isInside(lon, lat, roadGraph) && currTimeDiff <= (maxTimeInterval == -1 ? Long.MAX_VALUE : maxTimeInterval)) {
-                            prevTimeDiff = currTime;
-                            newTraj.add(lon, lat, time);
-//                            trajectoryFile += df.format(lon) + " " + df.format(lat) + " " + time + "\n";
-                            prevLon = lon;
-                            prevLat = lat;
-                        } else {
-                            isValidTrajectory = false;
-                            break;
-                        }
-                    }
+            String[] firstTrajectoryPoint = rawTrajectoryPointID[0].split(":");
+            double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
+            double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
+            long firstTime = Long.parseLong(firstTrajectoryPoint[3]);
+            int currIndex = 0;
+            double lon = firstLon;
+            double lat = firstLat;
+            while (!isInside(lon, lat, roadGraph) && currIndex < rawTrajectoryPointID.length - 1) {
+                currIndex++;
+                String[] currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+                lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+            }
+            if (currIndex == rawTrajectoryPointID.length - 1)  // the current trajectory is out of range
+                continue;
+            int startIndex = currIndex;
+            String[] currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+            double currSpeed = Double.parseDouble(currTrajectoryPoint[2]);
+            double currHeading = Double.parseDouble(currTrajectoryPoint[4]);
+            long currTimeOffset = Long.parseLong(currTrajectoryPoint[3]);
+            long time = startIndex == 0 ? firstTime : firstTime + currTimeOffset;
+            newTraj.add(lon, lat, time, currSpeed, currHeading);
+            long prevTimeOffset = time - firstTime;
+            for (currIndex = currIndex + 1; currIndex < rawTrajectoryPointID.length; currIndex++) {
+                currTrajectoryPoint = rawTrajectoryPointID[currIndex].split(":");
+                lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+//                double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
+//                if (distance < 2 * SIGMA)
+//                    continue;
+                currTimeOffset = Long.parseLong(currTrajectoryPoint[3]);
+                long currTimeDiff = currTimeOffset - prevTimeOffset;
+                time = firstTime + currTimeOffset;
+                // the new point is inside the area and satisfies the time constraint
+                if (isInside(lon, lat, roadGraph) && currTimeDiff <= (maxTimeInterval == -1 ? Long.MAX_VALUE : maxTimeInterval)) {
+                    currSpeed = Double.parseDouble(currTrajectoryPoint[2]);
+                    currHeading = Double.parseDouble(currTrajectoryPoint[4]);
+                    prevTimeOffset = currTimeOffset;
+                    newTraj.add(lon, lat, time, currSpeed, currHeading);
+//                        prevLon = lon;
+//                        prevLat = lat;
                 } else {
-                    continue;   // the point is outside the road map area, skip the current trajectory
+                    break;
                 }
+            }
 
-                if (isValidTrajectory && newTraj.size() > minTrajPointNum) {   // the current trajectory is selected
-                    newTraj.setId(tripID + "");
-                    tempTrajList.add(newTraj);
-                    tripID++;
-                }
+            GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
+            if (newTraj.duration() >= minTrajTimeSpan && newTraj.length(distFunc) >= 3 * minTrajTimeSpan) {   // the minimum average
+                // speed should be larger than 10.8km/h
+                newTraj.setId(tripID + "");
+                tempTrajList.add(newTraj);
+                tripID++;
             }
         }
         LOGGER.info("Trajectory filter finished, total number of candidates: " + tripID + ". Start the ground-truth map-matching.");
@@ -348,7 +380,7 @@ public class RawFileOperation {
                         return null;
                     String[] bestMatchWayList = result._1().getBestMatchWayList().toArray(new String[0]);
                     // test whether the matching result is included in the map
-                    if (isInvalidMatchingResult(id2VisitCountSmallMapping, id2RoadWayMapping, bestMatchWayList))
+                    if (isMatchingResultNotContinuous(id2RoadWayMapping, bestMatchWayList))
                         return null;
                     return new Pair<>(Integer.parseInt(trajectory.getId()), bestMatchWayList);
                 }));
@@ -360,35 +392,31 @@ public class RawFileOperation {
         for (Pair<Integer, String[]> matchedResult : matchedResultList) {
             if (matchedResult != null) {
                 matchedResultCount++;
-                id2MatchResult.put(matchedResult._1(), matchedResult._2());
+                id2MatchingResult.put(matchedResult._1(), matchedResult._2());
             }
         }
         LOGGER.info("Ground-truth matching complete. Total number of valid matching result: " + matchedResultCount);
 
         tripID = 0;     // reset the trip ID for final trajectory id assignment
         for (Trajectory currTraj : tempTrajList) {
-            if (id2MatchResult.containsKey(Integer.parseInt(currTraj.getId()))) {
-
-                Pair<Integer, List<String>> newMatchingResult = new Pair<>(tripID, new ArrayList<>());
-
-                String[] matchedRoadWayID = id2MatchResult.get(Integer.parseInt(currTraj.getId()));
-                for (String s : matchedRoadWayID) {
-                    int currCount = id2VisitCountSmallMapping.get(s);
-                    id2VisitCountSmallMapping.replace(s, currCount + 1);
-                    newMatchingResult._2().add(s);
+            if (id2MatchingResult.containsKey(Integer.parseInt(currTraj.getId()))) {
+                String[] matchedRoadWayID = id2MatchingResult.get(Integer.parseInt(currTraj.getId()));
+                // test whether the matching result pass through the area and continuous
+                if (!isMatchingResultNotEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
+                    Pair<Integer, List<String>> newMatchingResult = new Pair<>(tripID, Arrays.asList(matchedRoadWayID));
+                    currTraj.setId(tripID + "");
+                    resultTrajList.add(currTraj);
+                    gtResultRoadWayList.add(newMatchingResult);
+                    totalNumOfPoint += currTraj.size();
+                    tripID++;
                 }
-                currTraj.setId(tripID + "");
-                resultTrajList.add(currTraj);
-                gtResultRoadWayList.add(newMatchingResult);
-                totalNumOfPoint += currTraj.size();
-                tripID++;
             }
         }
-        if (requiredRecordNum != -1 && tempTrajList.size() == 2 * requiredRecordNum && tripID < requiredRecordNum)
+        if (requiredRecordNum != -1 && tempTrajList.size() == 1.5 * requiredRecordNum && tripID < requiredRecordNum)
             throw new IllegalArgumentException("ERROR! The cache for trajectory filter is too small. The final trajectory size is :" + tripID);
         LOGGER.info("Ground-truth trajectory result generated.");
 
-        writeTrajectoryFilterResult(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
+        writeTrajectoryFile(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
 
         // visit statistics
         int visitThreshold = 5;
@@ -429,13 +457,14 @@ public class RawFileOperation {
                 df.format((totalHighVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%.");
     }
 
-    private void writeTrajectoryFilterResult(List<Trajectory> resultTrajList, List<Pair<Integer, List<String>>> gtResultRoadWayList, File createRawTrajFolder, File createMatchedTrajFolder) {
+    private void writeTrajectoryFile(List<Trajectory> resultTrajList, List<Pair<Integer, List<String>>> gtResultRoadWayList, File createRawTrajFolder, File createMatchedTrajFolder) {
         DecimalFormat df = new DecimalFormat("0.00000");
         if (resultTrajList == null || resultTrajList.isEmpty())
-            throw new NullPointerException("ERROR! The filtered trajectory result list is empty.");
+            throw new NullPointerException("ERROR! The output trajectory result list is empty.");
         if (gtResultRoadWayList == null || gtResultRoadWayList.isEmpty())
-            throw new NullPointerException("ERROR! The filtered trajectory matching result list is empty.");
-
+            throw new NullPointerException("ERROR! The output trajectory matching result list is empty.");
+        if (resultTrajList.size() != gtResultRoadWayList.size())
+            throw new IllegalArgumentException("ERROR! The counts of the output trajectories and their matching results are different.");
         Stream<Trajectory> resultTrajStream = resultTrajList.stream();
         Stream<Pair<Integer, List<String>>> gtResultRoadWayStream = gtResultRoadWayList.stream();
 
@@ -445,8 +474,8 @@ public class RawFileOperation {
             try {
                 BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(createRawTrajFolder.getAbsolutePath() + "/trip_" +
                         trajectory.getId() + ".txt"));
-                for (STPoint p : trajectory) {
-                    bwRawTrajectory.write(df.format(p.x()) + " " + df.format(p.y()) + " " + p.time() + "\n");
+                for (TrajectoryPoint p : trajectory) {
+                    bwRawTrajectory.write(df.format(p.x()) + " " + df.format(p.y()) + " " + p.time() + " " + p.speed() + " " + p.heading() + "\n");
                 }
                 bwRawTrajectory.close();
             } catch (IOException e) {
@@ -476,22 +505,22 @@ public class RawFileOperation {
     }
 
     /**
-     * Check whether the ground-truth map-matching result satisfy the condition, all roads must be included in the map area and the
+     * Check whether the ground-truth map-matching result satisfy the conditions that all roads must be included in the map area and the
      * map-matching result must be continuous.
      *
-     * @param id2VisitCountMapping The road ID and the corresponding visit count.
-     * @param id2RoadWayMapping    The road ID and the corresponding road way object.
-     * @param matchedRoadWayID     The list of ground-truth map-matching result.
+     * @param id2RoadWayMapping The road ID and the corresponding road way object.
+     * @param matchedRoadWayID  The list of ground-truth map-matching result.
      * @return False if all map-matching result satisfy the requirement, otherwise true.
      */
-    private boolean isInvalidMatchingResult(Map<String, Integer> id2VisitCountMapping, Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+    private boolean isMatchingResultNotEnclosed(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
         RoadWay prevMatchRoad = null;
         for (String s : matchedRoadWayID) {
-            if (!id2VisitCountMapping.containsKey(s)) {
+            if (!id2RoadWayMapping.containsKey(s)) { // current match road is not included in the map
                 return true;
             } else if (prevMatchRoad != null) {    // check the connectivity of the match roadID
                 RoadWay currRoad = id2RoadWayMapping.get(s);
                 if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID())) {  // break happens
+//                    System.out.println("Matching result is not continuous.");
                     return true;
                 } else
                     prevMatchRoad = id2RoadWayMapping.get(s);
@@ -500,6 +529,38 @@ public class RawFileOperation {
             }
         }
         return false;
+    }
+
+    /**
+     * Check whether the ground-truth map-matching result satisfy the conditions that all roads must be included in the map area and the
+     * map-matching result must be continuous.
+     *
+     * @param id2RoadWayMapping The road ID and the corresponding road way object.
+     * @param matchedRoadWayID  The list of ground-truth map-matching result.
+     * @return False if all map-matching result satisfy the requirement, otherwise true.
+     */
+    private boolean isMatchingResultNotContinuous(Map<String, RoadWay> id2RoadWayMapping,
+                                                  String[] matchedRoadWayID) {
+        RoadWay prevMatchRoad = null;
+        boolean isNotTravelled = true;    // the current trajectory pass the map area
+        for (String s : matchedRoadWayID) {
+            if (id2RoadWayMapping.containsKey(s)) { // current match road is included in the map
+                isNotTravelled = false;
+                if (prevMatchRoad != null) {    // check the connectivity of the match roadID
+                    RoadWay currRoad = id2RoadWayMapping.get(s);
+                    if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID())) {  // break happens
+//                        System.out.println("Matching result is not continuous.");
+                        return true;
+                    } else
+                        prevMatchRoad = id2RoadWayMapping.get(s);
+                } else {
+                    prevMatchRoad = id2RoadWayMapping.get(s);
+                }
+            } else {
+                prevMatchRoad = null;
+            }
+        }
+        return isNotTravelled;
     }
 
     private void initializeMapping(RoadNetworkGraph roadGraph, Map<String, Integer> id2VisitCountMapping, Map<String, RoadWay> id2RoadWayMapping) {
@@ -591,22 +652,28 @@ public class RawFileOperation {
 
             // generate trajectory object
             Trajectory traj = new Trajectory();
-            double firstLon = Double.parseDouble(rawTrajectoryPointID[0].split(":")[0]) / 100000;
-            double firstLat = Double.parseDouble(rawTrajectoryPointID[0].split(":")[1]) / 100000;
-            long firstTime = Long.parseLong(rawTrajectoryPointID[0].split((":"))[3]);
-            STPoint currPoint = new STPoint(firstLon, firstLat, firstTime);
+            String[] firstTrajectoryPoint = rawTrajectoryPointID[0].split(":");
+            double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
+            double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
+            long firstTime = Long.parseLong(firstTrajectoryPoint[3]);
+            double currSpeed = Double.parseDouble(firstTrajectoryPoint[2]);
+            double currHeading = Double.parseDouble(firstTrajectoryPoint[4]);
+            TrajectoryPoint currPoint = new TrajectoryPoint(firstLon, firstLat, firstTime, currSpeed, currHeading);
             traj.add(currPoint);
             double prevLon = firstLon;
             double prevLat = firstLat;
             for (int i = 1; i < rawTrajectoryPointID.length; i++) {
-                double lon = firstLon + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[0]) / 100000);
-                double lat = firstLat + (Double.parseDouble(rawTrajectoryPointID[i].split(":")[1]) / 100000);
-                long currTime = Long.parseLong(rawTrajectoryPointID[i].split(":")[3]);
+                String[] currTrajectoryPoint = rawTrajectoryPointID[i].split(":");
+                double lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+                double lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+                long currTime = Long.parseLong(currTrajectoryPoint[3]);
                 double distance = distFunc.pointToPointDistance(prevLon, prevLat, lon, lat);
                 if (distance < minDist)
                     continue;
                 long time = firstTime + currTime;
-                currPoint = new STPoint(lon, lat, time);
+                currSpeed = Double.parseDouble(currTrajectoryPoint[2]);
+                currHeading = Double.parseDouble(currTrajectoryPoint[4]);
+                currPoint = new TrajectoryPoint(lon, lat, time, currSpeed, currHeading);
                 traj.add(currPoint);
                 prevLon = lon;
                 prevLat = lat;

@@ -1,6 +1,6 @@
 package mapupdate.util.io;
 
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,8 +50,8 @@ public class XMLTrajectoryReader {
         String line;
         while ((line = brTrajectory.readLine()) != null) {
             String[] pointInfo = line.split("\t");
-            STPoint newSTPoint = new STPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), (long) Double.parseDouble(pointInfo[2]));
-            newTrajectory.add(newSTPoint);
+            TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), (long) Double.parseDouble(pointInfo[2]));
+            newTrajectory.add(newTrajectoryPoint);
         }
         brTrajectory.close();
         return newTrajectory;

@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
-import mapupdate.util.function.EuclideanDistanceFunction;
+import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.function.PointDistanceFunction;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -23,7 +23,7 @@ import static mapupdate.Main.LOGGER;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class Trajectory extends ComplexSpatialObject<STPoint> implements SpatialTemporalObject {
+public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements SpatialTemporalObject {
     // auxiliary LineString from JTS oldversion
     private com.vividsolutions.jts.geom.
             LineString JTSLineString = null;
@@ -37,23 +37,23 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         this.setId(id);
     }
 
-    public Trajectory(List<STPoint> pointList) {
+    public Trajectory(List<TrajectoryPoint> pointList) {
         super(pointList.size());
         this.addAll(pointList);
     }
 
-    public Trajectory(STPoint... points) {
+    public Trajectory(TrajectoryPoint... points) {
         super(points.length);
         this.addAll(Arrays.asList(points));
     }
 
-    public Trajectory(String id, List<STPoint> pointList) {
+    public Trajectory(String id, List<TrajectoryPoint> pointList) {
         super(pointList.size());
         this.setId(id);
         this.addAll(pointList);
     }
 
-    public Trajectory(String id, STPoint... points) {
+    public Trajectory(String id, TrajectoryPoint... points) {
         super(points.length);
         this.setId(id);
         this.addAll(Arrays.asList(points));
@@ -61,24 +61,20 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     @Override
     public List<Point> getCoordinates() {
-        List<Point> list = new ArrayList<Point>(size());
-        for (Point p : this) {
-            list.add(p);
-        }
+        List<Point> list = new ArrayList<>(size());
+        list.addAll(this);
         return list;
     }
 
-    public List<STPoint> getSTPoints() {
-        List<STPoint> list = new ArrayList<>(size());
-        for (STPoint p : this) {
-            list.add(p);
-        }
+    public List<TrajectoryPoint> getSTPoints() {
+        List<TrajectoryPoint> list = new ArrayList<>(size());
+        list.addAll(this);
         return list;
     }
 
     @Override
     public List<Segment> getEdges() {
-        List<Segment> list = new ArrayList<Segment>();
+        List<Segment> list = new ArrayList<>();
         Point pi, pj;
         for (int i = 0; i < size() - 1; i++) {
             pi = this.get(i);
@@ -88,13 +84,13 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         return list;
     }
 
-    public List<STSegment> getSTEdges() {
-        List<STSegment> list = new ArrayList<STSegment>();
-        STPoint pi, pj;
+    public List<TrajectorySegment> getSTEdges() {
+        List<TrajectorySegment> list = new ArrayList<>();
+        TrajectoryPoint pi, pj;
         for (int i = 0; i < size() - 1; i++) {
             pi = this.get(i);
             pj = this.get(i + 1);
-            list.add(new STSegment(pi, pj));
+            list.add(new TrajectorySegment(pi, pj));
         }
         return list;
     }
@@ -103,15 +99,23 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Adds a spatial-temporal point to this trajectory.
      */
     public void add(double x, double y, long time) {
-        this.add(new STPoint(x, y, time));
+        this.add(new TrajectoryPoint(x, y, time));
     }
+
+    /**
+     * Adds a spatial-temporal point to this trajectory.
+     */
+    public void add(double x, double y, long time, double speed, double heading) {
+        this.add(new TrajectoryPoint(x, y, time, speed, heading));
+    }
+
 
     /**
      * Merges two trajectories.
      * Appends a trajectory t to the end of this trajectory.
      *
      * @return This merged trajectory.
-     * @throws NullPointerException
+     * @throws NullPointerException Empty input trajectory.
      */
     public Trajectory add(Trajectory t) {
         if (t == null) {
@@ -192,11 +196,13 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Return the average sample rate of the points in
      * this trajectory (average time between every sample
      * point).
+     *
+     * @return Average time interval.
      */
     public double samplingRate() {
         if (!this.isEmpty()) {
             double rate = 0.0;
-            STPoint pi, pj;
+            TrajectoryPoint pi, pj;
             for (int i = 0; i < this.size() - 1; i++) {
                 pi = this.get(i);
                 pj = this.get(i + 1);
@@ -210,7 +216,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     /**
      * The 'head' of this trajectory: First sample point.
      */
-    public STPoint head() {
+    public TrajectoryPoint head() {
         if (!this.isEmpty()) {
             return this.get(0);
         }
@@ -220,7 +226,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     /**
      * The 'tail' of this trajectory: Last sample point.
      */
-    public STPoint tail() {
+    public TrajectoryPoint tail() {
         if (!this.isEmpty()) {
             return this.get(this.size() - 1);
         }
@@ -233,7 +239,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * <p>
      * Note: trajectory index starts from 0 (zero).
      *
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException Trajectory does not contain the specific index
      */
     public Trajectory subTrajectory(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > size() || beginIndex > endIndex) {
@@ -258,7 +264,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     @Override
     public boolean isClosed() {
-        if (this == null || size() < 2) return false;
+        if (size() < 2) return false;
         return get(0).equals2D(get(size() - 1));
     }
 
@@ -279,33 +285,6 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
         return JTSLineString;
     }
 
-
-    /**
-     * Set the spatial-temporal coordinate
-     * attributes of this trajectory.
-     */
-    public void setSTCoordinates(
-            double[] xValues,
-            double[] yValues,
-            long[] timeValues) {
-        if (xValues == null || yValues == null ||
-                timeValues == null) {
-            throw new NullPointerException("Coordinates attributes "
-                    + "arrays must not be null.");
-        }
-        if (xValues.length != yValues.length ||
-                xValues.length != timeValues.length) {
-            throw new IllegalArgumentException("Coordinates attributes "
-                    + "arrays must be of equal size.");
-        }
-        this.clear();
-        for (int i = 0; i < xValues.length; i++) {
-            add(xValues[i],
-                    yValues[i],
-                    timeValues[i]);
-        }
-    }
-
     /**
      * Returns an array with the X coordinates of
      * this trajectory sample points.
@@ -313,7 +292,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     public double[] getXValues() {
         double[] result = new double[this.size()];
         int i = 0;
-        for (STPoint p : this) {
+        for (TrajectoryPoint p : this) {
             result[i++] = p.x();
         }
         return result;
@@ -326,7 +305,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     public double[] getYValues() {
         double[] result = new double[this.size()];
         int i = 0;
-        for (STPoint p : this) {
+        for (TrajectoryPoint p : this) {
             result[i++] = p.y();
         }
         return result;
@@ -339,7 +318,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     public long[] getTimeValues() {
         long[] result = new long[this.size()];
         int i = 0;
-        for (STPoint p : this) {
+        for (TrajectoryPoint p : this) {
             result[i++] = p.time();
         }
         return result;
@@ -392,7 +371,7 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
     @Override
     public Trajectory clone() {
         Trajectory clone = new Trajectory();
-        for (STPoint p : this) {
+        for (TrajectoryPoint p : this) {
             clone.add(p.clone());
         }
         super.cloneTo(clone);
@@ -401,11 +380,11 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     @Override
     public String toString() {
-        String s = this.getId() + " ( ";
-        for (STPoint p : this) {
-            s += ", " + p.toString();
+        StringBuilder s = new StringBuilder(this.getId() + " ( ");
+        for (TrajectoryPoint p : this) {
+            s.append(", ").append(p.toString());
         }
-        s = s.replaceFirst(",", "");
+        s = new StringBuilder(s.toString().replaceFirst(",", ""));
         return s + " )";
     }
 
@@ -437,19 +416,15 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
 
     /**
      * Compare trajectories by LENGTH in ascending order.
-     * Euclidean distance comparator only.
+     * GreatCircle distance comparator only.
      */
     public static final Comparator<Trajectory> LENGTH_COMPARATOR =
             new Comparator<Trajectory>() {
-                PointDistanceFunction dist = new EuclideanDistanceFunction();
+                PointDistanceFunction dist = new GreatCircleDistanceFunction();
 
                 @Override
                 public int compare(Trajectory o1, Trajectory o2) {
-                    if (o1.length(dist) < o2.length(dist))
-                        return -1;
-                    if (o1.length(dist) > o2.length(dist))
-                        return 1;
-                    return 0;
+                    return Double.compare(o1.length(dist), o2.length(dist));
                 }
             };
 
@@ -457,32 +432,19 @@ public class Trajectory extends ComplexSpatialObject<STPoint> implements Spatial
      * Compare trajectories by time DURATION in ascending order.
      */
     public static final Comparator<Trajectory> DURATION_COMPARATOR =
-            new Comparator<Trajectory>() {
-                @Override
-                public int compare(Trajectory o1, Trajectory o2) {
-                    if (o1.duration() < o2.duration())
-                        return -1;
-                    if (o1.duration() > o2.duration())
-                        return 1;
-                    return 0;
-                }
-            };
+            Comparator.comparingLong(Trajectory::duration);
 
     /**
      * Compare trajectories by SPEED in ascending order.
-     * Euclidean space only.
+     * GreatCircle space only.
      */
     public static final Comparator<Trajectory> SPEED_COMPARATOR =
             new Comparator<Trajectory>() {
-                PointDistanceFunction dist = new EuclideanDistanceFunction();
+                PointDistanceFunction dist = new GreatCircleDistanceFunction();
 
                 @Override
                 public int compare(Trajectory o1, Trajectory o2) {
-                    if (o1.speed(dist) < o2.speed(dist))
-                        return -1;
-                    if (o1.speed(dist) > o2.speed(dist))
-                        return 1;
-                    return 0;
+                    return Double.compare(o1.speed(dist), o2.speed(dist));
                 }
             };
 

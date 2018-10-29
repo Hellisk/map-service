@@ -14,7 +14,7 @@ import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
 import processing.core.PApplet;
 
@@ -87,7 +87,7 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
     private List<Marker> trajMarkerGen(Trajectory currTraj, int[] color, int weight) {
         List<Marker> result = new ArrayList<>();
         List<Location> locationList = new ArrayList<>();
-        for (STPoint n : currTraj.getSTPoints()) {
+        for (TrajectoryPoint n : currTraj.getSTPoints()) {
             Location pointLocation = new Location(n.y(), n.x());
             locationList.add(pointLocation);
         }

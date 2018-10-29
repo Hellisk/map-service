@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,8 +31,8 @@ public class Main {
     /* environmental settings */
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
     private final static int BB_OPTION = 1;          // 1 = Beijing-S, 2 = Beijing-M, 3 = Beijing-L
-    public final static int WORKSPACE = 2; // 1 = home, 2 = school, 3 = server
-    public final static int MIN_TRAJ_POINT_COUNT = 5; // the minimal number of point required in a trajectory. -1 = no requirement
+    public final static int WORKSPACE = 1; // 1 = home, 2 = school, 3 = server
+    public final static int MIN_TRAJ_TIME_SPAN = 180; // the minimal time span required for a trajectory. -1 = no requirement
     public final static int MAX_TIME_INTERVAL = 120; // the maximum time interval within a trajectory -1 = no requirement
 
     /* tunable parameters */
@@ -80,10 +79,10 @@ public class Main {
     public final static String RAW_TRAJECTORY = ROOT_PATH + "raw/trajectory/";
     public final static String GT_MAP = ROOT_PATH + "groundTruth/map/";  // ground-truth road network
     public final static String GT_MATCHING_RESULT =
-            ROOT_PATH + "groundTruth/matchingResult/M" + BB_OPTION + "_TP" + MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";   // the map-matched trajectory dataset
+            ROOT_PATH + "groundTruth/matchingResult/M" + BB_OPTION + "_TP" + MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";   // the map-matched trajectory dataset
     public final static String INPUT_MAP = ROOT_PATH + "input/map/"; // the map with removed roads
     public final static String INPUT_TRAJECTORY =
-            ROOT_PATH + "input/trajectory/M" + BB_OPTION + "_TP" + MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";    // input trajectory dataset
+            ROOT_PATH + "input/trajectory/M" + BB_OPTION + "_TP" + MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/";    // input trajectory dataset
     public final static String OUTPUT_FOLDER = ROOT_PATH + "output/";
     public final static String CACHE_FOLDER = ROOT_PATH + "cache/";
     public final static String INFERENCE_FOLDER = WORKSPACE == 3 ? "/home/uqpchao/data/mapInference/" : ROOT_PATH + "mapInference/";
@@ -101,8 +100,8 @@ public class Main {
 
             LOGGER.info("Start working on the beijing dataset...");
 
-            // process the raw data and convert them into standard format
-            rawMapInitialization();
+//            // process the raw data and convert them into standard format
+//            rawMapInitialization();
 
             // pre-processing the data so that the map and the trajectories are filtered
             dataPreprocessing(true);
@@ -146,7 +145,7 @@ public class Main {
                     BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
                     String localDir = System.getProperty("user.dir");
                     mapInference.KDEMapInferenceProcess(localDir + "/src/main/python/", CACHE_FOLDER + "unmatchedNextInput/TP" +
-                            MIN_TRAJ_POINT_COUNT + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
+                            MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
                     LOGGER.info("Map inference finished, time elapsed: " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
                     updateTime += (System.currentTimeMillis() - prevTime) / 1000;
                     prevTime = System.currentTimeMillis();
@@ -315,7 +314,7 @@ public class Main {
             fh.setFormatter(new MyFormatter());
 
             // start the log by listing all arguments
-            LOGGER.info("Map-Trajectory Co-Optimization with arguments: " + DATASET_OPTION + ", " + BB_OPTION + ", " + MIN_TRAJ_POINT_COUNT
+            LOGGER.info("Map-Trajectory Co-Optimization with arguments: " + DATASET_OPTION + ", " + BB_OPTION + ", " + MIN_TRAJ_TIME_SPAN
                     + ", " + MAX_TIME_INTERVAL + ", pct=" + PERCENTAGE + "%, gapDist=" + GAP_EXTENSION_RANGE + ", k=" + RANK_LENGTH + ", " +
                     "scoreThresh=" + SCORE_THRESHOLD + ", canDist=" + CANDIDATE_RANGE + ", sigma=" + SIGMA + ", beta=" + BETA + ", " +
                     "minRoadLen=" + MIN_ROAD_LENGTH + ", subTrajMerge=" + SUB_TRAJECTORY_MERGE_DISTANCE + ", backFactor=" + BACKWARDS_FACTOR);

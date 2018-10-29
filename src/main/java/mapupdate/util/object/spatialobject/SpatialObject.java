@@ -69,7 +69,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
     List<Segment> getEdges();
 
     /**
-     * @return Return the Minimun Bounding Rectangle (MBR) of
+     * @return Return the Minimum Bounding Rectangle (MBR) of
      * this spatial object.
      * @throws SpatialObjectConstructionException if object is empty or null.
      */
@@ -81,10 +81,10 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
         }
 
         int size = coordList.size();
-        Collections.sort(coordList, Point.X_COMPARATOR);
+        coordList.sort(Point.X_COMPARATOR);
         double minx = coordList.get(0).x();
         double maxx = coordList.get(size - 1).x();
-        Collections.sort(coordList, Point.Y_COMPARATOR);
+        coordList.sort(Point.Y_COMPARATOR);
         double miny = coordList.get(0).y();
         double maxy = coordList.get(size - 1).y();
 

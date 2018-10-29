@@ -9,7 +9,7 @@ import mapupdate.util.object.roadnetwork.MapInterface;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Segment;
 import mapupdate.util.object.spatialobject.Trajectory;
 
@@ -20,7 +20,6 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Stream;
 
 import static mapupdate.Main.LOGGER;
-import static mapupdate.Main.MAX_TIME_INTERVAL;
 
 /**
  * Created by uqpchao on 22/05/2017.
@@ -204,7 +203,7 @@ public class NewsonHMM2009 implements MapInterface {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
         int indexBeforeCurrBreak = -1;   // the index of the last point before current broken position, -1 = currently no breakpoint
-        final Map<STPoint, Collection<PointMatch>> candidatesMap = new HashMap<>(); //Map each point to a list of candidate nodes
+        final Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap = new HashMap<>(); //Map each point to a list of candidate nodes
         computeCandidatesFromIndex(trajectory, candidatesMap, grid);
 //        computeCandidates(trajectory);
 //        LOGGER.info("Time cost on candidate generation is: " + (System.currentTimeMillis() - startTime));
@@ -216,9 +215,9 @@ public class NewsonHMM2009 implements MapInterface {
 
         List<Trajectory> unmatchedTrajectoryList = new ArrayList<>();   // unmatched trajectories
 
-        ViterbiAlgorithm<PointMatch, STPoint, RoadPath> viterbi = new ViterbiAlgorithm<>(rankLength);
-        TimeStep<PointMatch, STPoint, RoadPath> prevTimeStep = null;
-        List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> rankedRoadPositionList = new ArrayList<>(rankLength);
+        ViterbiAlgorithm<PointMatch, TrajectoryPoint, RoadPath> viterbi = new ViterbiAlgorithm<>(rankLength);
+        TimeStep<PointMatch, TrajectoryPoint, RoadPath> prevTimeStep = null;
+        List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> rankedRoadPositionList = new ArrayList<>(rankLength);
         for (int i = 0; i < rankLength; i++) {       // first fill all top k results with empty array
             rankedRoadPositionList.add(new Pair<>(new ArrayList<>(), 0d));
         }
@@ -226,8 +225,8 @@ public class NewsonHMM2009 implements MapInterface {
         // start the process
         for (int i = 0; i < trajectory.size(); i++) {
             Collection<PointMatch> candidates;
-            TimeStep<PointMatch, STPoint, RoadPath> timeStep;
-            STPoint gpsPoint = trajectory.get(i);
+            TimeStep<PointMatch, TrajectoryPoint, RoadPath> timeStep;
+            TrajectoryPoint gpsPoint = trajectory.get(i);
             if (candidatesMap.get(gpsPoint).size() == 0) {  // no candidate for the current point, definitely a break point
                 isBrokenTraj = true;
                 breakPoints.put(i, 1);
@@ -248,7 +247,7 @@ public class NewsonHMM2009 implements MapInterface {
                         if (indexBeforeCurrBreak != -1) {
                             // we finish the matching before last break point and start a new matching sequence from break point to the
                             // current gap, the previous matching sequence is finished here
-                            List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions =
+                            List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> temporalRoadPositions =
                                     viterbi.computeMostLikelySequence();
                             resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, indexBeforeCurrBreak + 1,
                                     candidatesMap);
@@ -259,7 +258,7 @@ public class NewsonHMM2009 implements MapInterface {
                             prevTimeStep = null;
                             continue;
                         }
-                        List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions =
+                        List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> temporalRoadPositions =
                                 viterbi.computeMostLikelySequence();
                         resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, i, candidatesMap);
 
@@ -309,7 +308,7 @@ public class NewsonHMM2009 implements MapInterface {
                 if (indexBeforeCurrBreak != -1) {
                     // we finish the matching before last break point and start a new matching sequence from break point to the
                     // current gap and restart the match from the break point
-                    List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions = viterbi
+                    List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> temporalRoadPositions = viterbi
                             .computeMostLikelySequence();
                     resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, indexBeforeCurrBreak + 1,
                             candidatesMap);
@@ -319,7 +318,7 @@ public class NewsonHMM2009 implements MapInterface {
                     indexBeforeCurrBreak = -1;
                     prevTimeStep = null;
                 } else {
-                    List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions = viterbi
+                    List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> temporalRoadPositions = viterbi
                             .computeMostLikelySequence();
                     resultMerge(rankedRoadPositionList, temporalRoadPositions, trajectory, breakPoints, trajectory.size(), candidatesMap);
                 }
@@ -331,7 +330,7 @@ public class NewsonHMM2009 implements MapInterface {
             throw new RuntimeException("ERROR! The hmm break still exists after the trajectory is processed.");
         }
 
-//        for (Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double> positionList : rankedRoadPositionList) {   // sort the matching result according to the trajectory point sequence
+//        for (Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double> positionList : rankedRoadPositionList) {   // sort the matching result according to the trajectory point sequence
 //            positionList._1().sort(Comparator.comparingLong(m -> m.observation.time()));
 //        }
 //        LOGGER.info("Time cost on matching is: " + (System.currentTimeMillis() - startTime));
@@ -371,7 +370,7 @@ public class NewsonHMM2009 implements MapInterface {
      * @param candidatesMap  The candidate matches mapping
      * @return List of trajectory point index representing sub trajectories
      */
-    private Set<Integer> simpleBreakPointExtension(List<Integer> breakPointList, Trajectory trajectory, Map<STPoint,
+    private Set<Integer> simpleBreakPointExtension(List<Integer> breakPointList, Trajectory trajectory, Map<TrajectoryPoint,
             Collection<PointMatch>> candidatesMap) {
         Set<Integer> extendedBreakPoints = new LinkedHashSet<>();
         int lastUnmatchedPoint = 0;
@@ -416,7 +415,7 @@ public class NewsonHMM2009 implements MapInterface {
 //     * @param candidatesMap  The candidate matches mapping
 //     * @return List of trajectory point index representing sub trajectories
 //     */
-//    private Set<Integer> advancedBreakPointExtension(List<Integer> breakPointList, Trajectory trajectory, Map<STPoint,
+//    private Set<Integer> advancedBreakPointExtension(List<Integer> breakPointList, Trajectory trajectory, Map<TrajectoryPoint,
 //            Collection<PointMatch>> candidatesMap) {
 //        Set<Integer> extendedBreakPoints = new LinkedHashSet<>();
 //        int lastUnmatchedPoint = 0;
@@ -466,7 +465,7 @@ public class NewsonHMM2009 implements MapInterface {
      * @param trajPointMatches Candidate matches
      * @return The closest match candidate
      */
-    private PointMatch findNearestMatch(STPoint trajPoint, Collection<PointMatch> trajPointMatches) {
+    private PointMatch findNearestMatch(TrajectoryPoint trajPoint, Collection<PointMatch> trajPointMatches) {
         PointMatch nearestPointMatch = trajPointMatches.iterator().next();
         double distance = Double.POSITIVE_INFINITY;
         for (PointMatch m : trajPointMatches) {
@@ -482,14 +481,14 @@ public class NewsonHMM2009 implements MapInterface {
     /**
      * Find the minimum distance between given trajectory point and all its candidate matches
      *
-     * @param stPoint      Trajectory point
+     * @param trajectoryPoint      Trajectory point
      * @param pointMatches Candidate matches
      * @return The distance between the trajectory point and its closest candidate
      */
-    private double findMinDist(STPoint stPoint, Collection<PointMatch> pointMatches) {
+    private double findMinDist(TrajectoryPoint trajectoryPoint, Collection<PointMatch> pointMatches) {
         double minDistance = Double.POSITIVE_INFINITY;
         for (PointMatch p : pointMatches) {
-            double dist = distanceFunction.distance(p.getMatchPoint(), stPoint);
+            double dist = distanceFunction.distance(p.getMatchPoint(), trajectoryPoint);
             minDistance = dist < minDistance ? dist : minDistance;
         }
         return minDistance;
@@ -501,10 +500,10 @@ public class NewsonHMM2009 implements MapInterface {
      * @param pointsList    List of GPS trajectory points to map.
      * @param candidatesMap the candidate list for every trajectory point
      */
-    private void computeCandidatesFromIndex(Collection<STPoint> pointsList, Map<STPoint, Collection<PointMatch>> candidatesMap,
+    private void computeCandidatesFromIndex(Collection<TrajectoryPoint> pointsList, Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap,
                                             Grid<SegmentIndexItem> grid) {
 //        int candidateCount = 0;
-        for (STPoint p : pointsList) {
+        for (TrajectoryPoint p : pointsList) {
             Set<String> candidateFilter = new HashSet<>();
             // As we set the grid size as the candidateRange, only the partition that contains the query point and its neighbouring
             // partitions can potentially generate candidates
@@ -538,7 +537,7 @@ public class NewsonHMM2009 implements MapInterface {
      *
      * @param timeStep the observation and its candidate
      */
-    private void computeEmissionProbabilities(TimeStep<PointMatch, STPoint, RoadPath> timeStep) {
+    private void computeEmissionProbabilities(TimeStep<PointMatch, TrajectoryPoint, RoadPath> timeStep) {
         for (PointMatch candidate : timeStep.candidates) {
             double distance = getDistance(
                     timeStep.observation.x(), timeStep.observation.y(),
@@ -554,8 +553,8 @@ public class NewsonHMM2009 implements MapInterface {
      * @param prevTimeStep the time step of the last trajectory point
      * @param timeStep     the current time step
      */
-    private void computeTransitionProbabilitiesWithConnectivity(TimeStep<PointMatch, STPoint, RoadPath>
-                                                                        prevTimeStep, TimeStep<PointMatch, STPoint, RoadPath> timeStep) {
+    private void computeTransitionProbabilitiesWithConnectivity(TimeStep<PointMatch, TrajectoryPoint, RoadPath>
+                                                                        prevTimeStep, TimeStep<PointMatch, TrajectoryPoint, RoadPath> timeStep) {
         final double linearDistance = getDistance(
                 prevTimeStep.observation.x(), prevTimeStep.observation.y(),
                 timeStep.observation.x(), timeStep.observation.y());
@@ -587,15 +586,15 @@ public class NewsonHMM2009 implements MapInterface {
      * @param roadPositionList The Viterbi algorithm result (best match).
      * @return A list of Point-to-Vertex pairs with distance.
      */
-    private TrajectoryMatchingResult getResult(Trajectory traj, List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>>
+    private TrajectoryMatchingResult getResult(Trajectory traj, List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>>
             roadPositionList) {
         TrajectoryMatchingResult result = new TrajectoryMatchingResult(traj, rankLength);
         double[] probabilities = new double[rankLength];
         for (int i = 0; i < roadPositionList.size(); i++) {
-            Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double> roadPosition = roadPositionList.get(i);
+            Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double> roadPosition = roadPositionList.get(i);
             List<PointMatch> matchPairs = new ArrayList<>();
             Set<String> path = new LinkedHashSet<>();
-            for (SequenceState<PointMatch, STPoint, RoadPath> sequence : roadPosition._1()) {
+            for (SequenceState<PointMatch, TrajectoryPoint, RoadPath> sequence : roadPosition._1()) {
                 PointMatch pointMatch = sequence.state;
                 if (pointMatch != null) {
                     // make sure it returns a copy of the objects
@@ -648,16 +647,20 @@ public class NewsonHMM2009 implements MapInterface {
      * @param destinationIndex       the size of the matching result after insertion, it should be temporal+breakPoints
      * @param candidatesMap          the candidate map of each raw trajectory point
      */
-    private void resultMerge(List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> rankedRoadPositionList,
-                             List<Pair<List<SequenceState<PointMatch, STPoint, RoadPath>>, Double>> temporalRoadPositions, Trajectory
-                                     trajectory, Map<Integer, Integer> breakPoints, int destinationIndex, Map<STPoint,
+    private void resultMerge(List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> rankedRoadPositionList,
+                             List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>> temporalRoadPositions, Trajectory
+                                     trajectory, Map<Integer, Integer> breakPoints, int destinationIndex, Map<TrajectoryPoint,
             Collection<PointMatch>> candidatesMap) {
         for (int rank = 0; rank < rankLength; rank++) {
+            if(temporalRoadPositions.size()==0) {
+                LOGGER.severe("ERROR! The current trajectory has no matching result.");
+                return;
+            }
             int validRank = rank < temporalRoadPositions.size() ? rank : temporalRoadPositions.size() - 1;  // fill the rest of the rank
             // list with the last valid sequence
             int startPosition = rankedRoadPositionList.get(rank)._1().size();
             int cursor = 0;
-            List<SequenceState<PointMatch, STPoint, RoadPath>> roadPositionList = rankedRoadPositionList.get(rank)._1();
+            List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>> roadPositionList = rankedRoadPositionList.get(rank)._1();
             double unmatchedProbability = 0;  // for each unmatched trajectory point, we add an emission probability and the
             // transition probabilities
             for (int k = startPosition; k < destinationIndex; k++) {

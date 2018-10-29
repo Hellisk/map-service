@@ -3,7 +3,7 @@ package mapupdate.util.object.spatialobject;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
-import mapupdate.util.function.EuclideanDistanceFunction;
+import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.function.PointDistanceFunction;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -73,32 +73,32 @@ public class Point extends SimpleSpatialObject {
     }
 
     /**
-     * Returns the Euclidean distance between
+     * Returns the GreatCircle distance between
      * this point and a given point p.
      *
      * @param p
-     * @return The Euclidean distance between this point and p.
+     * @return The GreatCircle distance between this point and p.
      */
     public double distance(Point p) {
         if (p == null) {
             throw new NullPointerException("Point for distance "
                     + "calculation must not be null.");
         }
-        return new EuclideanDistanceFunction()
+        return new GreatCircleDistanceFunction()
                 .distance(p, this);
     }
 
     /**
-     * Returns the Euclidean distance between
+     * Returns the GreatCircle distance between
      * this point and a given point p = (x,y).
      *
      * @param x
      * @param y
-     * @return The Euclidean distance between this point
+     * @return The GreatCircle distance between this point
      * and p = (x,y).
      */
     public double distance(double x, double y) {
-        return new EuclideanDistanceFunction()
+        return new GreatCircleDistanceFunction()
                 .pointToPointDistance(x, y, this.x, this.y);
     }
 
@@ -227,8 +227,7 @@ public class Point extends SimpleSpatialObject {
 
     @Override
     public String toString() {
-        String s = String.format("%.5f %.5f", x, y);
-        return s;
+        return String.format("%.5f %.5f", x, y);
     }
 
     @Override
@@ -278,30 +277,12 @@ public class Point extends SimpleSpatialObject {
      * Comparator to compare points by their X value.
      */
     public static final Comparator<Point> X_COMPARATOR =
-            new Comparator<Point>() {
-                @Override
-                public int compare(Point o1, Point o2) {
-                    if (o1.x < o2.x)
-                        return -1;
-                    if (o1.x > o2.x)
-                        return 1;
-                    return 0;
-                }
-            };
+            Comparator.comparingDouble(o -> o.x);
 
     /**
      * Comparator to compare points by their Y value.
      */
     public static final Comparator<Point> Y_COMPARATOR =
-            new Comparator<Point>() {
-                @Override
-                public int compare(Point o1, Point o2) {
-                    if (o1.y < o2.y)
-                        return -1;
-                    if (o1.y > o2.y)
-                        return 1;
-                    return 0;
-                }
-            };
+            Comparator.comparingDouble(o -> o.y);
 
 }

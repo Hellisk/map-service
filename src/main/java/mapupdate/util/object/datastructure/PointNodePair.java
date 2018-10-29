@@ -1,6 +1,6 @@
 package mapupdate.util.object.datastructure;
 
-import mapupdate.util.object.spatialobject.STPoint;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.util.Comparator;
 
@@ -10,7 +10,7 @@ import java.util.Comparator;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class PointNodePair extends Pair<STPoint, PointMatch> {
+public class PointNodePair extends Pair<TrajectoryPoint, PointMatch> {
     /**
      * The distance between the point and the node.
      */
@@ -23,7 +23,7 @@ public class PointNodePair extends Pair<STPoint, PointMatch> {
      * @param point      The match point.
      * @param pointMatch The match pointMatch.
      */
-    public PointNodePair(STPoint point, PointMatch pointMatch) {
+    public PointNodePair(TrajectoryPoint point, PointMatch pointMatch) {
         super(point, pointMatch);
         this.distance = 0.0;
     }
@@ -35,7 +35,7 @@ public class PointNodePair extends Pair<STPoint, PointMatch> {
      * @param node     The match node.
      * @param distance The distance between the point and the node.
      */
-    public PointNodePair(STPoint point, PointMatch node, double distance) {
+    public PointNodePair(TrajectoryPoint point, PointMatch node, double distance) {
         super(point, node);
         this.distance = distance;
     }
@@ -43,7 +43,7 @@ public class PointNodePair extends Pair<STPoint, PointMatch> {
     /**
      * @return The match point.
      */
-    public STPoint getPoint() {
+    public TrajectoryPoint getPoint() {
         return _1();
     }
 

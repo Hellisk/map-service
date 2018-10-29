@@ -17,7 +17,7 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = 2  # 1 = home, 2 = school, 3 = server
+dataset_option = 1  # 1 = home, 2 = school, 3 = server
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
 beijing_server_path = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/"  # the root folder of all data

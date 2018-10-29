@@ -31,7 +31,7 @@ public class DataPreprocessing {
 //        if (isManualGTRequired)
 //            LOGGER.info("Start the trajectory filtering and ground-truth result generation.");
 //        else LOGGER.info("Start the trajectory filtering.");
-        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_POINT_COUNT, MAX_TIME_INTERVAL);
+        RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_TIME_SPAN, MAX_TIME_INTERVAL);
         if (isManualGTRequired) {
             double[] emptyBoundingBox = {};
             RoadNetworkGraph rawGrantMap = rawMapReader.extractMapWithBoundary(emptyBoundingBox);
