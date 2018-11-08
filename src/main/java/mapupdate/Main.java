@@ -2,7 +2,7 @@ package mapupdate;
 
 import mapupdate.cooptimization.CoOptimizationFunc;
 import mapupdate.evaluation.ResultEvaluation;
-import mapupdate.mapinference.BiagioniKDE2012;
+import mapupdate.mapinference.trajectoryclustering.TrajectoryClusteringMapInference;
 import mapupdate.mapmatching.hmm.NewsonHMM2009;
 import mapupdate.mapmerge.MapMerge;
 import mapupdate.util.io.*;
@@ -15,6 +15,7 @@ import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Trajectory;
 import mapupdate.visualisation.UnfoldingMapDisplay;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -23,33 +24,36 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static mapupdate.util.io.DataPreprocessing.dataPreprocessing;
-import static mapupdate.util.io.DataPreprocessing.rawMapInitialization;
-
 public class Main {
 
     /* environmental settings */
     private final static int DATASET_OPTION = 0;     // 0 = beijing trajectory, 1 = global trajectory, -1 = map comparison
     private final static int BB_OPTION = 1;          // 1 = Beijing-S, 2 = Beijing-M, 3 = Beijing-L
-    public final static int WORKSPACE = 1; // 1 = home, 2 = school, 3 = server
+    public final static int WORKSPACE = 2; // 1 = home, 2 = school, 3 = server
     public final static int MIN_TRAJ_TIME_SPAN = 180; // the minimal time span required for a trajectory. -1 = no requirement
     public final static int MAX_TIME_INTERVAL = 120; // the maximum time interval within a trajectory -1 = no requirement
 
     /* tunable parameters */
-    public final static int PERCENTAGE = 0;         // percentage of removed road ways (max = 100)
+    public final static int PERCENTAGE = 2;         // percentage of removed road ways (max = 100)
     public final static int RANK_LENGTH = 3;  // the number of top-ranked map-matching results to be stored
     public final static double SCORE_THRESHOLD = 20;   // the value that divide the high and low influence/confidence score
     public final static int TRAJECTORY_COUNT = -1; // total number of trajectories extracted. -1 = extract all
 
-    /* fixed settings */
     /* bounding boxes */
     private final static double[] BB_BEIJING_S = {116.4, 116.435, 39.95, 39.98};    // preset the map boundary, N-E outside 2 ring, Beijing-S
     private final static double[] BB_BEIJING_M = {116.34, 116.44, 39.89, 39.95};    // preset the map boundary, er huan, Beijing-M
     private final static double[] BB_BEIJING_L = {};    // use the initial map, Beijing-L
     public final static double[] BOUNDING_BOX = BB_OPTION == 1 ? BB_BEIJING_S : (BB_OPTION == 2 ? BB_BEIJING_M : BB_BEIJING_L);
-    /* parameters for KDE-based map inference */
-    private final static int CELL_SIZE = 1;    // the size of each cell unit, default is 1
+    public final static double DP_EPSILON = 10.0;      // epsilon for Douglas-Peucker filter
     private final static int GAUSSIAN_BLUR = 17;  // Gaussian blur filter, default is 17
+    /* Parameters */
+    /* parameters for KDE-based map inference */
+    private final static int CELL_SIZE = 1;    // size of each cell unit, default is 1
+    /* parameters for Trace clustering map inference */
+    private final static int MAX_TRAJECTORY_DISTANCE = 15;    // maximum distance between two unmatched trajectories when merging clusters
+    private final static double MAX_ANGLE_CHANGE = 15.0;    // maximum allowable angle change within a road segment, used for
+    // trajectory segmentation
+
     /* parameters for HMM-based map matching */
     public final static int CANDIDATE_RANGE = 50;  // the radius of the candidate generation range in meter
     public final static int GAP_EXTENSION_RANGE = 15;  // the trajectory point will be extended as unmatched point if no candidate is
@@ -100,11 +104,11 @@ public class Main {
 
             LOGGER.info("Start working on the beijing dataset...");
 
-//            // process the raw data and convert them into standard format
+            // process the raw data and convert them into standard format
 //            rawMapInitialization();
 
             // pre-processing the data so that the map and the trajectories are filtered
-            dataPreprocessing(true);
+//            dataPreprocessing(true);
 
             long prevTime = System.currentTimeMillis();
 
@@ -122,8 +126,6 @@ public class Main {
             CoOptimizationFunc initialOptimizationFunc = new CoOptimizationFunc();  // not useful, only for filling the argument
             Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> initialMatchingResultTriplet =
                     parallelMapMatchingBeijing(initialTrajectoryStream, initialMap, 0, false, initialOptimizationFunc);
-//            Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> initialMatchingResultTriplet = mapMatchingBeijing
-//                    (rawTrajectoryList, initialMap, 0, false);
             LOGGER.info("Initial map matching finished, time elapsed:" + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
             prevTime = System.currentTimeMillis();
             int matchingTime = 0;
@@ -141,20 +143,30 @@ public class Main {
                     LOGGER.info("Start the " + iteration + " round of iteration.");
                     long currIterationStartTime = System.currentTimeMillis();
 
-                    // step 1: map inference
-                    BiagioniKDE2012 mapInference = new BiagioniKDE2012(CELL_SIZE, GAUSSIAN_BLUR);
-                    String localDir = System.getProperty("user.dir");
-                    mapInference.KDEMapInferenceProcess(localDir + "/src/main/python/", CACHE_FOLDER + "unmatchedNextInput/TP" +
+                    // step 1: Trace clustering map inference
+                    CSVTrajectoryReader unmatchedTrajReader = new CSVTrajectoryReader();
+                    List<Trajectory> unmatchedTrajList = unmatchedTrajReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
                             MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
-                    LOGGER.info("Map inference finished, time elapsed: " + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
+                    TrajectoryClusteringMapInference mapInference = new TrajectoryClusteringMapInference();
+                    List<RoadWay> inferenceResult = mapInference.startMapInferenceProcess(unmatchedTrajList, MAX_ANGLE_CHANGE,
+                            MIN_ROAD_LENGTH);
+                    CSVMapWriter.writeInferredRoadWayList(inferenceResult, INFERENCE_FOLDER, iteration);
+                    // step 1-old: KDE map inference
+//                    KDEMapInference mapInference = new KDEMapInference(CELL_SIZE,GAUSSIAN_BLUR);
+//                    String localDir = System.getProperty("user.dir");
+//                    mapInference.startMapInference(localDir + "/src/main/python/", CACHE_FOLDER + "unmatchedNextInput/TP" +
+//                            MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/" + (iteration - 1) + "/");
+
+                    LOGGER.info("Map inference finished, " + inferenceResult.size() + " new roads inferred, time elapsed: " +
+                            (System.currentTimeMillis() - prevTime) / 1000 + " " + "seconds");
                     updateTime += (System.currentTimeMillis() - prevTime) / 1000;
                     prevTime = System.currentTimeMillis();
 
                     // step 2: map merge
                     CoOptimizationFunc coOptimizationFunc = new CoOptimizationFunc();
-                    CSVMapReader inferenceEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
-                    List<RoadWay> inferredEdges = inferenceEdgeReader.readInferredEdges();
-                    if (inferredEdges.size() == 0) {
+//                    CSVMapReader inferenceEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
+//                    List<RoadWay> inferenceResult = inferenceEdgeReader.readInferredEdges();
+                    if (inferenceResult.size() == 0) {
                         LOGGER.info("Current iteration does not have new road inferred. Finish the iteration.");
                         break;
                     }
@@ -166,7 +178,7 @@ public class Main {
                         CSVMapReader prevMapReader = new CSVMapReader(CACHE_FOLDER);
                         prevMap = prevMapReader.readMap(PERCENTAGE, iteration - 1, false);
                     }
-                    MapMerge spMapMerge = new MapMerge(prevMap, inferredEdges, removedWayList, CANDIDATE_RANGE, SUB_TRAJECTORY_MERGE_DISTANCE);
+                    MapMerge spMapMerge = new MapMerge(prevMap, inferenceResult, removedWayList, CANDIDATE_RANGE, SUB_TRAJECTORY_MERGE_DISTANCE);
                     Pair<RoadNetworkGraph, Boolean> mergedMapResult = spMapMerge.nearestNeighbourMapMerge();
                     if (mergedMapResult._2()) {
                         LOGGER.info("Current iteration does not have new road added. Finish the iteration.");
@@ -252,6 +264,8 @@ public class Main {
             }
         } else if (DATASET_OPTION == 1) {    // map-matching evaluation dataset
 
+            logInit();
+
             // use global dataset to evaluate the map-matching accuracy
             LOGGER.info("Start working on the global dataset");
 
@@ -306,6 +320,9 @@ public class Main {
     private static void logInit() {
         FileHandler fh;
         try {
+            File logFolder = new File(LOG_FOLDER);
+            if (!logFolder.exists())
+                if (!logFolder.mkdirs()) throw new IOException("ERROR! Failed to create log folder.");
             // This block configure the logger with handler and formatter
             fh = new FileHandler(LOG_FOLDER + "/" + System.currentTimeMillis() + ".log");
             LOGGER.addHandler(fh);
@@ -371,7 +388,8 @@ public class Main {
     }
 
     private static Triplet<List<TrajectoryMatchingResult>, RoadNetworkGraph, List<Trajectory>> matchedResultPostProcess
-            (RoadNetworkGraph roadMap, int iteration, boolean refinementStep, List<TrajectoryMatchingResult> currMatchingResultList, List<Trajectory> unmatchedTraj, CoOptimizationFunc coOptimizationFunc) throws IOException {
+            (RoadNetworkGraph roadMap, int iteration, boolean refinementStep, List<TrajectoryMatchingResult> currMatchingResultList,
+             List<Trajectory> unmatchedTraj, CoOptimizationFunc coOptimizationFunc) throws IOException {
         if (!refinementStep) {
             if (iteration != 0) {     // start processing the co-optimization model
                 CSVTrajectoryReader csvMatchedTrajectoryReader = new CSVTrajectoryReader();

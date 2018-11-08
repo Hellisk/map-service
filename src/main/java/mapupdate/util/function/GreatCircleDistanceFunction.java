@@ -56,7 +56,12 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
      * @return point on s that is closest to p
      */
     public Point findClosestPoint(Point p, Segment s) {
-        return findClosestPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
+        Point returnPoint = findClosestPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
+        if (returnPoint.x() == s.x1())
+            return s.p1();
+        else if (returnPoint.x() == s.x2())
+            return s.p2();
+        else return returnPoint;
     }
 
     /**
@@ -68,6 +73,31 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
     public double coordinateOffset(double distance) {
         double radian = distance / EARTH_RADIUS;
         return Math.toDegrees(radian);
+    }
+
+    /**
+     * Return the perpendicular point on segment even it is on the extended line.
+     *
+     * @param x   Source point x coordinate.
+     * @param y   Source point y coordinate.
+     * @param sx1 Segment start point x coordinate.
+     * @param sy1 Segment start point y coordinate.
+     * @param sx2 Segment end point x coordinate.
+     * @param sy2 Segment end point y coordinate.
+     * @return Perpendicular point.
+     */
+    public Point findClosestPointExtendable(double x, double y, double sx1, double sy1, double sx2, double sy2) {
+
+        // find the perpendicular point pp.
+        // the segment is represented as y= ax + b, while the perpendicular line is x= -ay + m
+        double a = sy2 - sy1;
+        double b = sx1 - sx2;
+        double c = sx2 * sy1 - sx1 * sy2;
+
+        double ppx = (b * b * x - a * b * y - a * c) / (a * a + b * b);
+        double ppy = (-a * b * x + a * a * y - b * c) / (a * a + b * b);
+
+        return new Point(ppx, ppy);
     }
 
     public Point findClosestPoint(double x, double y, double sx1, double sy1, double sx2, double sy2) {

@@ -160,8 +160,15 @@ public class TrajectorySegment extends Segment implements SpatialTemporalObject 
         return distance(p1().x(), p1().y(), p2().x(), p2().y()) / (timeFinal() - timeStart());
     }
 
+
     public double getHeading() {
-        return Math.toDegrees((Math.atan2(p2().y() - p1().y(), p2().x() - p1().x())));
+        double lon1 = Math.toRadians(x1());
+        double lat1 = Math.toRadians(y1());
+        double lon2 = Math.toRadians(x2());
+        double lat2 = Math.toRadians(y2());
+        double headingRadians = Math.atan2(Math.asin(lon2 - lon1) * Math.cos(lat2),
+                Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
+        return Math.toDegrees(headingRadians);
     }
 
     /**

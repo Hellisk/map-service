@@ -1,0 +1,7 @@
+all: libutilities.so liblinearAlgebra.so
+
+libutilities.so: utilities.c
+	gcc -lm -shared -I/usr/java1.1/include -I/usr/java1.1/include/solaris utilities.c -o libutilities.so
+
+liblinearAlgebra.so: linearAlgebra.c
+	gcc -lm -shared -I/usr/java1.1/include -I/usr/java1.1/include/solaris linearAlgebra.c -o liblinearAlgebra.so

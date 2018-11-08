@@ -6,8 +6,8 @@ import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadWay;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -407,6 +407,10 @@ public class RawFileOperation {
                     currTraj.setId(tripID + "");
                     resultTrajList.add(currTraj);
                     gtResultRoadWayList.add(newMatchingResult);
+                    for (String s : matchedRoadWayID) {
+                        int currCount = id2VisitCountSmallMapping.get(s);
+                        id2VisitCountSmallMapping.replace(s, currCount + 1);
+                    }
                     totalNumOfPoint += currTraj.size();
                     tripID++;
                 }

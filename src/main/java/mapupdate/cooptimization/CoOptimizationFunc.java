@@ -102,8 +102,7 @@ public class CoOptimizationFunc {
                                             matchingResult.getTrajSize(), probabilitySum(matchingResult) - probabilitySum(prevMatchingResult)));
                                 else {
                                     List<Triplet<String, Integer, Double>> affectedTrajList = new ArrayList<>();
-                                    affectedTrajList.add(new Triplet<>(matchingResult.getTrajID(),
-                                            matchingResult.getTrajSize(),
+                                    affectedTrajList.add(new Triplet<>(matchingResult.getTrajID(), matchingResult.getTrajSize(),
                                             probabilitySum(matchingResult) - probabilitySum(prevMatchingResult)));
                                     newRoad2AffectedTrajIDandAmount.put(s, affectedTrajList);
                                 }
@@ -200,8 +199,8 @@ public class CoOptimizationFunc {
         List<Double> confidenceScoreList = new ArrayList<>();
         HashMap<Double, List<RoadWay>> influenceScore2RoadList = new HashMap<>();
         HashMap<Double, List<RoadWay>> confidenceScore2RoadList = new HashMap<>();
-        HashMap<String,Integer> newRoad2InfluenceRank = new HashMap<>();
-        HashMap<String,Integer> newRoad2ConfidenceRank = new HashMap<>();
+        HashMap<String, Integer> newRoad2InfluenceRank = new HashMap<>();
+        HashMap<String, Integer> newRoad2ConfidenceRank = new HashMap<>();
         for (RoadWay w : matchingResultTriplet._2().getWays()) {
             if (w.isNewRoad()) {
                 if (Double.isNaN(w.getInfluenceScore()))
@@ -260,11 +259,12 @@ public class CoOptimizationFunc {
             if (influenceScore2RoadList.containsKey(influenceScore) && confidenceScore2RoadList.containsKey(confidenceScore)) {
                 RoadWay influenceRoad = influenceScore2RoadList.get(influenceScore).get(0);
                 RoadWay confidenceRoad = confidenceScore2RoadList.get(confidenceScore).get(0);
-                LOGGER.info(influenceScore + "," + influenceRoad.getID() + "," + newRoad2AffectedTrajIDandAmount.get(influenceRoad.getID()).size() + ","
-                        + removedGTIDSet.contains(influenceRoad.getID()) + "\t\t" + confidenceScore + "," + confidenceRoad.getID() + "," + removedGTIDSet.contains(confidenceRoad.getID()));
-
-                newRoad2InfluenceRank.put(influenceRoad.getID(),i);
-                newRoad2ConfidenceRank.put(confidenceRoad.getID(),i);
+                int influenceCount = newRoad2AffectedTrajIDandAmount.containsKey(influenceRoad.getID()) ?
+                        newRoad2AffectedTrajIDandAmount.get(influenceRoad.getID()).size() : 0;
+                LOGGER.info(influenceScore + "," + influenceRoad.getID() + "," + influenceCount + "," + removedGTIDSet.contains(influenceRoad.getID())
+                        + "\t\t" + confidenceScore + "," + confidenceRoad.getID() + "," + removedGTIDSet.contains(confidenceRoad.getID()));
+                newRoad2InfluenceRank.put(influenceRoad.getID(), i);
+                newRoad2ConfidenceRank.put(confidenceRoad.getID(), i);
                 influenceScore2RoadList.get(influenceScore).remove(0);
                 confidenceScore2RoadList.get(confidenceScore).remove(0);
                 if (influenceScore2RoadList.get(influenceScore).size() == 0)
@@ -305,11 +305,10 @@ public class CoOptimizationFunc {
             if (w.isNewRoad()) {
                 String print = "";
                 print += "Road: " + w.getID();
-                if (newRoad2AffectedTrajIDandAmount.containsKey(w.getID())) {
-                    print += ", affectedTrajCount=" + newRoad2AffectedTrajIDandAmount.get(w.getID()).size();
-                }
-                print += ", infScore=" + w.getInfluenceScore() + ", infRank="+newRoad2InfluenceRank.get(w.getID())
-                        +", conScore=" + w.getConfidenceScore() + ", conRank=" + newRoad2ConfidenceRank.get(w.getID())+", originalRoad=" + removedGTIDSet.contains(w.getID());
+                print += ", affectedTrajCount=" + (newRoad2AffectedTrajIDandAmount.containsKey(w.getID()) ?
+                        newRoad2AffectedTrajIDandAmount.get(w.getID()).size() : 0);
+                print += ", infScore=" + w.getInfluenceScore() + ", infRank=" + newRoad2InfluenceRank.get(w.getID())
+                        + ", conScore=" + w.getConfidenceScore() + ", conRank=" + newRoad2ConfidenceRank.get(w.getID()) + ", originalRoad=" + removedGTIDSet.contains(w.getID());
                 newRoadCount++;
                 if (highCandidateSet.contains(w.getID())) {                     // already in highCandidate, skip
                     print += ",TOP";

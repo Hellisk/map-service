@@ -73,6 +73,32 @@ public class CSVMapWriter implements SpatialInterface {
 //        LOGGER.info("Write " + percentage + "% road map finished.");
     }
 
+    /**
+     * Write a list of road way results.
+     *
+     * @throws IOException Failed map writing
+     */
+    public static void writeInferredRoadWayList(List<RoadWay> edges, String mapPath, int iteration) throws IOException {
+
+        // create directories before writing
+        File file = new File(mapPath);
+        if (!file.exists()) {
+            if (!file.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
+        }
+        // write vertex file
+        BufferedWriter bwVertices;
+
+        // write road way file
+        BufferedWriter bwEdges = new BufferedWriter(new FileWriter(mapPath + "inferred_edges_" + iteration + ".txt"));
+        int trajCount = 0;
+        for (RoadWay w : edges) {
+            w.setId(trajCount + "");
+            bwEdges.write(w.toString() + "\n");
+            trajCount++;
+        }
+        bwEdges.close();
+    }
+
     public void randomRoadRemoval(int percentage) throws IOException {
 
         DecimalFormat df = new DecimalFormat("0.00000");

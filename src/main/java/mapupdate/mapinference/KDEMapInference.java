@@ -9,26 +9,33 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mapupdate.Main.INFERENCE_FOLDER;
-import static mapupdate.Main.LOGGER;
-import static mapupdate.Main.WORKSPACE;
+import static mapupdate.Main.*;
 
-class KDEMapInference {
+/**
+ * Starter of the Biagioni KDE map inference algorithm. The original code is written in Python and we run the Python code through this
+ * class.
+ * <p>
+ * Reference: [SIGSPATIAL12] Map Inference in the Face of Noise and Disparity
+ *
+ * @author uqpchao
+ */
+
+public class KDEMapInference {
     private int cellSize;    // meter
     private int gaussianBlur;
 
-    KDEMapInference(int cellSize, int gaussianBlur) {
+    public KDEMapInference(int cellSize, int gaussianBlur) {
         this.cellSize = cellSize;
         this.gaussianBlur = gaussianBlur;
     }
 
-    KDEMapInference() {
+    public KDEMapInference() {
         this.cellSize = 1;
         this.gaussianBlur = 17;
     }
 
     // use python script to run map inference python code
-    void startMapInference(String rootPath, String inputTrajPath) throws IOException {
+    public void startMapInference(String rootPath, String inputTrajPath) throws IOException {
         List<String> pythonCmd = new ArrayList<>();
 
         // remove the map inference directory

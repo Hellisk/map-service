@@ -2,8 +2,8 @@ package mapupdate.util.io;
 
 import mapupdate.util.object.datastructure.PointMatch;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -99,7 +99,7 @@ public class CSVTrajectoryWriter {
             for (int i = 0; i < matchingResult.getTrajSize(); i++) {
 
                 bwMatchedTrajectory.write(df.format(matchingResult.getTrajPoint(i).x()) + " " + df.format(matchingResult.getTrajPoint(i).y()) + " " + matchingResult
-                        .getTrajPoint(i).time());
+                        .getTrajPoint(i).time() + " " + matchingResult.getTrajPoint(i).speed() + " " + matchingResult.getTrajPoint(i).heading());
                 int maxRank = matchingResult.getNumOfPositiveRank(); // matching results whose ranks are larger than maxRank are definitely empty
                 for (int j = 0; j < rankLength; j++) {
                     if (j < maxRank && matchingResult.getMatchingResult(j).size() > i) {
@@ -199,7 +199,7 @@ public class CSVTrajectoryWriter {
                     int matchingPointCount = w.getSTPoints().size();
                     while (iter.hasNext()) {
                         TrajectoryPoint p = iter.next();
-                        bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + "" + p.speed() + " " + p.heading() + "\n");
+                        bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + " " + p.speed() + " " + p.heading() + "\n");
                         nextInputUnmatchedTrajectory.write(pointCount + "," + p.y() + "," + p.x() + "," + p.time() + "," + (pointCount == startPointCount ? "None" : pointCount - 1) + "," + (pointCount != startPointCount + matchingPointCount - 1 ? pointCount + 1 : "None") + "\n");
                         pointCount++;
                     }
@@ -214,6 +214,16 @@ public class CSVTrajectoryWriter {
         LOGGER.info("Trajectories written, total files:" + tripCount + ", total trajectory points:" + (pointCount - 1));
     }
 
+    /**
+     * Merge the matching result generated before and after the map refinement and form the final map-matching result.
+     *
+     * @param rawMatches     The original map-matching result before map refinement.
+     * @param refinedMatches The map-matching results affected by the map refinement.
+     * @param rankLength     The rank k.
+     * @param iteration      The current iteration number.
+     * @return The merged map-matching result as the map-matching output of the current iteration.
+     * @throws IOException File write error.
+     */
     public List<TrajectoryMatchingResult> writeMergedMatchedTrajectory(List<TrajectoryMatchingResult> rawMatches,
                                                                        List<TrajectoryMatchingResult> refinedMatches, int rankLength, int iteration) throws IOException {
         Set<String> refinedMatchingResultSet = new HashSet<>();
@@ -225,6 +235,14 @@ public class CSVTrajectoryWriter {
         return rawMatches;
     }
 
+    /**
+     * Merge the unmatched trajectory sets generated before and after refinement and form the final unmatched trajectory set.
+     *
+     * @param rawUnmatchedTrajectoryList     Unmatched trajectory set before refinement.
+     * @param refinedUnmatchedTrajectoryList Unmatched trajectory set after refinement.
+     * @param iteration                      The current iteration number.
+     * @throws IOException File write error.
+     */
     public void writeMergedUnmatchedTrajectory(List<Trajectory> rawUnmatchedTrajectoryList, List<Trajectory>
             refinedUnmatchedTrajectoryList, int iteration) throws IOException {
         Set<String> refinedUnmatchedTrajSet = new HashSet<>();
@@ -233,6 +251,6 @@ public class CSVTrajectoryWriter {
         rawUnmatchedTrajectoryList.removeIf(next -> refinedUnmatchedTrajSet.contains(next.getId()));
         rawUnmatchedTrajectoryList.addAll(refinedUnmatchedTrajectoryList);
         writeUnmatchedTrajectory(rawUnmatchedTrajectoryList, iteration);
-
     }
+
 }

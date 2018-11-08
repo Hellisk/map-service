@@ -84,7 +84,7 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
         return list;
     }
 
-    public List<TrajectorySegment> getSTEdges() {
+    public List<TrajectorySegment> getSegments() {
         List<TrajectorySegment> list = new ArrayList<>();
         TrajectoryPoint pi, pj;
         for (int i = 0; i < size() - 1; i++) {
@@ -93,6 +93,18 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
             list.add(new TrajectorySegment(pi, pj));
         }
         return list;
+    }
+
+    /**
+     * Return the specific trajectory segment given the index of the start point.
+     *
+     * @param index The index of the left endpoint of the segment.
+     * @return The trajectory segment.
+     */
+    public TrajectorySegment getSegment(int index) {
+        if (index >= this.size() - 1)
+            throw new IndexOutOfBoundsException("ERROR! The given index is out of bound.(" + index + " of " + (this.size() - 1) + ")");
+        return new TrajectorySegment(this.get(index), this.get(index + 1));
     }
 
     /**
@@ -108,7 +120,6 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
     public void add(double x, double y, long time, double speed, double heading) {
         this.add(new TrajectoryPoint(x, y, time, speed, heading));
     }
-
 
     /**
      * Merges two trajectories.
