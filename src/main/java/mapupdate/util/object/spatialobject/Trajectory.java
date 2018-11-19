@@ -34,7 +34,7 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 
     public Trajectory(String id) {
         super(1);
-        this.setId(id);
+        this.setID(id);
     }
 
     public Trajectory(List<TrajectoryPoint> pointList) {
@@ -49,13 +49,13 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 
     public Trajectory(String id, List<TrajectoryPoint> pointList) {
         super(pointList.size());
-        this.setId(id);
+        this.setID(id);
         this.addAll(pointList);
     }
 
     public Trajectory(String id, TrajectoryPoint... points) {
         super(points.length);
-        this.setId(id);
+        this.setID(id);
         this.addAll(Arrays.asList(points));
     }
 
@@ -257,7 +257,7 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
             throw new IllegalArgumentException(
                     "Trajectory index out of bound.");
         }
-        Trajectory sub = new Trajectory(this.getId());
+        Trajectory sub = new Trajectory(this.getID());
         sub.addAll(this.subList(beginIndex, endIndex));
         return sub;
     }
@@ -391,7 +391,7 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(this.getId() + " ( ");
+        StringBuilder s = new StringBuilder(this.getID() + " ( ");
         for (TrajectoryPoint p : this) {
             s.append(", ").append(p.toString());
         }

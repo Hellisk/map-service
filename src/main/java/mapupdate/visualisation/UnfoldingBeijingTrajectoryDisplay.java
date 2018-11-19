@@ -10,11 +10,12 @@ import mapupdate.util.io.CSVMapReader;
 import mapupdate.util.io.CSVTrajectoryReader;
 import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
+import mapupdate.util.object.datastructure.Triplet;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import processing.core.PApplet;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
         int[] black = {0, 0, 0};
 
         // the iteration to be visualized
-        int iteration = 3;
+        int iteration = 1;
 
         try {
             // read the input map
@@ -85,10 +86,10 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             Map<String, TrajectoryMatchingResult> id2matchedTraj = new HashMap<>();
             Map<String, List<String>> id2GroundTruthTraj = new HashMap<>();
             Random random = new Random();
-            List<Trajectory> unmatchedTraj = csvTrajectoryReader.readTrajectoryFilesList(CACHE_FOLDER + "unmatchedTraj/TP" +
-                    MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
-            for (Trajectory traj : unmatchedTraj)
-                trajDisplay[6].addMarkers(trajMarkerGen(traj, displayActualMap ? black : blue, 2));
+            List<Triplet<Trajectory, String, String>> unmatchedTraj = csvTrajectoryReader.readUnmatchedTrajectoryFilesList(CACHE_FOLDER +
+                    "unmatchedTraj/TP" + MIN_TRAJ_TIME_SPAN + "_TI" + MAX_TIME_INTERVAL + "_TC" + TRAJECTORY_COUNT + "/0/");
+            for (Triplet<Trajectory, String, String> trajInfo : unmatchedTraj)
+                trajDisplay[6].addMarkers(trajMarkerGen(trajInfo._1(), displayActualMap ? black : blue, 2));
 
             if (PERCENTAGE != 0) {
                 // read inferred edges and display on the map
@@ -124,7 +125,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 trajDisplay[9].addMarkers(updatedMapMarker);
 
                 // randomly select and visualize a trajectory and the corresponding matching result on the map
-                List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(OUTPUT_FOLDER, -1);
+                List<TrajectoryMatchingResult> matchedTraj = csvTrajectoryReader.readMatchedResult(CACHE_FOLDER, 0);
                 for (TrajectoryMatchingResult matchingResult : matchedTraj)
                     id2matchedTraj.put(matchingResult.getTrajID(), matchingResult);
             } else {
@@ -149,16 +150,16 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
 
             List<Trajectory> rawTraj = csvTrajectoryReader.readTrajectoryFilesList(INPUT_TRAJECTORY);
             for (Trajectory traj : rawTraj)
-                id2rawTraj.put(traj.getId(), traj);
+                id2rawTraj.put(traj.getID(), traj);
             List<Pair<Integer, List<String>>> groundTruthMatchingResult = csvTrajectoryReader.readGroundTruthMatchingResult(GT_MATCHING_RESULT);
             for (Pair<Integer, List<String>> gtMatchingResult : groundTruthMatchingResult) {
                 id2GroundTruthTraj.put(gtMatchingResult._1() + "", gtMatchingResult._2());
             }
 
-            String[] id = {"743"};
-            for (int i = 0; i < 1; i++) {
-//                String currIndex = random.nextInt(rawTraj.size()) + "";
-                String currIndex = id[i];
+//            String[] id = {"743"};
+            for (int i = 0; i < 6; i++) {
+                String currIndex = random.nextInt(rawTraj.size()) + "";
+//                String currIndex = id[i];
                 List<Marker> rawTrajMarker = trajMarkerGen(id2rawTraj.get(currIndex), red, 2);
                 List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2matchedTraj.get(currIndex), id2RoadWay, lightPurple, 2);
                 List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(id2GroundTruthTraj.get(currIndex), id2RoadWay,
@@ -199,7 +200,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currColor = colorGradeSize == 0 ? 0 : processedRoadSize / colorGradeSize;
             } else if (currWay.getVisitCount() == prevVisitCount) {
                 currColor = lastColor;
-            } else LOGGER.severe("ERROR! The visit count should not decrease.");
+            } else System.err.println("ERROR! The visit count should not decrease.");
             currLineMarker.setColor(color(255, 255 - currColor, 0));
             currLineMarker.setStrokeWeight(1);
             prevVisitCount = currWay.getVisitCount();
@@ -255,7 +256,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currLineMarker.setStrokeWeight(weight);
                 result.add(currLineMarker);
             } else
-                LOGGER.severe("ERROR! Cannot find roadID:" + s);
+                System.err.println("ERROR! Cannot find roadID:" + s);
         }
         return result;
     }
@@ -319,7 +320,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
                 currTrajDisplay = trajDisplay[9];
                 break;
             }
-            case '`': {
+            case '-': {
                 currTrajDisplay = fullMapDisplay;
                 break;
             }

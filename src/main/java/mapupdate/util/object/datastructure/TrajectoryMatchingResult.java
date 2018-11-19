@@ -1,7 +1,7 @@
 package mapupdate.util.object.datastructure;
 
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class TrajectoryMatchingResult {
 
 
     public String getTrajID() {
-        return trajectory.getId();
+        return trajectory.getID();
     }
 
     public Trajectory getRawTrajectory() {

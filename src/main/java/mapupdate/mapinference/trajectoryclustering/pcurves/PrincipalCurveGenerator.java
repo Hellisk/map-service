@@ -13,8 +13,6 @@ import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Point;
 import mapupdate.util.object.spatialobject.Trajectory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,45 +35,6 @@ import java.util.List;
  */
 
 public class PrincipalCurveGenerator {
-    private static float[] readTabDelimitedColumn(String txtFilePath, String columnName) throws Exception {
-        BufferedReader fh = new BufferedReader(new FileReader(txtFilePath));
-        String s;
-
-        // count number of lines
-        int numberOfLines = 0;
-        while ((s = fh.readLine()) != null) {
-            numberOfLines++;
-        }
-        fh.close();
-
-        // initialize return array. out will store column of values
-        float[] out = new float[numberOfLines - 1];
-
-        // read header line and find column matching field name
-        fh = new BufferedReader(new FileReader(txtFilePath));
-        s = fh.readLine();
-        String f[] = s.split("\t");
-        int columnNumber = -1;
-        for (int i = 0; i < f.length; i++) {
-            if (f[i].equals(columnName)) {
-                columnNumber = i;
-            }
-        }
-
-        // read column values if field name found
-        if (columnNumber == -1) {
-            System.out.println("Error: field name not found");
-        } else {
-            for (int i = 0; i < numberOfLines - 1; i++) {
-                s = fh.readLine();
-                f = s.split("\t");
-                out[i] = Float.valueOf(f[columnNumber]);
-            }
-        }
-
-        return out;
-    }
-
     public RoadWay startPrincipalCurveGen(Cluster inputCluster) throws InterruptedException, IllegalStateException {
 
         // load seed coordinates

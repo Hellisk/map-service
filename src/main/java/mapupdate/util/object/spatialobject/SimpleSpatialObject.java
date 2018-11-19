@@ -16,7 +16,7 @@ public abstract class SimpleSpatialObject implements SpatialObject {
     /**
      * The identifier of the parent of this spatial object (if any).
      */
-    private String parentOid = null;
+    private String parentOID = null;
     /**
      * Number of spatial dimension of this object (2 by default).
      */
@@ -38,23 +38,23 @@ public abstract class SimpleSpatialObject implements SpatialObject {
     }
 
     @Override
-    public void setId(String id) {
-        this.oid = id;
-    }
-
-    @Override
-    public String getId() {
+    public String getID() {
         return this.oid;
     }
 
     @Override
-    public String getParentId() {
-        return parentOid;
+    public void setID(String id) {
+        this.oid = id;
     }
 
     @Override
-    public void setParentId(String parentId) {
-        this.parentOid = parentId;
+    public String getParentID() {
+        return parentOID;
+    }
+
+    @Override
+    public void setParentID(String parentID) {
+        this.parentOID = parentID;
     }
 
     @Override

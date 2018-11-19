@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static mapupdate.Main.LOGGER;
 
@@ -40,10 +43,73 @@ public class RawMapReader {
     }
 
     /**
+     * Remove the prefix of the point ID of connection node. A connection node is not a intersection.
+     *
+     * @param pointID           Original point ID.
+     * @param id2ConnectionNode Map of the connection node ID and its adjacent roads(empty at this stage).
+     * @return The refined point ID.
+     */
+    private static String pointIDConverter(String pointID, HashMap<String, List<String>> id2ConnectionNode) {
+        String refinedPointID;
+        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
+            refinedPointID = pointID.substring(5);
+            id2ConnectionNode.putIfAbsent(refinedPointID, new ArrayList<>());
+            return refinedPointID;
+        } else if (pointID.length() > 10 && (pointID.substring(0, 4).equals("1000") || pointID.substring(0, 4).equals("2000"))) {
+            refinedPointID = pointID.substring(4);
+            id2ConnectionNode.putIfAbsent(refinedPointID, new ArrayList<>());
+            return refinedPointID;
+        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
+            refinedPointID = pointID.substring(3);
+            id2ConnectionNode.putIfAbsent(refinedPointID, new ArrayList<>());
+            return refinedPointID;
+        }
+        return pointID;
+    }
+
+    /**
+     * Remove the prefix of the point ID of connection node and update its adjacent roads.
+     *
+     * @param pointID           Original point ID.
+     * @param edgeID
+     * @param id2ConnectionNode Map of the connection node ID and its adjacent roads.
+     * @return The refined point ID.
+     */
+    private static String pointIDFinder(String pointID, String edgeID, HashMap<String, List<String>> id2ConnectionNode) {
+        String refinedPointID;
+        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
+            refinedPointID = pointID.substring(5);
+            if (id2ConnectionNode.containsKey(refinedPointID)) {
+                id2ConnectionNode.get(refinedPointID).add(edgeID);
+            } else {
+                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
+            }
+            return refinedPointID;
+        } else if (pointID.length() > 10 && (pointID.substring(0, 4).equals("1000") || pointID.substring(0, 4).equals("2000"))) {
+            refinedPointID = pointID.substring(4);
+            if (id2ConnectionNode.containsKey(refinedPointID)) {
+                id2ConnectionNode.get(refinedPointID).add(edgeID);
+            } else {
+                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
+            }
+            return refinedPointID;
+        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
+            refinedPointID = pointID.substring(3);
+            if (id2ConnectionNode.containsKey(refinedPointID)) {
+                id2ConnectionNode.get(refinedPointID).add(edgeID);
+            } else {
+                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
+            }
+            return refinedPointID;
+        }
+        return pointID;
+    }
+
+    /**
      * Read and parse the shape file of new Beijing road map. This road map contains the following features
      * 1. Many intersections are compounded by multiple sub-nodes, each pair of which is connected by a tiny edge
      * 2. The edge connected to the sub node is recorded in the adjacent list of both the primary node and the sub node
-     * 3. The edge connecting the sub node and its primary node is only recorded in tue sub node and does not appear in primary node
+     * 3. The edge connecting the sub node and its primary node is only recorded in the sub node and does not appear in primary node
      * 4. The link number doesn't contain -edgeID, but appears in matching results
      * 5. Non-intersection nodes may have multiple adjacent edges
      * <p>
@@ -78,6 +144,7 @@ public class RawMapReader {
         // start reading nodes
         List<RoadNode> roadNodeList = new ArrayList<>();
         Map<String, RoadNode> id2Node = new HashMap<>();
+        HashMap<String, List<String>> id2ConnectionNode = new HashMap<>();
         try (FeatureIterator<SimpleFeature> features = vertexCollection.features()) {
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
@@ -86,14 +153,11 @@ public class RawMapReader {
                 if (isInside(point.getCoordinate().x, point.getCoordinate().y, roadGraph)) {
                     String pointID = feature.getAttribute(2).toString();
                     short nodeType = Short.parseShort(feature.getAttribute(5).toString());
+                    pointID = pointIDConverter(pointID, id2ConnectionNode);
                     RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y, nodeType);
-                    if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
-                        pointID = pointID.substring(5);
-                    } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
-                        pointID = pointID.substring(3);
-                    }
                     insertNode(roadNodeList, id2Node, pointID, newRoadNode);
-                }
+                } else
+                    LOGGER.severe("ERROR! The given boundary of the raw map cannot enclose all nodes.");
             }
         } catch (IllegalThreadStateException e) {
             e.printStackTrace();
@@ -119,7 +183,7 @@ public class RawMapReader {
                 MultiLineString edges = (MultiLineString) feature.getAttribute(0);
                 String edgeID = feature.getAttribute(2).toString();
                 RoadWay newRoadWay = new RoadWay(edgeID);
-                int numOfType = Integer.parseInt(feature.getAttribute(3).toString());
+                int numOfType = Integer.parseInt(feature.getAttribute(3).toString());       // read number of road type code
                 if (numOfType == 1) {
                     String roadLevel = feature.getAttribute(4).toString().substring(0, 2);
                     String roadType = feature.getAttribute(4).toString().substring(2);
@@ -152,20 +216,20 @@ public class RawMapReader {
                 if (!isInside(coordinates[0].x, coordinates[0].y, roadGraph) || !isInside(coordinates[coordinates.length - 1].x, coordinates[coordinates.length - 1].y, roadGraph))
                     continue;
                 for (int i = 0; i < coordinates.length; i++) {
-                    if (i == 0) {
+                    if (i == 0) {   // start point of road
                         String pointID = feature.getAttribute(10).toString();
-                        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
-                            pointID = pointID.substring(5);
-                        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
-                            pointID = pointID.substring(3);
+                        pointID = pointIDFinder(pointID, edgeID, id2ConnectionNode);
+                        if (!id2Node.containsKey(pointID)) {
+                            LOGGER.severe("ERROR! Input road node is missing.");
+                            continue;
                         }
                         miniNode.add(id2Node.get(pointID));
-                    } else if (i == coordinates.length - 1) {
+                    } else if (i == coordinates.length - 1) {   // end point of road
                         String pointID = feature.getAttribute(11).toString();
-                        if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
-                            pointID = pointID.substring(5);
-                        } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
-                            pointID = pointID.substring(3);
+                        pointID = pointIDFinder(pointID, edgeID, id2ConnectionNode);
+                        if (!id2Node.containsKey(pointID)) {
+                            LOGGER.severe("ERROR! Input road node is missing.");
+                            continue;
                         }
                         miniNode.add(id2Node.get(pointID));
                     } else {
@@ -234,6 +298,8 @@ public class RawMapReader {
             RoadNode existingNode = id2Node.get(pointID);
             if (existingNode.lon() != newRoadNode.lon() || existingNode.lat() != newRoadNode.lat())
                 LOGGER.severe("ERROR! The same road node has different location");
+//            else
+//                LOGGER.warning("WARNING! Same node occurred multiple times: " + pointID);
         }
     }
 

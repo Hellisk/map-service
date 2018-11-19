@@ -4,12 +4,14 @@ import mapupdate.mapinference.trajectoryclustering.pcurves.PrincipalCurveGenerat
 import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.function.HausdorffDistanceFunction;
 import mapupdate.util.function.PointDistanceFunction;
+import mapupdate.util.object.datastructure.Pair;
+import mapupdate.util.object.datastructure.Triplet;
+import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
+import mapupdate.util.object.spatialobject.Point;
 import mapupdate.util.object.spatialobject.Trajectory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static mapupdate.Main.DP_EPSILON;
 import static mapupdate.Main.LOGGER;
@@ -22,12 +24,16 @@ public class TrajectoryClusteringMapInference {
      * @param angleChangeThresh The maximum allowable angle for a continuous trajectory.
      * @return The trajectories after split.
      */
-    private List<Trajectory> splitTrajectory(List<Trajectory> unmatchedTrajList, double angleChangeThresh) {
-        List<Trajectory> trajResult = new ArrayList<>();
+    private List<Triplet<Trajectory, String, String>> splitTrajectory(List<Triplet<Trajectory, String, String>> unmatchedTrajList,
+                                                                      double angleChangeThresh) {
+        List<Triplet<Trajectory, String, String>> trajInfoResult = new ArrayList<>();
         int trajCount = 0;
-        for (Trajectory traj : unmatchedTrajList) {
+        for (Triplet<Trajectory, String, String> trajInfo : unmatchedTrajList) {
+            Trajectory traj = trajInfo._1();
             Trajectory currTraj = new Trajectory(trajCount + "");
             boolean hasPrecedingPoints = false; // the next point is the first point of this trajectory
+            if (traj.size() <= 1)
+                continue;
             for (int i = 0; i < traj.size() - 1; i++) {
                 if (!hasPrecedingPoints) {
                     double angleChangeStart = Math.abs(traj.get(i).heading() - traj.getSegment(i).getHeading());    // angle change
@@ -53,7 +59,7 @@ public class TrajectoryClusteringMapInference {
                     if (angleChangeStart < angleChangeThresh && angleChangeEnd < angleChangeThresh) {   // the trajectory continues
                         currTraj.add(traj.get(i + 1));
                     } else {    // either case, the trajectory splits at the current segment
-                        trajResult.add(currTraj);
+                        trajInfoResult.add(new Triplet<>(currTraj, trajInfo._2(), trajInfo._3()));
                         trajCount++;
                         currTraj = new Trajectory(trajCount + "");
                         hasPrecedingPoints = false;
@@ -61,12 +67,12 @@ public class TrajectoryClusteringMapInference {
                 }
             }
             if (currTraj.size() > 0) {
-                trajResult.add(currTraj);
+                trajInfoResult.add(new Triplet<>(currTraj, trajInfo._2(), trajInfo._3()));
                 trajCount++;
             }
         }
-        LOGGER.info(unmatchedTrajList.size() + " unmatched trajectories are split into " + trajResult.size() + " trajectories.");
-        return trajResult;
+        LOGGER.info(unmatchedTrajList.size() + " unmatched trajectories are split into " + trajInfoResult.size() + " trajectories.");
+        return trajInfoResult;
     }
 
     /**
@@ -77,18 +83,21 @@ public class TrajectoryClusteringMapInference {
      * @param distThresh    The maximum allowable distance between trajectories within one cluster.
      * @return A list of clusters containing all trajectories.
      */
-    private List<Cluster> basicClustering(List<Trajectory> unmatchedTraj, PointDistanceFunction pointDistFunc, double distThresh) {
+    private List<Cluster> basicClustering(List<Triplet<Trajectory, String, String>> unmatchedTraj, PointDistanceFunction pointDistFunc, double distThresh) {
         List<Cluster> resultClusterList = new ArrayList<>();
         HausdorffDistanceFunction distFunc = new HausdorffDistanceFunction(pointDistFunc);
         int clusterCount = 0;
-        for (Trajectory traj : unmatchedTraj) {
+        for (Triplet<Trajectory, String, String> trajInfo : unmatchedTraj) {
             Cluster mergedCluster = null;   // the current trajectory is merged to one of the existing cluster, null = not merged to any
             Iterator<Cluster> it = resultClusterList.iterator();
+            Trajectory traj = trajInfo._1();
             while (it.hasNext()) {
                 Cluster currCluster = it.next();
                 if (currCluster.getDistance(traj, distFunc) < distThresh) {  // current trajectory is going to be merged
                     if (mergedCluster == null) {  // not yet merged to any cluster, merge to the current one
                         currCluster.add(traj);
+                        currCluster.addStartAnchor(trajInfo._2());
+                        currCluster.addEndAnchor(trajInfo._3());
                         mergedCluster = currCluster;
                     } else {
                         mergedCluster.merge(currCluster);
@@ -98,6 +107,8 @@ public class TrajectoryClusteringMapInference {
             }
             if (mergedCluster == null) {  // no existing cluster is close to the current trajectory, create a new cluster
                 Cluster createCluster = new Cluster(clusterCount + "", traj);
+                createCluster.addStartAnchor(trajInfo._2());
+                createCluster.addEndAnchor(trajInfo._3());
                 resultClusterList.add(createCluster);
                 clusterCount++;
             }
@@ -112,25 +123,40 @@ public class TrajectoryClusteringMapInference {
     }
 
 
-    public List<RoadWay> startMapInferenceProcess(List<Trajectory> unmatchedTrajectory, double angleChangeThresh,
-                                                  double distThresh) throws InterruptedException {
-        List<Trajectory> filteredTrajList = splitTrajectory(unmatchedTrajectory, angleChangeThresh);
+    public List<RoadWay> startMapInferenceProcess(List<Triplet<Trajectory, String, String>> unmatchedTrajInfo, HashMap<String, Pair<HashSet<String>,
+            HashSet<String>>> newRoadID2AnchorPoints, double angleChangeThresh, double distThresh) throws InterruptedException {
+        List<Triplet<Trajectory, String, String>> filteredTrajList = splitTrajectory(unmatchedTrajInfo, angleChangeThresh);
         PointDistanceFunction distFunc = new GreatCircleDistanceFunction();
         List<Cluster> initialClusterList = basicClustering(filteredTrajList, distFunc, distThresh);
 
         List<RoadWay> outputRoadWay = new ArrayList<>();
         DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(DP_EPSILON);
+        PrincipalCurveGenerator principalCurveGen = new PrincipalCurveGenerator();
         for (Cluster cluster : initialClusterList) {
-            PrincipalCurveGenerator principalCurveGen = new PrincipalCurveGenerator();
-//            if (cluster.getId().equals("49"))
-//                System.out.println("TEST");
-            try {
-                RoadWay inferredRoad = principalCurveGen.startPrincipalCurveGen(cluster);
-                outputRoadWay.add(dpFilter.dpSimplifier(inferredRoad));
-            } catch (IllegalStateException e) {
-                LOGGER.warning("WARNING! Ignore cluster " + cluster.getId() + " due to principal curve generation failure.");
+            if (cluster.size() == 1) {
+                List<RoadNode> currNodeList = new ArrayList<>();
+                Trajectory traj = cluster.getTraj(0);
+                for (int i = 0; i < traj.size(); i++) {
+                    Point p = traj.get(i);
+                    currNodeList.add(new RoadNode(i + "", p.x(), p.y()));
+                }
+                newRoadID2AnchorPoints.put(cluster.getId(), new Pair<>(cluster.getStartAnchorPoints(), cluster.getEndAnchorPoints()));
+                RoadWay currWay = new RoadWay(cluster.getId(), currNodeList);
+                currWay.setNewRoad(true);
+                currWay.setConfidenceScore(1);
+                outputRoadWay.add(dpFilter.dpSimplifier(currWay));
+                continue;
             }
-
+            try {
+//                System.out.println("Start " + cluster.getID() + " generation which has " + cluster.getTrajectoryList().size() + " " +
+//                        "trajectories.");
+                RoadWay inferredRoad = principalCurveGen.startPrincipalCurveGen(cluster);
+                newRoadID2AnchorPoints.put(cluster.getId(), new Pair<>(cluster.getStartAnchorPoints(), cluster.getEndAnchorPoints()));
+                outputRoadWay.add(dpFilter.dpSimplifier(inferredRoad));
+            } catch (IllegalStateException | IndexOutOfBoundsException e) {
+//                e.printStackTrace();
+//                LOGGER.warning("WARNING! Ignore cluster " + cluster.getID() + " due to principal curve generation failure.");
+            }
         }
         return outputRoadWay;
     }

@@ -192,9 +192,11 @@ public class CSVMapReader implements SpatialInterface {
     public List<RoadWay> readInferredEdges() throws IOException {
         List<RoadWay> inferredRoads = new ArrayList<>();
         // read inferred road ways
-        File inferenceFile = new File(this.csvMapPath + "inferred_edges_0.txt");
-        if (!inferenceFile.exists())
+        File inferenceFile = new File(this.csvMapPath + "inferred_edges_1.txt");
+        if (!inferenceFile.exists()) {
+            System.err.println("ERROR! The inferred roads are not found.");
             return inferredRoads;
+        }
         BufferedReader brEdges = new BufferedReader(new FileReader(inferenceFile));
         String line;
         while ((line = brEdges.readLine()) != null) {

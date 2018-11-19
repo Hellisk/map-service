@@ -72,8 +72,7 @@ class HMMProbabilities implements Serializable {
      * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
      * @param timeDiff       time difference [s] between two consecutive GPS measurements.
      */
-    public double transitionLogProbability(double routeLength, double linearDistance,
-                                           double timeDiff) {
+    public double transitionLogProbability(double routeLength, double linearDistance, double timeDiff) {
         double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
         return Distributions.logExponentialDistribution(beta, transitionMetric);
     }
@@ -101,9 +100,8 @@ class HMMProbabilities implements Serializable {
      */
     private double normalizedTransitionMetric(double routeLength, double linearDistance,
                                               double timeDiff) {
-        if (timeDiff < 0.0) {
-            throw new IllegalStateException(
-                    "Time difference between subsequent location measurements must be >= 0.");
+        if (timeDiff <= 0.0) {
+            throw new IllegalStateException("Time difference between subsequent location measurements must be >= 0.");
         }
 //        return Math.abs(linearDistance - routeLength) / (timeDiff* timeDiff);
         return Math.abs(linearDistance - routeLength) / timeDiff;

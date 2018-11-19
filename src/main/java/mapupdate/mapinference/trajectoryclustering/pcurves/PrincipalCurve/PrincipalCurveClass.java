@@ -15,6 +15,7 @@ public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
     private Sample oldVertices = new Sample(); // vertices from the previous iteration
     private double MSE;
     private double penalty;
+    private int vertexDeletionCount = 0;
     @SuppressWarnings("unused")
     private double objective;
 
@@ -306,8 +307,7 @@ public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
     }
 
     final void RepartitionVoronoiRegions() throws IllegalStateException {
-        // System.out.println(++s + ":\tBEFORE:\tobjective = " + objective + "\tMSE = " + MSE + "\tpenalty = " +
-        // penalty);
+//        System.out.println(++s + ":\tBEFORE:\tobjective = " + objective + "\tMSE = " + MSE + "\tpenalty = " + penalty);
         int i, j;
         boolean cont = true;
         double smin, d;
@@ -355,6 +355,9 @@ public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
                 // the vertex
                 if (GetVertexAt(i).EmptySet()) {
 //                    System.out.println("deleted " + GetVertexAt(i));
+                    vertexDeletionCount += 1;
+                    if (vertexDeletionCount >= 10)
+                        throw new IllegalStateException("WARNING! Vertex deletes more than 10 times.");
                     cont = true;
                     try {
                         DeleteLineVertexAt(i);

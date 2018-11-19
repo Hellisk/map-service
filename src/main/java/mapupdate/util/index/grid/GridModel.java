@@ -45,12 +45,9 @@ public class GridModel implements SpatialIndexModel {
      * @param maxX Upper-right X coordinate.
      * @param maxY Upper-right Y coordinate.
      */
-    public GridModel(int n, int m,
-                     double minX, double minY,
-                     double maxX, double maxY) {
+    public GridModel(int n, int m, double minX, double minY, double maxX, double maxY) {
         if (n <= 0 || m <= 0) {
-            throw new IllegalArgumentException("Grid dimensions "
-                    + "must be positive.");
+            throw new IllegalArgumentException("Grid dimensions " + "must be positive.");
         }
         this.grid = new Rectangle[n][m];
         this.boundary = new Rectangle(minX, minY, maxX, maxY);
@@ -77,7 +74,7 @@ public class GridModel implements SpatialIndexModel {
                 cellId = getIndexString(x, y);
                 Rectangle cell = new Rectangle(currentX, currentY,
                         currentX + incrX, currentY + incrY);
-                cell.setId(cellId);
+                cell.setID(cellId);
                 grid[x][y] = cell;
                 currentX += incrX;
             }
@@ -115,8 +112,7 @@ public class GridModel implements SpatialIndexModel {
      * in this grid.
      */
     public double cellsHeight() {
-        double height = (boundary.maxY() - boundary.minY()) / sizeY;
-        return height;
+        return (boundary.maxY() - boundary.minY()) / sizeY;
     }
 
     /**
@@ -124,8 +120,7 @@ public class GridModel implements SpatialIndexModel {
      * in this grid.
      */
     public double cellsWidth() {
-        double width = (boundary.maxX() - boundary.minX()) / sizeX;
-        return width;
+        return (boundary.maxX() - boundary.minX()) / sizeX;
     }
 
     /**
@@ -145,8 +140,7 @@ public class GridModel implements SpatialIndexModel {
      */
     public Rectangle get(int i, int j) {
         if (i < 0 || i >= sizeX || j < 0 && j >= sizeY) {
-            throw new IndexOutOfBoundsException(
-                    "Grid index out of bounds.");
+            throw new IndexOutOfBoundsException("Grid index out of bounds.");
         }
         return grid[i][j];
     }
@@ -154,8 +148,7 @@ public class GridModel implements SpatialIndexModel {
     @Override
     public Rectangle get(final String index) {
         if (index == null || index.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Grid index must not be empty.");
+            throw new IllegalArgumentException("Grid index must not be empty.");
         }
         int[] pos = getCellPosition(index);
         return get(pos[0], pos[1]);
@@ -179,8 +172,7 @@ public class GridModel implements SpatialIndexModel {
             int j = Integer.parseInt(pos[1]);
             return new int[]{i, j};
         } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Grid index is invalid.");
+            throw new IllegalArgumentException("Grid index is invalid.");
         }
     }
 
@@ -192,14 +184,15 @@ public class GridModel implements SpatialIndexModel {
     @Override
     public String search(double x, double y) {
         if (!boundary.contains(x, y)) {
+            System.err.println("ERROR! The specific location is not included in the map.");
             return null; // didn't find anything
         }
         double width = cellsWidth();
         double height = cellsHeight();
         int i = (int) ((x - boundary.minX()) / width);
         int j = (int) ((y - boundary.minY()) / height);
-        if ((x != boundary.minX() && x % width == 0) || x == boundary.maxX()) i--;
-        if ((y != boundary.minY() && y % height == 0) || y == boundary.maxY()) j--;
+        if ((x != boundary.minX() && (x - boundary.minX()) % width == 0) || x == boundary.maxX()) i--;
+        if ((y != boundary.minY() && (y - boundary.minY()) % height == 0) || y == boundary.maxY()) j--;
 
         return getIndexString(i, j);
     }
@@ -213,7 +206,7 @@ public class GridModel implements SpatialIndexModel {
         for (int i = 0; i < sizeX; i++) {
             for (int j = 0; j < sizeY; j++) {
                 if (grid[i][j].intersects(obj)) {
-                    posList.add(grid[i][j].getId());
+                    posList.add(grid[i][j].getID());
                 }
             }
         }
@@ -246,9 +239,8 @@ public class GridModel implements SpatialIndexModel {
      */
     public HashSet<String> adjacentSearch(final String index) {
         if (index == null || index.isEmpty()) {
-            return new HashSet<>();
-//            throw new IllegalArgumentException(
-//                    "Grid index must not be empty.");
+//            return new HashSet<>();
+            throw new IllegalArgumentException("Grid index must not be empty.");
         }
         int[] pos = getCellPosition(index);
         return adjacentSearch(pos[0], pos[1]);
@@ -265,8 +257,7 @@ public class GridModel implements SpatialIndexModel {
      */
     public HashSet<String> adjacentSearch(final int i, final int j) {
         if (i < 0 || i >= sizeX || j < 0 && j >= sizeY) {
-            throw new IndexOutOfBoundsException(
-                    "Grid index out of bounds.");
+            throw new IndexOutOfBoundsException("Grid index out of bounds.");
         }
         HashSet<String> posList = new HashSet<>();
         int adjX, adjY;

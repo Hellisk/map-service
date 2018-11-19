@@ -5,7 +5,6 @@ import mapupdate.util.exceptions.SpatialObjectConstructionException;
 import mapupdate.util.exceptions.SpatialRelationException;
 import mapupdate.util.object.SpatialInterface;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,16 +19,21 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * **************/
 
     /**
+     * @return The identifier of this spatial object.
+     */
+    String getID();
+
+    /**
      * Set the id of this spatial object.
      *
      * @param id Object's identifier.
      */
-    void setId(String id);
+    void setID(String id);
 
     /**
-     * @return The identifier of this spatial object.
+     * @return The identifier of the parent of this  spatial object (if any).
      */
-    String getId();
+    String getParentID();
 
     /**
      * Set the  of the parent of this spatial object (if any).
@@ -37,12 +41,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      *
      * @param parentId Parent object identifier.
      */
-    void setParentId(String parentId);
-
-    /**
-     * @return The identifier of the parent of this  spatial object (if any).
-     */
-    String getParentId();
+    void setParentID(String parentId);
 
     /**
      * Set the number of spatial dimensions of this spatial object.
@@ -333,8 +332,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
             }
             return this.toJTSGeometry().intersects(obj.toJTSGeometry());
         } catch (Exception e) {
-            throw new SpatialRelationException("'Intersects' operation not supported "
-                    + "for these spatial objects.");
+            throw new SpatialRelationException("'Intersects' operation not supported for these spatial objects.");
         }
     }
 
@@ -379,8 +377,8 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
             throw new NullPointerException("Spatial object to receive "
                     + "cloned attributes cannot be null.");
         }
-        if (this.getId() != null) {
-            obj.setId(this.getId());
+        if (this.getID() != null) {
+            obj.setID(this.getID());
         }
         obj.setDimension(this.getDimension());
     }

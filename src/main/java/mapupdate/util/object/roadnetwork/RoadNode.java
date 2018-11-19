@@ -113,7 +113,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
      */
     public Point toPoint() {
         Point p = new Point(lon, lat);
-        p.setId(getID());
+        p.setID(getID());
         return p;
     }
 

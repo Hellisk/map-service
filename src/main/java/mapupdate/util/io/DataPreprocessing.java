@@ -18,7 +18,7 @@ public class DataPreprocessing {
         LOGGER.info("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
 
         // pre-processing step 1: read entire ground truth map from csv file and select the bounded area
-        LOGGER.info("Start extracting the map from the ground-truth and resizing it by the bounding box.");
+        LOGGER.info("Start extracting the original map and resizing it by the bounding box.");
         CSVMapReader rawMapReader = new CSVMapReader(GT_MAP);
         RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);

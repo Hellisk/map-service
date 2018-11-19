@@ -4,6 +4,7 @@ import mapupdate.util.object.datastructure.ItemWithProbability;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 
 public class TestMain {
     public static void main(String[] args) {
@@ -15,18 +16,14 @@ public class TestMain {
         topRankedCandidates.add(new ItemWithProbability<>("Test5", 100.12));
         topRankedCandidates.add(new ItemWithProbability<>("Test6", 15.1));
         topRankedCandidates.add(new ItemWithProbability<>("Test7", 1.1));
-        topRankedCandidates.add(new ItemWithProbability<>("Test10", 1.1));
-        topRankedCandidates.add(new ItemWithProbability<>("Test9", 1.1));
         topRankedCandidates.add(new ItemWithProbability<>("Test8", 1.1));
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
-        System.out.println(topRankedCandidates.remove().getItem());
+        topRankedCandidates.add(new ItemWithProbability<>("Test9", 1.1));
+        topRankedCandidates.add(new ItemWithProbability<>("Test10", 1.1));
+        Random randomValue = new Random();
+        for (int count = 11; count < 100; count++) {
+            topRankedCandidates.add(new ItemWithProbability<>("Test" + count, randomValue.nextDouble()));
+        }
+        while (!topRankedCandidates.isEmpty())
+            System.out.println(topRankedCandidates.remove().getItem());
     }
 }

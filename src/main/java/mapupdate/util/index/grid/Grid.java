@@ -72,8 +72,7 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
     public GridPartition<T> get(int i, int j) {
         if (i < 0 || i >= gridModel.sizeX() ||
                 j < 0 || j >= gridModel.sizeY()) {
-            throw new IndexOutOfBoundsException(
-                    "Grid index out of bounds.");
+            throw new IndexOutOfBoundsException("Grid index out of bounds.");
         }
         return partitions[i][j];
     }

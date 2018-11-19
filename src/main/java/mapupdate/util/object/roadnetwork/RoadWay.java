@@ -172,7 +172,6 @@ public class RoadWay extends RoadNetworkPrimitive {
         for (int i = 1; i < this.nodeList.size(); i++) {
             this.roadLength += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
         }
-
     }
 
     /**
@@ -250,7 +249,7 @@ public class RoadWay extends RoadNetworkPrimitive {
             node1 = nodeList.get(i);
             node2 = nodeList.get(i + 1);
             Segment currSegment = new Segment(node1.lon(), node1.lat(), node2.lon(), node2.lat());
-            currSegment.setId(this.getID());
+            currSegment.setID(this.getID());
             sList.add(currSegment);
         }
         return sList;

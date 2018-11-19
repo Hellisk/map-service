@@ -18,16 +18,26 @@ import static mapupdate.Main.ROOT_PATH;
  */
 public class ResultEvaluation {
 
-    public List<String> getMapMatchingResult() {
-        return mapMatchingResult;
+    private List<String> mapMatchingLengthResult = new ArrayList<>();
+    private List<String> mapMatchingCountResult = new ArrayList<>();
+    private List<String> mapUpdateLengthResult = new ArrayList<>();
+    private List<String> mapUpdateCountResult = new ArrayList<>();
+
+    public List<String> getMapMatchingLengthResult() {
+        return mapMatchingLengthResult;
     }
 
-    public List<String> getMapUpdateResult() {
-        return mapUpdateResult;
+    public List<String> getMapUpdateLengthResult() {
+        return mapUpdateLengthResult;
     }
 
-    private List<String> mapMatchingResult = new ArrayList<>();
-    private List<String> mapUpdateResult = new ArrayList<>();
+    public List<String> getMapMatchingCountResult() {
+        return mapMatchingCountResult;
+    }
+
+    public List<String> getMapUpdateCountResult() {
+        return mapUpdateCountResult;
+    }
 
     /**
      * Evaluate the precision, recall and F-score of the Beijing map-matching
@@ -57,45 +67,54 @@ public class ResultEvaluation {
                 id2RoadLength.put(w.getID(), w.getRoadLength());
         }
         // start the count
+
+        double totalCorrectlyMatchedCount = 0;      // total length of perfectly matched road ways
+        double totalMatchedCount = 0;    // total length of the road ways that are matched incorrectly
+        double totalGroundTruthCount = 0;    // total length of the ground-truth road ways
         double totalCorrectlyMatchedLength = 0;      // total length of perfectly matched road ways
         double totalMatchedLength = 0;    // total length of the road ways that are matched incorrectly
         double totalGroundTruthLength = 0;    // total length of the ground-truth road ways
 
         for (TrajectoryMatchingResult r : matchedResult) {
             Set<String> matchRoadIDSet = new LinkedHashSet<>(r.getBestMatchWayList());
-            double currMatchedLength = 0;
             // summarize all matched road length
             for (String s : matchRoadIDSet) {
-                currMatchedLength += id2RoadLength.get(s);
+                totalMatchedLength += id2RoadLength.get(s);
             }
-            double correctlyMatchedLength = 0;
+            totalMatchedCount += matchRoadIDSet.size();
             // check the coverage of the roads found in our match
             HashSet<String> groundTruthIDList = gtResultList.get(Integer.parseInt(r.getTrajID()));
             if (groundTruthIDList == null)
                 throw new NullPointerException("ERROR! Ground-truth of " + r.getTrajID() + " is not found.");
-            double currGroundTruthLength = 0;
             for (String s : groundTruthIDList) {
                 double currLength = id2RoadLength.get(s);
-                currGroundTruthLength += currLength;
+                totalGroundTruthLength += currLength;
+                totalGroundTruthCount++;
                 if (matchRoadIDSet.contains(s)) {
-                    correctlyMatchedLength += currLength;
+                    totalCorrectlyMatchedLength += currLength;
+                    totalCorrectlyMatchedCount++;
                 }
             }
-
-            totalCorrectlyMatchedLength += correctlyMatchedLength;
-            totalMatchedLength += currMatchedLength;
-            totalGroundTruthLength += currGroundTruthLength;
         }
 
-        double precision = totalCorrectlyMatchedLength / totalMatchedLength;
-        double recall = totalCorrectlyMatchedLength / totalGroundTruthLength;
-        double fScore = 2 * (precision * recall / (precision + recall));
-        String precisionString = df.format(precision * 100);
-        String recallString = df.format(recall * 100);
-        String fMeasureString = df.format(fScore * 100);
-        mapMatchingResult.add(precisionString + "," + recallString + "," + fMeasureString);
-        LOGGER.info("Map-matching result evaluated, precision: " + precisionString + "%, recall:" + recallString +
-                "%, F-score: " + fMeasureString + "%.");
+        double lengthPrecision = totalCorrectlyMatchedLength / totalMatchedLength;
+        double lengthRecall = totalCorrectlyMatchedLength / totalGroundTruthLength;
+        double lengthFScore = 2 * (lengthPrecision * lengthRecall / (lengthPrecision + lengthRecall));
+        double countPrecision = totalCorrectlyMatchedCount / totalMatchedCount;
+        double countRecall = totalCorrectlyMatchedCount / totalGroundTruthCount;
+        double countFScore = 2 * (countPrecision * countRecall / (countPrecision + countRecall));
+        String lengthPrecisionString = df.format(lengthPrecision * 100);
+        String lengthRecallString = df.format(lengthRecall * 100);
+        String lengthFMeasureString = df.format(lengthFScore * 100);
+        String countPrecisionString = df.format(countPrecision * 100);
+        String countRecallString = df.format(countRecall * 100);
+        String countFMeasureString = df.format(countFScore * 100);
+        mapMatchingLengthResult.add(lengthPrecisionString + "," + lengthRecallString + "," + lengthFMeasureString);
+        mapMatchingCountResult.add(countPrecisionString + "," + countRecallString + "," + countFMeasureString);
+        LOGGER.info("Map-matching result evaluated, length precision: " + lengthPrecisionString + "%, length recall:" + lengthRecallString +
+                "%, F-score: " + lengthFMeasureString + "%.");
+        LOGGER.info("Map-matching result evaluated, count precision: " + countPrecisionString + "%, count recall:" + countRecallString +
+                "%, F-score: " + countFMeasureString + "%.");
     }
 
     /**
@@ -178,16 +197,18 @@ public class ResultEvaluation {
         double totalGroundTruthLength = 0;    // total length of the ground-truth road ways
         double totalFoundRoadCount = 0;     // total number of removed road found
         double totalNewRoadCount = 0;     // total number of removed road found
+        double totalGroundTruthCount = 0;    // total length of the ground-truth road ways
 
         // insert the raw map and removed road information into the dictionary
         for (RoadWay gtResult : inputMap.getWays())
             originalRoadSet.add(gtResult.getID());
-        for (RoadWay removedEdges : removedWayList) {
-            if (!id2RemovedLength.containsKey(removedEdges.getID())) {
-                id2RemovedLength.put(removedEdges.getID(), removedEdges.getRoadLength());
-                totalGroundTruthLength += removedEdges.getRoadLength();
+        for (RoadWay removedEdge : removedWayList) {
+            if (!id2RemovedLength.containsKey(removedEdge.getID())) {
+                id2RemovedLength.put(removedEdge.getID(), removedEdge.getRoadLength());
+                totalGroundTruthLength += removedEdge.getRoadLength();
+                totalGroundTruthCount++;
             } else
-                LOGGER.severe("ERROR! The road " + removedEdges.getID() + " has been removed more than once.");
+                LOGGER.severe("ERROR! The road " + removedEdge.getID() + " has been removed more than once.");
         }
 
         for (RoadWay w : inferenceMap.getWays()) {
@@ -198,30 +219,40 @@ public class ResultEvaluation {
                 totalFoundRoadLength += w.getRoadLength();
                 totalFoundRoadOriginalLength += id2RemovedLength.get(w.getID());
                 totalFoundRoadCount++;
+                totalFoundRoadCount++;
             } else if (!originalRoadSet.contains(w.getID())) {
                 totalNewRoadLength += w.getRoadLength();
                 totalNewRoadCount++;
             }
         }
 
-        double precision = totalFoundRoadLength / (totalNewRoadLength + totalFoundRoadLength);
-        double recall = totalFoundRoadLength / totalGroundTruthLength;
-        double fScore = 2 * (precision * recall / (precision + recall));
+        double lengthPrecision = totalFoundRoadLength / (totalNewRoadLength + totalFoundRoadLength);
+        double lengthRecall = totalFoundRoadOriginalLength / totalGroundTruthLength;
+        double lengthFScore = 2 * (lengthPrecision * lengthRecall / (lengthPrecision + lengthRecall));
+        double countPrecision = totalFoundRoadCount / (totalNewRoadCount + totalFoundRoadCount);
+        double countRecall = totalFoundRoadCount / totalGroundTruthCount;
+        double countFScre = 2 * (countPrecision * countRecall / (countPrecision + countRecall));
         double roadDiff = Math.abs(totalFoundRoadLength - totalFoundRoadOriginalLength) / totalFoundRoadOriginalLength;
 
-        String precisionString = df.format(precision * 100);
-        String recallString = df.format(recall * 100);
-        String fMeasureString = df.format(fScore * 100);
-        mapUpdateResult.add(precisionString + "," + recallString + "," + fMeasureString);
-        LOGGER.info("Map update result evaluation complete, precision: " + precisionString + "%, recall:" + recallString +
-                "%, F-score: " + fMeasureString + "%.");
+        String lengthPrecisionString = df.format(lengthPrecision * 100);
+        String lengthRecallString = df.format(lengthRecall * 100);
+        String lengthFMeasureString = df.format(lengthFScore * 100);
+        String countPrecisionString = df.format(countPrecision * 100);
+        String countRecallString = df.format(countRecall * 100);
+        String countFMeasureString = df.format(countFScre * 100);
+        mapUpdateCountResult.add(countPrecisionString + "," + countRecallString + "," + countFMeasureString);
+        mapUpdateLengthResult.add(lengthPrecisionString + "," + lengthRecallString + "," + lengthFMeasureString);
+        LOGGER.info("Map update result evaluation complete, length precision: " + lengthPrecisionString + "%, length recall:" + lengthRecallString +
+                "%, F-score: " + lengthFMeasureString + "%.");
+        LOGGER.info("Map update result evaluation complete, count precision: " + countPrecisionString + "%, count recall:" + countRecallString +
+                "%, F-score: " + countFMeasureString + "%.");
         LOGGER.info("Total number of roads found: " + totalFoundRoadCount + ", missing roads: " + (removedWayList.size() - totalFoundRoadCount) + ", wrong roads: " + totalNewRoadCount + ".");
 
         String print = "";
         if (totalFoundRoadLength > totalFoundRoadOriginalLength)
             print += "Overall, the inferred roads are longer than original road by ";
         else
-            print += "Overall, the inferred roads are longer than original road by ";
+            print += "Overall, the inferred roads are shorter than original road by ";
         print += df.format(roadDiff * 100) + "%";
         LOGGER.info(print);
     }

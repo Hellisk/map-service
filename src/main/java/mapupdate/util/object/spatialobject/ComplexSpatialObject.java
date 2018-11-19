@@ -57,22 +57,22 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     @Override
-    public void setId(String id) {
-        this.oid = id;
-    }
-
-    @Override
-    public String getId() {
+    public String getID() {
         return oid;
     }
 
     @Override
-    public String getParentId() {
+    public void setID(String id) {
+        this.oid = id;
+    }
+
+    @Override
+    public String getParentID() {
         return parentOid;
     }
 
     @Override
-    public void setParentId(String parentId) {
+    public void setParentID(String parentId) {
         this.parentOid = parentId;
     }
 

@@ -268,6 +268,18 @@ public class RoadNetworkGraph implements MapInterface {
         return nodesList == null || nodesList.isEmpty();
     }
 
+    public void removeRoadWayList(Set<RoadWay> roadWayList) {
+        List<RoadWay> removedWayList = new ArrayList<>();
+        for (RoadWay way : roadWayList) {
+            if (wayIDList.contains(way.getID()))
+                wayIDList.remove(way.getID());
+            else
+                LOGGER.severe("ERROR! The road to be removed is not in the map: " + way.getID());
+            removedWayList.add(way);
+        }
+        this.waysList.removeAll(removedWayList);
+    }
+
     public int isolatedNodeRemoval() {
         List<RoadNode> removedRoadNodeList = new ArrayList<>();
         for (RoadNode n : this.nodesList) {

@@ -4,6 +4,8 @@ import mapupdate.util.function.HausdorffDistanceFunction;
 import mapupdate.util.object.spatialobject.Trajectory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -12,6 +14,8 @@ import java.util.List;
 public class Cluster {
     private List<Trajectory> itemList;
     private String id;
+    private HashSet<String> startAnchorPoint = new LinkedHashSet<>();
+    private HashSet<String> endAnchorPoint = new LinkedHashSet<>();
 
     Cluster(String id) {
         this.id = id;
@@ -49,8 +53,34 @@ public class Cluster {
         this.itemList.add(traj);
     }
 
+    void addStartAnchor(String s) {
+        this.startAnchorPoint.add(s);
+    }
+
+    private void addAllStartAnchor(HashSet<String> anchorSet) {
+        this.startAnchorPoint.addAll(anchorSet);
+    }
+
+    void addEndAnchor(String s) {
+        this.endAnchorPoint.add(s);
+    }
+
+    private void addAllEndAnchor(HashSet<String> anchorSet) {
+        this.endAnchorPoint.addAll(anchorSet);
+    }
+
+    HashSet<String> getStartAnchorPoints() {
+        return startAnchorPoint;
+    }
+
+    HashSet<String> getEndAnchorPoints() {
+        return endAnchorPoint;
+    }
+
     void merge(Cluster cluster) {
         this.itemList.addAll(cluster.itemList);
+        addAllStartAnchor(cluster.getStartAnchorPoints());
+        addAllEndAnchor(cluster.getEndAnchorPoints());
     }
 
     double getDistance(Trajectory traj, HausdorffDistanceFunction distFunc) {

@@ -9,9 +9,9 @@ import mapupdate.util.object.roadnetwork.MapInterface;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Segment;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -54,7 +54,7 @@ public class NewsonHMM2009 implements MapInterface {
      */
     private final RoutingGraph routingGraph;
 
-    private List<Trajectory> unmatchedTraj = new ArrayList<>();
+    private List<Triplet<Trajectory, String, String>> unmatchedTraj = new ArrayList<>();
 
     public NewsonHMM2009(int candidateRange, int unmatchedTrajThreshold, int rankLength, RoadNetworkGraph roadNetworkGraph) {
         this.distanceFunction = new GreatCircleDistanceFunction();
@@ -76,7 +76,7 @@ public class NewsonHMM2009 implements MapInterface {
         for (Trajectory traj : rawTrajectory) {
 //            if (matchCount == 2004)
 //                LOGGER.info("test");
-            Pair<TrajectoryMatchingResult, List<Trajectory>> matchResult = doMatching(traj);
+            Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> matchResult = doMatching(traj);
             if (!matchResult._2().isEmpty())
                 brokenTrajCount++;
             result.add(matchResult._1());
@@ -90,7 +90,7 @@ public class NewsonHMM2009 implements MapInterface {
         return result;
     }
 
-    public Stream<Pair<TrajectoryMatchingResult, List<Trajectory>>> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory)
+    public Stream<Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>>> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory)
             throws ExecutionException, InterruptedException {
 
         if (inputTrajectory == null) {
@@ -102,7 +102,7 @@ public class NewsonHMM2009 implements MapInterface {
 
         // parallel processing
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        ForkJoinTask<Stream<Pair<TrajectoryMatchingResult, List<Trajectory>>>> taskResult =
+        ForkJoinTask<Stream<Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>>>> taskResult =
                 forkJoinPool.submit(() -> inputTrajectory.parallel().map(this::doMatching));
         while (!taskResult.isDone())
             Thread.sleep(5);
@@ -118,16 +118,16 @@ public class NewsonHMM2009 implements MapInterface {
     public TrajectoryMatchingResult trajectorySingleMatchingProcess(Trajectory inputTrajectory) {
 
         // sequential test
-        Pair<TrajectoryMatchingResult, List<Trajectory>> matchResult = doMatching(inputTrajectory);
+        Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> matchResult = doMatching(inputTrajectory);
 //            if (inputTrajectory.size() > 100)
 //                if (matchCount % (inputTrajectory.size() / 100) == 0)
 //                    LOGGER.info("Map matching finish " + matchCount / (inputTrajectory.size() / 100) + "%. Broken trajectory count:" + hmmMapMatching.getBrokenTrajCount() + ".");
 //            matchCount++;
-        LOGGER.info("Matching finished:" + inputTrajectory.getId());
+        LOGGER.info("Matching finished:" + inputTrajectory.getID());
         return matchResult._1();
     }
 
-    public List<Trajectory> getUnmatchedTraj() {
+    public List<Triplet<Trajectory, String, String>> getUnmatchedTraj() {
         return unmatchedTraj;
     }
 
@@ -199,7 +199,7 @@ public class NewsonHMM2009 implements MapInterface {
      *   Map-matching implementation
      */
 
-    public Pair<TrajectoryMatchingResult, List<Trajectory>> doMatching(final Trajectory trajectory) {
+    public Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> doMatching(final Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
         int indexBeforeCurrBreak = -1;   // the index of the last point before current broken position, -1 = currently no breakpoint
@@ -213,7 +213,7 @@ public class NewsonHMM2009 implements MapInterface {
         // the break is caused by no candidate, =2 if it is caused by broken transition, =3 if it is caused by broken transition but used
         // as the initial point of the new sequence
 
-        List<Trajectory> unmatchedTrajectoryList = new ArrayList<>();   // unmatched trajectories
+        List<Triplet<Trajectory, String, String>> unmatchedTrajectoryList = new ArrayList<>();   // unmatched trajectories
 
         ViterbiAlgorithm<PointMatch, TrajectoryPoint, RoadPath> viterbi = new ViterbiAlgorithm<>(rankLength);
         TimeStep<PointMatch, TrajectoryPoint, RoadPath> prevTimeStep = null;
@@ -235,8 +235,7 @@ public class NewsonHMM2009 implements MapInterface {
                 timeStep = new TimeStep<>(gpsPoint, candidates);
                 if (prevTimeStep == null) {     // start of the trajectory or the current matching has just been cut off
                     computeEmissionProbabilities(timeStep);
-                    viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates,
-                            timeStep.emissionLogProbabilities);
+                    viterbi.startWithInitialObservation(timeStep.observation, timeStep.candidates, timeStep.emissionLogProbabilities);
                     if (breakPoints.containsKey(i))
                         breakPoints.put(i, 3);  // start the new match from the current point, set it as the breakpoint type 3
                     // successful initialization
@@ -348,13 +347,24 @@ public class NewsonHMM2009 implements MapInterface {
                 int end;
                 for (int i = 1; i < extendedBreakPointList.size(); i++) {
                     if (extendedBreakPointList.get(i) != extendedBreakPointList.get(i - 1) + 1) {
-                        end = extendedBreakPointList.get(i - 1) + 1;
-                        unmatchedTrajectoryList.add(trajectory.subTrajectory(start, end));
+                        end = extendedBreakPointList.get(i - 1);
+                        if (start != 0 && end != trajectory.size() - 1 && start != end) {
+                            Triplet<Trajectory, String, String> currUnmatchedTrajectory = new Triplet<>(trajectory.subTrajectory(start,
+                                    end + 1), rankedRoadPositionList.get(0)._1().get(start - 1).state.getRoadID(),
+                                    rankedRoadPositionList.get(0)._1().get(end + 1).state.getRoadID());
+                            unmatchedTrajectoryList.add(currUnmatchedTrajectory);
+                        }
                         start = extendedBreakPointList.get(i);
                     }
                 }
-                unmatchedTrajectoryList.add(trajectory.subTrajectory(start, extendedBreakPointList.get(extendedBreakPointList.size() - 1)
-                        + 1));
+                // the unmatched trajectory that includes the last trajectory point should be removed.
+                end = extendedBreakPointList.get(extendedBreakPointList.size() - 1);
+                if (end != trajectory.size() - 1 && start != 0 && start != end) {
+                    Triplet<Trajectory, String, String> currUnmatchedTrajectory = new Triplet<>(trajectory.subTrajectory(start,
+                            end + 1), rankedRoadPositionList.get(0)._1().get(start - 1).state.getRoadID(),
+                            rankedRoadPositionList.get(0)._1().get(end + 1).state.getRoadID());
+                    unmatchedTrajectoryList.add(currUnmatchedTrajectory);
+                }
 //            } else {
 //                LOGGER.info("The break point(s) cannot be extended and thus removed. No unmatched trajectory output");
             }
@@ -481,8 +491,8 @@ public class NewsonHMM2009 implements MapInterface {
     /**
      * Find the minimum distance between given trajectory point and all its candidate matches
      *
-     * @param trajectoryPoint      Trajectory point
-     * @param pointMatches Candidate matches
+     * @param trajectoryPoint Trajectory point
+     * @param pointMatches    Candidate matches
      * @return The distance between the trajectory point and its closest candidate
      */
     private double findMinDist(TrajectoryPoint trajectoryPoint, Collection<PointMatch> pointMatches) {
@@ -590,7 +600,7 @@ public class NewsonHMM2009 implements MapInterface {
             roadPositionList) {
         TrajectoryMatchingResult result = new TrajectoryMatchingResult(traj, rankLength);
         double[] probabilities = new double[rankLength];
-        for (int i = 0; i < roadPositionList.size(); i++) {
+        for (int i = 0; i < roadPositionList.size(); i++) {     // rank
             Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double> roadPosition = roadPositionList.get(i);
             List<PointMatch> matchPairs = new ArrayList<>();
             Set<String> path = new LinkedHashSet<>();
@@ -615,6 +625,8 @@ public class NewsonHMM2009 implements MapInterface {
             // the probability should be converted to non-log mode
 //            probabilities[i] = roadPosition._2() == 0 ? 0 : Math.exp(roadPosition._2());
             // probability normalization
+            if (roadPosition._2() == null || roadPosition._2() == 0 || traj.size() <= 1 || Double.isNaN((roadPosition._2() / traj.size())))
+                LOGGER.info("TEST");
             probabilities[i] = roadPosition._2() == 0 ? 0 : Math.exp(roadPosition._2() / traj.size());
         }
         result.setProbabilities(probabilities);
@@ -652,8 +664,8 @@ public class NewsonHMM2009 implements MapInterface {
                                      trajectory, Map<Integer, Integer> breakPoints, int destinationIndex, Map<TrajectoryPoint,
             Collection<PointMatch>> candidatesMap) {
         for (int rank = 0; rank < rankLength; rank++) {
-            if(temporalRoadPositions.size()==0) {
-                LOGGER.severe("ERROR! The current trajectory has no matching result.");
+            if (temporalRoadPositions.size() == 0) {
+                LOGGER.warning("WARNING! The current trajectory has no matching result.");
                 return;
             }
             int validRank = rank < temporalRoadPositions.size() ? rank : temporalRoadPositions.size() - 1;  // fill the rest of the rank

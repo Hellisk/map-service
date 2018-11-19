@@ -2,6 +2,7 @@ package mapupdate.util.io;
 
 import mapupdate.util.object.datastructure.PointMatch;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
+import mapupdate.util.object.datastructure.Triplet;
 import mapupdate.util.object.spatialobject.Trajectory;
 import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
@@ -70,9 +71,7 @@ public class CSVTrajectoryWriter {
 
             // parallel processing
             ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-            forkJoinPool.submit(() -> trajectoryMatchingStream.parallel().forEach(matchingResult -> {
-                writeMatchedTrajectoryRecord(matchedResultFolder, roadIDListFolder, matchingResult, rankLength);
-            }));
+            forkJoinPool.submit(() -> trajectoryMatchingStream.parallel().forEach(matchingResult -> writeMatchedTrajectoryRecord(matchedResultFolder, roadIDListFolder, matchingResult, rankLength)));
             while (Objects.requireNonNull(matchedResultFolder.list()).length != matchingList.size() && Objects.requireNonNull(roadIDListFolder.list())
                     .length != matchingList.size()) {
                 try {
@@ -93,7 +92,6 @@ public class CSVTrajectoryWriter {
                     "/matchedtrip_" + matchingResult.getTrajID() + ".txt"));
             BufferedWriter roadIDFromTrajectory = new BufferedWriter(new FileWriter(roadIDListFolder.toString() + "/matchedtripID_"
                     + matchingResult.getTrajID() + ".txt"));
-
             // write point matching result, format ((raw trajectory) lon,lat,time|(matching result rank 1)lon,lat,roadID|lon,lat,
             // roadID|...)
             for (int i = 0; i < matchingResult.getTrajSize(); i++) {
@@ -140,11 +138,11 @@ public class CSVTrajectoryWriter {
     }
 
     /**
-     * writer for writing raw trajectories
+     * Write unmatched trajectories to files
      *
-     * @param trajectoryList output trajectories
+     * @param trajectoryInfoList List of unmatched trajectories and their start and end anchor points.
      */
-    public void writeUnmatchedTrajectory(List<Trajectory> trajectoryList, int iteration) throws IOException {
+    public void writeUnmatchedTrajectory(List<Triplet<Trajectory, String, String>> trajectoryInfoList, int iteration) throws IOException {
         File outputTrajectoryFolder;
         File nextInputUnmatchedTrajectoryFolder;
         if (iteration == -1) {
@@ -176,27 +174,32 @@ public class CSVTrajectoryWriter {
                 }
             }
             Map<String, Integer> id2UnmatchedTrajCount = new HashMap<>();
-            for (Trajectory w : trajectoryList) {
+            for (Triplet<Trajectory, String, String> info : trajectoryInfoList) {
                 try {
                     BufferedWriter bwTrajectory;
                     BufferedWriter nextInputUnmatchedTrajectory;
-                    if (!id2UnmatchedTrajCount.containsKey(w.getId())) {
-                        bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" + w
-                                .getId() + "_0.txt"));
+                    Trajectory w = info._1();
+                    if (!id2UnmatchedTrajCount.containsKey(w.getID())) {
+                        bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" + w.getID() + "_0.txt"));
                         nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
-                                "/trip_" + w.getId() + "_0.txt"));
-                        id2UnmatchedTrajCount.put(w.getId(), 1);
+                                "/trip_" + w.getID() + "_0.txt"));
+                        id2UnmatchedTrajCount.put(w.getID(), 1);
                     } else {
-                        String additionalFileName = w.getId() + "_" + id2UnmatchedTrajCount.get(w.getId());
+                        String additionalFileName = w.getID() + "_" + id2UnmatchedTrajCount.get(w.getID());
                         bwTrajectory = new BufferedWriter(new FileWriter(outputTrajectoryFolder.toString() + "/trip_" +
                                 additionalFileName + ".txt"));
                         nextInputUnmatchedTrajectory = new BufferedWriter(new FileWriter(nextInputUnmatchedTrajectoryFolder +
                                 "/trip_" + additionalFileName + ".txt"));
-                        id2UnmatchedTrajCount.replace(w.getId(), id2UnmatchedTrajCount.get(w.getId()) + 1);
+                        id2UnmatchedTrajCount.replace(w.getID(), id2UnmatchedTrajCount.get(w.getID()) + 1);
                     }
                     Iterator<TrajectoryPoint> iter = w.iterator();
                     int startPointCount = pointCount;
                     int matchingPointCount = w.getSTPoints().size();
+
+                    // start writing the anchor road ID, then the trajectory points
+                    if (info._2().equals("") || info._3().equals("") || info._2() == null || info._3() == null)
+                        LOGGER.warning("WARNING! Anchor road is missing.");
+                    bwTrajectory.write(info._2() + "," + info._3() + "\n");
                     while (iter.hasNext()) {
                         TrajectoryPoint p = iter.next();
                         bwTrajectory.write(p.x() + " " + p.y() + " " + p.time() + " " + p.speed() + " " + p.heading() + "\n");
@@ -239,16 +242,17 @@ public class CSVTrajectoryWriter {
      * Merge the unmatched trajectory sets generated before and after refinement and form the final unmatched trajectory set.
      *
      * @param rawUnmatchedTrajectoryList     Unmatched trajectory set before refinement.
+     * @param rematchTrajList                   List of trajectories that has been re-matched.
      * @param refinedUnmatchedTrajectoryList Unmatched trajectory set after refinement.
      * @param iteration                      The current iteration number.
      * @throws IOException File write error.
      */
-    public void writeMergedUnmatchedTrajectory(List<Trajectory> rawUnmatchedTrajectoryList, List<Trajectory>
+    public void writeMergedUnmatchedTrajectory(List<Triplet<Trajectory, String, String>> rawUnmatchedTrajectoryList, List<Trajectory> rematchTrajList, List<Triplet<Trajectory, String, String>>
             refinedUnmatchedTrajectoryList, int iteration) throws IOException {
         Set<String> refinedUnmatchedTrajSet = new HashSet<>();
-        for (Trajectory mr : refinedUnmatchedTrajectoryList)
-            refinedUnmatchedTrajSet.add(mr.getId());
-        rawUnmatchedTrajectoryList.removeIf(next -> refinedUnmatchedTrajSet.contains(next.getId()));
+        for (Trajectory mr : rematchTrajList)
+            refinedUnmatchedTrajSet.add(mr.getID());
+        rawUnmatchedTrajectoryList.removeIf(next -> refinedUnmatchedTrajSet.contains(next._1().getID()));
         rawUnmatchedTrajectoryList.addAll(refinedUnmatchedTrajectoryList);
         writeUnmatchedTrajectory(rawUnmatchedTrajectoryList, iteration);
     }

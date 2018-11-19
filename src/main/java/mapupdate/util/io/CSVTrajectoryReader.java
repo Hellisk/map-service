@@ -3,16 +3,19 @@ package mapupdate.util.io;
 import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.PointMatch;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
+import mapupdate.util.object.datastructure.Triplet;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Segment;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static mapupdate.Main.*;
@@ -30,8 +33,10 @@ public class CSVTrajectoryReader {
         String line;
         while ((line = brTrajectory.readLine()) != null) {
             String[] pointInfo = line.split(" ");
+            if (pointInfo.length != 5)
+                continue;   // the anchor road ID when reading unmatched trajectories
             TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
-                    Long.parseLong(pointInfo[2]),Double.parseDouble(pointInfo[3]),Double.parseDouble(pointInfo[4]));
+                    Long.parseLong(pointInfo[2]), Double.parseDouble(pointInfo[3]), Double.parseDouble(pointInfo[4]));
             newTrajectory.add(newTrajectoryPoint);
         }
         brTrajectory.close();
@@ -76,7 +81,7 @@ public class CSVTrajectoryReader {
                         if (matchInfo.length == RANK_LENGTH + 1) {
                             String[] pointInfo = matchInfo[0].split(" ");
                             TrajectoryPoint currPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), Long
-                                    .parseLong(pointInfo[2]),Double.parseDouble(pointInfo[3]),Double.parseDouble(pointInfo[4]));
+                                    .parseLong(pointInfo[2]), Double.parseDouble(pointInfo[3]), Double.parseDouble(pointInfo[4]));
                             rawTraj.add(currPoint);
                             for (int j = 0; j < RANK_LENGTH; j++) {
                                 if (matchInfo[j + 1].equals("null")) {
@@ -113,7 +118,7 @@ public class CSVTrajectoryReader {
                     brMatchingTrajectory.close();
                     brRoadIDTrajectory.close();
                     int fileNum = Integer.parseInt(matchingPointFile.getName().substring(matchingPointFile.getName().indexOf('_') + 1, matchingPointFile.getName().indexOf('.')));
-                    rawTraj.setId(fileNum + "");
+                    rawTraj.setID(fileNum + "");
                     TrajectoryMatchingResult currMatchResult = new TrajectoryMatchingResult(rawTraj, RANK_LENGTH);
                     for (int j = 0; j < RANK_LENGTH; j++) {
                         currMatchResult.setMatchingResult(matchingPointSet.get(j), j);
@@ -159,7 +164,7 @@ public class CSVTrajectoryReader {
             if (trajectoryFiles != null) {
                 for (File trajectoryFile : trajectoryFiles) {
                     Trajectory newTrajectory = readTrajectory(trajectoryFile);
-                    newTrajectory.setId(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
+                    newTrajectory.setID(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
                     trajectoryList.add(newTrajectory);
                 }
             } else LOGGER.severe("ERROR! The input trajectory dictionary is empty: " + csvTrajectoryPath);
@@ -169,6 +174,38 @@ public class CSVTrajectoryReader {
         int count = 0;
         for (Trajectory t : trajectoryList) {
             count += t.getCoordinates().size();
+        }
+        LOGGER.info("Trajectory read finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
+        return trajectoryList;
+    }
+
+    public List<Triplet<Trajectory, String, String>> readUnmatchedTrajectoryFilesList(String csvUnmatchedTrajectoryPath) throws IOException {
+        File inputFile = new File(csvUnmatchedTrajectoryPath);
+        List<Triplet<Trajectory, String, String>> trajectoryList = new ArrayList<>();
+        if (!inputFile.exists())
+            LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvUnmatchedTrajectoryPath);
+        if (inputFile.isDirectory()) {
+            File[] trajectoryFiles = inputFile.listFiles();
+            if (trajectoryFiles != null) {
+                for (File trajectoryFile : trajectoryFiles) {
+                    BufferedReader brTrajectory = new BufferedReader(new FileReader(trajectoryFile));
+                    String[] line = brTrajectory.readLine().split(",");
+                    if (line.length != 2)
+                        throw new IllegalStateException("ERROR! The unmatched trajectory format is incorrect:" + Arrays.toString(line));
+                    brTrajectory.close();
+                    Trajectory newTrajectory = readTrajectory(trajectoryFile);
+                    newTrajectory.setID(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
+                    trajectoryList.add(new Triplet<>(newTrajectory, line[0], line[1]));
+                }
+            } else LOGGER.severe("ERROR! The input trajectory dictionary is empty: " + csvUnmatchedTrajectoryPath);
+        } else {
+            BufferedReader brTrajectory = new BufferedReader(new FileReader(inputFile));
+            String[] line = brTrajectory.readLine().split(",");
+            trajectoryList.add(new Triplet<>(readTrajectory(inputFile), line[0], line[1]));
+        }
+        int count = 0;
+        for (Triplet<Trajectory, String, String> unmatchedTrajInfo : trajectoryList) {
+            count += unmatchedTrajInfo._1().size();
         }
         LOGGER.info("Trajectory read finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
         return trajectoryList;
@@ -191,7 +228,7 @@ public class CSVTrajectoryReader {
                 file -> {
                     try {
                         Trajectory newTrajectory = readTrajectory(file);
-                        newTrajectory.setId(file.getName().substring(file.getName().indexOf('_') + 1, file
+                        newTrajectory.setID(file.getName().substring(file.getName().indexOf('_') + 1, file
                                 .getName().indexOf('.')));
                         return newTrajectory;
                     } catch (IOException e) {

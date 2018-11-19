@@ -3,7 +3,9 @@ package mapupdate.mapmerge;
 import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.index.grid.Grid;
 import mapupdate.util.index.grid.GridPartition;
-import mapupdate.util.object.datastructure.*;
+import mapupdate.util.object.datastructure.Pair;
+import mapupdate.util.object.datastructure.Triplet;
+import mapupdate.util.object.datastructure.XYObject;
 import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
@@ -12,15 +14,17 @@ import mapupdate.util.object.spatialobject.Point;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static mapupdate.Main.LOGGER;
-import static mapupdate.Main.MIN_ROAD_LENGTH;
+import static mapupdate.Main.*;
 
 public class MapMerge {
     private RoadNetworkGraph rawMap;
-    private List<RoadWay> inferredWayList;
     private Map<String, String> loc2RemovedWayID = new HashMap<>();
+    private Map<String, RoadWay> loc2RemovedWayMapping = new HashMap<>();
+    private Map<String, Pair<RoadWay, Double>> loc2InsertedWayDist = new LinkedHashMap<>();    // a mapping between the road location and
+    // its already inserted road with combined distance to its endpoints
     private Map<String, RoadWay> loc2RoadWayMapping = new HashMap<>();
-    private Map<Point, RoadNode> point2RoadNodeMapping = new HashMap<>();
+    private Map<String, RoadWay> id2RoadWayMapping = new HashMap<>();
+    private Map<String, List<RoadNode>> loc2RoadNodeListMapping = new HashMap<>();  // multiple road nodes may have the same location
     private Map<String, List<RoadWay>> tempPoint2EdgeIndexMapping = new LinkedHashMap<>();
     private GreatCircleDistanceFunction distFunc = new GreatCircleDistanceFunction();
     private Grid<Point> grid;
@@ -31,15 +35,19 @@ public class MapMerge {
     private long maxAbsRoadWayID;
     private long maxMiniNodeID;
 
-    public MapMerge(RoadNetworkGraph rawMap, List<RoadWay> inferredWayList, List<RoadWay> removedWayList, int
+    public MapMerge(RoadNetworkGraph rawMap, List<RoadWay> removedWayList, int
             mergeCandidateDistance, int subTrajectoryMergeDistance) {
         this.rawMap = rawMap;
         for (RoadWay w : rawMap.getWays())
             w.setNewRoad(false);
-        this.inferredWayList = roadConjunction(inferredWayList);
-        for (RoadWay w : removedWayList)
+        for (RoadWay w : removedWayList) {
             this.loc2RemovedWayID.put(w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode()
                     .lat(), w.getID());
+            this.loc2RemovedWayID.put(w.getToNode().lon() + "_" + w.getToNode().lat() + "," + w.getFromNode().lon() + "_" + w.getFromNode()
+                    .lat(), w.getID().contains("-") ? w.getID().substring(w.getID().indexOf("-") + 1) : "-" + w.getID());
+            this.loc2RemovedWayMapping.put(w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode()
+                    .lat(), w);
+        }
         if (mergeCandidateDistance > 0)
             this.mergeCandidateDistance = mergeCandidateDistance;
         else
@@ -48,9 +56,11 @@ public class MapMerge {
             this.subTrajectoryMergeDistance = subTrajectoryMergeDistance;
         else
             LOGGER.severe("ERROR! The sub-trajectory merge candidate search range is illegal: " + subTrajectoryMergeDistance);
-        for (RoadWay w : rawMap.getWays())
+        for (RoadWay w : rawMap.getWays()) {
             loc2RoadWayMapping.put(w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode()
                     .lat(), w);
+            id2RoadWayMapping.put(w.getID(), w);
+        }
         this.maxAbsRoadWayID = rawMap.getMaxAbsWayID();
         this.maxMiniNodeID = rawMap.getMaxMiniNodeID();
     }
@@ -95,27 +105,40 @@ public class MapMerge {
         return roadWayResult;
     }
 
+    /**
+     * Insert the road to the temporary road node index so that the roads on the same node can be connected in the future.
+     *
+     * @param w        The road way to be inserted.
+     * @param locIndex The point location index.
+     * @return True if the road is inserted successfully.
+     */
     private boolean insertWay2Index(RoadWay w, String locIndex) {
+        String tempIndex = w.getFromNode().lon() + "_" + w.getFromNode().lat();
+        String oppoLocIndex = tempIndex.equals(locIndex) ? w.getToNode().lon() + "_" + w.getToNode().lat() : tempIndex;   // the
+        // index of the other endpoint of inserting road
         if (!tempPoint2EdgeIndexMapping.containsKey(locIndex)) {
             List<RoadWay> currWayList = new ArrayList<>();
             currWayList.add(w);
             tempPoint2EdgeIndexMapping.put(locIndex, currWayList);
-            return true;
         } else {
             List<RoadWay> wayList = tempPoint2EdgeIndexMapping.get(locIndex);
-            String tempIndex = w.getFromNode().lon() + "_" + w.getFromNode().lat();
-            String actualLocIndex = tempIndex.equals(locIndex) ? w.getToNode().lon() + "_" + w.getToNode().lat() : tempIndex;   // the
-            // index of the other endpoint of inserting road
             for (RoadWay currWay : wayList) {
                 String currTempIndex = currWay.getFromNode().lon() + "_" + currWay.getFromNode().lat();
-                String actualCurrLocIndex = currTempIndex.equals(locIndex) ? currWay.getToNode().lon() + "_" + currWay.getToNode().lat()
+                String currOppoLocIndex = currTempIndex.equals(locIndex) ? currWay.getToNode().lon() + "_" + currWay.getToNode().lat()
                         : currTempIndex;
-                if (actualLocIndex.equals(actualCurrLocIndex))
+                if (oppoLocIndex.equals(currOppoLocIndex))  // definitely there exists entry for the other endpoint, return straight away
                     return false;
             }
             wayList.add(w);
-            return true;
         }
+        if (!tempPoint2EdgeIndexMapping.containsKey(oppoLocIndex)) {
+            List<RoadWay> currWayList = new ArrayList<>();
+            currWayList.add(w);
+            tempPoint2EdgeIndexMapping.put(oppoLocIndex, currWayList);
+        } else {
+            tempPoint2EdgeIndexMapping.get(locIndex).add(w);
+        }
+        return true;
     }
 
     /**
@@ -241,39 +264,122 @@ public class MapMerge {
         return Math.toDegrees(Math.abs(angle1 - angle2));
     }
 
-    public Pair<RoadNetworkGraph, Boolean> nearestNeighbourMapMerge() {
+    public Pair<RoadNetworkGraph, Boolean> nearestNeighbourMapMerge(List<RoadWay> inferredWayList, HashMap<String,
+            Pair<HashSet<String>, HashSet<String>>> newRoadID2AnchorPoints) {
+
+        // the inference result from KDE map inference requires a road conjunction step
+        List<RoadWay> inferredList;
+        if (newRoadID2AnchorPoints.isEmpty())
+            inferredList = inferredWayList;
+        else
+            inferredList = roadConjunction(inferredWayList);
+
         buildGridIndex();
         int prevWayListSize = rawMap.getWays().size();  // for future new road ID assignment
 
-        for (RoadWay w : inferredWayList) {
-            // find an possible intersection pair which the edge can be added to, prioritize the intersection pairs of the removed edge.
+        for (RoadWay w : inferredList) {
 //            LOGGER.info("start current road way connection, road length:" + w.getRoadLength());
-            List<Pair<Point, Double>> startPointMatchCandidate = findPointMatchCandidate(w.getFromNode().lon(), w.getFromNode().lat(),
-                    mergeCandidateDistance, distFunc);
-            List<Pair<Point, Double>> endPointMatchCandidate = findPointMatchCandidate(w.getToNode().lon(), w.getToNode().lat(),
-                    mergeCandidateDistance, distFunc);
+            HashMap<String, Pair<Point, Double>> startPointMatchCandidate = new HashMap<>();
+            HashMap<String, Pair<Point, Double>> endPointMatchCandidate = new HashMap<>();
+            // anchor points are prioritized
+            if (!newRoadID2AnchorPoints.isEmpty() && newRoadID2AnchorPoints.containsKey(w.getID())) {
+                HashSet<String> startRoadWayList = newRoadID2AnchorPoints.get(w.getID())._1();
+                HashSet<String> endRoadWayList = newRoadID2AnchorPoints.get(w.getID())._2();
+                for (String s : startRoadWayList) {
+                    if (!id2RoadWayMapping.containsKey(s))
+                        System.out.println("ERROR! Road doesn't exist:" + s);
+                    Point firstPoint = id2RoadWayMapping.get(s).getToNode().toPoint();
+                    if (distFunc.distance(w.getFromNode().toPoint(), firstPoint) > 4 * CANDIDATE_RANGE) {
+                        continue;
+                    }
+                    String locIndex = firstPoint.x() + "_" + firstPoint.y();
+                    startPointMatchCandidate.put(locIndex, new Pair<>(firstPoint, distFunc.distance(w.getFromNode().toPoint(), firstPoint)));
+
+                    Point secondPoint = id2RoadWayMapping.get(s).getFromNode().toPoint();
+                    if (distFunc.distance(w.getFromNode().toPoint(), secondPoint) > 4 * CANDIDATE_RANGE) {
+                        continue;
+                    }
+                    locIndex = secondPoint.x() + "_" + secondPoint.y();
+                    startPointMatchCandidate.put(locIndex, new Pair<>(secondPoint, distFunc.distance(w.getFromNode().toPoint(), secondPoint)));
+                }
+                for (String s : endRoadWayList) {
+                    Point firstPoint = id2RoadWayMapping.get(s).getFromNode().toPoint();
+                    if (distFunc.distance(w.getToNode().toPoint(), firstPoint) > 4 * CANDIDATE_RANGE) {
+                        continue;
+                    }
+                    String locIndex = firstPoint.x() + "_" + firstPoint.y();
+                    endPointMatchCandidate.put(locIndex, new Pair<>(firstPoint, distFunc.distance(w.getToNode().toPoint(), firstPoint)));
+
+                    Point secondPoint = id2RoadWayMapping.get(s).getToNode().toPoint();
+                    if (distFunc.distance(w.getToNode().toPoint(), secondPoint) > 4 * CANDIDATE_RANGE) {
+                        continue;
+                    }
+                    locIndex = secondPoint.x() + "_" + secondPoint.y();
+                    endPointMatchCandidate.put(locIndex, new Pair<>(secondPoint, distFunc.distance(w.getToNode().toPoint(), secondPoint)));
+                }
+                if (startPointMatchCandidate.size() > 0 && endPointMatchCandidate.size() > 0) {
+                    Point startPoint;
+                    Point endPoint;
+                    String currRoadID;
+                    Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> bestMatch = findBestMatch(startPointMatchCandidate,
+                            endPointMatchCandidate);
+                    startPoint = bestMatch._1();
+                    endPoint = bestMatch._2();
+                    currRoadID = bestMatch._3()._1();
+                    if (!currRoadID.equals("")) {   // the inferred road has been assigned to a removed road
+                        if (startPoint != null) {  // not matched to an already inserted removed road which has better quality, insert it
+                            String currLoc = startPoint.x() + "_" + startPoint.y() + "," + endPoint.x() + "_" + endPoint.y();
+                            w.setId(currRoadID);
+                            RoadWay newWay = roadMapConnection(w.getID(), w.getNodes(), w.getConfidenceScore(), startPoint, endPoint, true);
+                            loc2InsertWayDistUpdate(bestMatch, currLoc, newWay);
+                            continue;
+                        } else if (!bestMatch._3()._3().isEmpty()) {    // assigned to a inserted removed road way, add the confidence
+                            // score to it
+                            for (String s : bestMatch._3()._3()) {
+                                double currConfidenceScore = loc2InsertedWayDist.get(s)._1().getConfidenceScore();
+                                loc2InsertedWayDist.get(s)._1().setConfidenceScore(currConfidenceScore + w.getConfidenceScore());
+                            }
+                            continue;
+                        }
+                    }
+                }
+            }
+            // find an possible intersection pair which the edge can be added to, prioritize the intersection pairs of the removed edge.
+            startPointMatchCandidate.putAll(findPointMatchCandidate(w.getFromNode().lon(), w.getFromNode().lat(), mergeCandidateDistance,
+                    distFunc));
+            endPointMatchCandidate.putAll(findPointMatchCandidate(w.getToNode().lon(), w.getToNode().lat(), mergeCandidateDistance,
+                    distFunc));
             if (startPointMatchCandidate.size() > 0 && endPointMatchCandidate.size() > 0) {
                 Point startPoint;
                 Point endPoint;
-                String currRoadID = "";
-                Triplet<Point, Point, String> bestMatch = findBestMatch(startPointMatchCandidate, endPointMatchCandidate);
+                String currRoadID;
+                Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> bestMatch = findBestMatch(startPointMatchCandidate,
+                        endPointMatchCandidate);
                 startPoint = bestMatch._1();
                 endPoint = bestMatch._2();
-                currRoadID = bestMatch._3();
+                currRoadID = bestMatch._3()._1();
 
-                if (startPoint != null) {
-                    // at least one pair of intersections is found
+                if (startPoint != null) {   // at least one pair of intersections is found
 //                    LOGGER.info("Both endpoints can be matched to the map");
                     if (!currRoadID.equals("")) {
                         // the inferred road has been assigned to a removed road
-                        RoadWay newWay = roadMapConnection(w, startPoint, endPoint);
-                        doubleDirectedRoadWayInsertion(newWay, currRoadID, w.getConfidenceScore());
+                        String currLoc = startPoint.x() + "_" + startPoint.y() + "," + endPoint.x() + "_" + endPoint.y();
+                        w.setId(currRoadID);
+                        RoadWay newWay = roadMapConnection(w.getID(), w.getNodes(), w.getConfidenceScore(), startPoint, endPoint, true);
+                        loc2InsertWayDistUpdate(bestMatch, currLoc, newWay);
                     } else {
                         // the inferred road is assigned to a new road, check whether the new road cover any existing removed road
                         roadRefinement(w, startPoint, endPoint, mergeCandidateDistance);
                     }
-                } else {
-//                    LOGGER.info("The current endpoints match is absurd: The start point and end point is the same.");
+                } else if (!currRoadID.equals("")) {    // assigned to a inserted removed road way, add the confidence
+                    if (!bestMatch._3()._3().isEmpty()) {
+                        // score to it
+                        for (String s : bestMatch._3()._3()) {
+                            double currConfidenceScore = loc2InsertedWayDist.get(s)._1().getConfidenceScore();
+                            loc2InsertedWayDist.get(s)._1().setConfidenceScore(currConfidenceScore + w.getConfidenceScore());
+                        }
+                    }
+                } else {    // no point pairs can be found, find sub matches
                     findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
                 }
             } else {
@@ -281,8 +387,18 @@ public class MapMerge {
                 findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
             }
         }
+        doubleDirectedRoadWayInsertion();
         LOGGER.info("Nearest neighbour map merge completed. Total number of road way added:" + (rawMap.getWays().size() - prevWayListSize));
         return new Pair<>(rawMap, (rawMap.getWays().size() - prevWayListSize) == 0);
+    }
+
+    private void loc2InsertWayDistUpdate(Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> bestMatch, String currLoc, RoadWay newWay) {
+        if (loc2InsertedWayDist.containsKey(currLoc)) {      // an worse removed road has been inserted, replace it
+            double prevConfScore = loc2InsertedWayDist.get(currLoc)._1().getConfidenceScore();
+            newWay.setConfidenceScore(newWay.getConfidenceScore() + prevConfScore);
+            loc2InsertedWayDist.replace(currLoc, new Pair<>(newWay, bestMatch._3()._2()));
+        } else
+            loc2InsertedWayDist.put(currLoc, new Pair<>(newWay, bestMatch._3()._2()));
     }
 
     private void roadRefinement(RoadWay currRoad, Point startPoint, Point endPoint, int distance) {
@@ -292,33 +408,37 @@ public class MapMerge {
         for (int i = 0; i < currRoad.getNodes().size() - 1; i++) {
             List<Point> intermediatePoint = edgeSegmentation(currRoad.getNode(i), currRoad.getNode(i + 1));
             for (Point p : intermediatePoint) {
-                List<Pair<Point, Double>> currCandidateList = findPointMatchCandidate(p.x(), p.y(), distance, distFunc);
-                if (currCandidateList.size() > 0) {
+                HashMap<String, Pair<Point, Double>> currCandidate = findPointMatchCandidate(p.x(), p.y(), distance, distFunc);
+                if (currCandidate.size() > 0) {
                     double matchDistance = Double.POSITIVE_INFINITY;
                     Point nextPoint = null;
-                    for (Pair<Point, Double> end : currCandidateList) {
-                        if (end._1().equals2D(prevMatchPoint))
+                    for (Map.Entry<String, Pair<Point, Double>> end : currCandidate.entrySet()) {
+                        if (end.getValue()._1().equals2D(prevMatchPoint))
                             continue;
-                        String locIndex = prevMatchPoint.x() + "_" + prevMatchPoint.y() + "," + end._1().x() + "_" + end._1().y();
+                        String locIndex = prevMatchPoint.x() + "_" + prevMatchPoint.y() + "," + end.getValue()._1().x() + "_" + end.getValue()._1().y();
                         if (loc2RemovedWayID.containsKey(locIndex)) {
                             String currRemovedID = loc2RemovedWayID.get(locIndex);
 //                            LOGGER.info("Found removed edge: " + currRemovedID);
-                            List<RoadNode> roadNodeList = new ArrayList<>();
-                            if (!point2RoadNodeMapping.containsKey(prevMatchPoint) || !point2RoadNodeMapping.containsKey(end._1()))
-                                LOGGER.severe("ERROR! The matched point cannot be found in the road node list.");
-                            roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
-                            roadNodeList.addAll(currRoadIntermediatePoint);
-                            roadNodeList.add(point2RoadNodeMapping.get(end._1()));
-                            RoadWay newWay = new RoadWay(currRemovedID, roadNodeList);
-                            doubleDirectedRoadWayInsertion(newWay, currRemovedID, currRoad.getConfidenceScore());
-                            prevMatchPoint = end._1();
+                            RoadWay newWay = roadMapConnection(currRemovedID, currRoadIntermediatePoint, currRoad.getConfidenceScore(), prevMatchPoint,
+                                    end.getValue()._1(), true);
+                            if (loc2InsertedWayDist.containsKey(locIndex)) {  // removed road already inserted, add the confidence score
+                                RoadWay currWay = loc2InsertedWayDist.get(locIndex)._1();
+                                currWay.setConfidenceScore(currWay.getConfidenceScore() + newWay.getConfidenceScore());
+                            } else if (currRoadIntermediatePoint.size() != 0) {
+                                double startDist = distFunc.distance(prevMatchPoint, currRoadIntermediatePoint.get(0).toPoint());
+                                double endDist =
+                                        distFunc.distance(currRoadIntermediatePoint.get(currRoadIntermediatePoint.size() - 1).toPoint(), end.getValue()._1());
+                                loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, (startDist + endDist) / 2));
+                            } else
+                                loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, 0d));
+                            prevMatchPoint = end.getValue()._1();
                             nextPoint = null;
                             removedRoadFound = true;
                             break;
-                        } else if (loc2RoadWayMapping.containsKey(locIndex) && end._2() < matchDistance) {
+                        } else if (loc2RoadWayMapping.containsKey(locIndex) && end.getValue()._2() < matchDistance) {
                             // refinement is possible
-                            matchDistance = end._2();
-                            nextPoint = end._1();
+                            matchDistance = end.getValue()._2();
+                            nextPoint = end.getValue()._1();
                         }
                     }
                     if (nextPoint != null) {
@@ -337,83 +457,120 @@ public class MapMerge {
         if (loc2RemovedWayID.containsKey(locIndex)) {
             String currRemovedID = loc2RemovedWayID.get(locIndex);
 //            LOGGER.info("Found removed edge: " + currRemovedID);
-            List<RoadNode> roadNodeList = new ArrayList<>();
-            roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
-            roadNodeList.addAll(currRoadIntermediatePoint);
-            roadNodeList.add(point2RoadNodeMapping.get(endPoint));
-            RoadWay newWay = new RoadWay(currRemovedID, roadNodeList);
-            doubleDirectedRoadWayInsertion(newWay, currRemovedID, currRoad.getConfidenceScore());
+            RoadWay newWay = roadMapConnection(currRemovedID, currRoadIntermediatePoint, currRoad.getConfidenceScore(), prevMatchPoint,
+                    endPoint, true);
+            if (loc2InsertedWayDist.containsKey(locIndex)) {  // removed road already inserted, add the confidence score
+                RoadWay currWay = loc2InsertedWayDist.get(locIndex)._1();
+                currWay.setConfidenceScore(currWay.getConfidenceScore() + newWay.getConfidenceScore());
+            } else {
+                double startDist = distFunc.distance(prevMatchPoint, currRoadIntermediatePoint.get(0).toPoint());
+                double endDist = distFunc.distance(currRoadIntermediatePoint.get(currRoadIntermediatePoint.size() - 1).toPoint(), endPoint);
+                loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, (startDist + endDist) / 2));
+            }
         } else if (!loc2RoadWayMapping.containsKey(locIndex) && !removedRoadFound) {
             String currNewID = (++maxAbsRoadWayID) + "";
 //            LOGGER.info("Create new edge: " + currNewID);
-            List<RoadNode> roadNodeList = new ArrayList<>();
-            roadNodeList.add(point2RoadNodeMapping.get(prevMatchPoint));
-            roadNodeList.addAll(currRoadIntermediatePoint);
-            roadNodeList.add(point2RoadNodeMapping.get(endPoint));
-            RoadWay newWay = new RoadWay(currNewID, roadNodeList);
-            doubleDirectedRoadWayInsertion(newWay, currNewID, currRoad.getConfidenceScore());
+            RoadWay newWay = roadMapConnection(currNewID, currRoadIntermediatePoint, currRoad.getConfidenceScore(), prevMatchPoint,
+                    endPoint, false);
+            newWay.setConfidenceScore(currRoad.getConfidenceScore());
+            double startDist = distFunc.distance(prevMatchPoint, currRoadIntermediatePoint.get(0).toPoint());
+            double endDist = distFunc.distance(currRoadIntermediatePoint.get(currRoadIntermediatePoint.size() - 1).toPoint(), endPoint);
+            loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, (startDist + endDist) / 2));
         }
     }
 
-    private void doubleDirectedRoadWayInsertion(RoadWay newWay, String currRoadID, double confidenceScore) {
-        newWay.setId(currRoadID);
-        for (int i = 1; i < newWay.getNodes().size() - 1; i++) {
-            RoadNode n = newWay.getNode(i);
-            maxMiniNodeID++;
-            n.setId(maxMiniNodeID + "-");
+    private void doubleDirectedRoadWayInsertion() {
+        HashMap<String, RoadWay> insertRoadIDMapping = new HashMap<>();
+        for (Map.Entry<String, Pair<RoadWay, Double>> entry : loc2InsertedWayDist.entrySet()) {
+            RoadWay newWay = entry.getValue()._1();
+            if (insertRoadIDMapping.containsKey(newWay.getID())) {
+                RoadWay currWay = insertRoadIDMapping.get(newWay.getID());
+                currWay.setConfidenceScore(currWay.getConfidenceScore() + newWay.getConfidenceScore());
+            } else {
+                for (int i = 1; i < newWay.getNodes().size() - 1; i++) {
+                    RoadNode n = newWay.getNode(i);
+                    maxMiniNodeID++;
+                    n.setId(maxMiniNodeID + "-");
+                }
+                newWay.setNewRoad(true);
+                if (newWay.getConfidenceScore() == 0)
+                    LOGGER.severe("ERROR! New road has zero confidence score.");
+                insertRoadIDMapping.put(newWay.getID(), newWay);
+                rawMap.addWay(newWay);
+            }
+            String reverseID = newWay.getID().contains("-") ? newWay.getID().substring(newWay.getID().indexOf("-") + 1) : "-" + newWay.getID();
+            if (insertRoadIDMapping.containsKey(reverseID)) {
+                RoadWay currWay = insertRoadIDMapping.get(reverseID);
+                currWay.setConfidenceScore(currWay.getConfidenceScore() + newWay.getConfidenceScore());
+            } else {
+                RoadWay reverseRoad = new RoadWay(reverseID);
+                reverseRoad.addNode(newWay.getToNode());
+                for (int i = newWay.getNodes().size() - 2; i > 0; i--) {
+                    maxMiniNodeID++;
+                    RoadNode reverseNode = new RoadNode(maxMiniNodeID + "-", newWay.getNode(i).lon(), newWay.getNode(i).lat());
+                    reverseRoad.addNode(reverseNode);
+                }
+                reverseRoad.addNode(newWay.getFromNode());
+                reverseRoad.setNewRoad(true);
+                reverseRoad.setConfidenceScore(newWay.getConfidenceScore());
+                insertRoadIDMapping.put(reverseID, reverseRoad);
+                rawMap.addWay(reverseRoad);
+            }
         }
-        newWay.setConfidenceScore(confidenceScore);
-        newWay.setNewRoad(true);
-        rawMap.addWay(newWay);
-        RoadWay reverseRoad = new RoadWay(currRoadID.contains("-") ? currRoadID.substring(currRoadID.indexOf("-") + 1) : "-" +
-                currRoadID);
-        reverseRoad.addNode(newWay.getToNode());
-        for (int i = newWay.getNodes().size() - 2; i > 0; i--) {
-            maxMiniNodeID++;
-            RoadNode reverseNode = new RoadNode(maxMiniNodeID + "-", newWay.getNode(i).lon(), newWay.getNode(i).lat());
-            reverseRoad.addNode(reverseNode);
-        }
-        reverseRoad.addNode(newWay.getFromNode());
-        reverseRoad.setNewRoad(true);
-        reverseRoad.setConfidenceScore(confidenceScore);
-        rawMap.addWay(reverseRoad);
     }
 
-    private Triplet<Point, Point, String> findBestMatch
-            (List<Pair<Point, Double>> startPointMatchCandidate, List<Pair<Point, Double>> endPointMatchCandidate) {
+    /**
+     * Find removed road among all possible candidate pairs. If no removed road found, find the road that is the closest.
+     *
+     * @param startPointMatchCandidate Start end point candidates of the inferred road.
+     * @param endPointMatchCandidate   End point candidate of the inferred road.
+     * @return The pair of candidates that form the new road. If it is an existing removed road, the road ID is assigned, otherwise empty.
+     */
+    private Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> findBestMatch(HashMap<String, Pair<Point, Double>> startPointMatchCandidate,
+                                                                                          HashMap<String, Pair<Point, Double>> endPointMatchCandidate) {
         Point startPoint = null;
         Point endPoint = null;
         String currRoadID = "";
-        double currDistance = Double.POSITIVE_INFINITY;
+        double currDistance = Double.POSITIVE_INFINITY;     // the minimum distance of all possible pairs
+        double currRemovePairDistance = Double.POSITIVE_INFINITY;   // the minimum distance among all detected removed roads
         boolean containsRemovedRoad = false;    //  if a removed road is contained in the candidates, other normal roads will be ignored
-        for (Pair<Point, Double> start : startPointMatchCandidate) {
-            for (Pair<Point, Double> end : endPointMatchCandidate) {
-                if (start._1().equals2D(end._1()))
+        HashSet<String> generatedLocList = new HashSet<>();
+        for (Map.Entry<String, Pair<Point, Double>> start : startPointMatchCandidate.entrySet()) {
+            for (Map.Entry<String, Pair<Point, Double>> end : endPointMatchCandidate.entrySet()) {
+                if (start.getValue()._1().equals2D(end.getValue()._1()))
                     continue;
-                String locIndex = start._1().x() + "_" + start._1().y() + "," + end._1().x() + "_" + end._1().y();
-                if (loc2RemovedWayID.containsKey(locIndex) && (!containsRemovedRoad || (start._2() + end._2()) / 2 < currDistance)) {
+                String locIndex = start.getValue()._1().x() + "_" + start.getValue()._1().y() + "," + end.getValue()._1().x() + "_" + end.getValue()._1().y();
+                if (loc2RemovedWayID.containsKey(locIndex) && (!containsRemovedRoad || (start.getValue()._2() + end.getValue()._2()) / 2 < currRemovePairDistance)) {
                     // a better removed road is found if 1) in the mapping 2) either no removed road found before or closer than existing
                     // candidate
-                    currDistance = (start._2() + end._2()) / 2;
-                    startPoint = start._1();
-                    endPoint = end._1();
-                    currRoadID = loc2RemovedWayID.get(locIndex);
-//                    LOGGER.info("Found removed road:" + currRoadID);
                     containsRemovedRoad = true;
-                } else if (!containsRemovedRoad && (start._2() + end._2()) / 2 < currDistance) {
+                    currRemovePairDistance = (start.getValue()._2() + end.getValue()._2()) / 2;
+                    currDistance = currRemovePairDistance;
+                    currRoadID = loc2RemovedWayID.get(locIndex);
+                    if (loc2InsertedWayDist.containsKey(locIndex) && (start.getValue()._2() + end.getValue()._2()) / 2 > loc2InsertedWayDist.get(locIndex)._2()) {
+                        generatedLocList.add(locIndex);
+                        startPoint = null;
+                        endPoint = null;
+                        // a better removed road already inferred, skip
+                        continue;
+                    }
+                    startPoint = start.getValue()._1();
+                    endPoint = end.getValue()._1();
+//                    LOGGER.info("Found removed road:" + currRoadID);
+                } else if (!containsRemovedRoad && (start.getValue()._2() + end.getValue()._2()) / 2 < currDistance) {
                     // a regular road is selected if 1) no removed road exist 2) closer than existing candidate 3) not in the mapping
-                    currDistance = (start._2() + end._2()) / 2;
-                    startPoint = start._1();
-                    endPoint = end._1();
+                    currDistance = (start.getValue()._2() + end.getValue()._2()) / 2;
+                    startPoint = start.getValue()._1();
+                    endPoint = end.getValue()._1();
                 }
             }
         }
-        return new Triplet<>(startPoint, endPoint, currRoadID);
+        return new Triplet<>(startPoint, endPoint, new Triplet<>(currRoadID, currDistance, generatedLocList));
     }
 
-    private List<Pair<Point, Double>> findPointMatchCandidate(double lon, double lat, int thresholdDist, GreatCircleDistanceFunction
+    private HashMap<String, Pair<Point, Double>> findPointMatchCandidate(double lon, double lat, int thresholdDist, GreatCircleDistanceFunction
             distFunc) {
-        List<Pair<Point, Double>> result = new ArrayList<>();
+        HashMap<String, Pair<Point, Double>> result = new HashMap<>();
         List<GridPartition<Point>> partitionList = new ArrayList<>();
         partitionList.add(this.grid.partitionSearch(lon, lat));
         partitionList.addAll(this.grid.adjacentPartitionSearch(lon, lat));
@@ -421,8 +578,10 @@ public class MapMerge {
             if (partition != null) {
                 for (XYObject<Point> item : partition.getObjectsList()) {
                     double distance = distFunc.pointToPointDistance(lon, lat, item.x(), item.y());
-                    if (distance < thresholdDist)
-                        result.add(new Pair<>(item.getSpatialObject(), distance));
+                    if (distance < thresholdDist) {
+                        String loc = item.getSpatialObject().x() + "_" + item.getSpatialObject().y();
+                        result.put(loc, new Pair<>(item.getSpatialObject(), distance));
+                    }
                 }
             }
         }
@@ -438,36 +597,48 @@ public class MapMerge {
     private void findSubRoadConnection(RoadWay roadWay) {
         List<RoadNode> currNodeList = new ArrayList<>();
         RoadNode startNode = roadWay.getNode(0);
-        List<Pair<Point, Double>> prevCandidateList = findPointMatchCandidate(startNode.lon(), startNode.lat(), subTrajectoryMergeDistance,
+        HashMap<String, Pair<Point, Double>> prevCandidateList = findPointMatchCandidate(startNode.lon(), startNode.lat(),
+                subTrajectoryMergeDistance,
                 distFunc);
         boolean newRoadStarted = prevCandidateList.size() > 0;
         for (int i = 0; i < roadWay.getNodes().size() - 1; i++) {
             List<Point> intermediatePoint = edgeSegmentation(roadWay.getNode(i), roadWay.getNode(i + 1));
             intermediatePoint.add(roadWay.getNode(i + 1).toPoint());
             for (Point p : intermediatePoint) {
-                List<Pair<Point, Double>> currCandidateList = findPointMatchCandidate(p.x(), p.y(), subTrajectoryMergeDistance, distFunc);
+                HashMap<String, Pair<Point, Double>> currCandidateList = findPointMatchCandidate(p.x(), p.y(), subTrajectoryMergeDistance,
+                        distFunc);
                 if (currCandidateList.size() > 0) {
                     if (prevCandidateList.size() > 0) {
-                        Triplet<Point, Point, String> bestMatch = findBestMatch(prevCandidateList, currCandidateList);
-                        if (bestMatch._1() == null || distFunc.distance(bestMatch._1(), bestMatch._2()) < MIN_ROAD_LENGTH)
-                            continue;
-                        String locIndex = bestMatch._1().x() + "_" + bestMatch._1().y() + "," + bestMatch._2().x() + "_" + bestMatch._2().y();
-                        if (loc2RemovedWayID.containsKey(locIndex) || distFunc.distance(bestMatch._1(), bestMatch._2()) > MIN_ROAD_LENGTH) {
-                            // a removed road found or an inferred road is long enough
-                            String currID = bestMatch._3();
-                            if (loc2RoadWayMapping.containsKey(locIndex)) {
-                                currID = loc2RoadWayMapping.get(locIndex).getID();
-//                                LOGGER.info("Found existing edge: " + loc2RoadWayMapping.get(locIndex));
-                            } else if (!loc2RemovedWayID.containsKey(locIndex)) {
-                                currID = (++maxAbsRoadWayID) + "";
-//                                LOGGER.info("Found new edge: " + currID);
+                        Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> bestMatch = findBestMatch(prevCandidateList,
+                                currCandidateList);
+                        String currID = bestMatch._3()._1();
+                        if (bestMatch._1() == null || distFunc.distance(bestMatch._1(), bestMatch._2()) < MIN_ROAD_LENGTH) {
+                            if (bestMatch._1() == null && !currID.equals("")) {
+                                if (!bestMatch._3()._3().isEmpty()) {
+                                    for (String s : bestMatch._3()._3()) {
+                                        double currConfidenceScore = loc2InsertedWayDist.get(s)._1().getConfidenceScore();
+                                        loc2InsertedWayDist.get(s)._1().setConfidenceScore(currConfidenceScore + roadWay.getConfidenceScore());
+                                    }
+                                }
                             }
-                            List<RoadNode> roadNodeList = new ArrayList<>();
-                            roadNodeList.add(point2RoadNodeMapping.get(bestMatch._1()));
-                            roadNodeList.addAll(currNodeList);
-                            roadNodeList.add(point2RoadNodeMapping.get(bestMatch._2()));
-                            RoadWay newWay = new RoadWay(currID, roadNodeList);
-                            doubleDirectedRoadWayInsertion(newWay, currID, roadWay.getConfidenceScore());
+                            continue;
+                        }
+                        String currLoc = bestMatch._1().x() + "_" + bestMatch._1().y() + "," + bestMatch._2().x() + "_" + bestMatch._2().y();
+                        if (loc2RoadWayMapping.containsKey(currLoc))   // matched to existing road, skip
+                            continue;
+                        if (!currID.equals("")) {   // removed road related
+                            RoadWay newWay = roadMapConnection(currID, currNodeList, roadWay.getConfidenceScore(), bestMatch._1(),
+                                    bestMatch._2(), true);
+                            loc2InsertWayDistUpdate(bestMatch, currLoc, newWay);
+                        } else if (loc2InsertedWayDist.containsKey(currLoc)) { // a new road has already been inserted to the current location
+                            RoadWay currWay = loc2InsertedWayDist.get(currLoc)._1();
+                            currWay.setConfidenceScore(currWay.getConfidenceScore() + roadWay.getConfidenceScore());
+                        } else {    // completely new road
+                            currID = (++maxAbsRoadWayID) + "";
+                            RoadWay newWay = roadMapConnection(currID, currNodeList, roadWay.getConfidenceScore(), bestMatch._1(),
+                                    bestMatch._2(), false);
+                            loc2InsertWayDistUpdate(bestMatch, currLoc, newWay);
+//                                LOGGER.info("Create new edge: " + currID);
                         }
                         prevCandidateList = currCandidateList;
                         currNodeList.clear();
@@ -501,27 +672,74 @@ public class MapMerge {
         return nodeList;
     }
 
+    /**
+     * Connect the current road to the existing endpoints.
+     *
+     * @param roadID          The road ID of the current road.
+     * @param nodeList        The node sequence to be connected.
+     * @param confidenceScore The confidence score of the new road.
+     * @param startPoint      The start point to be connected.
+     * @param endPoint        The end point to be connected.
+     * @param isRemovedRoad   True if the endpoints are from an removed road.
+     * @return The new road way.
+     */
+    private RoadWay roadMapConnection(String roadID, List<RoadNode> nodeList, double confidenceScore, Point startPoint, Point endPoint, boolean isRemovedRoad) {
+        RoadNode startNode;
+        RoadNode endNode;
+        if (isRemovedRoad) {
+            String locIndex = startPoint.x() + "_" + startPoint.y() + "," + endPoint.x() + "_" + endPoint.y();
+            if (!loc2RemovedWayMapping.containsKey(locIndex)) {
+                String reverseLocIndex = endPoint.x() + "_" + endPoint.y() + "," + startPoint.x() + "_" + startPoint.y();
+                if (!loc2RemovedWayMapping.containsKey(reverseLocIndex)) {
+                    throw new IllegalArgumentException("ERROR! Removed road way not found. " + locIndex);
+                } else {
+                    startNode = loc2RemovedWayMapping.get(reverseLocIndex).getToNode();
+                    endNode = loc2RemovedWayMapping.get(reverseLocIndex).getFromNode();
+                }
+            } else {
+                startNode = loc2RemovedWayMapping.get(locIndex).getFromNode();
+                endNode = loc2RemovedWayMapping.get(locIndex).getToNode();
+            }
+        } else {
+            String startLoc = startPoint.x() + "_" + startPoint.y();
+            String endLoc = endPoint.x() + "_" + endPoint.y();
+            if (!loc2RoadNodeListMapping.containsKey(startLoc) || !loc2RoadNodeListMapping.containsKey(endLoc))
+                System.out.println("ERROR! Road node not found. " + startLoc + "," + endLoc);
+            startNode = loc2RoadNodeListMapping.get(startLoc).get(0);
+            endNode = loc2RoadNodeListMapping.get(endLoc).get(0);
+        }
+        List<RoadNode> refinedWay = new ArrayList<>();
+        refinedWay.add(startNode);
+        if (nodeList.size() > 1) {
+            int i;
+            for (i = 0; i < nodeList.size() - 1; i++) {
+                if (distFunc.distance(nodeList.get(i).toPoint(), startPoint) < distFunc.distance(nodeList.get(i + 1).toPoint(), startPoint)) {
+                    refinedWay.add(nodeList.get(i));
+                    break;
+                }
+            }
+            int sequenceEnd;    // decide the end of the sequence
+            for (sequenceEnd = nodeList.size() - 1; sequenceEnd > i; sequenceEnd--) {
+                if (distFunc.distance(nodeList.get(sequenceEnd).toPoint(), endPoint) < distFunc.distance(nodeList.get(sequenceEnd - 1).toPoint(),
+                        endPoint)) {
+                    break;
+                }
+            }
+            // add all remaining points
+            for (i += 1; i <= sequenceEnd; i++) {
+                refinedWay.add(nodeList.get(i));
+            }
+        } else if (nodeList.size() == 1) {
+            if (distFunc.distance(nodeList.get(0).toPoint(), startPoint) > subTrajectoryMergeDistance || distFunc.distance(nodeList.get(0).toPoint(), endPoint) > subTrajectoryMergeDistance) {
+                refinedWay.add(nodeList.get(0));
+            }
+        }
+        refinedWay.add(endNode);
+        RoadWay resultWay = new RoadWay(roadID, refinedWay);
+        resultWay.setConfidenceScore(confidenceScore);
+        return resultWay;
 
-    private RoadWay roadMapConnection(RoadWay candidateRoadWay, Point startPoint, Point endPoint) {
-        if (point2RoadNodeMapping.containsKey(startPoint) && point2RoadNodeMapping.containsKey(endPoint)) {
-            List<RoadNode> refinedWay = new ArrayList<>();
-            refinedWay.add(point2RoadNodeMapping.get(startPoint));
-            if (distFunc.distance(candidateRoadWay.getFromNode().toPoint(), startPoint) > subTrajectoryMergeDistance) {
-                // the start point of the inferred edge is not that close to the connected start point, add it anyway
-                refinedWay.add(candidateRoadWay.getFromNode());
-            }
-            // add the intermediate points
-            for (int i = 1; i < candidateRoadWay.size() - 1; i++) {
-                refinedWay.add(candidateRoadWay.getNode(i));
-            }
-            if (distFunc.distance(candidateRoadWay.getToNode().toPoint(), endPoint) > subTrajectoryMergeDistance) {
-                // the start point of the inferred edge is not that close to the connected start point, add it anyway
-                refinedWay.add(candidateRoadWay.getToNode());
-            }
-            refinedWay.add(point2RoadNodeMapping.get(endPoint));
-            return new RoadWay(candidateRoadWay.getID(), refinedWay);
-        } else
-            throw new IllegalArgumentException("ERROR! At least one of the end points of the inferred road is not found in the raw map.");
+//        throw new IllegalArgumentException("ERROR! At least one of the end points of the inferred road is not found in the raw map.");
     }
 
 
@@ -557,13 +775,20 @@ public class MapMerge {
 
         for (RoadNode n : rawMap.getNodes()) {
             Point nodeIndex = new Point(n.lon(), n.lat());
-            nodeIndex.setId(n.getID());
+            nodeIndex.setID(n.getID());
             XYObject<Point> nodeIndexObject = new XYObject<>(nodeIndex.x(), nodeIndex.y(), nodeIndex);
             this.grid.insert(nodeIndexObject);
-            this.point2RoadNodeMapping.put(nodeIndex, n);
+            String locIndex = nodeIndex.x() + "_" + nodeIndex.y();
+            if (!loc2RoadNodeListMapping.containsKey(locIndex)) {
+                List<RoadNode> nodeList = new ArrayList<>();
+                nodeList.add(n);
+                this.loc2RoadNodeListMapping.put(locIndex, nodeList);
+            } else {
+                this.loc2RoadNodeListMapping.get(locIndex).add(n);
+            }
         }
+    }
 
 //        LOGGER.info("Total number of nodes in grid index:" + rawMap.getNodes().size());
 //        LOGGER.info("The grid contains " + rowNum + " rows and columns");
-    }
 }

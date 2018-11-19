@@ -14,12 +14,15 @@ import mapupdate.util.object.roadnetwork.RoadNetworkGraph;
 import mapupdate.util.object.roadnetwork.RoadNode;
 import mapupdate.util.object.roadnetwork.RoadWay;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import mapupdate.util.object.spatialobject.Trajectory;
+import mapupdate.util.object.spatialobject.TrajectoryPoint;
 import processing.core.PApplet;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static mapupdate.Main.*;
 
@@ -67,7 +70,7 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
                 trajDisplay[i].zoomAndPanTo(14, mapCenter);
 
                 List<Marker> rawTrajMarker = trajMarkerGen(traj, red, 2);
-                List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2MatchingResult.get(traj.getId()), id2RoadWay, lightPurple, 4);
+                List<Marker> matchedTrajMarker = matchedTrajMarkerGen(id2MatchingResult.get(traj.getID()), id2RoadWay, lightPurple, 4);
                 List<Marker> groundTruthMatchedTrajMarker = groundTruthMatchedTrajMarkerGen(groundTruthResult, id2RoadWay, green, 2);
                 trajDisplay[i].addMarkers(rawTrajMarker);
                 trajDisplay[i].addMarkers(matchedTrajMarker);

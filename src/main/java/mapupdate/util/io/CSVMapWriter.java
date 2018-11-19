@@ -85,9 +85,6 @@ public class CSVMapWriter implements SpatialInterface {
         if (!file.exists()) {
             if (!file.mkdirs()) throw new IOException("ERROR! Failed to create folder.");
         }
-        // write vertex file
-        BufferedWriter bwVertices;
-
         // write road way file
         BufferedWriter bwEdges = new BufferedWriter(new FileWriter(mapPath + "inferred_edges_" + iteration + ".txt"));
         int trajCount = 0;
@@ -315,7 +312,7 @@ public class CSVMapWriter implements SpatialInterface {
         for (RoadWay t : roadGraph.getWays()) {
             for (Segment s : t.getEdges()) {
                 Point centerPoint = new Point((s.x1() + s.x2()) / 2, (s.y1() + s.y2()) / 2);
-                centerPoint.setId(t.getID().replaceAll("-", ""));
+                centerPoint.setID(t.getID().replaceAll("-", ""));
                 if (!locSet.contains(centerPoint.x() + "_" + centerPoint.y())) {
                     XYObject<Point> centerIndex = new XYObject<>(centerPoint.x(), centerPoint.y(), centerPoint);
                     grid.insert(centerIndex);
@@ -348,7 +345,7 @@ public class CSVMapWriter implements SpatialInterface {
                     for (XYObject<Point> item : partition.getObjectsList()) {
                         Point candidatePoint = item.getSpatialObject();
                         // if a point is found close enough to the given road, stop the search and return unsatisfied
-                        if (Math.abs(Long.parseLong(candidatePoint.getId())) != Math.abs(Long.parseLong(w.getID())) && distanceFunction
+                        if (Math.abs(Long.parseLong(candidatePoint.getID())) != Math.abs(Long.parseLong(w.getID())) && distanceFunction
                                 .distance(centerPoint, candidatePoint) < distance)
                             return false;
                     }
