@@ -175,6 +175,8 @@ public class CSVTrajectoryWriter {
             }
             Map<String, Integer> id2UnmatchedTrajCount = new HashMap<>();
             for (Triplet<Trajectory, String, String> info : trajectoryInfoList) {
+                if (info._2().equals("") || info._3().equals("") || info._2() == null || info._3() == null)
+                    continue;
                 try {
                     BufferedWriter bwTrajectory;
                     BufferedWriter nextInputUnmatchedTrajectory;
@@ -197,8 +199,6 @@ public class CSVTrajectoryWriter {
                     int matchingPointCount = w.getSTPoints().size();
 
                     // start writing the anchor road ID, then the trajectory points
-                    if (info._2().equals("") || info._3().equals("") || info._2() == null || info._3() == null)
-                        LOGGER.warning("WARNING! Anchor road is missing.");
                     bwTrajectory.write(info._2() + "," + info._3() + "\n");
                     while (iter.hasNext()) {
                         TrajectoryPoint p = iter.next();
@@ -242,7 +242,7 @@ public class CSVTrajectoryWriter {
      * Merge the unmatched trajectory sets generated before and after refinement and form the final unmatched trajectory set.
      *
      * @param rawUnmatchedTrajectoryList     Unmatched trajectory set before refinement.
-     * @param rematchTrajList                   List of trajectories that has been re-matched.
+     * @param rematchTrajList                List of trajectories that has been re-matched.
      * @param refinedUnmatchedTrajectoryList Unmatched trajectory set after refinement.
      * @param iteration                      The current iteration number.
      * @throws IOException File write error.

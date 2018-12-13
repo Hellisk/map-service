@@ -67,8 +67,8 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodes);
         roadGraph.addWays(ways);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-//        LOGGER.info("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
-//                ways.size());
+        LOGGER.info("Read " + percentage + "% road map, isolate nodes:" + removedNodeCount + ", total nodes:" + nodes.size() + ", total roads:" +
+                ways.size());
         return roadGraph;
     }
 
@@ -114,8 +114,9 @@ public class CSVMapReader implements SpatialInterface {
         roadGraph.addNodes(nodeList);
         roadGraph.addWays(wayList);
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
-//        LOGGER.info("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
-//                ", total" + " roads:" + roadGraph.getWays().size());
+        roadGraph.updateBoundary();
+        LOGGER.info("Extract road map complete, isolate nodes:" + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() +
+                ", total" + " roads:" + roadGraph.getWays().size());
         return roadGraph;
     }
 
@@ -189,10 +190,14 @@ public class CSVMapReader implements SpatialInterface {
         return removedRoads;
     }
 
-    public List<RoadWay> readInferredEdges() throws IOException {
+    public List<RoadWay> readInferredEdges(boolean isForUpdate) throws IOException {
         List<RoadWay> inferredRoads = new ArrayList<>();
         // read inferred road ways
-        File inferenceFile = new File(this.csvMapPath + "inferred_edges_1.txt");
+        File inferenceFile;
+        if (isForUpdate)
+            inferenceFile = new File(this.csvMapPath + "inferred_edges.txt");
+        else
+            inferenceFile = new File(this.csvMapPath + "inferred_edges_1.txt");
         if (!inferenceFile.exists()) {
             System.err.println("ERROR! The inferred roads are not found.");
             return inferredRoads;

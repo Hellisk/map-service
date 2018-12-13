@@ -79,30 +79,24 @@ public class RawMapReader {
         String refinedPointID;
         if (pointID.length() > 10 && (pointID.contains("10000") || pointID.contains("20000"))) {
             refinedPointID = pointID.substring(5);
-            if (id2ConnectionNode.containsKey(refinedPointID)) {
-                id2ConnectionNode.get(refinedPointID).add(edgeID);
-            } else {
-                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
-            }
-            return refinedPointID;
+            return connectionNodeFinder(edgeID, id2ConnectionNode, refinedPointID);
         } else if (pointID.length() > 10 && (pointID.substring(0, 4).equals("1000") || pointID.substring(0, 4).equals("2000"))) {
             refinedPointID = pointID.substring(4);
-            if (id2ConnectionNode.containsKey(refinedPointID)) {
-                id2ConnectionNode.get(refinedPointID).add(edgeID);
-            } else {
-                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
-            }
-            return refinedPointID;
+            return connectionNodeFinder(edgeID, id2ConnectionNode, refinedPointID);
         } else if (pointID.length() > 10 && (pointID.substring(0, 3).equals("100") || pointID.substring(0, 3).equals("200"))) {
             refinedPointID = pointID.substring(3);
-            if (id2ConnectionNode.containsKey(refinedPointID)) {
-                id2ConnectionNode.get(refinedPointID).add(edgeID);
-            } else {
-                System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
-            }
-            return refinedPointID;
+            return connectionNodeFinder(edgeID, id2ConnectionNode, refinedPointID);
         }
         return pointID;
+    }
+
+    private static String connectionNodeFinder(String edgeID, HashMap<String, List<String>> id2ConnectionNode, String refinedPointID) {
+        if (id2ConnectionNode.containsKey(refinedPointID)) {
+            id2ConnectionNode.get(refinedPointID).add(edgeID);
+        } else {
+            System.err.println("ERROR! The connection node " + refinedPointID + " is not found.");
+        }
+        return refinedPointID;
     }
 
     /**
@@ -126,8 +120,7 @@ public class RawMapReader {
         File vertexFile = new File(generalPath + "Nbeijing_point.shp");
         FileDataStore dataStoreVertex = FileDataStoreFinder.getDataStore(vertexFile);
         String typeName = dataStoreVertex.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> vertexSource = dataStoreVertex
-                .getFeatureSource(typeName);
+        FeatureSource<SimpleFeatureType, SimpleFeature> vertexSource = dataStoreVertex.getFeatureSource(typeName);
         Filter filter = Filter.INCLUDE; // ECQL.toFilter("BBOX(THE_GEOM, 10,20,30,40)")
         FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection = vertexSource.getFeatures(filter);
 
@@ -139,7 +132,8 @@ public class RawMapReader {
             this.roadGraph.setMinLat(bounds.getMinY());
             this.roadGraph.setMaxLon(bounds.getMaxX());
             this.roadGraph.setMaxLat(bounds.getMaxY());
-        }
+        } else
+            LOGGER.severe("ERROR! The raw grand map has a preset boundary.");
 
         // start reading nodes
         List<RoadNode> roadNodeList = new ArrayList<>();
@@ -215,28 +209,23 @@ public class RawMapReader {
                 // the endpoints are not included in the current map
                 if (!isInside(coordinates[0].x, coordinates[0].y, roadGraph) || !isInside(coordinates[coordinates.length - 1].x, coordinates[coordinates.length - 1].y, roadGraph))
                     continue;
+                boolean isCompleteRoad = true;
                 for (int i = 0; i < coordinates.length; i++) {
                     if (i == 0) {   // start point of road
                         String pointID = feature.getAttribute(10).toString();
-                        pointID = pointIDFinder(pointID, edgeID, id2ConnectionNode);
-                        if (!id2Node.containsKey(pointID)) {
-                            LOGGER.severe("ERROR! Input road node is missing.");
-                            continue;
-                        }
-                        miniNode.add(id2Node.get(pointID));
+                        isCompleteRoad = isCompleteRoad && insertMiniNode(id2Node, id2ConnectionNode, edgeID, miniNode, pointID);
                     } else if (i == coordinates.length - 1) {   // end point of road
                         String pointID = feature.getAttribute(11).toString();
-                        pointID = pointIDFinder(pointID, edgeID, id2ConnectionNode);
-                        if (!id2Node.containsKey(pointID)) {
-                            LOGGER.severe("ERROR! Input road node is missing.");
-                            continue;
-                        }
-                        miniNode.add(id2Node.get(pointID));
+                        isCompleteRoad = isCompleteRoad && insertMiniNode(id2Node, id2ConnectionNode, edgeID, miniNode, pointID);
                     } else {
                         miniNode.add(new RoadNode(roadWayPointID + "-", coordinates[i].x, coordinates[i].y));
                         roadWayPointID++;
                     }
                 }
+
+                if (!isCompleteRoad)
+                    continue;
+
                 switch (feature.getAttribute(6).toString()) {
                     case "0":
                     case "1": {
@@ -282,12 +271,23 @@ public class RawMapReader {
         }
 
         int removedNodeCount = roadGraph.isolatedNodeRemoval();
+        this.roadGraph.updateBoundary();
         LOGGER.info("Raw map read finish, " + removedNodeCount + " nodes are removed due to no edges connected. Total " +
                 "intersections:" + roadGraph.getNodes().size() + ", total intermediate road node points:" + roadWayPointID +
                 ", total road ways: " + roadWayList.size() + ", average road way length: " + roadLength / roadGraph.getWays().size());
         dataStoreEdge.dispose();
 
         return this.roadGraph;
+    }
+
+    private boolean insertMiniNode(Map<String, RoadNode> id2Node, HashMap<String, List<String>> id2ConnectionNode, String edgeID, List<RoadNode> miniNode, String pointID) {
+        pointID = pointIDFinder(pointID, edgeID, id2ConnectionNode);
+        if (!id2Node.containsKey(pointID)) {
+            LOGGER.severe("ERROR! Input road node is missing.");
+            return false;
+        }
+        miniNode.add(id2Node.get(pointID));
+        return true;
     }
 
     private void insertNode(List<RoadNode> roadNodeList, Map<String, RoadNode> id2Node, String pointID, RoadNode newRoadNode) {
@@ -417,6 +417,9 @@ public class RawMapReader {
         if (roadGraph.hasBoundary())
             return pointX >= roadGraph.getMinLon() && pointX <= roadGraph.getMaxLon() && pointY >= roadGraph.getMinLat() && pointY <=
                     roadGraph.getMaxLat();
-        else return true;
+        else {
+            LOGGER.severe("ERROR! The current map does not have the boundary information.");
+            return true;
+        }
     }
 }

@@ -23,20 +23,20 @@ public class DataPreprocessing {
         RoadNetworkGraph roadNetworkGraph = rawMapReader.extractMapWithBoundary(BOUNDING_BOX);
         CSVMapWriter rawGTMapWriter = new CSVMapWriter(roadNetworkGraph, INPUT_MAP);
         rawGTMapWriter.writeMap(0, -1, false);
-        CSVMapReader resizedMapReader = new CSVMapReader(INPUT_MAP);
-        RoadNetworkGraph resizedMap = resizedMapReader.readMap(0, -1, false);
+//        CSVMapReader resizedMapReader = new CSVMapReader(INPUT_MAP);
+//        RoadNetworkGraph resizedMap = resizedMapReader.readMap(0, -1, false);
 
         // pre-processing step 2: read and filter raw trajectories, filtered trajectories are guaranteed to be matched on given size of
         // road map
-//        if (isManualGTRequired)
-//            LOGGER.info("Start the trajectory filtering and ground-truth result generation.");
-//        else LOGGER.info("Start the trajectory filtering.");
+        if (isManualGTRequired)
+            LOGGER.info("Start the trajectory filtering and ground-truth result generation.");
+        else LOGGER.info("Start the trajectory filtering.");
         RawFileOperation trajFilter = new RawFileOperation(TRAJECTORY_COUNT, MIN_TRAJ_TIME_SPAN, MAX_TIME_INTERVAL);
         if (isManualGTRequired) {
             double[] emptyBoundingBox = {};
             RoadNetworkGraph rawGrantMap = rawMapReader.extractMapWithBoundary(emptyBoundingBox);
-            trajFilter.rawTrajManualGTResultFilter(resizedMap, rawGrantMap);
-        } else trajFilter.rawTrajGTResultFilter(resizedMap);
+            trajFilter.rawTrajManualGTResultFilter(roadNetworkGraph, rawGrantMap);
+        } else trajFilter.rawTrajGTResultFilter(roadNetworkGraph);
 
         // pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
         LOGGER.info("Start manipulating the map according to the given road removal percentage: " + PERCENTAGE);

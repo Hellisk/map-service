@@ -13,9 +13,9 @@ import static java.lang.Math.*;
  */
 public class GreatCircleDistanceFunction implements PointDistanceFunction, SegmentDistanceFunction, VectorDistanceFunction {
     private static final double EARTH_RADIUS = 6371000;
-    DecimalFormat df = new DecimalFormat(".0000");
+    DecimalFormat df = new DecimalFormat(".00000");
 
-    private static double rad(double d) {
+    private double rad(double d) {
         return d * Math.PI / 180.0;
     }
 
@@ -136,7 +136,15 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
                 ppy = sy1;
             }
         }
-        return new Point(ppx, ppy);
+        double pointX = 0;
+        double pointY = 0;
+        try {
+            pointX = Double.parseDouble(df.format(ppx));
+            pointY = Double.parseDouble(df.format(ppy));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return new Point(pointX, pointY);
     }
 
     @Override

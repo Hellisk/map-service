@@ -44,11 +44,12 @@ public class CoOptimizationFunc {
             else LOGGER.severe("ERROR! The road has been added to the all road way mapping: " + w.getID());
         }
 
+        int changedMatchingCount = 0;
         for (TrajectoryMatchingResult matchingResult : currMatchingResultList) {
             TrajectoryMatchingResult prevMatchingResult = id2PrevMatchingResult.get(matchingResult.getTrajID());
             if (probabilitySum(prevMatchingResult) != probabilitySum(matchingResult)) {     // the matching result changes due to new
                 // road insertion, start the certainty calculation
-
+                changedMatchingCount++;
                 boolean isNewRoadWayInvolved = false;
                 for (int i = 0; i < matchingResult.getNumOfPositiveRank(); i++) {
 //                    if (prevMatchingResult.getProbability(i) > matchingResult.getProbability(i)) {
@@ -128,6 +129,8 @@ public class CoOptimizationFunc {
                     w.setInfluenceScore(0);
             }
         }
+
+        LOGGER.info("Influence score calculation is done. Total number of changed trajectory map-matching: " + changedMatchingCount);
 
         return roadMap;
     }
@@ -333,8 +336,9 @@ public class CoOptimizationFunc {
         RoadNetworkGraph finalMap = matchingResultTriplet._2();
         finalMap.removeRoadWayList(removedRoadWaySet);
         finalMap.isolatedNodeRemoval();
-        double totalBenefit = (highCandidate + highIHighC) / scoreThreshold - lastCost / (100 - scoreThreshold) > 0 ?
-                (highILowC + lowIHighC + lowILowC) : -1;
+        double totalBenefit =
+                highCandidate + highIHighC != 0 && (highCandidate + highIHighC) / scoreThreshold - lastCost / (100 - scoreThreshold) > 0 ?
+                        (highILowC + lowIHighC + lowILowC) : -1;
         LOGGER.info("Map refinement finished, total road removed: " + removedRoadWaySet.size() + ", trajectory affected: " +
                 rematchTrajectoryList.size());
         LOGGER.info("High value candidate score:" + df.format(highCandidate) + ", count: " + highCandidateSet.size() + ", " +
@@ -423,7 +427,8 @@ public class CoOptimizationFunc {
         RoadNetworkGraph finalMap = matchingResultTriplet._2();
         finalMap.removeRoadWayList(removedRoadWaySet);
         finalMap.isolatedNodeRemoval();
-        double totalBenefit = highScoreSum > lastCost ? lowScoreSum : -1;
+//        double totalBenefit = highScoreSum > lastCost * 0.5 ? lowScoreSum : -1;
+        double totalBenefit = highScoreSet.size() != 0 && highScoreSum > lowScoreSum ? highScoreSum - lowScoreSum : -1;
         LOGGER.info("Map refinement finished, total road removed: " + removedRoadWaySet.size() + ", trajectory affected: " +
                 rematchTrajectoryList.size());
         LOGGER.info("Remaining items score: " + df.format(highScoreSum) + ", remove items score: " + df.format(lowScoreSum));
@@ -494,7 +499,7 @@ public class CoOptimizationFunc {
                 if (extraPrintOut.containsKey(w.getID())) {
                     print.append(extraPrintOut.get(w.getID()));
                 } else
-                    System.err.println("ERROR! The road way ID is not found for its co-optimization result.");
+                    LOGGER.severe("ERROR! The road way ID is not found for its co-optimization result.");
                 LOGGER.info(String.valueOf(print));
             }
         }
@@ -559,7 +564,7 @@ public class CoOptimizationFunc {
             double normalizedProbability = Math.pow(matchingResult.getProbability(i), 1.0 / matchingResult.getTrajSize());
             probabilitySum += -normalizedProbability * Math.log(normalizedProbability);
         }
-        return firstNormalizedProbability * probabilitySum;
+        return firstNormalizedProbability * (probabilitySum == 0 ? 1 : probabilitySum);
     }
 
     /**

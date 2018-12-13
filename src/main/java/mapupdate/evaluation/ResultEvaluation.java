@@ -93,6 +93,12 @@ public class ResultEvaluation {
                 if (matchRoadIDSet.contains(s)) {
                     totalCorrectlyMatchedLength += currLength;
                     totalCorrectlyMatchedCount++;
+//                } else {
+//                    System.out.println("Incorrect matching result from " + r.getTrajID() + ": " + s);
+//                    for (String m : matchRoadIDSet) {
+//                        if (!groundTruthIDList.contains(m))
+//                            System.out.println(m);
+//                    }
                 }
             }
         }
@@ -103,12 +109,12 @@ public class ResultEvaluation {
         double countPrecision = totalCorrectlyMatchedCount / totalMatchedCount;
         double countRecall = totalCorrectlyMatchedCount / totalGroundTruthCount;
         double countFScore = 2 * (countPrecision * countRecall / (countPrecision + countRecall));
-        String lengthPrecisionString = df.format(lengthPrecision * 100);
-        String lengthRecallString = df.format(lengthRecall * 100);
-        String lengthFMeasureString = df.format(lengthFScore * 100);
-        String countPrecisionString = df.format(countPrecision * 100);
-        String countRecallString = df.format(countRecall * 100);
-        String countFMeasureString = df.format(countFScore * 100);
+        String lengthPrecisionString = convertPercentage(lengthPrecision, df);
+        String lengthRecallString = convertPercentage(lengthRecall, df);
+        String lengthFMeasureString = convertPercentage(lengthFScore, df);
+        String countPrecisionString = convertPercentage(countPrecision, df);
+        String countRecallString = convertPercentage(countRecall, df);
+        String countFMeasureString = convertPercentage(countFScore, df);
         mapMatchingLengthResult.add(lengthPrecisionString + "," + lengthRecallString + "," + lengthFMeasureString);
         mapMatchingCountResult.add(countPrecisionString + "," + countRecallString + "," + countFMeasureString);
         LOGGER.info("Map-matching result evaluated, length precision: " + lengthPrecisionString + "%, length recall:" + lengthRecallString +
@@ -219,7 +225,6 @@ public class ResultEvaluation {
                 totalFoundRoadLength += w.getRoadLength();
                 totalFoundRoadOriginalLength += id2RemovedLength.get(w.getID());
                 totalFoundRoadCount++;
-                totalFoundRoadCount++;
             } else if (!originalRoadSet.contains(w.getID())) {
                 totalNewRoadLength += w.getRoadLength();
                 totalNewRoadCount++;
@@ -234,12 +239,12 @@ public class ResultEvaluation {
         double countFScre = 2 * (countPrecision * countRecall / (countPrecision + countRecall));
         double roadDiff = Math.abs(totalFoundRoadLength - totalFoundRoadOriginalLength) / totalFoundRoadOriginalLength;
 
-        String lengthPrecisionString = df.format(lengthPrecision * 100);
-        String lengthRecallString = df.format(lengthRecall * 100);
-        String lengthFMeasureString = df.format(lengthFScore * 100);
-        String countPrecisionString = df.format(countPrecision * 100);
-        String countRecallString = df.format(countRecall * 100);
-        String countFMeasureString = df.format(countFScre * 100);
+        String lengthPrecisionString = convertPercentage(lengthPrecision, df);
+        String lengthRecallString = convertPercentage(lengthRecall, df);
+        String lengthFMeasureString = convertPercentage(lengthFScore, df);
+        String countPrecisionString = convertPercentage(countPrecision, df);
+        String countRecallString = convertPercentage(countRecall, df);
+        String countFMeasureString = convertPercentage(countFScre, df);
         mapUpdateCountResult.add(countPrecisionString + "," + countRecallString + "," + countFMeasureString);
         mapUpdateLengthResult.add(lengthPrecisionString + "," + lengthRecallString + "," + lengthFMeasureString);
         LOGGER.info("Map update result evaluation complete, length precision: " + lengthPrecisionString + "%, length recall:" + lengthRecallString +
@@ -253,7 +258,11 @@ public class ResultEvaluation {
             print += "Overall, the inferred roads are longer than original road by ";
         else
             print += "Overall, the inferred roads are shorter than original road by ";
-        print += df.format(roadDiff * 100) + "%";
+        print += convertPercentage(roadDiff, df) + "%";
         LOGGER.info(print);
+    }
+
+    private String convertPercentage(double decimal, DecimalFormat df) {
+        return df.format(Double.isNaN(decimal) ? 0 : decimal * 100);
     }
 }

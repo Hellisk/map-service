@@ -45,9 +45,9 @@ public class RawFileOperation {
      */
     public void trajectoryVisitAssignment(RoadNetworkGraph rawMap, String rawTrajectories) throws
             IOException {
-        Map<String, Integer> id2VisitCountMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of trajectory
+        Map<String, Integer> id2VisitCountMapping = new HashMap<>();   // a mapping between the road ID and the number of trajectory
         // visited
-        Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
+        Map<String, RoadWay> id2RoadWayMapping = new HashMap<>();   // a mapping between the road ID and the road way
 
         initializeMapping(rawMap, id2VisitCountMapping, id2RoadWayMapping);
 
@@ -287,11 +287,11 @@ public class RawFileOperation {
      * @throws ExecutionException
      */
     void rawTrajManualGTResultFilter(RoadNetworkGraph roadGraph, RoadNetworkGraph rawGrantMap) throws IOException, InterruptedException, ExecutionException {
-        final Map<String, Integer> id2VisitCountSmallMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
+        final Map<String, Integer> id2VisitCountSmallMapping = new HashMap<>();   // a mapping between the road ID and the number of
         // trajectory visited in current map
-        final Map<String, Integer> id2VisitCountLargeMapping = new LinkedHashMap<>();   // a mapping between the road ID and the number of
+        final Map<String, Integer> id2VisitCountLargeMapping = new HashMap<>();   // a mapping between the road ID and the number of
         // trajectory visited in the original map
-        final Map<String, RoadWay> id2RoadWayMapping = new LinkedHashMap<>();   // a mapping between the road ID and the road way
+        final Map<String, RoadWay> id2RoadWayMapping = new HashMap<>();   // a mapping between the road ID and the road way
 
         initializeMapping(roadGraph, id2VisitCountSmallMapping, id2RoadWayMapping);
 
@@ -299,18 +299,13 @@ public class RawFileOperation {
 
         // create folders for further writing, if the folders exist and records appears, stop the process
         File createRawTrajFolder = new File(INPUT_TRAJECTORY);
-//        if (createRawTrajFolder.isDirectory() && Objects.requireNonNull(createRawTrajFolder.list()).length != 0) {
-//            LOGGER.info("Raw trajectories are already filtered, skip the process");
-//            return;
-//        } else
-        cleanPath(createRawTrajFolder);
-
-        File createMatchedTrajFolder = new File(GT_MATCHING_RESULT);
-        cleanPath(createMatchedTrajFolder);
+        if (createRawTrajFolder.isDirectory() && Objects.requireNonNull(createRawTrajFolder.list()).length != 0) {
+            LOGGER.info("Raw trajectories are already filtered, skip the process");
+            return;
+        } else
+            cleanPath(createRawTrajFolder);
 
         List<Trajectory> tempTrajList = new ArrayList<>();
-        HashMap<Integer, String[]> id2MatchingResult = new HashMap<>();
-        List<Trajectory> resultTrajList = new ArrayList<>();
         List<Pair<Integer, List<String>>> gtResultRoadWayList = new ArrayList<>();
         String line;
         int tripID = 0;
@@ -396,7 +391,7 @@ public class RawFileOperation {
                 (trajectory -> {
                     Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> result = hmm.doMatching(trajectory);
                     // matching result is empty or result contains breaks, waive the current trajectory
-                    if (result._1().getBestMatchWayList().size() == 0 || !result._2().isEmpty())
+                    if (result._1().getBestMatchWayList().size() == 0 || !result._2().isEmpty())    // no or broken matching result
                         return null;
                     String[] bestMatchWayList = result._1().getBestMatchWayList().toArray(new String[0]);
                     // test whether the matching result is included in the map
@@ -407,6 +402,9 @@ public class RawFileOperation {
         while (!matchedResultStream.isDone()) {
             Thread.sleep(5);
         }
+
+        HashMap<Integer, String[]> id2MatchingResult = new HashMap<>();
+        List<Trajectory> resultTrajList = new ArrayList<>();
         int matchedResultCount = 0;
         List<Pair<Integer, String[]>> matchedResultList = matchedResultStream.get().collect(Collectors.toList());
         for (Pair<Integer, String[]> matchedResult : matchedResultList) {
@@ -440,6 +438,9 @@ public class RawFileOperation {
             throw new IllegalArgumentException("ERROR! The cache for trajectory filter is too small. The final trajectory size is :" + tripID);
         LOGGER.info("Ground-truth trajectory result generated.");
 
+
+        File createMatchedTrajFolder = new File(GT_MATCHING_RESULT);
+        cleanPath(createMatchedTrajFolder);
         writeTrajectoryFile(resultTrajList, gtResultRoadWayList, createRawTrajFolder, createMatchedTrajFolder);
 
         // visit statistics
@@ -481,6 +482,11 @@ public class RawFileOperation {
                 df.format((totalHighVisitLargeCount / (double) roadGraph.getWays().size()) * 100) + "%.");
     }
 
+    /**
+     * Remove erroneous point within a trajectory, including duplicated points and rewinding point
+     *
+     * @param trajectory Input trajectory.
+     */
     private void trajectoryValidityCheck(Trajectory trajectory) {
         Iterator<TrajectoryPoint> iter = trajectory.iterator();
         TrajectoryPoint prevPoint = iter.next();
@@ -489,11 +495,15 @@ public class RawFileOperation {
             if (currPoint.time() == prevPoint.time()) {
                 if (currPoint.x() == prevPoint.x() && currPoint.y() == prevPoint.y()) {       // duplicated point, remove it
                     iter.remove();
-                } else
-                    System.out.println("ERROR! Two points with the same timestamps.");
-            } else if (currPoint.time() < prevPoint.time())
-                System.out.println("ERROR! Current point is earlier than the previous point.");
-            else {
+                } else {
+                    LOGGER.severe("ERROR! Two points with the same timestamps.");
+                    iter.remove();
+                }
+            } else if (currPoint.time() < prevPoint.time()) {
+                LOGGER.severe("ERROR! Current point is earlier than the previous point.");
+                iter.remove();
+
+            } else {
                 prevPoint = currPoint;
             }
         }
@@ -561,7 +571,8 @@ public class RawFileOperation {
                 return true;
             } else if (prevMatchRoad != null) {    // check the connectivity of the match roadID
                 RoadWay currRoad = id2RoadWayMapping.get(s);
-                if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID())) {  // break happens
+                if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID()) && !prevMatchRoad.equals(currRoad)) {
+                    // break happens
 //                    System.out.println("Matching result is not continuous.");
                     return true;
                 } else
@@ -587,7 +598,8 @@ public class RawFileOperation {
             if (id2RoadWayMapping.containsKey(s)) { // current match road is included in the map
                 RoadWay currRoad = id2RoadWayMapping.get(s);
                 if (prevMatchRoad != null) {    // check the connectivity of the match roadID
-                    if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID())) {  // break happens
+                    if (!prevMatchRoad.getToNode().getID().equals(currRoad.getFromNode().getID()) && !prevMatchRoad.equals(currRoad)) {
+                        // break happens
 //                        System.out.println("Matching result is not continuous.");
                         return true;
                     } else {

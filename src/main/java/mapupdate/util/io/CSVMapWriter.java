@@ -20,6 +20,7 @@ import java.util.*;
 
 import static mapupdate.Main.LOGGER;
 import static mapupdate.Main.MIN_ROAD_LENGTH;
+import static mapupdate.Main.PERCENTAGE;
 
 /**
  * Created by uqpchao on 22/05/2017.
@@ -169,7 +170,7 @@ public class CSVMapWriter implements SpatialInterface {
      * @param percentage The removal percentage
      * @throws IOException File operation exception
      */
-    public void popularityBasedRoadRemoval(int percentage, int distance) throws IOException {
+    void popularityBasedRoadRemoval(int percentage, int distance) throws IOException {
 
         // build index for neighbour search
         Grid<Point> gridIndex = buildGridIndexForCenterPoints(distance);
@@ -206,55 +207,62 @@ public class CSVMapWriter implements SpatialInterface {
             throw new IllegalArgumentException("ERROR! The number of satisfied roads " + satisfiedRoadList.size() + " is less than the " +
                     "required road removal " + wayList.size() * percentage / 100 + ". Consider loose the condition or decrease the " +
                     "removal percentage.");
-        while (removedWayList.size() * 100 / (double) wayList.size() < percentage) {
-            int currIndex = random.nextInt(satisfiedRoadList.size());
-            if (removedEdgeIDSet.contains(satisfiedRoadList.get(currIndex).getID()))
-                continue;
-            List<RoadWay> tempRemovedWayList = new ArrayList<>();
-            tempRemovedWayList.add(satisfiedRoadList.get(currIndex));
-            // put the reversed direction road to the removed road list
-            if (satisfiedRoadList.get(currIndex).getID().contains("-")) {
-                String reversedRoadID = satisfiedRoadList.get(currIndex).getID().substring(1);
-                if (id2RoadWay.containsKey(reversedRoadID))
-                    if (!removedEdgeIDSet.contains(reversedRoadID)) {
-                        tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
-                    }
-            } else {
-                String reversedRoadID = "-" + satisfiedRoadList.get(currIndex).getID();
-                if (id2RoadWay.containsKey(reversedRoadID))
-                    if (!removedEdgeIDSet.contains(reversedRoadID)) {
-                        tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
-                    }
-            }
-            // avoid road node removal
-            if (tempRemovedWayList.get(0).getFromNode().getDegree() <= tempRemovedWayList.size() || tempRemovedWayList.get(0).getToNode().getDegree() <= tempRemovedWayList.size())
-                continue;
-            if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getFromNode().getID())) {
-                if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) <= tempRemovedWayList.size())
-                    continue;
-                else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getFromNode().getID(),
-                        id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) - tempRemovedWayList.size());
-            } else {
-                id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getFromNode().getID(),
-                        tempRemovedWayList.get(0).getFromNode().getDegree() - tempRemovedWayList.size());
-            }
-            if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getToNode().getID())) {
-                if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) <= tempRemovedWayList.size())
-                    continue;
-                else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getToNode().getID(),
-                        id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) - tempRemovedWayList.size());
-            } else {
-                id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getToNode().getID(),
-                        tempRemovedWayList.get(0).getToNode().getDegree() - tempRemovedWayList.size());
-            }
-
-            for (RoadWay w : tempRemovedWayList) {
-                removedEdgeIDSet.add(w.getID());
-                removedWayList.add(w);
-            }
-
+        else {
+            System.out.println("Number of satisfied removal roads: " + satisfiedRoadList.size() + ", required road: " + wayList.size() * percentage / 100);
         }
+        while (removedWayList.size() * 100 / (double) wayList.size() < percentage) {
+            System.out.println("Current removed road count: " + removedWayList.size());
+            for (RoadWay roadWay : satisfiedRoadList) {
+                if (removedWayList.size() * 100 / (double) wayList.size() > percentage)
+                    break;
+                int randomNumber = random.nextInt((int) Math.floor(100d / PERCENTAGE));
+                if (randomNumber != 0 || removedEdgeIDSet.contains(roadWay.getID()))
+                    continue;
+                removedEdgeIDSet.add(roadWay.getID());
+                List<RoadWay> tempRemovedWayList = new ArrayList<>();
+                tempRemovedWayList.add(roadWay);
+                // put the reversed direction road to the removed road list
+                if (roadWay.getID().contains("-")) {
+                    String reversedRoadID = roadWay.getID().substring(1);
+                    if (id2RoadWay.containsKey(reversedRoadID))
+                        if (!removedEdgeIDSet.contains(reversedRoadID)) {
+                            tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
+                        }
+                } else {
+                    String reversedRoadID = "-" + roadWay.getID();
+                    if (id2RoadWay.containsKey(reversedRoadID))
+                        if (!removedEdgeIDSet.contains(reversedRoadID)) {
+                            tempRemovedWayList.add(id2RoadWay.get(reversedRoadID));
+                        }
+                }
+                // avoid road node removal
+                if (tempRemovedWayList.get(0).getFromNode().getDegree() <= tempRemovedWayList.size() || tempRemovedWayList.get(0).getToNode().getDegree() <= tempRemovedWayList.size())
+                    continue;
+                if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getFromNode().getID())) {
+                    if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) <= tempRemovedWayList.size())
+                        continue;
+                    else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getFromNode().getID(),
+                            id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getFromNode().getID()) - tempRemovedWayList.size());
+                } else {
+                    id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getFromNode().getID(),
+                            tempRemovedWayList.get(0).getFromNode().getDegree() - tempRemovedWayList.size());
+                }
+                if (id2NodeDegreeMapping.containsKey(tempRemovedWayList.get(0).getToNode().getID())) {
+                    if (id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) <= tempRemovedWayList.size())
+                        continue;
+                    else id2NodeDegreeMapping.replace(tempRemovedWayList.get(0).getToNode().getID(),
+                            id2NodeDegreeMapping.get(tempRemovedWayList.get(0).getToNode().getID()) - tempRemovedWayList.size());
+                } else {
+                    id2NodeDegreeMapping.put(tempRemovedWayList.get(0).getToNode().getID(),
+                            tempRemovedWayList.get(0).getToNode().getDegree() - tempRemovedWayList.size());
+                }
 
+                for (RoadWay w : tempRemovedWayList) {
+                    removedEdgeIDSet.add(w.getID());
+                    removedWayList.add(w);
+                }
+            }
+        }
         List<RoadNode> nodeList = this.roadGraph.getNodes();
         wayList.removeAll(removedWayList);
         RoadNetworkGraph newGraph = new RoadNetworkGraph();

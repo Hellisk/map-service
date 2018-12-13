@@ -10,7 +10,7 @@ public class MinPriorityQueue {
     private HashMap<Integer, Item> insertedNodes;     // the index and the corresponding node
     private Item lastItem;
 
-    MinPriorityQueue() {
+    public MinPriorityQueue() {
         this.root = null;
         this.heapSize = 0;
         this.insertedNodes = new HashMap<>();
@@ -22,7 +22,7 @@ public class MinPriorityQueue {
      *
      * @return the index of the next node, returns -1 if all points are visited
      */
-    int extractMin() {
+    public int extractMin() {
 //        double distance = root.distance;
         if (this.heapSize > 1) {
             int index = root.arrayIndex;
@@ -56,14 +56,14 @@ public class MinPriorityQueue {
      * @param distance the current calculated distance
      * @return false if the distance is not smaller than the previous one, otherwise true
      */
-    boolean decreaseKey(int index, double distance) {
+    public boolean decreaseKey(int index, double distance) {
         if (insertedNodes.containsKey(index)) {   // the coming key already exists
             Item queryNode = insertedNodes.get(index);
             if (distance < queryNode.distance) {  // the update is valid
                 queryNode.distance = distance;
-                if (queryNode.distance < queryNode.parent.distance && this.lastItem == queryNode)
+                if ((queryNode.distance < queryNode.parent.distance || (queryNode.distance == queryNode.parent.distance && queryNode.arrayIndex < queryNode.parent.arrayIndex)) && this.lastItem == queryNode)
                     this.lastItem = queryNode.parent;
-                while (queryNode.distance < queryNode.parent.distance) {
+                while (queryNode.distance < queryNode.parent.distance || (queryNode.distance == queryNode.parent.distance && queryNode.arrayIndex < queryNode.parent.arrayIndex)) {
                     swap(queryNode.parent, queryNode, true);
                 }
                 return true;
@@ -98,10 +98,10 @@ public class MinPriorityQueue {
             this.lastItem.nextNode = newPoint;
             this.lastItem = newPoint;
             // when the newPoint is at the end of the tree, the swap requires to update this.lastItem
-            if (newPoint.distance < newPoint.parent.distance)
+            if (newPoint.distance < newPoint.parent.distance || (newPoint.distance == newPoint.parent.distance && newPoint.arrayIndex < newPoint.parent.arrayIndex))
                 this.lastItem = newPoint.parent;
             // the rest swaps are normal
-            while (newPoint.distance < newPoint.parent.distance) {
+            while (newPoint.distance < newPoint.parent.distance || (newPoint.distance == newPoint.parent.distance && newPoint.arrayIndex < newPoint.parent.arrayIndex)) {
                 swap(newPoint.parent, newPoint, true);
             }
         } else {
@@ -144,8 +144,8 @@ public class MinPriorityQueue {
     /**
      * validate the depth of each branch, only apply when both branches are balanced
      *
-     * @param branch1   The first item
-     * @param branch2   The second item
+     * @param branch1 The first item
+     * @param branch2 The second item
      * @return True if they are in the same depth, otherwise false
      */
     private boolean isSameDepth(Item branch1, Item branch2) {
@@ -279,10 +279,10 @@ public class MinPriorityQueue {
         Item smallestIndex = node;
         Item left = node.leftChild;
         Item right = node.rightChild;
-        if (left != null && left.distance < smallestIndex.distance) {
+        if (left != null && (left.distance < smallestIndex.distance || (left.distance == smallestIndex.distance && left.arrayIndex < smallestIndex.arrayIndex))) {
             smallestIndex = left;
         }
-        if (right != null && right.distance < smallestIndex.distance) {
+        if (right != null && (right.distance < smallestIndex.distance || (right.distance == smallestIndex.distance && right.arrayIndex < smallestIndex.arrayIndex))) {
             smallestIndex = right;
         }
         if (node != smallestIndex) {

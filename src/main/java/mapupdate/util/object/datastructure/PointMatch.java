@@ -3,21 +3,20 @@ package mapupdate.util.object.datastructure;
 import mapupdate.util.object.spatialobject.Point;
 import mapupdate.util.object.spatialobject.Segment;
 
-public class PointMatch {
+public class PointMatch extends LengthBasedItem {
     private Point matchPoint;
     private Segment matchedSegment;
-    private String roadID;
 
     public PointMatch() {
+        super();
         this.matchPoint = new Point();
         this.matchedSegment = new Segment();
-        this.roadID = "";
     }
 
     public PointMatch(Point matchingPoint, Segment matchedSegment, String roadID) {
+        super(matchedSegment.length(), roadID);
         this.matchPoint = new Point(matchingPoint.x(), matchingPoint.y());
         this.matchedSegment = matchedSegment;
-        this.roadID = roadID;
     }
 
     public Point getMatchPoint() {
@@ -37,11 +36,11 @@ public class PointMatch {
     }
 
     public String getRoadID() {
-        return roadID;
+        return super.getID();
     }
 
     public void setRoadID(String roadID) {
-        this.roadID = roadID;
+        super.setID(roadID);
     }
 
     public double lon() {
@@ -53,7 +52,11 @@ public class PointMatch {
     }
 
     public PointMatch clone() {
-        return new PointMatch(this.matchPoint, this.matchedSegment, this.roadID);
+        return new PointMatch(this.matchPoint, this.matchedSegment, this.getRoadID());
     }
 
+    @Override
+    public String toString() {
+        return matchPoint.x() + "_" + matchPoint.y() + "," + matchedSegment.x1() + "_" + matchedSegment.y1() + "," + matchedSegment.x2() + "_" + matchedSegment.y2() + "," + super.getID();
+    }
 }

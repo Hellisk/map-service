@@ -43,9 +43,7 @@ public class XMLTrajectoryReader {
             throw new IndexOutOfBoundsException("trajectory ID exceeds the current count.");
 
         BufferedReader brTrajectory = new BufferedReader(new FileReader(this.inputFolder + stringFormatter
-                (trajNum) + File.separator + stringFormatter
-                (trajNum) +
-                ".track"));
+                (trajNum) + File.separator + stringFormatter(trajNum) + ".track"));
         Trajectory newTrajectory = new Trajectory(trajNum + "");
         String line;
         while ((line = brTrajectory.readLine()) != null) {

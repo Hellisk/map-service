@@ -1,9 +1,6 @@
 package mapupdate.util.object.roadnetwork;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static mapupdate.Main.LOGGER;
 
@@ -117,7 +114,7 @@ public class RoadNetworkGraph implements MapInterface {
     }
 
     /**
-     * check if the boundary is preset
+     * Check if the boundary is preset.
      *
      * @return True if the boundary is preset
      */
@@ -281,15 +278,15 @@ public class RoadNetworkGraph implements MapInterface {
     }
 
     public int isolatedNodeRemoval() {
-        List<RoadNode> removedRoadNodeList = new ArrayList<>();
-        for (RoadNode n : this.nodesList) {
+        int nodeSize = this.nodesList.size();
+        for (Iterator<RoadNode> iterator = this.nodesList.iterator(); iterator.hasNext(); ) {
+            RoadNode n = iterator.next();
             if (n.getDegree() == 0) {
-                removedRoadNodeList.add(n);
+                iterator.remove();
                 this.nodeIDList.remove(n.getID());
             }
         }
-        this.nodesList.removeAll(removedRoadNodeList);
-        return removedRoadNodeList.size();
+        return nodeSize - this.nodesList.size();
     }
 
     public int getMaxVisitCount() {
@@ -319,5 +316,18 @@ public class RoadNetworkGraph implements MapInterface {
 
     public void setMaxVisitCount(int maxVisitCount) {
         this.maxVisitCount = maxVisitCount;
+    }
+
+    /**
+     * Reset the boundary to better represent the size.
+     */
+    public void updateBoundary() {
+        this.setMaxLon(Double.POSITIVE_INFINITY);
+        this.setMaxLat(Double.POSITIVE_INFINITY);
+        this.setMinLon(Double.NEGATIVE_INFINITY);
+        this.setMinLat(Double.NEGATIVE_INFINITY);
+        this.hasBoundary = false;
+        for (RoadNode n : this.getAllNodes())
+            updateBoundingBox(n);
     }
 }

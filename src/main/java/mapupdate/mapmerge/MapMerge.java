@@ -289,6 +289,8 @@ public class MapMerge {
                     if (!id2RoadWayMapping.containsKey(s))
                         System.out.println("ERROR! Road doesn't exist:" + s);
                     Point firstPoint = id2RoadWayMapping.get(s).getToNode().toPoint();
+                    if (!this.grid.getModel().getBoundary().contains(firstPoint))
+                        continue;
                     if (distFunc.distance(w.getFromNode().toPoint(), firstPoint) > 4 * CANDIDATE_RANGE) {
                         continue;
                     }
@@ -304,6 +306,8 @@ public class MapMerge {
                 }
                 for (String s : endRoadWayList) {
                     Point firstPoint = id2RoadWayMapping.get(s).getFromNode().toPoint();
+                    if (!this.grid.getModel().getBoundary().contains(firstPoint))
+                        continue;
                     if (distFunc.distance(w.getToNode().toPoint(), firstPoint) > 4 * CANDIDATE_RANGE) {
                         continue;
                     }
@@ -483,6 +487,15 @@ public class MapMerge {
         HashMap<String, RoadWay> insertRoadIDMapping = new HashMap<>();
         for (Map.Entry<String, Pair<RoadWay, Double>> entry : loc2InsertedWayDist.entrySet()) {
             RoadWay newWay = entry.getValue()._1();
+            boolean isValidRoad = true;
+            for (int i = 0; i < newWay.getNodes().size() - 1; i++) {
+                if (distFunc.distance(newWay.getNode(i).toPoint(), newWay.getNode(i + 1).toPoint()) == 0) {
+                    isValidRoad = false;
+                    break;
+                }
+            }
+            if (!isValidRoad)
+                continue;
             if (insertRoadIDMapping.containsKey(newWay.getID())) {
                 RoadWay currWay = insertRoadIDMapping.get(newWay.getID());
                 currWay.setConfidenceScore(currWay.getConfidenceScore() + newWay.getConfidenceScore());

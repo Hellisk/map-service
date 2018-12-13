@@ -20,11 +20,13 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Stream;
 
 import static mapupdate.Main.LOGGER;
+import static mapupdate.Main.U_TURN_PENALTY;
 
 /**
  * Created by uqpchao on 22/05/2017.
  */
 public class NewsonHMM2009 implements MapInterface {
+
     private final int candidateRange;    // in meter
     private final int gapExtensionRange; // in meter
     private final int rankLength; // in meter
@@ -195,10 +197,12 @@ public class NewsonHMM2009 implements MapInterface {
                 "newly created middle points: " + intermediatePointCount);
     }
 
-    /*
-     *   Map-matching implementation
+    /**
+     * Map-matching process.
+     *
+     * @param trajectory Input trajectory.
+     * @return Pair(Map - matching result, List ( unmatched trajectory, preceding match way, succeeding match way)).
      */
-
     public Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> doMatching(final Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
@@ -565,9 +569,8 @@ public class NewsonHMM2009 implements MapInterface {
      */
     private void computeTransitionProbabilitiesWithConnectivity(TimeStep<PointMatch, TrajectoryPoint, RoadPath>
                                                                         prevTimeStep, TimeStep<PointMatch, TrajectoryPoint, RoadPath> timeStep) {
-        final double linearDistance = getDistance(
-                prevTimeStep.observation.x(), prevTimeStep.observation.y(),
-                timeStep.observation.x(), timeStep.observation.y());
+        final double linearDistance = getDistance(prevTimeStep.observation.x(), prevTimeStep.observation.y(), timeStep.observation.x(),
+                timeStep.observation.y());
         final double timeDiff = (timeStep.observation.time() - prevTimeStep.observation.time());
         double maxDistance = (50 * timeDiff) < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8; // limit the maximum speed to
         // 180km/h
@@ -577,6 +580,8 @@ public class NewsonHMM2009 implements MapInterface {
             List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateShortestDistanceList(from, candidates, maxDistance);
             for (int i = 0; i < candidates.size(); i++) {
                 if (shortestPathResultList.get(i)._1() != Double.POSITIVE_INFINITY) {
+                    if (shortestPathResultList.get(i)._2().contains(reverseID(from.getRoadID())))
+                        shortestPathResultList.get(i).set_1(shortestPathResultList.get(i)._1() + U_TURN_PENALTY);
                     timeStep.addRoadPath(from, candidates.get(i), new RoadPath(from, candidates.get(i), shortestPathResultList.get(i)._2()));
                     double transitionLogProbability = hmmProbabilities.transitionLogProbability(shortestPathResultList.get(i)._1(),
                             linearDistance, timeDiff);
@@ -588,6 +593,12 @@ public class NewsonHMM2009 implements MapInterface {
                 }
             }
         }
+    }
+
+    private String reverseID(String roadID) {
+        if (roadID.contains("-"))
+            return roadID.substring(1);
+        else return "-" + roadID;
     }
 
     /**
@@ -619,6 +630,8 @@ public class NewsonHMM2009 implements MapInterface {
                     if (sequence.transitionDescriptor.to != null)
                         path.add(sequence.transitionDescriptor.to.getRoadID());
                 }
+                if (sequence.state.getRoadID() != null && !sequence.state.getRoadID().equals(""))
+                    path.add(sequence.state.getRoadID());
             }
             result.setMatchingResult(matchPairs, i);
             result.setMatchWayList(new ArrayList<>(path), i);

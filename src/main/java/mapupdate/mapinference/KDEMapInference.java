@@ -39,6 +39,7 @@ public class KDEMapInference {
         List<String> pythonCmd = new ArrayList<>();
 
         // remove the map inference directory
+        FileUtils.cleanDirectory(new File(INFERENCE_FOLDER));
         FileUtils.deleteDirectory(new File(INFERENCE_FOLDER));
 
         // setup each command manually
@@ -56,6 +57,7 @@ public class KDEMapInference {
 
         try {
             runCode(pythonCmd);
+            System.gc();
         } catch (Exception e) {
             e.printStackTrace();
         }

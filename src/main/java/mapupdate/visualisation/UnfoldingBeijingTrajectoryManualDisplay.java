@@ -47,9 +47,9 @@ public class UnfoldingBeijingTrajectoryManualDisplay extends PApplet {
         int[] pink = {255, 153, 153};
         int[] black = {0, 0, 0};
 
-        String trajectoryID = "10051";
-        String[] matchRoadList1 = {"686978", "681051", "686983", "678698", "678699", "671798", "-671798", "579140", "567283", "567284", "579162", "664254", "664252", "583722", "567287", "-567287", "579164", "567282", "567281", "587924", "667895", "667896", "687361", "604834", "582062", "582316", "577721", "685410", "693360", "693361", "586449", "579168", "678749", "685400", "685402", "685404", "685406", "681466", "681465", "685619", "577690", "682915", "681471", "681470", "681469", "583719", "666763"};
-        String[] matchRoadList2 = {"663344", "-12566875", "-12566876", "-88252377", "-13248258", "-88252376", "13208440", "676980", "580911", "676975", "676974", "13248256", "13248258", "13248257", "668309", "12566890", "87332915", "87332914", "13208444", "88252439", "678698", "678699", "88252451", "-88252396", "567283", "567284", "579162", "664254", "664252", "583722", "567287", "-88252467", "567282", "567281", "587924", "667895", "667896", "687361", "604834", "582062", "582316", "577721", "685410", "693360", "693361", "586449", "579168", "678749", "685400", "685402", "685404", "685406", "681466", "681465", "685619", "577690", "682915", "681471", "681470", "681469", "583719", "666763"};
+        String trajectoryID = "10237";
+        String[] matchRoadList1 = {"663085"};
+        String[] matchRoadList2 = {"-662728"};
 
         try {
             // read the input map
@@ -87,12 +87,16 @@ public class UnfoldingBeijingTrajectoryManualDisplay extends PApplet {
             for (String s : matchRoadList1) {
                 if (id2RoadWay.containsKey(s))
                     prevMatchRoadWayList.add(id2RoadWay.get(s));
+                else
+                    System.out.println("ERROR! Road not found.");
             }
             trajDisplay[1].addMarkers(roadWayMarkerGen(prevMatchRoadWayList, green));
             List<RoadWay> currMatchRoadWayList = new ArrayList<>();
             for (String s : matchRoadList2) {
                 if (id2RoadWay.containsKey(s))
                     currMatchRoadWayList.add(id2RoadWay.get(s));
+                else
+                    System.out.println("ERROR! Road not found.");
             }
             trajDisplay[2].addMarkers(roadWayMarkerGen(currMatchRoadWayList, lightPurple));
         } catch (IOException e) {

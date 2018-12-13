@@ -98,10 +98,9 @@ class HMMProbabilities implements Serializable {
      * time difference to make the beta parameter of the exponential distribution independent of the
      * sampling interval.
      */
-    private double normalizedTransitionMetric(double routeLength, double linearDistance,
-                                              double timeDiff) {
+    private double normalizedTransitionMetric(double routeLength, double linearDistance, double timeDiff) {
         if (timeDiff <= 0.0) {
-            throw new IllegalStateException("Time difference between subsequent location measurements must be >= 0.");
+            throw new IllegalStateException("Time difference between subsequent location measurements must be >= 0:" + timeDiff);
         }
 //        return Math.abs(linearDistance - routeLength) / (timeDiff* timeDiff);
         return Math.abs(linearDistance - routeLength) / timeDiff;

@@ -14,7 +14,7 @@ public class Pair<T, S> implements Serializable {
     /**
      * The two objects to pair
      */
-    private final T _1;
+    private T _1;
     private S _2;
 
     /**
@@ -70,5 +70,9 @@ public class Pair<T, S> implements Serializable {
 
     public void set_2(S _2) {
         this._2 = _2;
+    }
+
+    public void set_1(T _1) {
+        this._1 = _1;
     }
 }

@@ -94,7 +94,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             if (PERCENTAGE != 0) {
                 // read inferred edges and display on the map
                 CSVMapReader inferredEdgeReader = new CSVMapReader(INFERENCE_FOLDER);
-                List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges();
+                List<RoadWay> inferredEdges = inferredEdgeReader.readInferredEdges(false);
                 List<Marker> inferredEdgeMarker = roadWayMarkerGen(inferredEdges, displayActualMap ? black : blue);
                 trajDisplay[7].addMarkers(inferredEdgeMarker);
 
