@@ -121,12 +121,12 @@ public class Circle extends SimpleSpatialObject {
     }
 
     @Override
-    public Rectangle mbr() {
+    public Rect mbr() {
         double minX = centerX - radius;
         double minY = centerY - radius;
         double maxX = centerX + radius;
         double maxY = centerY + radius;
-        return new Rectangle(minX, minY, maxX, maxY);
+        return new Rect(minX, minY, maxX, maxY);
     }
 
     @Override

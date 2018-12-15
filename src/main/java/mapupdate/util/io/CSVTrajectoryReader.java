@@ -1,21 +1,15 @@
 package mapupdate.util.io;
 
-import mapupdate.util.object.datastructure.Pair;
-import mapupdate.util.object.datastructure.PointMatch;
-import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
-import mapupdate.util.object.datastructure.Triplet;
-import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.Segment;
-import mapupdate.util.object.spatialobject.Trajectory;
-import mapupdate.util.object.spatialobject.TrajectoryPoint;
+import javafx.geometry.BoundingBox;
+import mapupdate.util.index.rtree.STRTree;
+import mapupdate.util.object.datastructure.*;
+import mapupdate.util.object.spatialobject.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static mapupdate.Main.*;
@@ -24,10 +18,14 @@ import static mapupdate.Main.*;
  * Created by uqpchao on 23/05/2017.
  */
 public class CSVTrajectoryReader {
-    public CSVTrajectoryReader() {
+    private boolean isIndexBasedMatching = false;
+    private List<XYObject<Point>> indexPointList = null;
+
+    public CSVTrajectoryReader(boolean isIndexBasedMatching) {
+        this.isIndexBasedMatching = isIndexBasedMatching;
     }
 
-    public Trajectory readTrajectory(File trajectoryFile) throws IOException {
+    public Trajectory readTrajectory(File trajectoryFile, String trajID) throws IOException {
         BufferedReader brTrajectory = new BufferedReader(new FileReader(trajectoryFile));
         Trajectory newTrajectory = new Trajectory();
         String line;
@@ -38,6 +36,12 @@ public class CSVTrajectoryReader {
             TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
                     Long.parseLong(pointInfo[2]), Double.parseDouble(pointInfo[3]), Double.parseDouble(pointInfo[4]));
             newTrajectory.add(newTrajectoryPoint);
+            if (isIndexBasedMatching && indexPointList != null) {
+                Point currPoint = new Point(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]));
+                currPoint.setID(trajID);
+                XYObject<Point> indexItem = new XYObject<>(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), currPoint);
+                indexPointList.add(indexItem);
+            }
         }
         brTrajectory.close();
         return newTrajectory;
@@ -162,20 +166,26 @@ public class CSVTrajectoryReader {
         if (inputFile.isDirectory()) {
             File[] trajectoryFiles = inputFile.listFiles();
             if (trajectoryFiles != null) {
+                if (isIndexBasedMatching) {
+                    indexPointList = new ArrayList<>();
+                }
                 for (File trajectoryFile : trajectoryFiles) {
-                    Trajectory newTrajectory = readTrajectory(trajectoryFile);
-                    newTrajectory.setID(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
+                    String trajID = trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1,
+                            trajectoryFile.getName().indexOf('.'));
+                    Trajectory newTrajectory = readTrajectory(trajectoryFile, trajID);
+                    newTrajectory.setID(trajID);
                     trajectoryList.add(newTrajectory);
                 }
             } else LOGGER.severe("ERROR! The input trajectory dictionary is empty: " + csvTrajectoryPath);
         } else {
-            trajectoryList.add(readTrajectory(inputFile));
+            trajectoryList.add(readTrajectory(inputFile, 0 + ""));
         }
         int count = 0;
         for (Trajectory t : trajectoryList) {
             count += t.getCoordinates().size();
         }
-        LOGGER.info("Trajectory read finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
+
+        LOGGER.info("Trajectory reading finished, total number of trajectories:" + trajectoryList.size() + ", trajectory points:" + count);
         return trajectoryList;
     }
 
@@ -193,15 +203,17 @@ public class CSVTrajectoryReader {
                     if (line.length != 2)
                         throw new IllegalStateException("ERROR! The unmatched trajectory format is incorrect:" + Arrays.toString(line));
                     brTrajectory.close();
-                    Trajectory newTrajectory = readTrajectory(trajectoryFile);
-                    newTrajectory.setID(trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1, trajectoryFile.getName().indexOf('.')));
+                    String unmatchedTrajID = trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1,
+                            trajectoryFile.getName().indexOf('.'));
+                    Trajectory newTrajectory = readTrajectory(trajectoryFile, unmatchedTrajID);
+                    newTrajectory.setID(unmatchedTrajID);
                     trajectoryList.add(new Triplet<>(newTrajectory, line[0], line[1]));
                 }
             } else LOGGER.severe("ERROR! The input trajectory dictionary is empty: " + csvUnmatchedTrajectoryPath);
         } else {
             BufferedReader brTrajectory = new BufferedReader(new FileReader(inputFile));
             String[] line = brTrajectory.readLine().split(",");
-            trajectoryList.add(new Triplet<>(readTrajectory(inputFile), line[0], line[1]));
+            trajectoryList.add(new Triplet<>(readTrajectory(inputFile, 0 + ""), line[0], line[1]));
         }
         int count = 0;
         for (Triplet<Trajectory, String, String> unmatchedTrajInfo : trajectoryList) {
@@ -222,14 +234,15 @@ public class CSVTrajectoryReader {
         File inputFile = new File(csvTrajectoryPath);
         if (!inputFile.exists())
             LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
-        Stream<File> dataFiles =
-                IOService.getFiles(csvTrajectoryPath);
+        Stream<File> dataFiles = IOService.getFiles(csvTrajectoryPath);
+        if (isIndexBasedMatching)
+            indexPointList = Collections.synchronizedList(new ArrayList<>());
         return dataFiles.parallel().map(
                 file -> {
                     try {
-                        Trajectory newTrajectory = readTrajectory(file);
-                        newTrajectory.setID(file.getName().substring(file.getName().indexOf('_') + 1, file
-                                .getName().indexOf('.')));
+                        String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.'));
+                        Trajectory newTrajectory = readTrajectory(file, trajID);
+                        newTrajectory.setID(trajID);
                         return newTrajectory;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -238,4 +251,39 @@ public class CSVTrajectoryReader {
                 });
     }
 
+    /**
+     * Read and parse the input CSV trajectory files to a Stream of trajectories given a list of trajectory.
+     *
+     * @param csvTrajectoryPath the trajectory input path
+     * @param trajIDSet         The set of trajectory ID to be read
+     */
+    public Stream<Trajectory> readPartialTrajectoryFilesStream(String csvTrajectoryPath, Set<String> trajIDSet) {
+        // read input data
+        File inputFile = new File(csvTrajectoryPath);
+        if (!inputFile.exists())
+            LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
+        Stream<File> dataFiles = IOService.getFilesWithIDs(csvTrajectoryPath, trajIDSet);
+        if (!isIndexBasedMatching)
+            LOGGER.severe("ERROR! Partial trajectory read should not be called in non-index mode.");
+        return dataFiles.parallel().map(
+                file -> {
+                    try {
+                        String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.'));
+                        Trajectory newTrajectory = readTrajectory(file, trajID);
+                        newTrajectory.setID(trajID);
+                        return newTrajectory;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
+    public Pair<STRTree<Point>, Integer> createIndex() {
+        if (isIndexBasedMatching) {
+            STRTree<Point> index = new STRTree<>(indexPointList, indexPointList.size() / 10000);
+            return new Pair<>(index, indexPointList.size());
+        } else
+            throw new IllegalArgumentException("ERROR! Index should not be built for non-index-based matching.");
+    }
 }

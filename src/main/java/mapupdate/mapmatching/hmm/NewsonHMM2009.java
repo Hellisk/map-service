@@ -74,21 +74,16 @@ public class NewsonHMM2009 implements MapInterface {
         // sequential test
         List<TrajectoryMatchingResult> result = new ArrayList<>();
         int matchCount = 0;
-        int brokenTrajCount = 0;
         for (Trajectory traj : rawTrajectory) {
-//            if (matchCount == 2004)
-//                LOGGER.info("test");
             Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> matchResult = doMatching(traj);
-            if (!matchResult._2().isEmpty())
-                brokenTrajCount++;
             result.add(matchResult._1());
-            if (rawTrajectory.size() > 100)
-                if (matchCount % (rawTrajectory.size() / 100) == 0 && matchCount / (rawTrajectory.size() / 100) <= 100)
-                    LOGGER.info("Map matching finish " + matchCount / (rawTrajectory.size() / 100) + "%.");
+            System.out.println(traj.getID());
+//            if (rawTrajectory.size() > 100)
+//                if (matchCount % (rawTrajectory.size() / 100) == 0 && matchCount / (rawTrajectory.size() / 100) <= 100)
+//                    LOGGER.info("Map matching finish " + matchCount / (rawTrajectory.size() / 100) + "%.");
             matchCount++;
             this.unmatchedTraj.addAll(matchResult._2());
         }
-        LOGGER.info("All map-matching finished. Total number of broken trajectory: " + brokenTrajCount);
         return result;
     }
 

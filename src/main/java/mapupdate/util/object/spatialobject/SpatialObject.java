@@ -72,7 +72,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
      * this spatial object.
      * @throws SpatialObjectConstructionException if object is empty or null.
      */
-    default Rectangle mbr() {
+    default Rect mbr() {
         List<Point> coordList = getCoordinates();
         if (coordList == null || coordList.isEmpty()) {
             throw new SpatialObjectConstructionException(
@@ -87,7 +87,7 @@ public interface SpatialObject extends SpatialInterface, Cloneable {
         double miny = coordList.get(0).y();
         double maxy = coordList.get(size - 1).y();
 
-        return new Rectangle(minx, miny, maxx, maxy);
+        return new Rect(minx, miny, maxx, maxy);
     }
 
     /**

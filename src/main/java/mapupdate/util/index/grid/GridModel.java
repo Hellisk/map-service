@@ -1,7 +1,7 @@
 package mapupdate.util.index.grid;
 
 import mapupdate.util.index.SpatialIndexModel;
-import mapupdate.util.object.spatialobject.Rectangle;
+import mapupdate.util.object.spatialobject.Rect;
 import mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.HashSet;
@@ -24,11 +24,11 @@ public class GridModel implements SpatialIndexModel {
     /**
      * The grid cells matrix
      */
-    private final Rectangle[][] grid;
+    private final Rect[][] grid;
     /**
      * The boundaries of this grid diagram
      */
-    private final Rectangle boundary;
+    private final Rect boundary;
     /**
      * Grid dimensions (number of cells in each axis)
      */
@@ -49,8 +49,8 @@ public class GridModel implements SpatialIndexModel {
         if (n <= 0 || m <= 0) {
             throw new IllegalArgumentException("Grid dimensions " + "must be positive.");
         }
-        this.grid = new Rectangle[n][m];
-        this.boundary = new Rectangle(minX, minY, maxX, maxY);
+        this.grid = new Rect[n][m];
+        this.boundary = new Rect(minX, minY, maxX, maxY);
         this.sizeX = n;
         this.sizeY = m;
         // build the grid
@@ -72,7 +72,7 @@ public class GridModel implements SpatialIndexModel {
             currentX = boundary.minX();
             for (int x = 0; x < sizeX; x++) {
                 cellId = getIndexString(x, y);
-                Rectangle cell = new Rectangle(currentX, currentY,
+                Rect cell = new Rect(currentX, currentY,
                         currentX + incrX, currentY + incrY);
                 cell.setID(cellId);
                 grid[x][y] = cell;
@@ -126,7 +126,7 @@ public class GridModel implements SpatialIndexModel {
     /**
      * @return Return the list of grid cells in this model.
      */
-    public Rectangle[][] getCells() {
+    public Rect[][] getCells() {
         return grid;
     }
 
@@ -138,7 +138,7 @@ public class GridModel implements SpatialIndexModel {
      * @param j cell position in the vertical axis (y).
      * @return The cell in the position [i,j] of the grid.
      */
-    public Rectangle get(int i, int j) {
+    public Rect get(int i, int j) {
         if (i < 0 || i >= sizeX || j < 0 && j >= sizeY) {
             throw new IndexOutOfBoundsException("Grid index out of bounds.");
         }
@@ -146,7 +146,7 @@ public class GridModel implements SpatialIndexModel {
     }
 
     @Override
-    public Rectangle get(final String index) {
+    public Rect get(final String index) {
         if (index == null || index.isEmpty()) {
             throw new IllegalArgumentException("Grid index must not be empty.");
         }
@@ -177,7 +177,7 @@ public class GridModel implements SpatialIndexModel {
     }
 
     @Override
-    public Rectangle getBoundary() {
+    public Rect getBoundary() {
         return boundary;
     }
 
@@ -309,7 +309,7 @@ public class GridModel implements SpatialIndexModel {
     @Override
     public void print() {
         LOGGER.info("[GRID] [" + sizeX + " x " + sizeY + "]");
-        Rectangle cell;
+        Rect cell;
         for (int j = sizeY - 1; j >= 0; j--) {
             for (int i = 0; i < sizeX; i++) {
                 cell = grid[i][j];

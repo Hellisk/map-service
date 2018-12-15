@@ -6,10 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
@@ -98,7 +95,7 @@ public final class IOService implements Serializable {
             fileLinesStream.iterator().forEachRemaining(line -> {
                 try {
                     if (line.length() > 0) {
-                        writer.append(line + "\n");
+                        writer.append(line).append("\n");
                         writer.flush();
                     }
                 } catch (IOException e) {
@@ -127,7 +124,7 @@ public final class IOService implements Serializable {
      * @param filePath Path to the file to read.
      * @return A list with the file lines.
      */
-    public static synchronized List<String> readFile(final Path filePath) {
+    private static synchronized List<String> readFile(final Path filePath) {
         return readFile(filePath.toFile());
     }
 
@@ -137,7 +134,7 @@ public final class IOService implements Serializable {
      * @param file The file to read.
      * @return A list with the file lines.
      */
-    public static synchronized List<String> readFile(final File file) {
+    private static synchronized List<String> readFile(final File file) {
         List<String> fileLines = new ArrayList<String>();
         BufferedReader bufferReader = null;
         try {
@@ -196,13 +193,13 @@ public final class IOService implements Serializable {
      * @return The file content as a String.
      */
     public static synchronized String readFileContent(final String pathName) {
-        String fileContent = "";
+        StringBuilder fileContent = new StringBuilder();
         BufferedReader bufferReader = null;
         try {
             bufferReader = new BufferedReader(new FileReader(pathName));
             while (bufferReader.ready()) {
                 // read lines
-                fileContent += bufferReader.readLine() + "\n";
+                fileContent.append(bufferReader.readLine()).append("\n");
             }
             bufferReader.close();
         } catch (IOException e) {
@@ -211,7 +208,7 @@ public final class IOService implements Serializable {
             close(bufferReader);
         }
 
-        return fileContent;
+        return fileContent.toString();
     }
 
     /**
@@ -226,14 +223,15 @@ public final class IOService implements Serializable {
      * @return The resource file content as a String.
      */
     public static synchronized String readResourcesFileContent(final String resourceName) {
-        String fileContent = "";
+        StringBuilder fileContent = new StringBuilder();
         BufferedReader bufferReader = null;
         try {
             InputStream in = ClassLoader.getSystemResourceAsStream(resourceName);
+            assert in != null;
             bufferReader = new BufferedReader(new InputStreamReader(in));
             while (bufferReader.ready()) {
                 // read lines
-                fileContent += bufferReader.readLine() + "\n";
+                fileContent.append(bufferReader.readLine()).append("\n");
             }
 
             bufferReader.close();
@@ -243,7 +241,7 @@ public final class IOService implements Serializable {
             close(bufferReader);
         }
 
-        return fileContent;
+        return fileContent.toString();
     }
 
     /**
@@ -253,16 +251,14 @@ public final class IOService implements Serializable {
      * @param path The path to the root directory to read.
      * @return A list with the files path.
      */
-    public static synchronized List<String> getFilesPathList(final Path path) {
+    private static synchronized List<String> getFilesPathList(final Path path) {
         List<String> filePathList = new ArrayList<String>();
         try {
             // a stream with the paths of all files and
             // folders in the given directory
             DirectoryStream<Path> pathStream =
                     Files.newDirectoryStream(path);
-            Iterator<Path> pathItr = pathStream.iterator();
-            while (pathItr.hasNext()) {
-                Path currentPath = pathItr.next();
+            for (Path currentPath : pathStream) {
                 if (Files.isDirectory(currentPath, LinkOption.NOFOLLOW_LINKS)) {
                     // add in the list the path of files found in 'currentPath' folder
                     List<String> recFiles = getFilesPathList(currentPath);
@@ -306,11 +302,30 @@ public final class IOService implements Serializable {
         if (bufferReader != null) {
             try {
                 bufferReader.close();
-            } catch (IOException e) {
-                log.error("Error closing file service.", e);
             } catch (Throwable e) {
                 log.error("Error closing file service.", e);
             }
         }
+    }
+
+    /**
+     * Return a stream with all the files in the given
+     * directory path. Read files inside folders recursively.
+     *
+     * @param pathName The path to the root directory to read.
+     * @param idSet    The set of ids which contained in the file.
+     * @return A Stream with all files in the given path.
+     */
+    synchronized static Stream<File> getFilesWithIDs(String pathName, Set<String> idSet) {
+        List<String> filePathList = getFilesPathList(Paths.get(pathName));
+
+        Builder<File> fileStreamBuilder = Stream.builder();
+        for (String path : filePathList) {
+            String id = path.substring(path.lastIndexOf('_') + 1, path.indexOf('.'));
+            if (idSet.contains(id))
+                fileStreamBuilder.accept(new File(path));
+        }
+
+        return fileStreamBuilder.build();
     }
 }

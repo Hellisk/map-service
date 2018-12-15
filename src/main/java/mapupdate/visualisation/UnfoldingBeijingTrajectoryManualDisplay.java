@@ -76,8 +76,8 @@ public class UnfoldingBeijingTrajectoryManualDisplay extends PApplet {
             }
 
             // display the particular raw trajectory
-            CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader();
-            Trajectory displayTraj = csvTrajectoryReader.readTrajectory(new File(INPUT_TRAJECTORY + "trip_" + trajectoryID + ".txt"));
+            CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader(false);
+            Trajectory displayTraj = csvTrajectoryReader.readTrajectory(new File(INPUT_TRAJECTORY + "trip_" + trajectoryID + ".txt"), trajectoryID);
             List<Marker> trajMarker = trajMarkerGen(displayTraj, red, 2);
             for (UnfoldingMap mapDisplay : trajDisplay) {
                 mapDisplay.addMarkers(trajMarker);

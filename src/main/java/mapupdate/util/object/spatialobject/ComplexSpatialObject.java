@@ -131,7 +131,7 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
     }
 
     @Override
-    public Rectangle mbr() {
+    public Rect mbr() {
         if (!this.isEmpty()) {
             double minX = INFINITY, maxX = -INFINITY;
             double minY = INFINITY, maxY = -INFINITY;
@@ -141,9 +141,9 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
                 if (p.y() > maxY) maxY = p.y();
                 if (p.y() < minY) minY = p.y();
             }
-            return new Rectangle(minX, minY, maxX, maxY);
+            return new Rect(minX, minY, maxX, maxY);
         }
-        return new Rectangle(0.0, 0.0, 0.0, 0.0);
+        return new Rect(0.0, 0.0, 0.0, 0.0);
     }
 
     /**

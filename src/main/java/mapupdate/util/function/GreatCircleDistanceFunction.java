@@ -127,6 +127,9 @@ public class GreatCircleDistanceFunction implements PointDistanceFunction, Segme
                 ppx = sx2;
                 ppy = sy2;
             }
+        } else if (Double.isNaN(ppx) || Double.isNaN(ppy)) {
+            ppx = sx1;
+            ppy = sy1;
         } else {
             if (ppx < sx2) {
                 ppx = sx2;

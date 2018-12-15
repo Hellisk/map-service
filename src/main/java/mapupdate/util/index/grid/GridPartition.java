@@ -2,7 +2,7 @@ package mapupdate.util.index.grid;
 
 import mapupdate.util.index.SpatialPartition;
 import mapupdate.util.object.datastructure.XYObject;
-import mapupdate.util.object.spatialobject.Rectangle;
+import mapupdate.util.object.spatialobject.Rect;
 import mapupdate.util.object.spatialobject.SpatialObject;
 
 /**
@@ -19,7 +19,7 @@ public class GridPartition<T extends SpatialObject> extends SpatialPartition<XYO
     /**
      * The boundaries of this grid cell
      */
-    private final Rectangle boundary;
+    private final Rect boundary;
 
     /**
      * Creates a new empty grid cell partition with
@@ -28,7 +28,7 @@ public class GridPartition<T extends SpatialObject> extends SpatialPartition<XYO
      * @param cellId       The id/index of this cell.
      * @param cellBoundary The boundaries of this grid cell.
      */
-    public GridPartition(String cellId, Rectangle cellBoundary) {
+    public GridPartition(String cellId, Rect cellBoundary) {
         super(cellId);
         if (cellBoundary == null) {
             throw new NullPointerException("Grid cell boundary cannot be null.");
@@ -52,11 +52,11 @@ public class GridPartition<T extends SpatialObject> extends SpatialPartition<XYO
     public GridPartition(String cellId,
                          double minX, double minY, double maxX, double maxY) {
         super(cellId);
-        this.boundary = new Rectangle(minX, minY, maxX, maxY);
+        this.boundary = new Rect(minX, minY, maxX, maxY);
     }
 
     @Override
-    public Rectangle getBoundary() {
+    public Rect getBoundary() {
         return boundary;
     }
 

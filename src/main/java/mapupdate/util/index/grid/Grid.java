@@ -2,7 +2,7 @@ package mapupdate.util.index.grid;
 
 import mapupdate.util.index.SpatialDataStructure;
 import mapupdate.util.object.datastructure.XYObject;
-import mapupdate.util.object.spatialobject.Rectangle;
+import mapupdate.util.object.spatialobject.Rect;
 import mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.ArrayList;
@@ -235,7 +235,7 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
         for (GridPartition<T> cell : getPartitions()) {
             String id = cell.getPartitionId();
             LOGGER.info("[" + id + "]: " + cell.count());
-            Rectangle boundary = cell.getBoundary();
+            Rect boundary = cell.getBoundary();
             LOGGER.info("BOUNDARY " + boundary.toString());
             // print content
             for (XYObject<T> obj : cell.getObjectsList()) {

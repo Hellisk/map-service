@@ -4,41 +4,38 @@
     <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/PrincipalCurveClass.java" line="20" />
     <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/PrincipalCurveSampleVektor.java" line="62" />
     <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/PrincipalCurveClass.java" line="496" />
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" line="378" />
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" line="428" />
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" line="580" />
-    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" line="556" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" line="381" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" line="431" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" line="570" />
+    <bookmark url="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" line="567" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bdfb685d-7bd0-4b6e-ade8-c82f38260c11" name="Default Changelist" comment="Fix bugs that cause:&#10;1. Abnormally high map update quality.&#10;2. Different map-matching result for the same map.&#10;3. Missing match road way ID.&#10;&#10;The current version is the first stable version after DASFAA submission. Not gonna change map-matching unless severe problem occurs.&#10;&#10;TODO: Scalability test. Implement index-based map-matching strategy for efficiency improvement. Change co-optimisation strategy for better correctness.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/LengthBasedItem.java" afterDir="false" />
+    <list default="true" id="bdfb685d-7bd0-4b6e-ade8-c82f38260c11" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/libs/jsi-1.1.0-javadoc.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/jsi-1.1.0-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/jsi-1.1.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/RTreeModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRNode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRTree.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MapUpdate.iml" beforeDir="false" afterPath="$PROJECT_DIR$/MapUpdate.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/KDEMapInference.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/KDEMapInference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/HMMProbabilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/HMMProbabilities.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/test/TestMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/test/TestMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/MinPriorityQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/MinPriorityQueue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingGraph.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapReader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapWriter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/DataPreprocessing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/DataPreprocessing.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawFileOperation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawFileOperation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/XMLTrajectoryReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/XMLTrajectoryReader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/ItemWithProbability.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/ItemWithProbability.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/Pair.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/Pair.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/PointMatch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/PointMatch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialDataStructure.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialDataStructure.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/Grid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/Grid.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridPartition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridPartition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/IOService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/io/IOService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Circle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Circle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/ComplexSpatialObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/ComplexSpatialObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rectangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rect.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SpatialObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SpatialObject.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/kde.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/kde.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingGlobalTrajectoryDisplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingGlobalTrajectoryDisplay.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -66,68 +63,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="157" lean-forward="true" selection-start-line="157" selection-end-line="157" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="208" column="68" selection-start-line="208" selection-start-column="68" selection-end-line="208" selection-end-column="68" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingGraph.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="247" column="42" selection-start-line="247" selection-start-column="42" selection-end-line="247" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="94" column="93" selection-start-line="94" selection-start-column="93" selection-end-line="94" selection-end-column="93" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="302">
-              <caret line="81" selection-start-line="81" selection-end-line="81" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/TrajectoryMatchingResult.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="241" column="63" lean-forward="true" selection-start-line="241" selection-start-column="63" selection-end-line="241" selection-end-column="63" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="187">
+              <caret line="52" column="46" selection-start-line="52" selection-start-column="46" selection-end-line="52" selection-end-column="46" />
             </state>
           </provider>
         </entry>
@@ -135,17 +75,80 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="708">
-              <caret line="132" column="131" selection-start-line="132" selection-start-column="131" selection-end-line="132" selection-end-column="131" />
+            <state relative-caret-position="411">
+              <caret line="478" column="55" lean-forward="true" selection-start-line="478" selection-start-column="55" selection-end-line="478" selection-end-column="55" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="736">
-              <caret line="508" column="53" lean-forward="true" selection-start-line="508" selection-start-column="53" selection-end-line="508" selection-end-column="53" />
+            <state relative-caret-position="292">
+              <caret line="113" column="59" selection-start-line="113" selection-start-column="59" selection-end-line="113" selection-end-column="59" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="614">
+              <caret line="138" column="15" selection-start-line="138" selection-start-column="15" selection-end-line="138" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialDataStructure.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="5185">
+              <caret line="319" selection-start-line="319" selection-end-line="319" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRTree.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4114">
+              <caret line="253" selection-start-line="253" selection-end-line="253" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SpatialObject.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4216">
+              <caret line="262" selection-start-line="262" selection-end-line="262" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/IOService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4811">
+              <caret line="297" column="6" selection-start-line="297" selection-start-column="6" selection-end-line="297" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRNode.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -161,36 +164,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ERROR! Unvisited road remaining.</find>
-      <find>LOGGER.</find>
-      <find>* 8</find>
-      <find>getal</find>
-      <find>bou</find>
-      <find>readMap</find>
-      <find>id2RoadWayMapping</find>
-      <find>createMatchedTrajFolder</find>
-      <find>INFERENCE_FO</find>
-      <find>WARNING! Same node occurred mul</find>
-      <find>missing roads</find>
-      <find>prevMatchRoadWayList</find>
-      <find>withc</find>
-      <find>int hashCode</find>
-      <find>distance</find>
-      <find>matchPoint.y()</find>
-      <find>hash</find>
-      <find>hashCode</find>
-      <find>new ItemWithProbability</find>
-      <find>refine</find>
-      <find>df</find>
-      <find>new ItemWithProbability&lt;&gt;</find>
-      <find>doubleDirectedRoadWayInsertion</find>
-      <find>WARNING! The certa</find>
-      <find>the cost fun</find>
-      <find>The matching pro</find>
       <find>the cost fu</find>
       <find>doubleD</find>
       <find>the inferred roads are shorter than original road</find>
       <find>trajectory affected</find>
+      <find>* 8</find>
+      <find>print()</find>
+      <find>unfolding</find>
+      <find>Thread.sle</find>
+      <find>G</find>
+      <find>getFiles</find>
+      <find>Rec</find>
+      <find>TIntProcedure</find>
+      <find>IsReplicateBoundary</find>
+      <find>Recta</find>
+      <find>Rectangle</find>
+      <find>JSIRectangle</find>
+      <find>tree</find>
+      <find>BasicConfigurator</find>
+      <find>pickNext()</find>
+      <find>DEBUG</find>
+      <find>log</find>
+      <find>LOGGER</find>
+      <find>search</find>
+      <find>rangeSearch</find>
+      <find>SpatialObject</find>
+      <find>logi</find>
+      <find>Total number of traje</find>
+      <find>Total number of trajectory points</find>
+      <find>rankLength</find>
+      <find>display</find>
     </findStrings>
     <replaceStrings>
       <replace>GreatCircle</replace>
@@ -215,32 +218,19 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/DouglasPeuckerFilter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/PrincipalCurveClass.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurveGenerator.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/Grid.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SpatialObject.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridModel.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/VisualizationMain.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/Cluster.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SimpleSpatialObject.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadWay.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/TrajectoryClusteringMapInference.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/HMMProbabilities.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/XMLTrajectoryReader.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapWriter.java" />
         <option value="$PROJECT_DIR$/src/main/python/kde.py" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapinference/KDEMapInference.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapReader.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/DataPreprocessing.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/MinPriorityQueue.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawFileOperation.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rectangle.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNode.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNetworkPrimitive.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/Pair.java" />
@@ -258,14 +248,27 @@
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/LengthBasedItem.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/ItemWithProbability.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingGraph.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java" />
-        <option value="$PROJECT_DIR$/src/main/java/mapupdate/Main.java" />
         <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRNode.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rectangle.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rect.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRTree.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/RTreeModel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialDataStructure.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingGlobalTrajectoryDisplay.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/IOService.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/mapupdate/Main.java" />
       </list>
     </option>
   </component>
@@ -294,6 +297,29 @@
           <item name="Plugins" type="7aea1407:MavenProjectsStructure$PluginsNode" />
           <item name="assembly" type="36feed69:MavenProjectsStructure$PluginNode" />
         </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="map-update" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Plugins" type="7aea1407:MavenProjectsStructure$PluginsNode" />
+          <item name="clean" type="36feed69:MavenProjectsStructure$PluginNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="map-update" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Plugins" type="7aea1407:MavenProjectsStructure$PluginsNode" />
+          <item name="compiler" type="36feed69:MavenProjectsStructure$PluginNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="map-update" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Plugins" type="7aea1407:MavenProjectsStructure$PluginsNode" />
+          <item name="install" type="36feed69:MavenProjectsStructure$PluginNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="map-update" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Dependencies" type="f4be9f2a:MavenProjectsStructure$DependenciesNode" />
+        </path>
       </expand>
       <select />
     </treeState>
@@ -312,7 +338,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -431,19 +456,135 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="libs" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="index" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="index" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="grid" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="index" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="rtree" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="object" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="object" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="datastructure" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="MapUpdate" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="MapUpdate" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="main" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="java" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="mapupdate" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="util" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="object" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="spatialobject" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SearchEverywhereHistoryKey" value="New&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java&#10;CSV&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java&#10;CSVT&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java&#10;CSVMA&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/util/io/CSVMapReader.java&#10;EVOTh&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/Vertex/Elements/EndVertexOfThree.java&#10;EndVertexofThree&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/Vertex/Elements/EndVertexOfThree.java&#10;EndVertex&#9;FILE&#9;file://F:/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/PrincipalCurve/Vertex/EndVertex.java&#10;Vek&#9;FILE&#9;file://C:/Users/uqpchao/OneDrive/code/github/MapUpdate/src/main/java/mapupdate/mapinference/trajectoryclustering/pcurves/LinearAlgebra/VektorDD.java&#10;VektorDD&#9;null&#9;null&#10;Datacan&#9;PSI&#9;JAVA://mapupdate.mapinference.trajectoryclustering.pcurves.Paintable.DataCanvas&#10;Samplewi&#9;PSI&#9;JAVA://LinearAlgebra.SampleWithOnlineStatisticsDegreeTwo&#10;Haus&#9;PSI&#9;JAVA://com.vividsolutions.jts.algorithm.match.HausdorffSimilarityMeasure" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544679752294" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544771076217" />
     <property name="extract.method.default.visibility" value="private" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.repository.indices" />
   </component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
@@ -454,10 +595,11 @@
       <recent name="mapupdate.mapinference.trajectoryclustering" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\uqpchao\OneDrive\code\github\MapUpdate\libs" />
+      <recent name="F:\OneDrive\code\github\MapUpdate\src\main\java\mapupdate\util\index\rtree" />
+      <recent name="F:\OneDrive\code\github\MapUpdate\libs" />
       <recent name="F:\OneDrive\code\github\MapUpdate\src\main\java\mapupdate\mapinference\trajectoryclustering" />
       <recent name="C:\Users\uqpchao\OneDrive\code\github\MapUpdate\src\main\java\mapupdate\mapinference" />
-      <recent name="C:\Users\uqpchao\OneDrive\code\github\MapUpdate\src\main\java\mapupdate\mapinference\principalcurve" />
-      <recent name="C:\Users\uqpchao\OneDrive\code\github\MapUpdate\src\main\java\mapupdate\mapinference\AhmedTraceBundle" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -845,7 +987,11 @@
       <workItem from="1544577599713" duration="8431000" />
       <workItem from="1544587862769" duration="2483000" />
       <workItem from="1544590560099" duration="11892000" />
-      <workItem from="1544609900904" duration="31877000" />
+      <workItem from="1544609900904" duration="59434000" />
+      <workItem from="1544747447540" duration="18999000" />
+      <workItem from="1544788026068" duration="9108000" />
+      <workItem from="1544831977386" duration="2378000" />
+      <workItem from="1544835490076" duration="6155000" />
     </task>
     <task id="LOCAL-00001" summary="HMM probability check finished, influence normalization finished. Commit before map inference change&#10;&#10;TODO: change map inference algorithm to CrowdAtlas">
       <created>1540526945963</created>
@@ -875,12 +1021,12 @@
       <option name="project" value="LOCAL" />
       <updated>1542606161149</updated>
     </task>
-    <task id="LOCAL-00005" summary="A bunch of data analysis is done. Input road ways now are categorized by road level, road type, the unfolding visualization is completely rewritten to support various color based on road visit frequency, trajectory comparison and multiple map layer. A few map-matching bugs fixed.  &#10;&#10;TODO: add confidence score and influence score, test the map merge and evaluation.">
-      <created>1529563700039</created>
+    <task id="LOCAL-00005" summary="Fix bugs that cause:&#10;1. Abnormally high map update quality.&#10;2. Different map-matching result for the same map.&#10;3. Missing match road way ID.&#10;&#10;The current version is the first stable version after DASFAA submission. Not gonna change map-matching unless severe problem occurs.&#10;&#10;TODO: Scalability test. Implement index-based map-matching strategy for efficiency improvement. Change co-optimisation strategy for better correctness.">
+      <created>1544679791736</created>
       <option name="number" value="00005" />
       <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1529563700039</updated>
+      <updated>1544679791736</updated>
     </task>
     <task id="LOCAL-00006" summary="Both confidence score and influence score are added, map merge, co-optimization model and result refinement are implemented. The iteration is runnable now but the map merge need to be improved to enable a reasonable iteration. The visualization is rewritten, now it has a separate entrance for map visualization and the map and trajectory visualization is separated. The map-matching evaluation is changed to evaluate based on length.&#10;&#10;TODO: Check the map-matching correctness, especially the top-k version. Redesign the map-merge to provide meaningful output. Change the road removal strategy.">
       <created>1530963263346</created>
@@ -924,11 +1070,11 @@
       <option name="project" value="LOCAL" />
       <updated>1539486326848</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2848415000" />
+    <option name="totallyTimeSpent" value="2912612000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -943,25 +1089,25 @@
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4665127" visible="true" weight="0.25675675" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.46226415" visible="true" weight="0.26669317" />
       <window_info id="Image Layers" order="1" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
       <window_info id="Favorites" order="4" sideWeight="0.50308645" side_tool="true" weight="0.28304905" />
       <window_info id="Capture Tool" order="5" />
-      <window_info id="Structure" order="6" sideWeight="0.5334873" side_tool="true" visible="true" weight="0.25675675" />
+      <window_info id="Structure" order="6" sideWeight="0.5377358" side_tool="true" visible="true" weight="0.26669317" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49324325" weight="0.3217768" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.74147123" weight="0.25798908" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.510661" weight="0.27123928" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49324325" weight="0.3206934" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.60181236" visible="true" weight="0.25643024" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.510661" weight="0.27045986" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info active="true" anchor="bottom" id="TODO" order="6" sideWeight="0.5441176" visible="true" weight="0.32501948" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.5441176" weight="0.32501948" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49960256" weight="0.32936078" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.48933902" side_tool="true" weight="0.3618635" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.39818764" side_tool="true" weight="0.25785482" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49960256" weight="0.32943925" />
-      <window_info anchor="bottom" id="Messages" order="11" sideWeight="0.76119405" weight="0.26734218" />
+      <window_info anchor="bottom" id="Messages" order="11" sideWeight="0.76119405" weight="0.2650039" />
       <window_info anchor="bottom" id="Docker" order="12" show_stripe_button="false" />
       <window_info anchor="bottom" id="Duplicate detector" order="13" weight="0.3289166" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -973,8 +1119,8 @@
       <window_info anchor="right" id="Maven Projects" order="6" visible="true" weight="0.18336888" />
       <window_info anchor="right" id="Database" order="7" show_stripe_button="false" weight="0.32995737" />
       <window_info anchor="right" id="Palette&#9;" order="8" />
-      <window_info anchor="right" id="SciView" order="9" weight="0.32889125" />
-      <window_info anchor="right" id="Maven" order="10" weight="0.1963434" />
+      <window_info anchor="right" id="SciView" order="9" weight="0.32869634" />
+      <window_info anchor="right" id="Maven" order="10" visible="true" weight="0.19554849" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -990,16 +1136,6 @@
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java</url>
-          <line>84</line>
-          <properties />
-          <option name="timeStamp" value="25" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="MavenRunConfiguration">
         <watch expression="prevMatchingResult" />
@@ -1007,263 +1143,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/concurrent/ExecutionException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="43" column="13" lean-forward="true" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/ComplexSpatialObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="581">
-          <caret line="60" selection-start-line="60" selection-end-line="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/XMLTrajectoryReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="38" column="22" selection-start-line="38" selection-start-column="22" selection-end-line="38" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/Random.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="385" column="15" selection-start-line="385" selection-start-column="15" selection-end-line="385" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1173">
-          <caret line="90" column="78" selection-start-line="90" selection-start-column="78" selection-end-line="90" selection-end-column="78" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/kde.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3009">
-          <caret line="185" selection-start-line="185" selection-end-line="185" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapinference/trajectoryclustering/TrajectoryClusteringMapInference.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="45" column="126" selection-start-line="45" selection-start-column="126" selection-end-line="45" selection-end-column="126" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapinference/KDEMapInference.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="42" column="62" selection-start-line="42" selection-start-column="62" selection-end-line="42" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/python/streetmap.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2822">
-          <caret line="186" column="32" selection-start-line="186" selection-start-column="32" selection-end-line="186" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/Grid.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1632">
-          <caret line="109" column="40" selection-start-line="109" selection-start-column="40" selection-end-line="109" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadWay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="298" column="26" selection-start-line="298" selection-start-column="26" selection-end-line="298" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Trajectory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-561">
-          <caret line="46" column="37" selection-start-line="46" selection-start-column="37" selection-end-line="46" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNetworkGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="324" column="49" lean-forward="true" selection-start-line="324" selection-start-column="49" selection-end-line="324" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="69" column="25" selection-start-line="69" selection-start-column="25" selection-end-line="69" selection-end-column="25" />
-          <folding>
-            <element signature="e#575#576#0" expanded="true" />
-            <element signature="e#616#617#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/jre/lib/rt.jar!/sun/reflect/NativeMethodAccessorImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3587">
-          <caret line="231" column="55" selection-start-line="231" selection-start-column="55" selection-end-line="231" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/concurrent/CountedCompleter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="730" selection-start-line="730" selection-end-line="730" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/SegmentIndexItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="40" column="23" selection-start-line="40" selection-start-column="23" selection-end-line="40" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/Pair.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/DataPreprocessing.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="37" column="42" lean-forward="true" selection-start-line="37" selection-start-column="42" selection-end-line="37" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/MinPriorityQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="20" lean-forward="true" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingVertex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="9" column="43" selection-start-line="9" selection-start-column="43" selection-end-line="9" selection-end-column="43" />
-          <folding>
-            <element signature="e#320#321#0" expanded="true" />
-            <element signature="e#363#364#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/dijkstra/RoutingEdge.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
-          <folding>
-            <element signature="e#664#665#0" expanded="true" />
-            <element signature="e#695#696#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/TimeStep.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/Distributions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="59" column="60" lean-forward="true" selection-start-line="59" selection-start-column="60" selection-end-line="59" selection-end-column="60" />
-          <folding>
-            <element signature="e#2099#2100#0" expanded="true" />
-            <element signature="e#2150#2151#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/HMMProbabilities.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="75" column="51" lean-forward="true" selection-start-line="75" selection-start-column="51" selection-end-line="75" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/SequenceState.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="30" column="6" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadNode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="145" selection-start-line="145" selection-end-line="148" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/lang/String.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="1474" column="17" lean-forward="true" selection-start-line="1474" selection-start-column="17" selection-end-line="1474" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="45" column="42" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/LengthBasedItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="28" selection-end-line="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawFileOperation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="399" selection-start-line="399" selection-end-line="399" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/test/TestMain.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="36" column="55" selection-start-line="36" selection-start-column="39" selection-end-line="36" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/util/PriorityQueue.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="207">
@@ -1274,13 +1153,6 @@
             <element signature="e#12158#12159#0" expanded="true" />
             <element signature="e#12189#12190#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="95" column="78" selection-start-line="95" selection-start-column="78" selection-end-line="95" selection-end-column="78" />
         </state>
       </provider>
     </entry>
@@ -1298,35 +1170,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/lang/Object.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
-          <caret line="381" column="29" selection-start-line="381" selection-start-column="29" selection-end-line="381" selection-end-column="29" />
-          <folding>
-            <element signature="e#10065#10066#0" expanded="true" />
-            <element signature="e#10148#10149#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/text/DecimalFormat.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
           <caret line="614" selection-start-line="614" selection-end-line="614" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="144" selection-start-line="144" selection-end-line="144" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="736">
-          <caret line="508" column="53" lean-forward="true" selection-start-line="508" selection-start-column="53" selection-end-line="508" selection-end-column="53" />
         </state>
       </provider>
     </entry>
@@ -1340,7 +1187,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/ViterbiAlgorithm.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
-          <caret line="241" column="63" lean-forward="true" selection-start-line="241" selection-start-column="63" selection-end-line="241" selection-end-column="63" />
+          <caret line="241" column="63" selection-start-line="241" selection-start-column="63" selection-end-line="241" selection-end-column="63" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1354,38 +1201,444 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="398">
+          <caret line="225" column="36" selection-start-line="225" selection-start-column="36" selection-end-line="225" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/evaluation/ResultEvaluation.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
-          <caret line="81" selection-start-line="81" selection-end-line="81" />
+        <state relative-caret-position="-102">
+          <caret line="122" column="61" selection-start-line="121" selection-start-column="63" selection-end-line="122" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/Grid.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="25" column="16" lean-forward="true" selection-start-line="25" selection-start-column="16" selection-end-line="25" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVMapWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="867">
+          <caret line="295" column="16" selection-start-line="295" selection-start-column="12" selection-end-line="295" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/HMMProbabilities.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="482">
+          <caret line="79" column="7" selection-start-line="79" selection-start-column="7" selection-end-line="79" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SimpleSpatialObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="22" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Point.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/TrajectoryPoint.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="18" column="40" lean-forward="true" selection-start-line="18" selection-start-column="40" selection-end-line="18" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmerge/MapMerge.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="266" column="43" selection-start-line="266" selection-start-column="43" selection-end-line="266" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/roadnetwork/RoadWay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="278" column="18" selection-start-line="278" selection-start-column="18" selection-end-line="278" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../TraMiner/traminer-util-lib/src/main/java/traminer/util/spatial/structures/rtree/RTreeModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="40" selection-start-line="7" selection-start-column="27" selection-end-line="7" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="uml://MAVEN/edu.uq.dke:map-update:1.0">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>MAVEN</ID>
+          <OriginalElement>edu.uq.dke:map-update:1.0</OriginalElement>
+          <nodes>
+            <node x="" y="">edu.uq.dke:map-update:1.0</node>
+            <node x="" y="">com.vividsolutions:jts:jar:1.13</node>
+            <node x="" y="">org.graphstream:gs-core:jar:1.3</node>
+            <node x="" y="">org.graphstream:gs-core:jar:1.3/junit:junit:jar:4.12</node>
+            <node x="" y="">org.graphstream:gs-core:jar:1.3/junit:junit:jar:4.12/org.hamcrest:hamcrest-core:jar:1.3</node>
+            <node x="" y="">org.graphstream:gs-core:jar:1.3/org.graphstream:pherd:jar:1.0</node>
+            <node x="" y="">org.graphstream:gs-core:jar:1.3/org.graphstream:mbox2:jar:1.0</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.apache.commons:commons-math:jar:2.1</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.apache.commons:commons-math3:jar:3.4.1</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14/org.jfree:jcommon:jar:1.0.17</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14/xml-apis:xml-apis:jar:1.3.04</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14/com.lowagie:itext:jar:2.1.5</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14/com.lowagie:itext:jar:2.1.5/bouncycastle:bcmail-jdk14:jar:138</node>
+            <node x="" y="">org.graphstream:gs-algo:jar:1.3/org.jfree:jfreechart:jar:1.0.14/com.lowagie:itext:jar:2.1.5/bouncycastle:bcprov-jdk14:jar:138</node>
+            <node x="" y="">org.graphstream:gs-ui:jar:1.3</node>
+            <node x="" y="">org.graphstream:gs-ui:jar:1.3/org.scala-lang:scala-library:jar:2.10.1</node>
+            <node x="" y="">org.apache.commons:commons-math3:jar:3.6.1</node>
+            <node x="" y="">org.geotools:gt-main:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-main:jar:19.0/com.vividsolutions:jts-core:jar:1.14.0</node>
+            <node x="" y="">org.geotools:gt-main:jar:19.0/org.jdom:jdom2:jar:2.0.6</node>
+            <node x="" y="">org.geotools:gt-main:jar:19.0/javax.media:jai_core:jar:1.1.3</node>
+            <node x="" y="">org.geotools:gt-shapefile:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-shapefile:jar:19.0/org.geotools:gt-data:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/org.ejml:ejml-ddense:jar:0.32</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/org.ejml:ejml-ddense:jar:0.32/org.ejml:ejml-core:jar:0.32</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/commons-pool:commons-pool:jar:1.5.4</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/org.geotools:gt-metadata:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/org.geotools:gt-metadata:jar:19.0/org.geotools:gt-opengis:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/org.geotools:gt-metadata:jar:19.0/org.geotools:gt-opengis:jar:19.0/net.java.dev.jsr-275:jsr-275:jar:1.0-beta-2</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/jgridshift:jgridshift:jar:1.0</node>
+            <node x="" y="">org.geotools:gt-api:jar:19.0/org.geotools:gt-referencing:jar:19.0/net.sf.geographiclib:GeographicLib-Java:jar:1.44</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/javax.media:jai_imageio:jar:1.1</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.imageio-ext:imageio-ext-tiff:jar:1.1.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.imageio-ext:imageio-ext-tiff:jar:1.1.20/it.geosolutions.imageio-ext:imageio-ext-utilities:jar:1.1.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.imageio-ext:imageio-ext-tiff:jar:1.1.20/it.geosolutions.imageio-ext:imageio-ext-geocore:jar:1.1.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.imageio-ext:imageio-ext-tiff:jar:1.1.20/it.geosolutions.imageio-ext:imageio-ext-geocore:jar:1.1.20/it.geosolutions.imageio-ext:imageio-ext-streams:jar:1.1.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.imageio-ext:imageio-ext-tiff:jar:1.1.20/javax.media:jai_codec:jar:1.1.3</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/com.vividsolutions:jts-example:jar:1.14.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/com.vividsolutions:jts-example:jar:1.14.0/com.vividsolutions:jts-io:jar:1.14.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/com.vividsolutions:jts-example:jar:1.14.0/com.vividsolutions:jts-io:jar:1.14.0/com.googlecode.json-simple:json-simple:jar:1.1</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/org.jaitools:jt-zonalstats:jar:1.4.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/org.jaitools:jt-utils:jar:1.4.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.affine:jt-affine:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.algebra:jt-algebra:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.bandmerge:jt-bandmerge:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.bandselect:jt-bandselect:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.bandcombine:jt-bandcombine:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.border:jt-border:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.buffer:jt-buffer:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.crop:jt-crop:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.iterators:jt-iterators:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.lookup:jt-lookup:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.mosaic:jt-mosaic:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.nullop:jt-nullop:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.rescale:jt-rescale:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.scale:jt-scale:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.stats:jt-stats:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.stats:jt-stats:jar:1.0.20/com.google.guava:guava:jar:17.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.translate:jt-translate:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.utilities:jt-utilities:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.warp:jt-warp:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.zonal:jt-zonal:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.binarize:jt-binarize:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.format:jt-format:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.colorconvert:jt-colorconvert:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.errordiffusion:jt-errordiffusion:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.orderdither:jt-orderdither:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.colorindexer:jt-colorindexer:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.imagefunction:jt-imagefunction:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.piecewise:jt-piecewise:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.classifier:jt-classifier:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.rlookup:jt-rlookup:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/it.geosolutions.jaiext.vectorbin:jt-vectorbin:jar:1.0.20</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-coverage:jar:19.0/commons-io:commons-io:jar:2.1</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/org.geotools:gt-render:jar:19.0/org.geotools:gt-cql:jar:19.0</node>
+            <node x="" y="">org.geotools:gt-swing:jar:19.0/com.miglayout:miglayout:jar:swing:3.7</node>
+            <node x="" y="">org.processing:core:jar:2.2.1</node>
+            <node x="" y="">de.fhpotsdam:unfolding:jar:0.9.6</node>
+            <node x="" y="">net.sourceforge.jsi:jsi:jar:1.1.0</node>
+            <node x="" y="">net.sf.trove4j:trove4j:jar:3.0.3</node>
+            <node x="" y="">log4j:log4j:jar:1.2.17</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt:jar:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-android-aarch64:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-android-armv6:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-linux-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-linux-armv6:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-linux-armv6hf:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-linux-i586:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-macosx-universal:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-solaris-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-solaris-i586:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-windows-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.gluegen:gluegen-rt-main:jar:2.3.2/org.jogamp.gluegen:gluegen-rt:jar:natives-windows-i586:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all:jar:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-android-aarch64:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-android-armv6:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-linux-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-linux-armv6:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-linux-armv6hf:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-linux-i586:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-macosx-universal:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-solaris-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-solaris-i586:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-windows-amd64:2.3.2</node>
+            <node x="" y="">org.jogamp.jogl:jogl-all-main:jar:2.3.2/org.jogamp.jogl:jogl-all:jar:natives-windows-i586:2.3.2</node>
+          </nodes>
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="0.1789336801040312" x="3835.0" y="1255.0" />
+          <SelectedNodes />
+          <Categories />
+          <SCOPE>All</SCOPE>
+          <VISIBILITY>All</VISIBILITY>
+        </state>
+      </provider>
+    </entry>
+    <entry file="uml://AlchemyModelDependency/#MapUpdate">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>AlchemyModelDependency</ID>
+          <OriginalElement>#MapUpdate</OriginalElement>
+          <nodes />
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="1.0" x="688.0" y="449.0" />
+          <SelectedNodes />
+          <Categories />
+          <SCOPE>All</SCOPE>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/net/URLClassLoader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="380" selection-start-line="380" selection-end-line="380" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/grid/GridModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="22" column="34" selection-start-line="22" selection-start-column="34" selection-end-line="22" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/XYObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="130" column="45" selection-start-line="130" selection-start-column="45" selection-end-line="130" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/DataPreprocessing.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/jsi-master/doc/TEST.txt" />
+    <entry file="file://$PROJECT_DIR$/libs/jsi-master/src/main/java/net/sf/jsi/rtree/RTree.java" />
+    <entry file="jar://$PROJECT_DIR$/libs/jsi-1.1.0.jar!/net/sf/jsi/Rectangle.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="54" column="19" selection-start-line="54" selection-start-column="19" selection-end-line="54" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialIndexModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="12" column="17" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/libs/jsi-1.1.0.jar!/net/sf/jsi/rtree/RTree.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="22" column="13" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/log4j/log4j/1.2.17/log4j-1.2.17.jar!/org/apache/log4j/BasicConfigurator.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="7" column="22" lean-forward="true" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar!/org/apache/log4j/BasicConfigurator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="33" column="13" selection-start-line="33" selection-start-column="13" selection-end-line="33" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/lang/Object.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="455">
+          <caret line="390" column="38" selection-start-line="390" selection-start-column="38" selection-end-line="390" selection-end-column="38" />
+          <folding>
+            <element signature="e#10065#10066#0" expanded="true" />
+            <element signature="e#10148#10149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/sourceforge/jsi/jsi/1.0.0/jsi-1.0.0.jar!/com/infomatiq/jsi/rtree/RTree.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="771" column="20" selection-start-line="771" selection-start-column="20" selection-end-line="771" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/RTreeModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="35" column="21" selection-start-line="35" selection-start-column="21" selection-end-line="35" selection-end-column="21" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#801#828#0" expanded="true" />
+            <element signature="e#5554#5555#0" expanded="true" />
+            <element signature="e#5620#5621#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="144" selection-start-line="144" selection-end-line="148" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/Rect.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="850">
+          <caret line="62" selection-start-line="62" selection-end-line="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="82" column="83" selection-start-line="82" selection-start-column="83" selection-end-line="82" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingBeijingTrajectoryManualDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="78" column="83" selection-start-line="78" selection-start-column="83" selection-end-line="78" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/visualisation/UnfoldingGlobalTrajectoryDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="48" column="84" selection-start-line="48" selection-start-column="84" selection-end-line="48" selection-end-column="84" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/mapmatching/hmm/NewsonHMM2009.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="94" column="93" selection-start-line="94" selection-start-column="93" selection-end-line="94" selection-end-column="93" />
+        <state relative-caret-position="867">
+          <caret line="71" column="62" selection-start-line="71" selection-start-column="62" selection-end-line="71" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/datastructure/Pair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="34" selection-start-line="34" selection-end-line="34" />
+          <folding>
+            <element signature="e#775#776#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/SpatialDataStructure.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5185">
+          <caret line="319" selection-start-line="319" selection-end-line="319" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRTree.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4114">
+          <caret line="253" selection-start-line="253" selection-end-line="253" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/object/spatialobject/SpatialObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4216">
+          <caret line="262" selection-start-line="262" selection-end-line="262" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/IOService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4811">
+          <caret line="297" column="6" selection-start-line="297" selection-start-column="6" selection-end-line="297" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/index/rtree/STRNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/function/GreatCircleDistanceFunction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="614">
+          <caret line="138" column="15" selection-start-line="138" selection-start-column="15" selection-end-line="138" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/CSVTrajectoryWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="113" column="59" selection-start-line="113" selection-start-column="59" selection-end-line="113" selection-end-column="59" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/cooptimization/CoOptimizationFunc.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="708">
-          <caret line="132" column="131" selection-start-line="132" selection-start-column="131" selection-end-line="132" selection-end-column="131" />
+        <state relative-caret-position="411">
+          <caret line="478" column="55" lean-forward="true" selection-start-line="478" selection-start-column="55" selection-end-line="478" selection-end-column="55" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="157" lean-forward="true" selection-start-line="157" selection-end-line="157" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/mapupdate/util/io/RawMapReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="208" column="68" selection-start-line="208" selection-start-column="68" selection-end-line="208" selection-end-column="68" />
+        <state relative-caret-position="187">
+          <caret line="52" column="46" selection-start-line="52" selection-start-column="46" selection-end-line="52" selection-end-column="46" />
         </state>
       </provider>
     </entry>

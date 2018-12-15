@@ -27,7 +27,7 @@ import static mapupdate.Main.LOGGER;
  * @author uqdalves
  */
 @SuppressWarnings("serial")
-public class Rectangle extends SimpleSpatialObject {
+public class Rect extends SimpleSpatialObject {
     // X and Y axis position
     /**
      * lower-left corner x
@@ -55,7 +55,7 @@ public class Rectangle extends SimpleSpatialObject {
     /**
      * Creates a new empty rectangle.
      */
-    public Rectangle() {
+    public Rect() {
         this.minX = 0.0;
         this.minY = 0.0;
         this.maxX = 0.0;
@@ -70,8 +70,8 @@ public class Rectangle extends SimpleSpatialObject {
      * @param maxX Upper-right corner X.
      * @param maxY Upper-right corner Y.
      */
-    public Rectangle(double minX, double minY,
-                     double maxX, double maxY) {
+    public Rect(double minX, double minY,
+                double maxX, double maxY) {
         this.minX = minX;
         this.minY = minY;
         this.maxX = maxX;
@@ -220,7 +220,7 @@ public class Rectangle extends SimpleSpatialObject {
      * @param r The rectangle to check.
      * @return True is these two rectangles are adjacent.
      */
-    public boolean isAdjacent(Rectangle r) {
+    public boolean isAdjacent(Rect r) {
         if (r == null) return false;
         for (Segment e1 : this.getEdges()) {
             for (Segment e2 : r.getEdges()) {
@@ -252,7 +252,7 @@ public class Rectangle extends SimpleSpatialObject {
      * @param r The other rectangle to check.
      * @return True if these two rectangles overlap.
      */
-    public boolean overlaps(Rectangle r) {
+    public boolean overlaps(Rect r) {
         if (r == null) return false;
         if (this.maxX < r.minX) return false;
         if (this.minX > r.maxX) return false;
@@ -333,8 +333,8 @@ public class Rectangle extends SimpleSpatialObject {
     public boolean equals2D(SpatialObject obj) {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (obj instanceof Rectangle) {
-            Rectangle r = (Rectangle) obj;
+        if (obj instanceof Rect) {
+            Rect r = (Rect) obj;
             return (r.minX == minX && r.minY == minY &&
                     r.maxX == maxX && r.maxY == r.maxY);
         }
@@ -342,8 +342,8 @@ public class Rectangle extends SimpleSpatialObject {
     }
 
     @Override
-    public Rectangle clone() {
-        Rectangle clone = new Rectangle(minX, minY, maxX, maxY);
+    public Rect clone() {
+        Rect clone = new Rect(minX, minY, maxX, maxY);
         super.cloneTo(clone);
         return clone;
     }

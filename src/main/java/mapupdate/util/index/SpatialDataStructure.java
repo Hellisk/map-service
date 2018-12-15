@@ -6,7 +6,7 @@ import mapupdate.util.object.SpatialInterface;
 import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.XYObject;
 import mapupdate.util.object.spatialobject.Point;
-import mapupdate.util.object.spatialobject.Rectangle;
+import mapupdate.util.object.spatialobject.Rect;
 import mapupdate.util.object.spatialobject.SpatialObject;
 
 import java.util.ArrayList;
@@ -172,11 +172,11 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
         // build a square made of the query object as center, and the distance
         // from the query object to its nearest neighbor in the partition as the distance to its edges
-        Rectangle range;
+        Rect range;
         if (maxDistance == 0) {
-            range = new Rectangle(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
+            range = new Rect(x - minDistance, y - minDistance, x + minDistance, y + minDistance);
         } else {
-            range = new Rectangle(x - maxDistance, y - maxDistance, x + maxDistance, y + maxDistance);
+            range = new Rect(x - maxDistance, y - maxDistance, x + maxDistance, y + maxDistance);
         }
 
         // get all partitions intersecting the rectangle region
@@ -267,7 +267,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
 
         do {
             knnList.clear();
-            Rectangle range = new Rectangle(x - knnDistance, y - knnDistance, x + knnDistance, y + knnDistance);
+            Rect range = new Rect(x - knnDistance, y - knnDistance, x + knnDistance, y + knnDistance);
 
             // get all partitions intersecting the circle region
             List<? extends SpatialPartition> partitionsList = rangePartitionSearch(range);
@@ -321,8 +321,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialIn
             throw new NullPointerException("Query object cannot be null.");
         }
         // get all partitions intersecting the query object
-        List<? extends SpatialPartition> partitionsList =
-                rangePartitionSearch(queryObj);
+        List<? extends SpatialPartition> partitionsList = rangePartitionSearch(queryObj);
 
         // refine the search, check which object in the partitions
         // really intersect with the query object.
