@@ -1,5 +1,6 @@
 package mapupdate.mapmatching.hmm;
 
+import com.sun.media.jai.opimage.MeanRIF;
 import mapupdate.util.dijkstra.RoutingGraph;
 import mapupdate.util.function.GreatCircleDistanceFunction;
 import mapupdate.util.index.grid.Grid;
@@ -56,38 +57,107 @@ public class NewsonHMM2009 implements MapInterface {
      */
     private final RoutingGraph routingGraph;
 
-    private List<Triplet<Trajectory, String, String>> unmatchedTraj = new ArrayList<>();
+    private HashMap<String, List<RoadWay>> id2DDWayMapping = new HashMap<>(); // the mapping between road id and double-directed roads.
 
-    public NewsonHMM2009(int candidateRange, int unmatchedTrajThreshold, int rankLength, RoadNetworkGraph roadNetworkGraph) {
+    public NewsonHMM2009(int candidateRange, int unmatchedTrajThreshold, int rankLength, RoadNetworkGraph roadNetworkGraph,
+                         boolean isPartial) {
         this.distanceFunction = new GreatCircleDistanceFunction();
         this.candidateRange = candidateRange;
         this.gapExtensionRange = unmatchedTrajThreshold;
         this.rankLength = rankLength;
         this.intervalLength = (4 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can escape
         // the grid search
-        buildGridIndex(roadNetworkGraph);   // build grid index
-        this.routingGraph = new RoutingGraph(roadNetworkGraph);
+        for (RoadWay w : roadNetworkGraph.getWays()) {
+            String id = w.getID().replace("-", "");
+            if (id2DDWayMapping.containsKey(id))
+                id2DDWayMapping.get(id).add(w);
+            else {
+                List<RoadWay> wayList = new ArrayList<>();
+                wayList.add(w);
+                id2DDWayMapping.put(id, wayList);
+            }
+        }
+        buildGridIndex(roadNetworkGraph, isPartial);   // build grid index
+        this.routingGraph = new RoutingGraph(roadNetworkGraph, isPartial);
     }
 
-    public List<TrajectoryMatchingResult> trajectoryListMatchingProcess(List<Trajectory> rawTrajectory) {
+    /**
+     * Temporarily insert a new road into the HMM model, including adding entries in the index and edges to the routing graph. Note that
+     * this function is only called when INDEX_TYPE = 2.
+     *
+     * @param roadID The ID of the road(s) to be inserted. Double directed.
+     * @return List of entries added to the index. Will be removed in the future.
+     */
+    public List<XYObject<SegmentIndexItem>> insertRoadWayIntoMap(String roadID) {
+        this.routingGraph.addRoadByID(roadID);
+        String id = roadID.replace("-", "");
+        if (!id2DDWayMapping.containsKey(id))
+            throw new IllegalArgumentException("ERROR! The road to be inserted to the HMM model has wrong ID.");
+        List<XYObject<SegmentIndexItem>> insertedItemList = new ArrayList<>();
+        for (RoadWay w : id2DDWayMapping.get(id)) {
+            if (w.getID().equals(roadID)) {
+                for (Segment s : w.getEdges()) {
+                    // -1: left endpoint of the segment, 0: right endpoint of the segment, >0: intermediate point
+                    SegmentIndexItem segmentItemLeft = new SegmentIndexItem(s, -1, w.getID(), intervalLength);
+                    XYObject<SegmentIndexItem> segmentIndexLeft = new XYObject<>(segmentItemLeft.x(), segmentItemLeft.y(), segmentItemLeft);
+                    SegmentIndexItem segmentItemRight = new SegmentIndexItem(s, 0, w.getID(), intervalLength);
+                    XYObject<SegmentIndexItem> segmentIndexRight = new XYObject<>(segmentItemRight.x(), segmentItemRight.y(), segmentItemRight);
+                    this.grid.insert(segmentIndexLeft);
+                    this.grid.insert(segmentIndexRight);
+                    insertedItemList.add(segmentIndexLeft);
+                    insertedItemList.add(segmentIndexRight);
+                    // if the length of the segment is longer than two times of the candidate range, insert the intermediate points of the
+                    // segment
+                    double segmentDistance = distanceFunction.distance(s.p1(), s.p2());
+                    int intermediateID = 1;
+                    while (segmentDistance > intervalLength) {
+                        SegmentIndexItem segmentItemIntermediate = new SegmentIndexItem(s, intermediateID, w.getID(), intervalLength);
+                        XYObject<SegmentIndexItem> segmentIndexIntermediate = new XYObject<>(segmentItemIntermediate.x(), segmentItemIntermediate.y(),
+                                segmentItemIntermediate);
+                        this.grid.insert(segmentIndexIntermediate);
+                        segmentDistance = segmentDistance - intervalLength;
+                        intermediateID++;
+                        insertedItemList.add(segmentIndexIntermediate);
+                    }
+                }
+            }
+        }
+        return insertedItemList;
+    }
+
+    /**
+     * Remove a temporary road from the HMM model, which is just inserted at the start of the current loop.
+     *
+     * @param roadID         ID of the road to be removed.
+     * @param indexEntryList List of entries to be removed.
+     */
+    public void removeRoadWayFromMap(String roadID, List<XYObject<SegmentIndexItem>> indexEntryList) {
+        this.routingGraph.removeRoadByID(roadID);
+        String id = roadID.replace("-", "");
+        if (!id2DDWayMapping.containsKey(id))
+            throw new IllegalArgumentException("ERROR! The road to be inserted to the HMM model has wrong ID.");
+
+        this.grid.removeAll(indexEntryList);
+    }
+
+    public List<MatchingResultItem> trajectoryListMatchingProcess(List<Trajectory> rawTrajectory) {
 
         // sequential test
-        List<TrajectoryMatchingResult> result = new ArrayList<>();
-        int matchCount = 0;
+        List<MatchingResultItem> result = new ArrayList<>();
+//        int matchCount = 0;
         for (Trajectory traj : rawTrajectory) {
-            Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> matchResult = doMatching(traj);
-            result.add(matchResult._1());
+            MatchingResultItem matchResult = doMatching(traj);
+            result.add(matchResult);
             System.out.println(traj.getID());
 //            if (rawTrajectory.size() > 100)
 //                if (matchCount % (rawTrajectory.size() / 100) == 0 && matchCount / (rawTrajectory.size() / 100) <= 100)
 //                    LOGGER.info("Map matching finish " + matchCount / (rawTrajectory.size() / 100) + "%.");
-            matchCount++;
-            this.unmatchedTraj.addAll(matchResult._2());
+//            matchCount++;
         }
         return result;
     }
 
-    public Stream<Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>>> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory)
+    public Stream<MatchingResultItem> trajectoryStreamMatchingProcess(Stream<Trajectory> inputTrajectory)
             throws ExecutionException, InterruptedException {
 
         if (inputTrajectory == null) {
@@ -99,7 +169,7 @@ public class NewsonHMM2009 implements MapInterface {
 
         // parallel processing
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        ForkJoinTask<Stream<Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>>>> taskResult =
+        ForkJoinTask<Stream<MatchingResultItem>> taskResult =
                 forkJoinPool.submit(() -> inputTrajectory.parallel().map(this::doMatching));
         while (!taskResult.isDone())
             Thread.sleep(5);
@@ -115,25 +185,22 @@ public class NewsonHMM2009 implements MapInterface {
     public TrajectoryMatchingResult trajectorySingleMatchingProcess(Trajectory inputTrajectory) {
 
         // sequential test
-        Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> matchResult = doMatching(inputTrajectory);
+        MatchingResultItem matchResult = doMatching(inputTrajectory);
 //            if (inputTrajectory.size() > 100)
 //                if (matchCount % (inputTrajectory.size() / 100) == 0)
 //                    LOGGER.info("Map matching finish " + matchCount / (inputTrajectory.size() / 100) + "%. Broken trajectory count:" + hmmMapMatching.getBrokenTrajCount() + ".");
 //            matchCount++;
         LOGGER.info("Matching finished:" + inputTrajectory.getID());
-        return matchResult._1();
-    }
-
-    public List<Triplet<Trajectory, String, String>> getUnmatchedTraj() {
-        return unmatchedTraj;
+        return matchResult.getMatchingResult();
     }
 
     /**
-     * Create grid index for fast candidate computing
+     * Create grid index for fast candidate computing.
      *
-     * @param inputMap the input road network
+     * @param inputMap  The input road network.
+     * @param isPartial Is new roads not inserted into the index. isPartial = true only when partial map merge is called.
      */
-    private void buildGridIndex(RoadNetworkGraph inputMap) {
+    private void buildGridIndex(RoadNetworkGraph inputMap, boolean isPartial) {
 
         // calculate the grid settings
         int rowNum;     // number of rows
@@ -161,29 +228,31 @@ public class NewsonHMM2009 implements MapInterface {
         int intermediatePointCount = 0;
 
         for (RoadWay t : inputMap.getWays()) {
-            for (Segment s : t.getEdges()) {
-                // -1: left endpoint of the segment, 0: right endpoint of the segment, >0: intermediate point
-                SegmentIndexItem segmentItemLeft = new SegmentIndexItem(s, -1, t.getID(), intervalLength);
-                XYObject<SegmentIndexItem> segmentIndexLeft = new XYObject<>(segmentItemLeft.x(), segmentItemLeft.y(), segmentItemLeft);
-                SegmentIndexItem segmentItemRight = new SegmentIndexItem(s, 0, t.getID(), intervalLength);
-                XYObject<SegmentIndexItem> segmentIndexRight = new XYObject<>(segmentItemRight.x(), segmentItemRight.y(), segmentItemRight);
-                this.grid.insert(segmentIndexLeft);
-                pointCount++;
-                this.grid.insert(segmentIndexRight);
-                pointCount++;
-                // if the length of the segment is longer than two times of the candidate range, insert the intermediate points of the
-                // segment
-                double segmentDistance = distanceFunction.distance(s.p1(), s.p2());
-                int intermediateID = 1;
-                while (segmentDistance > intervalLength) {
-                    SegmentIndexItem segmentItemIntermediate = new SegmentIndexItem(s, intermediateID, t.getID(), intervalLength);
-                    XYObject<SegmentIndexItem> segmentIndexIntermediate = new XYObject<>(segmentItemIntermediate.x(), segmentItemIntermediate.y(),
-                            segmentItemIntermediate);
-                    this.grid.insert(segmentIndexIntermediate);
-                    segmentDistance = segmentDistance - intervalLength;
-                    intermediateID++;
-                    intermediatePointCount++;
+            if (!isPartial || !t.isNewRoad()) {
+                for (Segment s : t.getEdges()) {
+                    // -1: left endpoint of the segment, 0: right endpoint of the segment, >0: intermediate point
+                    SegmentIndexItem segmentItemLeft = new SegmentIndexItem(s, -1, t.getID(), intervalLength);
+                    XYObject<SegmentIndexItem> segmentIndexLeft = new XYObject<>(segmentItemLeft.x(), segmentItemLeft.y(), segmentItemLeft);
+                    SegmentIndexItem segmentItemRight = new SegmentIndexItem(s, 0, t.getID(), intervalLength);
+                    XYObject<SegmentIndexItem> segmentIndexRight = new XYObject<>(segmentItemRight.x(), segmentItemRight.y(), segmentItemRight);
+                    this.grid.insert(segmentIndexLeft);
                     pointCount++;
+                    this.grid.insert(segmentIndexRight);
+                    pointCount++;
+                    // if the length of the segment is longer than two times of the candidate range, insert the intermediate points of the
+                    // segment
+                    double segmentDistance = distanceFunction.distance(s.p1(), s.p2());
+                    int intermediateID = 1;
+                    while (segmentDistance > intervalLength) {
+                        SegmentIndexItem segmentItemIntermediate = new SegmentIndexItem(s, intermediateID, t.getID(), intervalLength);
+                        XYObject<SegmentIndexItem> segmentIndexIntermediate = new XYObject<>(segmentItemIntermediate.x(), segmentItemIntermediate.y(),
+                                segmentItemIntermediate);
+                        this.grid.insert(segmentIndexIntermediate);
+                        segmentDistance = segmentDistance - intervalLength;
+                        intermediateID++;
+                        intermediatePointCount++;
+                        pointCount++;
+                    }
                 }
             }
         }
@@ -198,7 +267,7 @@ public class NewsonHMM2009 implements MapInterface {
      * @param trajectory Input trajectory.
      * @return Pair(Map - matching result, List ( unmatched trajectory, preceding match way, succeeding match way)).
      */
-    public Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> doMatching(final Trajectory trajectory) {
+    public MatchingResultItem doMatching(final Trajectory trajectory) {
         // Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();
         int indexBeforeCurrBreak = -1;   // the index of the last point before current broken position, -1 = currently no breakpoint
@@ -362,13 +431,14 @@ public class NewsonHMM2009 implements MapInterface {
                     Triplet<Trajectory, String, String> currUnmatchedTrajectory = new Triplet<>(trajectory.subTrajectory(start,
                             end + 1), rankedRoadPositionList.get(0)._1().get(start - 1).state.getRoadID(),
                             rankedRoadPositionList.get(0)._1().get(end + 1).state.getRoadID());
-                    unmatchedTrajectoryList.add(currUnmatchedTrajectory);
+                    if (!currUnmatchedTrajectory._2().equals("") && !currUnmatchedTrajectory._3().equals(""))
+                        unmatchedTrajectoryList.add(currUnmatchedTrajectory);
                 }
 //            } else {
 //                LOGGER.info("The break point(s) cannot be extended and thus removed. No unmatched trajectory output");
             }
         }
-        return new Pair<>(getResult(trajectory, rankedRoadPositionList), unmatchedTrajectoryList);
+        return new MatchingResultItem(getResult(trajectory, rankedRoadPositionList), unmatchedTrajectoryList);
     }
 
     /**

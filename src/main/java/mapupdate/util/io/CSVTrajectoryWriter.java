@@ -5,6 +5,7 @@ import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.datastructure.Triplet;
 import mapupdate.util.object.spatialobject.Trajectory;
 import mapupdate.util.object.spatialobject.TrajectoryPoint;
+import scala.util.parsing.combinator.testing.Str;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -247,14 +248,16 @@ public class CSVTrajectoryWriter {
      * @param iteration                      The current iteration number.
      * @throws IOException File write error.
      */
-    public void writeMergedUnmatchedTrajectory(List<Triplet<Trajectory, String, String>> rawUnmatchedTrajectoryList, List<Trajectory> rematchTrajList, List<Triplet<Trajectory, String, String>>
-            refinedUnmatchedTrajectoryList, int iteration) throws IOException {
+    public List<Triplet<Trajectory, String, String>> writeMergedUnmatchedTrajectory(List<Triplet<Trajectory, String, String>> rawUnmatchedTrajectoryList,
+                                                                                    List<Trajectory> rematchTrajList, List<Triplet<Trajectory, String, String>>
+                                                                                            refinedUnmatchedTrajectoryList, int iteration) throws IOException {
         Set<String> refinedUnmatchedTrajSet = new HashSet<>();
         for (Trajectory mr : rematchTrajList)
             refinedUnmatchedTrajSet.add(mr.getID());
         rawUnmatchedTrajectoryList.removeIf(next -> refinedUnmatchedTrajSet.contains(next._1().getID()));
         rawUnmatchedTrajectoryList.addAll(refinedUnmatchedTrajectoryList);
         writeUnmatchedTrajectory(rawUnmatchedTrajectoryList, iteration);
+        return rawUnmatchedTrajectoryList;
     }
 
 }

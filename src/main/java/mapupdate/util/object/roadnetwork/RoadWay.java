@@ -26,7 +26,7 @@ public class RoadWay extends RoadNetworkPrimitive {
     /**
      * Total roadLength of the road way
      */
-    private double roadLength;
+    private double roadLength = 0;
 
     private PointDistanceFunction distFunc;
 
@@ -103,6 +103,7 @@ public class RoadWay extends RoadNetworkPrimitive {
             throw new NullPointerException("Road way " + wayId + " contains less than two nodes.");
         }
         this.nodeList = nodeList;
+        this.roadLength = 0;
         calculateCenter();
         this.distFunc = new GreatCircleDistanceFunction();
         for (int i = 1; i < this.nodeList.size(); i++) {
@@ -122,6 +123,7 @@ public class RoadWay extends RoadNetworkPrimitive {
             throw new NullPointerException("Road way " + wayId + " contains less than two nodes.");
         }
         this.nodeList = nodeList;
+        this.roadLength = 0;
         calculateCenter();
         this.distFunc = distFunc;
         for (int i = 1; i < this.nodeList.size(); i++) {
@@ -169,6 +171,7 @@ public class RoadWay extends RoadNetworkPrimitive {
         this.nodeList.clear();
         nodeList.addAll(nodes);
         calculateCenter();
+        this.roadLength = 0;
         for (int i = 1; i < this.nodeList.size(); i++) {
             this.roadLength += distFunc.distance(this.nodeList.get(i - 1).toPoint(), this.nodeList.get(i).toPoint());
         }
@@ -199,7 +202,8 @@ public class RoadWay extends RoadNetworkPrimitive {
         if (node != null) {
             this.nodeList.add(node);
             calculateCenter();
-            this.roadLength += distFunc.distance(this.nodeList.get(this.nodeList.size() - 1).toPoint(), node.toPoint());
+            if (this.nodeList.size() > 1)
+                this.roadLength += distFunc.distance(this.nodeList.get(this.nodeList.size() - 2).toPoint(), node.toPoint());
         }
     }
 

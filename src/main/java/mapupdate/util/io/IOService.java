@@ -320,10 +320,13 @@ public final class IOService implements Serializable {
         List<String> filePathList = getFilesPathList(Paths.get(pathName));
 
         Builder<File> fileStreamBuilder = Stream.builder();
+        int fileCount = 0;
         for (String path : filePathList) {
             String id = path.substring(path.lastIndexOf('_') + 1, path.indexOf('.'));
-            if (idSet.contains(id))
+            if (idSet.contains(id)) {
                 fileStreamBuilder.accept(new File(path));
+                fileCount++;
+            }
         }
 
         return fileStreamBuilder.build();

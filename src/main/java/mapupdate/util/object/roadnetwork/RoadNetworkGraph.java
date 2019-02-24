@@ -162,7 +162,8 @@ public class RoadNetworkGraph implements MapInterface {
                     } else
                         LOGGER.severe("ERROR! Temporary edges should not be included in the road map.");
                 }
-            }
+            } else
+                throw new IllegalArgumentException("ERROR! Road way already exist: " + way.getID());
         }
     }
 
@@ -293,6 +294,13 @@ public class RoadNetworkGraph implements MapInterface {
         return maxVisitCount;
     }
 
+    public boolean containsWay(String id) {
+        return this.wayIDList.contains(id);
+    }
+
+    public boolean containsNode(String id) {
+        return this.nodeIDList.contains(id);
+    }
     public void updateMaxVisitCount(int visitCount) {
         if (this.maxVisitCount < visitCount)
             this.maxVisitCount = visitCount;
@@ -329,5 +337,22 @@ public class RoadNetworkGraph implements MapInterface {
         this.hasBoundary = false;
         for (RoadNode n : this.getAllNodes())
             updateBoundingBox(n);
+    }
+
+    @Override
+    public RoadNetworkGraph clone() {
+        RoadNetworkGraph clone = new RoadNetworkGraph();
+        for (RoadNode n : this.getNodes()) {
+            clone.addNode(n.clone());
+        }
+        for (RoadWay w : this.getWays()) {
+            clone.addWay(w.clone());
+        }
+        clone.setBeijingDataset(this.isBeijingDataset);
+        if (clone.getMaxLon() != this.getMaxLon() || clone.getMinLon() != this.getMinLon() || clone.getMaxLat() != this.getMaxLat() || clone.getMinLat() != this.getMinLat())
+            throw new IllegalArgumentException("ERROR! Clone result has different boundary as the original object.");
+        if (clone.getMaxAbsWayID() != this.getMaxAbsWayID() || clone.getMaxMiniNodeID() != this.getMaxMiniNodeID() || clone.getMaxRoadNodeID() != this.getMaxRoadNodeID())
+            throw new IllegalArgumentException("ERROR! Clone result has different count of roads.");
+        return clone;
     }
 }

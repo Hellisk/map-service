@@ -46,7 +46,7 @@ public class UnfoldingGlobalTrajectoryDisplay extends PApplet {
 
         try {
             XMLTrajectoryReader trajReader = new XMLTrajectoryReader(ROOT_PATH + "input/");
-            CSVTrajectoryReader matchedResultReader = new CSVTrajectoryReader(false);
+            CSVTrajectoryReader matchedResultReader = new CSVTrajectoryReader(0);
             CSVRawMapReader mapReader = new CSVRawMapReader(ROOT_PATH + "input/");
             List<TrajectoryMatchingResult> matchedResult = matchedResultReader.readMatchedResult(OUTPUT_FOLDER, -1);
             Map<String, TrajectoryMatchingResult> id2MatchingResult = new HashMap<>();

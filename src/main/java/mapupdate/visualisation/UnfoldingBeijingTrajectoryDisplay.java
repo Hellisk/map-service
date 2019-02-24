@@ -80,7 +80,7 @@ public class UnfoldingBeijingTrajectoryDisplay extends PApplet {
             trajDisplay[9].addMarkers(removedWeightedMapMarker);
 
             // read unmatched trajectory for break point evaluation
-            CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader(false);
+            CSVTrajectoryReader csvTrajectoryReader = new CSVTrajectoryReader(0);
             Map<String, RoadWay> id2RoadWay = new HashMap<>();
             Map<String, Trajectory> id2rawTraj = new HashMap<>();
             Map<String, TrajectoryMatchingResult> id2matchedTraj = new HashMap<>();

@@ -1,6 +1,5 @@
 package mapupdate.util.io;
 
-import javafx.geometry.BoundingBox;
 import mapupdate.util.index.rtree.STRTree;
 import mapupdate.util.object.datastructure.*;
 import mapupdate.util.object.spatialobject.*;
@@ -18,11 +17,11 @@ import static mapupdate.Main.*;
  * Created by uqpchao on 23/05/2017.
  */
 public class CSVTrajectoryReader {
-    private boolean isIndexBasedMatching = false;
+    private int indexType;
     private List<XYObject<Point>> indexPointList = null;
 
-    public CSVTrajectoryReader(boolean isIndexBasedMatching) {
-        this.isIndexBasedMatching = isIndexBasedMatching;
+    public CSVTrajectoryReader(int indexType) {
+        this.indexType = indexType;
     }
 
     public Trajectory readTrajectory(File trajectoryFile, String trajID) throws IOException {
@@ -36,7 +35,7 @@ public class CSVTrajectoryReader {
             TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
                     Long.parseLong(pointInfo[2]), Double.parseDouble(pointInfo[3]), Double.parseDouble(pointInfo[4]));
             newTrajectory.add(newTrajectoryPoint);
-            if (isIndexBasedMatching && indexPointList != null) {
+            if (indexType != 0 && indexPointList != null) {
                 Point currPoint = new Point(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]));
                 currPoint.setID(trajID);
                 XYObject<Point> indexItem = new XYObject<>(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), currPoint);
@@ -166,7 +165,7 @@ public class CSVTrajectoryReader {
         if (inputFile.isDirectory()) {
             File[] trajectoryFiles = inputFile.listFiles();
             if (trajectoryFiles != null) {
-                if (isIndexBasedMatching) {
+                if (indexType != 0) {
                     indexPointList = new ArrayList<>();
                 }
                 for (File trajectoryFile : trajectoryFiles) {
@@ -235,7 +234,7 @@ public class CSVTrajectoryReader {
         if (!inputFile.exists())
             LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         Stream<File> dataFiles = IOService.getFiles(csvTrajectoryPath);
-        if (isIndexBasedMatching)
+        if (indexType != 0)
             indexPointList = Collections.synchronizedList(new ArrayList<>());
         return dataFiles.parallel().map(
                 file -> {
@@ -263,7 +262,7 @@ public class CSVTrajectoryReader {
         if (!inputFile.exists())
             LOGGER.severe("ERROR! The input trajectory path doesn't exist: " + csvTrajectoryPath);
         Stream<File> dataFiles = IOService.getFilesWithIDs(csvTrajectoryPath, trajIDSet);
-        if (!isIndexBasedMatching)
+        if (indexType == 0)
             LOGGER.severe("ERROR! Partial trajectory read should not be called in non-index mode.");
         return dataFiles.parallel().map(
                 file -> {
@@ -280,7 +279,7 @@ public class CSVTrajectoryReader {
     }
 
     public Pair<STRTree<Point>, Integer> createIndex() {
-        if (isIndexBasedMatching) {
+        if (indexType != 0 && indexPointList.size() != 0) {
             STRTree<Point> index = new STRTree<>(indexPointList, indexPointList.size() / 10000);
             return new Pair<>(index, indexPointList.size());
         } else

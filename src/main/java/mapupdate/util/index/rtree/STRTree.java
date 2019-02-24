@@ -250,12 +250,13 @@ public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T>
             throw new NullPointerException("Spatial object cannot be null.");
         }
         HashSet<String> indexList = rtreeModel.rangeSearch(obj);
-        List<STRNode<T>> result = new ArrayList<>(indexList.size());
-        for (String index : indexList) {
-            // find the cell containing this partition
-            int i = Integer.parseInt(index.replaceFirst("r", ""));
-            result.add(strNodes.get(i));
-        }
+        List<STRNode<T>> result = new ArrayList<>(indexList == null ? 0 : indexList.size());
+        if (indexList != null)
+            for (String index : indexList) {
+                // find the cell containing this partition
+                int i = Integer.parseInt(index.replaceFirst("r", ""));
+                result.add(strNodes.get(i));
+            }
         return result;
     }
 

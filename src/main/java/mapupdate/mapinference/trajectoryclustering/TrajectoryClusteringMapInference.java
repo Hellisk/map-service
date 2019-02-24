@@ -47,7 +47,8 @@ public class TrajectoryClusteringMapInference {
                             currTraj.add(traj.get(i));
                             currTraj.add(traj.get(i + 1));
                             hasPrecedingPoints = true;
-                        }    // else, the second point does not follow the same direction, abandon the first point
+                        }
+                        // else, the second point does not follow the same direction, abandon the first point
                     }   // else, the first point does not have the same direction as the following segment, abandon the first point
                 } else {
                     double angleChangeStart = Math.abs(traj.get(i).heading() - traj.getSegment(i).getHeading());    // angle change

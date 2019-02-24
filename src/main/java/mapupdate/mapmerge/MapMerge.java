@@ -264,18 +264,18 @@ public class MapMerge {
         return Math.toDegrees(Math.abs(angle1 - angle2));
     }
 
-    public Pair<RoadNetworkGraph, Boolean> nearestNeighbourMapMerge(List<RoadWay> inferredWayList, HashMap<String,
-            Pair<HashSet<String>, HashSet<String>>> newRoadID2AnchorPoints) {
+    public List<RoadWay> nearestNeighbourMapMerge(List<RoadWay> inferredWayList,
+                                                  HashMap<String, Pair<HashSet<String>, HashSet<String>>> newRoadID2AnchorPoints) {
 
         // the inference result from KDE map inference requires a road conjunction step
         List<RoadWay> inferredList;
+        List<RoadWay> insertWayList;
         if (newRoadID2AnchorPoints.isEmpty())
             inferredList = inferredWayList;
         else
             inferredList = roadConjunction(inferredWayList);
 
         buildGridIndex();
-        int prevWayListSize = rawMap.getWays().size();  // for future new road ID assignment
 
         for (RoadWay w : inferredList) {
 //            LOGGER.info("start current road way connection, road length:" + w.getRoadLength());
@@ -287,7 +287,7 @@ public class MapMerge {
                 HashSet<String> endRoadWayList = newRoadID2AnchorPoints.get(w.getID())._2();
                 for (String s : startRoadWayList) {
                     if (!id2RoadWayMapping.containsKey(s))
-                        System.out.println("ERROR! Road doesn't exist:" + s);
+                        LOGGER.severe("ERROR! Road doesn't exist:" + s);
                     Point firstPoint = id2RoadWayMapping.get(s).getToNode().toPoint();
                     if (!this.grid.getModel().getBoundary().contains(firstPoint))
                         continue;
@@ -305,6 +305,8 @@ public class MapMerge {
                     startPointMatchCandidate.put(locIndex, new Pair<>(secondPoint, distFunc.distance(w.getFromNode().toPoint(), secondPoint)));
                 }
                 for (String s : endRoadWayList) {
+                    if (!id2RoadWayMapping.containsKey(s))
+                        LOGGER.severe("ERROR! Road doesn't exist:" + s);
                     Point firstPoint = id2RoadWayMapping.get(s).getFromNode().toPoint();
                     if (!this.grid.getModel().getBoundary().contains(firstPoint))
                         continue;
@@ -391,9 +393,9 @@ public class MapMerge {
                 findSubRoadConnection(w);   // find sub-trajectories that can be connected to the existing road ways
             }
         }
-        doubleDirectedRoadWayInsertion();
-        LOGGER.info("Nearest neighbour map merge completed. Total number of road way added:" + (rawMap.getWays().size() - prevWayListSize));
-        return new Pair<>(rawMap, (rawMap.getWays().size() - prevWayListSize) == 0);
+        insertWayList = doubleDirectedRoadWayInsertion();
+        LOGGER.info("Nearest neighbour map merge completed. Total number of road way added:" + insertWayList.size());
+        return insertWayList;
     }
 
     private void loc2InsertWayDistUpdate(Triplet<Point, Point, Triplet<String, Double, HashSet<String>>> bestMatch, String currLoc, RoadWay newWay) {
@@ -483,7 +485,8 @@ public class MapMerge {
         }
     }
 
-    private void doubleDirectedRoadWayInsertion() {
+    private List<RoadWay> doubleDirectedRoadWayInsertion() {
+        List<RoadWay> insertRoadWayList = new ArrayList<>();
         HashMap<String, RoadWay> insertRoadIDMapping = new HashMap<>();
         for (Map.Entry<String, Pair<RoadWay, Double>> entry : loc2InsertedWayDist.entrySet()) {
             RoadWay newWay = entry.getValue()._1();
@@ -509,7 +512,7 @@ public class MapMerge {
                 if (newWay.getConfidenceScore() == 0)
                     LOGGER.severe("ERROR! New road has zero confidence score.");
                 insertRoadIDMapping.put(newWay.getID(), newWay);
-                rawMap.addWay(newWay);
+                insertRoadWayList.add(newWay);
             }
             String reverseID = newWay.getID().contains("-") ? newWay.getID().substring(newWay.getID().indexOf("-") + 1) : "-" + newWay.getID();
             if (insertRoadIDMapping.containsKey(reverseID)) {
@@ -527,9 +530,11 @@ public class MapMerge {
                 reverseRoad.setNewRoad(true);
                 reverseRoad.setConfidenceScore(newWay.getConfidenceScore());
                 insertRoadIDMapping.put(reverseID, reverseRoad);
-                rawMap.addWay(reverseRoad);
+                insertRoadWayList.add(reverseRoad);
             }
         }
+        insertRoadWayList.removeIf(w -> this.rawMap.containsWay(w.getID()));
+        return insertRoadWayList;
     }
 
     /**

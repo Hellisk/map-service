@@ -2,6 +2,7 @@ package mapupdate.util.io;
 
 import mapupdate.mapmatching.hmm.NewsonHMM2009;
 import mapupdate.util.function.GreatCircleDistanceFunction;
+import mapupdate.util.object.datastructure.MatchingResultItem;
 import mapupdate.util.object.datastructure.Pair;
 import mapupdate.util.object.datastructure.TrajectoryMatchingResult;
 import mapupdate.util.object.datastructure.Triplet;
@@ -383,17 +384,18 @@ public class RawFileOperation {
         LOGGER.info("Trajectory filter finished, total number of candidates: " + tripID + ". Start the ground-truth map-matching.");
 
         // start the generation of ground-truth map-matching result
-        NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, rawGrantMap);
+        NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, rawGrantMap, false);
         Stream<Trajectory> tempTrajStream = tempTrajList.stream();
         // parallel processing
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         ForkJoinTask<Stream<Pair<Integer, String[]>>> matchedResultStream = forkJoinPool.submit(() -> tempTrajStream.parallel().map
                 (trajectory -> {
-                    Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> result = hmm.doMatching(trajectory);
+                    MatchingResultItem result = hmm.doMatching(trajectory);
                     // matching result is empty or result contains breaks, waive the current trajectory
-                    if (result._1().getBestMatchWayList().size() == 0 || !result._2().isEmpty())    // no or broken matching result
+                    if (result.getMatchingResult().getBestMatchWayList().size() == 0 || !result.getUnmatchedTrajectoryList().isEmpty())    // no or broken
+                        // matching result
                         return null;
-                    String[] bestMatchWayList = result._1().getBestMatchWayList().toArray(new String[0]);
+                    String[] bestMatchWayList = result.getMatchingResult().getBestMatchWayList().toArray(new String[0]);
                     // test whether the matching result is included in the map
                     if (isMatchingResultNotContinuous(id2RoadWayMapping, bestMatchWayList))
                         return null;
@@ -749,20 +751,20 @@ public class RawFileOperation {
         LOGGER.info("Start ground-truth generation, total number of input trajectory: " + inputTrajList.size());
 
         Stream<Pair<Trajectory, String>> inputTrajStream = inputTrajList.stream();
-        NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph);
+        NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph, false);
 
         // parallel processing
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         ForkJoinTask<Stream<String>> matchedResultStream = forkJoinPool.submit(() -> inputTrajStream.parallel().map
                 (trajectory -> {
-                    Pair<TrajectoryMatchingResult, List<Triplet<Trajectory, String, String>>> result = hmm.doMatching(trajectory._1());
-                    if (result._1().getBestMatchWayList().size() == 0 || !result._2().isEmpty()) {
+                    MatchingResultItem result = hmm.doMatching(trajectory._1());
+                    if (result.getMatchingResult().getBestMatchWayList().size() == 0 || !result.getUnmatchedTrajectoryList().isEmpty()) {
                         // matching result is empty or result contains breaks, waive the current trajectory
                         return null;
                     }
                     StringBuilder resultString = new StringBuilder();
                     resultString.append(trajectory._2()).append(",");
-                    List<String> bestMatchWayList = result._1().getBestMatchWayList();
+                    List<String> bestMatchWayList = result.getMatchingResult().getBestMatchWayList();
                     for (int i = 0; i < bestMatchWayList.size() - 1; i++) {
                         String s = bestMatchWayList.get(i);
                         resultString.append(s).append("|");

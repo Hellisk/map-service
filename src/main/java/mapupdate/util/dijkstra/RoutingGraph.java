@@ -25,9 +25,20 @@ public class RoutingGraph implements MapInterface {
     private HashMap<Integer, Pair<Integer, Double>> edgeIndex2LeftMostEdgeIndexDist = new HashMap<>();  // find the first routing edge
     // and its distance to the current edge
     private RoutingVertex[] vertices;
+    private RoutingEdge[] routingEdges;
     private PointDistanceFunction distFunc = new GreatCircleDistanceFunction();
+    private HashSet<Integer> newNodeSet = new HashSet<>();  // useful only when isPartial = true;
+    private HashSet<Integer> newEdgeSet = new HashSet<>();  // useful only when isPartial = true;
+    private HashMap<String, List<Integer>> roadID2NewNodeList = new HashMap<>();  // for each new road, the generated node ID list.
+    private HashMap<String, List<Integer>> roadID2NewEdgeList = new HashMap<>();  // for each new road, the generated edge ID list.
 
-    public RoutingGraph(RoadNetworkGraph roadNetwork) {
+    /**
+     * Create routing graph for map-matching.
+     *
+     * @param roadNetwork The map used to build routing graph.
+     * @param isPartial   Is new roads to be added together into the shortest path.
+     */
+    public RoutingGraph(RoadNetworkGraph roadNetwork, boolean isPartial) {
         // insert the road node into node list
         HashMap<String, Integer> nodeID2Index = new HashMap<>();
         HashSet<Integer> outGoingNodeSet = new HashSet<>();
@@ -44,12 +55,20 @@ public class RoutingGraph implements MapInterface {
         int noOfEdges = 0;
         for (RoadWay way : roadNetwork.getWays()) {
             // insert all the mini vertices to the node list
+            if (isPartial && way.isNewRoad()) {
+                roadID2NewNodeList.put(way.getID(), new ArrayList<>());
+                roadID2NewEdgeList.put(way.getID(), new ArrayList<>());
+            }
             for (int i = 1; i < way.getNodes().size() - 1; i++) {
                 // insert all mini vertices into the nodeID index
                 RoadNode startNode = way.getNode(i);
                 if (nodeID2Index.containsKey(startNode.getID()))
                     LOGGER.severe("ERROR! Road node ID for mini node already exists: " + startNode.getID());
                 nodeID2Index.put(startNode.getID(), noOfVertices);
+                if (isPartial && way.isNewRoad()) {
+                    newNodeSet.add(noOfVertices);
+                    roadID2NewNodeList.get(way.getID()).add(noOfVertices);
+                }
                 noOfVertices++;
             }
 
@@ -76,10 +95,14 @@ public class RoutingGraph implements MapInterface {
                 RoutingEdge currRoutingEdge = new RoutingEdge(startID, endID, distFunc.distance(startNode.toPoint(), endNode.toPoint()));
                 currRoutingEdge.setIndex(noOfEdges);
                 routingEdgeList.add(currRoutingEdge);
+                if (isPartial && way.isNewRoad()) {
+                    newEdgeSet.add(noOfEdges);
+                    roadID2NewEdgeList.get(way.getID()).add(noOfEdges);
+                }
                 noOfEdges++;
             }
         }
-        RoutingEdge[] routingEdges = routingEdgeList.toArray(new RoutingEdge[0]);
+        this.routingEdges = routingEdgeList.toArray(new RoutingEdge[0]);
 
         // create all vertices ready to be updated with the routingEdges
         this.vertices = new RoutingVertex[noOfVertices];
@@ -89,7 +112,8 @@ public class RoutingGraph implements MapInterface {
         }
         // add all the routingEdges to the vertices, each edge added to only from vertices
         for (int i = 0; i < noOfEdges; i++) {
-            this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().add(routingEdges[i]);
+            if (!isPartial || !newEdgeSet.contains(i))
+                this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().add(routingEdges[i]);
         }
 
         // check the completeness of the graph
@@ -101,7 +125,7 @@ public class RoutingGraph implements MapInterface {
             }
         }
         for (int i = 0; i < vertices.length; i++) {
-            if (!outGoingNodeSet.contains(i) && this.vertices[i].getOutGoingRoutingEdges().size() == 0)
+            if (this.vertices[i].getOutGoingRoutingEdges().size() == 0 && !outGoingNodeSet.contains(i) && !newNodeSet.contains(i))
                 LOGGER.severe("ERROR! Isolated node detected: No. " + i);
         }
         LOGGER.info("Shortest path graph generated. Total vertices:" + noOfVertices + ", total edges:" + noOfEdges);
@@ -349,5 +373,30 @@ public class RoutingGraph implements MapInterface {
             result.add(new Pair<>(distance[i], path[i]));
         }
         return result;
+    }
+
+    public void addRoadByID(String roadID) {
+        if (!roadID2NewEdgeList.containsKey(roadID) || !roadID2NewNodeList.containsKey(roadID))
+            throw new IllegalArgumentException("ERROR! The road to be inserted has wrong ID: " + roadID);
+
+        for (int i : roadID2NewNodeList.get(roadID))
+            newNodeSet.remove(i);
+        // add all the routingEdges to the vertices, each edge added to only from vertices
+        for (int i : roadID2NewEdgeList.get(roadID)) {
+            this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().add(routingEdges[i]);
+            newEdgeSet.remove(i);
+        }
+    }
+
+    public void removeRoadByID(String roadID) {
+        if (!roadID2NewEdgeList.containsKey(roadID) || !roadID2NewNodeList.containsKey(roadID))
+            throw new IllegalArgumentException("ERROR! The road to be removed has wrong ID.");
+
+        newNodeSet.addAll(roadID2NewNodeList.get(roadID));
+        // add all the routingEdges to the vertices, each edge added to only from vertices
+        for (int i : roadID2NewEdgeList.get(roadID)) {
+            this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().remove(routingEdges[i]);
+        }
+        newEdgeSet.addAll(roadID2NewEdgeList.get(roadID));
     }
 }
