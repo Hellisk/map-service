@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pyximport
 
 pyximport.install(setup_args={'include_dirs': np.get_include()})
@@ -25,14 +26,14 @@ class GrayscaleSkeleton:
         prev_binary_image = np.zeros_like(image)
 
         image_bit_depth = (image.dtype.itemsize * 8) / 2
-        print "image_bit_depth: " + str(image_bit_depth)
+        # print "image_bit_depth: " + str(image_bit_depth)
 
         # image_thresholds = range(2**image_bit_depth,-1,-16)
         image_thresholds = [2 ** x for x in range(image_bit_depth, 3, -1)] + range(15, 0, -1)
-        print "image_thresholds: " + str(image_thresholds)
+        # print "image_thresholds: " + str(image_thresholds)
 
         for curr_threshold in image_thresholds:
-            print "curr_threshold: " + str(curr_threshold)
+            # print "curr_threshold: " + str(curr_threshold)
 
             curr_thresh_image = threshold(image, curr_threshold)
 
@@ -42,7 +43,7 @@ class GrayscaleSkeleton:
             curr_sum_image = (prev_binary_image + curr_binary_image)
             curr_skeleton_image = self.thin_pixels(curr_sum_image)
             imsave(skeleton_images_path + "skeleton_" + str(curr_threshold) + ".png", curr_skeleton_image)
-            print "curr_skeleton max: " + str(curr_skeleton_image.max())
+            # print "curr_skeleton max: " + str(curr_skeleton_image.max())
 
             prev_binary_image = curr_skeleton_image
 
@@ -57,7 +58,7 @@ class GrayscaleSkeleton:
         check_pixels = zip(fg_pixels[0], fg_pixels[1])
 
         while len(check_pixels) > 0:
-            print len(check_pixels)
+            # print len(check_pixels)
             (image, sub1_check_pixels) = self.parallel_sub(subiterations.first_subiteration, image, check_pixels)
             (image, sub2_check_pixels) = self.parallel_sub(subiterations.second_subiteration, image,
                                                            list(set(check_pixels + sub1_check_pixels)))
@@ -230,8 +231,13 @@ if __name__ == '__main__':
     input_filename = root_path + "kde.png"
     output_filename = root_path + "skeleton.png"
 
-    print "input filename: " + str(input_filename)
-    print "output filename: " + str(output_filename)
+    # print "input filename: " + str(input_filename)
+    # print "output filename: " + str(output_filename)
+
+    # create skeleton image directory
+    if not os.path.exists(skeleton_images_path):
+        # create trips directory
+        os.mkdir(skeleton_images_path)
 
     input_kde = imread(input_filename)
 
@@ -239,6 +245,6 @@ if __name__ == '__main__':
 
     start_time = time.time()
     skeleton = s.skeletonize(input_kde)
-    print "total elapsed time: " + str(time.time() - start_time) + " seconds"
+    # print "total elapsed time: " + str(time.time() - start_time) + " seconds"
 
     toimage(skeleton, cmin=0, cmax=255).save(output_filename)

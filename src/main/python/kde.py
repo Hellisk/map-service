@@ -15,12 +15,13 @@ from pylibs import spatialfunclib
 cell_size = 1  # meters
 gaussian_blur = 17
 
-dataset_option = True  # True = home, False = school
+dataset_option = 1  # 1 = home, 2 = school, 3 = server
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
-root_folder = beijing_home_path if dataset_option is True else beijing_school_path
-root_path = root_folder + "mapInference/"
-input_path = root_folder + "output/unmatchedNextInput/"
+beijing_server_path = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/"  # the root folder of all data
+root_folder = beijing_home_path if dataset_option == 1 else beijing_school_path if dataset_option == 2 else beijing_server_path
+root_path = root_folder + "mapInference/" if dataset_option != 3 else "/home/uqpchao/data/mapInference/"
+input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
 
 def pairwise(iterable):
@@ -36,12 +37,9 @@ class KDE:
 
     def create_kde_with_trips(self, all_trips):
 
-        print "trips path: " + str(input_path)
-        print "cell size: " + str(cell_size)
-        print "gaussian blur: " + str(gaussian_blur)
-
-        # flag to save images
-        save_images = True
+        # print "trips path: " + str(input_path)
+        # print "cell size: " + str(cell_size)
+        # print "gaussian blur: " + str(gaussian_blur)
 
         sys.stdout.write("\nFinding bounding box... ")
         sys.stdout.flush()
@@ -78,7 +76,7 @@ class KDE:
 
         # write bounding box file
         # output that we are starting the writing process
-        sys.stdout.write("\nWriting bounding box file...")
+        # sys.stdout.write("\nWriting bounding box file...")
         sys.stdout.flush()
 
         # open bounding box file
@@ -112,8 +110,8 @@ class KDE:
         for trip in all_trips:
 
             if ((trip_counter % 10 == 0) or (trip_counter == len(all_trips))):
-                sys.stdout.write(
-                    "\rCreating histogram (trip " + str(trip_counter) + "/" + str(len(all_trips)) + ")... ")
+                # sys.stdout.write(
+                #     "\rCreating histogram (trip " + str(trip_counter) + "/" + str(len(all_trips)) + ")... ")
                 sys.stdout.flush()
             trip_counter += 1
 
@@ -143,7 +141,7 @@ class KDE:
         for trip in all_trips:
 
             if (trip_counter % 10 == 0) or (trip_counter == len(all_trips)):
-                sys.stdout.write("\rCreating drawing (trip " + str(trip_counter) + "/" + str(len(all_trips)) + ")... ")
+                # sys.stdout.write("\rCreating drawing (trip " + str(trip_counter) + "/" + str(len(all_trips)) + ")... ")
                 sys.stdout.flush()
             trip_counter += 1
 
@@ -158,11 +156,11 @@ class KDE:
         cv.SaveImage(root_path + "raw_data.png", lines)
 
         print "done."
-        # print "Intensity map acquired."
+        print "Intensity map acquired."
         sys.stdout.write("Smoothing... ")
         sys.stdout.flush()
 
-        # # create the mask and compute the contour
+        # create the mask and compute the contour
         cv.Smooth(themap, themap, cv.CV_GAUSSIAN, gaussian_blur, gaussian_blur)
         cv.SaveImage(root_path + "kde.png", themap)
 
@@ -185,9 +183,7 @@ if __name__ == '__main__':
             sys.exit()
 
     # create output directory
-    if not os.path.exists(root_path):
-        # create trips directory
-        os.mkdir(root_path)
+    os.mkdir(root_path)
 
     k = KDE()
     k.create_kde_with_trips(TripLoader.load_all_trips(input_path))

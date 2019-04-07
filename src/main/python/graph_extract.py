@@ -203,7 +203,7 @@ class Graph:
 
     def find_main_crossings_and_segments(self, skeleton):
         crossing_pixels = np.where(skeleton == 2)
-        print "crossing_pixels: " + str(len(crossing_pixels[0]))
+        # print "crossing_pixels: " + str(len(crossing_pixels[0]))
 
         curr_count = 1
         total_count = len(crossing_pixels[0])
@@ -213,7 +213,7 @@ class Graph:
 
         for (i, j) in izip(crossing_pixels[0], crossing_pixels[1]):
             if ((curr_count % 100 == 0) or (curr_count == total_count)):
-                sys.stdout.write("\r" + str(curr_count) + "/" + str(total_count) + "... ")
+                # sys.stdout.write("\r" + str(curr_count) + "/" + str(total_count) + "... ")
                 sys.stdout.flush()
             curr_count += 1
 
@@ -333,7 +333,7 @@ class Graph:
             # reset crossing point value
             skeleton[i][j] = 3
 
-        print "done."
+        # print "done."
 
         # imsave("no_edges_skeleton.png", skeleton)
         return main_crossings, segments
@@ -437,7 +437,7 @@ class Graph:
 
     def identify_crossing_points(self, skeleton):
         fg_pixels = np.where(skeleton == 1)
-        print "fg_pixels: " + str(len(fg_pixels[0]))
+        # print "fg_pixels: " + str(len(fg_pixels[0]))
 
         curr_count = 1
         total_count = len(fg_pixels[0])
@@ -446,7 +446,7 @@ class Graph:
 
         for (i, j) in izip(fg_pixels[0], fg_pixels[1]):
             if ((curr_count % 100 == 0) or (curr_count == total_count)):
-                sys.stdout.write("\r" + str(curr_count) + "/" + str(total_count) + "... ")
+                # sys.stdout.write("\r" + str(curr_count) + "/" + str(total_count) + "... ")
                 sys.stdout.flush()
             curr_count += 1
 
@@ -475,7 +475,7 @@ class Graph:
             elif ((connected_component_count == 1) or (connected_component_count > 2)):
                 crossing_skeleton[i][j] = 2
 
-        print "done."
+        # print "done."
 
         # imsave("crossing_skeleton.png", crossing_skeleton)
         return crossing_skeleton
@@ -491,9 +491,9 @@ if __name__ == '__main__':
     bounding_box_filename = root_path + "bounding_box.txt"
     output_filename = root_path + "skeleton_maps/skeleton_map_1m.db"
 
-    print "skeleton filename: " + str(skeleton_filename)
-    print "bounding box filename: " + str(bounding_box_filename)
-    print "output filename: " + str(output_filename)
+    # print "skeleton filename: " + str(skeleton_filename)
+    # print "bounding box filename: " + str(bounding_box_filename)
+    # print "output filename: " + str(output_filename)
 
     skeleton = imread(skeleton_filename)
 
@@ -520,4 +520,4 @@ if __name__ == '__main__':
 
     start_time = time.time()
     g.extract(skeleton.astype(np.bool).astype(np.int), skeleton, output_filename)
-    print "total elapsed time: " + str(time.time() - start_time) + " seconds"
+    # print "total elapsed time: " + str(time.time() - start_time) + " seconds"

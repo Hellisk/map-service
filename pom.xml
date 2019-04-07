@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.uq.dke</groupId>
-    <artifactId>MapUpdate</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>map-update</artifactId>
+    <version>1.0</version>
 
     <build>
         <plugins>
@@ -24,12 +24,48 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.uq.dke.mapupdate.Main</mainClass>
+                            <mainClass>mapupdate.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>mapupdate.Main</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                    <arguments>
+                        <argument>-Xms2g</argument>
+                        <argument>-Xmx20g</argument>
+                    </arguments>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>myproperty</key>
+                            <value>myvalue</value>
+                        </systemProperty>
+                        ...
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>
@@ -85,7 +121,7 @@
         <dependency>
             <groupId>org.processing</groupId>
             <artifactId>core</artifactId>
-            <version>3.3.7</version>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>de.fhpotsdam</groupId>
@@ -93,6 +129,24 @@
             <version>0.9.6</version>
             <type>jar</type>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.jsi/jsi -->
+        <dependency>
+            <groupId>net.sourceforge.jsi</groupId>
+            <artifactId>jsi</artifactId>
+            <version>1.0.0</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/libs/jsi-1.1.0.jar</systemPath>-->
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.slf4j</groupId>-->
+        <!--<artifactId>slf4j-api</artifactId>-->
+        <!--<version>1.6.3</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>net.sf.trove4j</groupId>-->
+        <!--<artifactId>trove4j</artifactId>-->
+        <!--<version>3.0.3</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -106,6 +160,12 @@
         <!-- https://mvnrepository.com/artifact/org.jogamp.gluegen/gluegen-rt -->
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
+            <artifactId>gluegen-rt</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jogamp.gluegen/gluegen-rt -->
+        <dependency>
+            <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt-main</artifactId>
             <version>2.3.2</version>
         </dependency>
@@ -113,6 +173,12 @@
         <dependency>
             <groupId>org.jogamp.jogl</groupId>
             <artifactId>jogl-all</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all -->
+        <dependency>
+            <groupId>org.jogamp.jogl</groupId>
+            <artifactId>jogl-all-main</artifactId>
             <version>2.3.2</version>
         </dependency>
 
@@ -132,6 +198,10 @@
         <repository>
             <id>extdeps</id>
             <url>https://dl.bintray.com/gregor-laemmel/maven</url>
+        </repository>
+        <repository>
+            <id>Clojars</id>
+            <url>http://clojars.org/repo/</url>
         </repository>
     </repositories>
 </project>

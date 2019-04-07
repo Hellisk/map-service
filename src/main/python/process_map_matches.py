@@ -19,7 +19,7 @@ class ProcessMapMatches:
         self.graphdb = StreetMap()
         self.graphdb.load_graphdb(output_db_filename)
 
-        sys.stdout.write("Coalescing segments... ")
+        # sys.stdout.write("Coalescing segments... ")
         sys.stdout.flush()
 
         while (True):
@@ -56,10 +56,10 @@ class ProcessMapMatches:
 
                 del self.graphdb.segments[tail_segment.id]
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Saving traces... ")
+        # sys.stdout.write("Saving traces... ")
         sys.stdout.flush()
 
         output_traces_file = open(output_traces_filename, 'w')
@@ -78,10 +78,10 @@ class ProcessMapMatches:
                     output_traces_file.write("\n")
         output_traces_file.close()
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Saving coalesced map... ")
+        # sys.stdout.write("Saving coalesced map... ")
         sys.stdout.flush()
 
         try:
@@ -125,7 +125,7 @@ class ProcessMapMatches:
         conn.commit()
         conn.close()
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
     def process_all_matched_trips(self, graphdb_filename, matched_trips_directory, output_db_filename):
@@ -138,8 +138,8 @@ class ProcessMapMatches:
         all_segment_obs = {}  # indexed by segment_id
 
         for i in range(0, len(all_matched_trip_files)):
-            sys.stdout.write(
-                "\rProcessing matched trip " + str(i + 1) + "/" + str(len(all_matched_trip_files)) + "... ")
+            # sys.stdout.write(
+            #     "\rProcessing matched trip " + str(i + 1) + "/" + str(len(all_matched_trip_files)) + "... ")
             sys.stdout.flush()
 
             matched_trip_file = open(matched_trips_directory + "/" + all_matched_trip_files[i], 'r')
@@ -149,12 +149,13 @@ class ProcessMapMatches:
             curr_trip_obs = []
             no_obs_time_ranges = []
 
+            # read match results and separate the unmatched one with the matched ones
             for record in matched_trip_records:
                 if (len(record) < 7):
                     obs_lat, obs_lon, obs_time, unknown_state = record
 
                     # observation blackout +/- 30 secconds of 'unknown' state observation time
-                    no_obs_time_ranges.append((float(obs_time) - 30.0, float(obs_time) + 30.0))
+                    no_obs_time_ranges.append((float(obs_time) - 5.0, float(obs_time) + 5.0))
 
                 else:
                     obs_lat, obs_lon, obs_time, state_in_node_lat, state_in_node_lon, state_out_node_lat, state_out_node_lon = record
@@ -203,15 +204,15 @@ class ProcessMapMatches:
         #
         # At this point, we're done processing all map-matched trips
         #
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
         segment_counter = 1
 
         # clean up segment-matched traces
         for segment_id in all_segment_obs:
-            sys.stdout.write("\rPost-processing map-matched segment " + str(segment_counter) + "/" + str(
-                len(all_segment_obs)) + "... ")
+            # sys.stdout.write("\rPost-processing map-matched segment " + str(segment_counter) + "/" + str(
+            #     len(all_segment_obs)) + "... ")
             sys.stdout.flush()
 
             segment_counter += 1
@@ -248,10 +249,10 @@ class ProcessMapMatches:
 
             all_segment_obs[segment_id] = good_segment_traces
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Saving new map... ")
+        # sys.stdout.write("Saving new map... ")
         sys.stdout.flush()
 
         try:
@@ -297,7 +298,7 @@ class ProcessMapMatches:
         conn.commit()
         conn.close()
 
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
         return all_segment_obs
@@ -324,9 +325,14 @@ if __name__ == '__main__':
             print "Usage: python process_map_matches.py [-d <graphdb_filename>] [-t <matched_trips_directory>] [-o <output_filename>] [-h]"
             exit()
 
-    print "graphdb filename: " + str(graphdb_filename)
-    print "matched trips directory: " + str(matched_trips_directory)
-    print "output filename: " + str(output_filename)
+    # print "graphdb filename: " + str(graphdb_filename)
+    # print "matched trips directory: " + str(matched_trips_directory)
+    # print "output filename: " + str(output_filename)
+
+    # create skeleton image directory
+    if not os.path.exists(matched_trips_directory):
+        # create trips directory
+        os.mkdir(matched_trips_directory)
 
     p = ProcessMapMatches()
     p.process(graphdb_filename, matched_trips_directory, output_filename, output_filename.replace(".db", "_traces.txt"))

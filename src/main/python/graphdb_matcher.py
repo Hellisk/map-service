@@ -3,7 +3,8 @@ from mathfunclib import *
 from spatialfunclib import *
 from streetmap import *
 
-EMISSION_SIGMA = 50.0  # 25.0
+EMISSION_SIGMA = 4.07  # 25.0
+CANDIDATE_RANGE = 50
 EMISSION_UNKNOWN = 0.01
 
 TRANSITION_UNKNOWN = 0.00001
@@ -18,24 +19,24 @@ class GraphDBMatcher(GPSMatcher):
     def __init__(self, mapdb, constraint_length=300, MAX_DIST=100):
         hmm = self.mapdb_to_hmm(mapdb)
 
-        # precompute probability table
+        # pre-compute probability table
         emission_probabilities = map(lambda x: complementary_normal_distribution_cdf(x, 0, EMISSION_SIGMA),
-                                     range(0, int(3.0 * EMISSION_SIGMA)))
+                                     range(0, int(CANDIDATE_RANGE)))
 
         def emission_probability(state, coord):
-            if (state == 'unknown'):
+            if state == 'unknown':
                 return EMISSION_UNKNOWN
             edge = state
             projected_point = project_onto_segment(edge, coord)
             distance = haversine_distance(projected_point, coord)
-            if (int(distance) >= 3 * EMISSION_SIGMA):
+            if int(distance) >= CANDIDATE_RANGE:
                 return 0
             return emission_probabilities[int(distance)]
 
-        sys.stdout.write("Initing GPS matcher... ")
+        # sys.stdout.write("Initiating GPS matcher... ")
         sys.stdout.flush()
         GPSMatcher.__init__(self, hmm, emission_probability, constraint_length, MAX_DIST, priors={'unknown': 1.0})
-        sys.stdout.write("done.\n")
+        # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
     #    
@@ -46,7 +47,7 @@ class GraphDBMatcher(GPSMatcher):
         # counter is used to assign different values to multiple edges from a node while subdividing
         counter = 0
 
-        # subdivide edges between this node and all of its outnodes
+        # subdivide edges between this node and all of its out nodes
         node_outnodes = list(node.out_nodes)
         for nextnode in node_outnodes:
             dist = haversine_distance(node.coords(), nextnode.coords())
@@ -91,16 +92,16 @@ class GraphDBMatcher(GPSMatcher):
         themap.load_graphdb(mapdb)
         # themap.load_osmdb(mapdb)
 
-        sys.stdout.write("Subdividing map... ")
+        # sys.stdout.write("Subdividing map... ")
         sys.stdout.flush()
 
         # subdivide the map in 20 m segments
         self.map_subdivide(themap)
 
-        sys.stdout.write("into " + str(len(themap.nodes)) + " nodes.\n")
+        # sys.stdout.write("into " + str(len(themap.nodes)) + " nodes.\n")
         sys.stdout.flush()
 
-        sys.stdout.write("Creating HMM... ")
+        # sys.stdout.write("Creating HMM... ")
         sys.stdout.flush()
 
         hmm = {}
@@ -112,15 +113,16 @@ class GraphDBMatcher(GPSMatcher):
             # for to_edge in from_edge.out_edges:
             #    to_edge.weight = 1.0
 
-            # don't count our own (u-turned) weight in the sum - we almost never uturn anyway
-            to_edges_sum_weight = sum(map(lambda x: x.weight, from_edge.out_edges))  # - from_edge.weight
+            # don't count our own (u-turned) weight in the sum - we almost never u-turn anyway
+            to_edges_sum_weight = sum(map(lambda x: x.weight, from_edge.out_edges)) - from_edge.weight
 
             for to_edge in from_edge.out_edges:
                 to_edge_key = (to_edge.in_node.coords(), to_edge.out_node.coords())
 
-                if (to_edge.out_node != from_edge.in_node):
-                    hmm[from_edge_key] += [(to_edge_key, (to_edge.weight / to_edges_sum_weight) * (
-                            1.0 - TRANSITION_SELF - TRANSITION_UNKNOWN))]
+                if to_edge.out_node != from_edge.in_node:
+                    if to_edges_sum_weight != 0:
+                        hmm[from_edge_key] += [(to_edge_key, (to_edge.weight / to_edges_sum_weight) * (
+                                1.0 - TRANSITION_SELF - TRANSITION_UNKNOWN))]
                 # if this is a u-turn, only allow it if it's at an intersection, and even then make it very unlikely
                 elif len(from_edge.out_edges) != 2:
                     hmm[from_edge_key] += [(to_edge_key, TRANSITION_UTURN)]
