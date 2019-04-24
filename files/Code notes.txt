@@ -1,0 +1,23 @@
+IO:
+1.File names:
+1.1 Map file: "($DATATYPE)_[$STATE_]($PERCENTAGE).txt
+    - DATATYPE: vertices/edges
+    - STATE: temp/remove/infer/NULL
+        - temp: the intermediate result for map update. The map contains newly inferred roads whose correctness are not yet validated.
+        - remove: the road edges removed from original road map. Usually there is no vertices file generated with it. The file name must
+        come with a non-zero percentage value.
+        - infer: the inferred road edges. Usually there is no vertices file generated with it.
+        - NULL: this field is skipped. The format for original map, input map, output map and ground-truth map.
+    - PERCENTAGE: >=0 integer representing the percentage of road ways removed from the original map.
+2.Folder:
+1.1 raw data: $DATASET/raw/(trajectory/map)/
+    input trajectory: $DATASET/input/trajectory/L?_I?_N?/
+    input map: $DATASET/input/map/
+    output map: $DATASET/output/map/
+    output matching result: $DATASET/output/matchResult/L?_I?_N?/
+    ground-truth map: $DATASET/groundTruth/map/
+    ground-truth matching result: $DATASET/groundTruth/matchResult/L?_I?_N?/
+    ground-truth manual matching result: $DATASET/groundTruth/matchResultM/L?_I?_N?/
+    log: $DATASET/(matching/inference/update/preprocess)/log/
+    intermediate result: $DATASET/(matching/inference/update/preprocess)/cache/
+    (map/matchResult/unmatchedTrajectory/unmatchedTrajectoryNextInput/inference)/iteration/

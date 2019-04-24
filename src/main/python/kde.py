@@ -18,9 +18,9 @@ gaussian_blur = 17
 dataset_option = 1  # 1 = home, 2 = school, 3 = server
 beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
 beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
-beijing_server_path = "/media/dragon_data/uqpchao/MapUpdate/beijingTrajectory/"  # the root folder of all data
+beijing_server_path = "/media/dragon_data/Hellisk/MapUpdate/beijingTrajectory/"  # the root folder of all data
 root_folder = beijing_home_path if dataset_option == 1 else beijing_school_path if dataset_option == 2 else beijing_server_path
-root_path = root_folder + "mapInference/" if dataset_option != 3 else "/home/uqpchao/data/mapInference/"
+root_path = root_folder + "mapInference/" if dataset_option != 3 else "/home/Hellisk/data/mapInference/"
 input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
 
