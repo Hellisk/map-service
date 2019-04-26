@@ -689,13 +689,13 @@ public class NewsonHMM2009 implements Serializable {
 			Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double> roadPosition = matchResultList.get(i);
 			List<PointMatch> pointMatches = new ArrayList<>();
 			List<Route> routeMatches = new ArrayList<>();
-			List<String> currRoadIDList = new ArrayList<>();
 			BitSet breakPointBS = new BitSet(roadPosition._1().size());
 			List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>> sequenceStates = roadPosition._1();
 			Point prevEndMatchPoint = null;
 			for (int j = 0; j < sequenceStates.size(); j++) {    // trajectory length
 				SequenceState<PointMatch, TrajectoryPoint, RoadPath> sequence = sequenceStates.get(j);
 				PointMatch pointMatch = sequence.state;
+				List<String> currRoadIDList = new ArrayList<>();
 				if (pointMatch != null) {
 					// make sure it returns a copy of the objects
 					pointMatches.add(pointMatch);
@@ -705,21 +705,43 @@ public class NewsonHMM2009 implements Serializable {
 				if (sequence.transitionDescriptor != null && sequence.transitionDescriptor.from != null && sequence.transitionDescriptor.to != null) {
 					if (prevEndMatchPoint != null && !prevEndMatchPoint.equals2D(sequence.transitionDescriptor.from.getMatchPoint()))
 						breakPointBS.set(j);
-					if (sequence.transitionDescriptor.passingRoadID.size() == 0 || !sequence.transitionDescriptor.from.getRoadID().equals(sequence.transitionDescriptor.passingRoadID.get(0)))
-						currRoadIDList.add(sequence.transitionDescriptor.from.getRoadID());
-					currRoadIDList.addAll(sequence.transitionDescriptor.passingRoadID);
-					if (sequence.transitionDescriptor.passingRoadID.size() == 0 || !sequence.transitionDescriptor.to.getRoadID().equals(sequence.transitionDescriptor.passingRoadID
-							.get(sequence.transitionDescriptor.passingRoadID.size() - 1)))
-						currRoadIDList.add(sequence.transitionDescriptor.to.getRoadID());
-					
+					if (sequence.transitionDescriptor.passingRoadID.size() == 0) {
+						if (sequence.transitionDescriptor.from.getRoadID().equals(sequence.transitionDescriptor.to.getRoadID())) {
+							currRoadIDList.add(sequence.transitionDescriptor.from.getRoadID());
+						} else {
+							currRoadIDList.add(sequence.transitionDescriptor.from.getRoadID());
+							currRoadIDList.add(sequence.transitionDescriptor.to.getRoadID());
+						}
+					} else {
+						String prevID = "";
+						if (!sequence.transitionDescriptor.from.getRoadID().equals(sequence.transitionDescriptor.passingRoadID.get(0))) {
+							prevID = sequence.transitionDescriptor.from.getRoadID();
+							currRoadIDList.add(prevID);
+						}
+						for (String s : sequence.transitionDescriptor.passingRoadID) {
+							if (!s.equals(prevID)) {
+								currRoadIDList.add(s);
+								prevID = s;
+							}
+						}
+						if (!sequence.transitionDescriptor.to.getRoadID().equals(prevID))
+							currRoadIDList.add(sequence.transitionDescriptor.to.getRoadID());
+					}
 					Route currRoute = new Route(sequence.transitionDescriptor.from.getMatchPoint(),
 							sequence.transitionDescriptor.to.getMatchPoint(), currRoadIDList);
 					routeMatches.add(currRoute);
 					prevEndMatchPoint = sequence.transitionDescriptor.to.getMatchPoint();
+				} else if (sequence.transitionDescriptor == null && j != 0) {    // no match candidate. empty matching result
+					breakPointBS.set(j);
+					Route currRoute = new Route(sequence.state.getMatchPoint(), sequence.state.getMatchPoint(), currRoadIDList);
+					routeMatches.add(currRoute);
+				} else if (sequence.transitionDescriptor != null) {        // break point, match to the closest point
+					breakPointBS.set(j);
+					Route currRoute = new Route(sequence.state.getMatchPoint(), sequence.state.getMatchPoint(), currRoadIDList);
+					routeMatches.add(currRoute);
 				} else {    // the first point of the trajectory has no route match result
 					currRoadIDList.add(sequence.state.getRoadID());
-					Route currRoute = new Route(sequence.state.getMatchPoint(),
-							sequence.state.getMatchPoint(), currRoadIDList);
+					Route currRoute = new Route(sequence.state.getMatchPoint(), sequence.state.getMatchPoint(), currRoadIDList);
 					routeMatches.add(currRoute);
 				}
 			}

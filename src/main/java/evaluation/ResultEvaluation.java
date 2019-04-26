@@ -161,18 +161,24 @@ public class ResultEvaluation {
 			double currMatchedLength = 0;
 			// summarize all matched road length
 			for (String s : matchRoadIDSet) {
-				currMatchedLength += id2RoadLength.get(s);
+				if (id2RoadLength.containsKey(s)) {
+					currMatchedLength += id2RoadLength.get(s);
+				} else    // TODO check the validity of the roads (roads having the same endpoints, which has been removed in preprocessing)
+					LOG.debug("Road " + s + " is missing in the map. Inconsistency between map and ground-truth matching result.");
 			}
 			double correctlyMatchedLength = 0;
 			// check the coverage of the roads found in our match
 			HashSet<String> groundTruthIDList = globalCompareList.get(Integer.parseInt(r.getTrajID()));
 			double currGroundTruthLength = 0;
 			for (String s : groundTruthIDList) {
-				double currLength = id2RoadLength.get(s);
-				currGroundTruthLength += currLength;
-				if (matchRoadIDSet.contains(s)) {
-					correctlyMatchedLength += currLength;
-				}
+				if (id2RoadLength.containsKey(s)) {
+					double currLength = id2RoadLength.get(s);
+					currGroundTruthLength += currLength;
+					if (matchRoadIDSet.contains(s)) {
+						correctlyMatchedLength += currLength;
+					}
+				} else    // TODO check the validity of the roads (roads having the same endpoints, which has been removed in preprocessing)
+					LOG.debug("Road " + s + " is missing in the map. Inconsistency between map and ground-truth matching result.");
 			}
 			LOG.info("Trajectory " + r.getTrajID() + ": Precision=" + correctlyMatchedLength / currMatchedLength + ", " +
 					"recall=" + correctlyMatchedLength / currGroundTruthLength);

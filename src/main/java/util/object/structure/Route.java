@@ -10,8 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A route is a sequence of road ways representing the actual running route of on the road, which should be continuous ideally. The
- * breakpoint information are stored if the route happens to break. Multiple routes can be concatenated into one if they are continuous.
+ * A route is a sequence of road ways representing the actual running route of on the road, which should be continuous ideally. Multiple
+ * routes can be concatenated into one if they are continuous.
+ * </p>
+ * The <tt>Route</tt> object for a break point should contains the same start and end points(=(0,0) when it is unable to be matched to a
+ * road) but empty roadIDList. Those objects are to be skipped when concatenating a complete route.
  *
  * @author Hellisk
  * @since 2/04/2019
@@ -23,7 +26,6 @@ public class Route implements Serializable {
 	private List<String> roadIDList;
 	private Point startPoint;    // the start point must lie on the first road of the roadIDList
 	private Point endPoint;        // the end point must lie on the last road of the roadIDList
-//	private final List<Pair<String, String>> breakPointList;    // list of unconnected road pairs represented by road ids.
 	
 	/**
 	 * Check whether the start point/end point locates at the first/last road way before creating the route.
@@ -33,56 +35,60 @@ public class Route implements Serializable {
 	 * @param roadIDList The road way list which constitute the route.
 	 */
 	public Route(Point startPoint, Point endPoint, List<String> roadIDList) {
-		if (startPoint.equals2D(endPoint)) {
-			if (roadIDList.isEmpty())
-				throw new IllegalArgumentException("The current route has the same start and end points.");
-		}
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
 		this.roadIDList = roadIDList;
 	}
 	
-	public static Route parseRoute(String s, DistanceFunction df) {
-		String[] routeInfo = s.split(",");
-		if (routeInfo.length != 2)
+	static Route parseRoute(String s, DistanceFunction df) {
+		String[] routeInfo = s.split(" ");
+		if (routeInfo.length < 5)
 			throw new IllegalArgumentException("The input text cannot be parsed to a route: " + s);
 		
 		// parse start and end points
-		String[] pointInfo = routeInfo[0].split(" ");
-		if (pointInfo.length != 4)
-			throw new IllegalArgumentException("The input text cannot be parsed to start and end points: " + routeInfo[0]);
-		Point startPoint = new Point(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), df);
-		Point endPoint = new Point(Double.parseDouble(pointInfo[2]), Double.parseDouble(pointInfo[3]), df);
+		Point startPoint = new Point(Double.parseDouble(routeInfo[0]), Double.parseDouble(routeInfo[1]), df);
+		Point endPoint = new Point(Double.parseDouble(routeInfo[2]), Double.parseDouble(routeInfo[3]), df);
 		
 		// parse route ID list
-		String[] idInfo = routeInfo[1].split(" ");
-		List<String> routeIDList = new ArrayList<>(Arrays.asList(idInfo));
-		
+		List<String> routeIDList = new ArrayList<>(Arrays.asList(routeInfo).subList(4, routeInfo.length));
 		return new Route(startPoint, endPoint, routeIDList);
 	}
 	
 	/**
-	 * Add a route to the end of the current one. Report break if two routes are not connected.
+	 * Add a route to the end of the current one. Used for concatenating a sequence of routes.
 	 *
 	 * @param route The route to be appended.
-	 *              //	 * @return True if two route are connected, otherwise false.
 	 */
-	public void addRoute(Route route) {
+	void addRoute(Route route) {
+		if (route.startPoint.equals2D(route.endPoint)) {
+			return;
+		}
 		if (this.endPoint.equals2D(route.getStartPoint())) {
 			if (this.getEndRoadID().equals(route.getStartRoadID())) {    // continuous road, connect them
 				this.roadIDList.remove(this.roadIDList.size() - 1);
 				this.roadIDList.addAll(route.getRoadIDList());
 			} else {    // same point, but the road id are not the same
-				LOG.debug("The end road is not the same as the start road of next route even with the same point. Probably intersection " +
-						"point: " + this.getEndRoadID() + "," + route.getStartRoadID());
-				this.roadIDList.addAll(route.getRoadIDList());
+				if (route.getRoadIDList().size() < 2) {
+					this.roadIDList.addAll(route.getRoadIDList());
+				} else {
+					// find the first road id that matches the end road id
+					int index = 1;
+					String currRoadID = route.getRoadIDList().get(index);
+					while (!currRoadID.equals(this.getEndRoadID()) && index < route.getRoadIDList().size() - 1) {
+						index++;
+						currRoadID = route.getRoadIDList().get(index);
+					}
+					if (index < route.getRoadIDList().size() - 1) {    // found the connecting road id
+						this.roadIDList.addAll(route.getRoadIDList().subList(index + 1, route.getRoadIDList().size()));
+					} else {        // add all of the roads anyway
+						this.roadIDList.addAll(route.getRoadIDList());
+					}
+				}
 			}
 			this.setEndPoint(route.getEndPoint());
-//			return true;
 		} else {
 			this.roadIDList.addAll(route.getRoadIDList());
 			this.setEndPoint(route.getEndPoint());
-//			return false;
 		}
 	}
 	
@@ -128,10 +134,13 @@ public class Route implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder roadIDString = new StringBuilder();
-		for (String s : roadIDList) {
-			roadIDString.append(s).append(" ");
+		if (roadIDList.size() != 0) {
+			for (int i = 0; i < roadIDList.size() - 1; i++) {
+				String s = roadIDList.get(i);
+				roadIDString.append(s).append(" ");
+			}
+			roadIDString.append(roadIDList.get(roadIDList.size() - 1));
 		}
-		roadIDString.substring(0, roadIDString.length() - 1);    // remove the last space
-		return startPoint.toString() + " " + endPoint.toString() + "," + (roadIDString.length() == 0 ? "null" : roadIDString);
+		return startPoint.toString() + " " + endPoint.toString() + " " + (roadIDString.length() == 0 ? "null" : roadIDString);
 	}
 }

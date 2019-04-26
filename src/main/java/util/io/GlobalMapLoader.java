@@ -80,13 +80,19 @@ public class GlobalMapLoader {
 			if (index2Node.containsKey(edgeInfo[0]) && index2Node.containsKey(edgeInfo[1])) {
 				miniNode.add(index2Node.get(edgeInfo[0]));
 				miniNode.add(index2Node.get(edgeInfo[1]));
-				if (miniNode.get(0).toPoint().equals2D(miniNode.get(1).toPoint()))
+				if (miniNode.get(0).toPoint().equals2D(miniNode.get(1).toPoint())) {
+					LOG.debug("Road " + roadCount + " has the same start and end point, ignore it: " + miniNode.get(0).toString());
+					roadCount++;
 					continue;
+				}
 				newWay.setId(roadCount + "");
 				newWay.setNodes(miniNode);
 				ways.add(newWay);
 				roadCount++;
-			} else LOG.info("Road endpoint doesn't exist: " + edgeInfo[0] + "," + edgeInfo[1]);
+			} else {
+				LOG.warn("Road endpoint doesn't exist: " + edgeInfo[0] + "," + edgeInfo[1]);
+				roadCount++;
+			}
 		}
 		brEdges.close();
 		

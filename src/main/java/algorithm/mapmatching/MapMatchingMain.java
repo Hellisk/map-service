@@ -3,8 +3,10 @@ package algorithm.mapmatching;
 import algorithm.mapmatching.hmm.NewsonHMM2009;
 import evaluation.ResultEvaluation;
 import org.apache.log4j.Logger;
+import util.function.GreatCircleDistanceFunction;
 import util.io.GlobalMapLoader;
 import util.io.GlobalTrajectoryLoader;
+import util.io.MatchResultReader;
 import util.io.MatchResultWriter;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
@@ -82,7 +84,6 @@ public class MapMatchingMain {
 				NewsonHMM2009 mapMatching = new NewsonHMM2009(currMap, property);
 				TrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
 				results.add(matchResult);
-				// evaluation: map matching evaluation
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");
 			for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
@@ -90,9 +91,11 @@ public class MapMatchingMain {
 				Pair<Integer, List<String>> currGroundTruthMatchResult = new Pair<>(i, matchResult);
 				gtRouteMatchResult.add(currGroundTruthMatchResult);
 			}
-//            TrajectoryReader groundTruthMatchResultReader = new TrajectoryReader();
-//            List<TrajectoryMatchResult> trajectoryMatchResults = groundTruthMatchResultReader.readMatchedResult(OUTPUT_FOLDER, -1);
 			MatchResultWriter.writeMatchResults(results, outputMatchResultFolder);
+			
+			// evaluation: map matching evaluation
+			results = MatchResultReader.readMatchResultsToList(outputMatchResultFolder, new GreatCircleDistanceFunction());    // used for
+			// evaluation only
 			ResultEvaluation resultEvaluation = new ResultEvaluation();
 			resultEvaluation.globalPrecisionRecallCalc(results, gtRouteMatchResult, rawDataFolder);
 			System.out.println("Total number of trajectory points is " + trajPointCount);

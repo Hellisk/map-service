@@ -103,8 +103,8 @@ public class MapMatchingProperty extends BaseProperty {
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
 		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec);
 		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec);
-		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "algorithm.mapmatching/cache/");
-		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "algorithm.mapmatching/log/");
+		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
+		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
 		
 		// set the root path for all map-matching processes
 		super.setProperty("algorithm.mapmatching.path.RootPath", rootPath);

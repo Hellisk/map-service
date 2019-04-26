@@ -20,7 +20,6 @@ import java.util.List;
  * Created 24/04/2019
  */
 public class MapInferenceMain {
-	private static final Logger LOG = Logger.getLogger(MapInferenceMain.class);
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		
@@ -57,6 +56,7 @@ public class MapInferenceMain {
 		MapServiceLogger.logInit(logFolder, logFileName);
 		
 		// use global dataset to evaluate the map-matching accuracy
+		final Logger LOG = Logger.getLogger(MapInferenceMain.class);
 		LOG.info("Map inference on the " + dataSet + " dataset with argument:" + property.toString());
 		
 		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process

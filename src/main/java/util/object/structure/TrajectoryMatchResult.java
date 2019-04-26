@@ -144,7 +144,7 @@ public class TrajectoryMatchResult {
 		String[] lines = s.split("\n");
 		
 		// start parsing the first line, which contains global attributes
-		String[] firstLine = lines[0].split(",");
+		String[] firstLine = lines[0].split("\\|");
 		if (firstLine.length != 6)
 			throw new IllegalArgumentException("The first line of the input text cannot be parsed into TrajectoryMatchResult attributes: "
 					+ lines[0]);
@@ -463,7 +463,7 @@ public class TrajectoryMatchResult {
 	}
 	
 	/**
-	 * Format: 1. requiredNumOfRanks,numOfRank,trajectorySize,trajectoryID,probability1|probability2|...,breakpointBS1|breakpointBS2|...
+	 * Format: 1. requiredNumOfRanks|numOfRank|trajectorySize|trajectoryID|probability1,probability2,...|breakpointBS1,breakpointBS2,...
 	 * 2. trajectoryPoint1,pointMatch1-1|pointMatch1-2|pointMatch1-3,routeMatch1-1|routeMatch1-2|routeMatch1-3
 	 * 3. trajectoryPoint2,pointMatch2-1|pointMatch2-2|pointMatch2-3,routeMatch2-1|routeMatch2-2|routeMatch2-3
 	 * 4. ...
@@ -473,34 +473,34 @@ public class TrajectoryMatchResult {
 	@Override
 	public String toString() {
 		// validate object data
-		if (this.requiredNumOfRanks < this.numOfRanks)
+		if (this.requiredNumOfRanks < this.numOfRanks || this.numOfRanks <= 0)
 			throw new IllegalArgumentException("The actual number of matching results is larger than the requirement.");
 		if (this.numOfRanks != this.pointMatchResult.size() || this.numOfRanks != this.routeMatchResult.size()
 				|| this.numOfRanks != this.breakPointBSList.size())
 			throw new IllegalArgumentException("Inconsistent size of point/route/breakpoint matching list.");
 		for (int i = 0; i < numOfRanks; i++) {
 			if (this.trajectory.size() != pointMatchResult.get(i).size() || this.trajectory.size() != this.routeMatchResult.get(i).size())
-				LOG.error("The size of the matching result is inconsistent with the trajectory size. rank " + i + ":"
+				throw new IllegalArgumentException("The size of the matching result is inconsistent with the trajectory size. rank " + i + ":"
 						+ this.trajectory.size() + "_" + this.pointMatchResult.get(i).size() + "_" + this.routeMatchResult.get(i).size());
 		}
 		StringBuilder line = new StringBuilder();
 		
-		// the first line is the general attributes. Format: requiredNumOfRanks|numOfRank|trajectorySize|trajectoryID|probability1
-		// probability2 ...|breakpointBS1 breakpointBS2 ...
-		line.append(requiredNumOfRanks).append(",").append(numOfRanks).append(",").append(trajectory.size()).append(",")
-				.append(trajectory.getID()).append(",");
+		// the first line is the general attributes. Format: requiredNumOfRanks|numOfRank|trajectorySize|trajectoryID|probability1,
+		// probability2,...|breakpointBS1,breakpointBS2,...
+		line.append(requiredNumOfRanks).append("|").append(numOfRanks).append("|").append(trajectory.size()).append("|")
+				.append(trajectory.getID()).append("|");
 		for (int i = 0; i < numOfRanks - 1; i++) {
 			if (probabilities[i] == Double.NEGATIVE_INFINITY)
 				throw new IndexOutOfBoundsException("The number of probabilities is less than the number of matching results: " + i + ","
 						+ numOfRanks);
-			line.append(probabilities[i]).append("|");
+			line.append(probabilities[i]).append(",");
 		}
 		line.append(probabilities[numOfRanks - 1]);
 		if (probabilities.length > numOfRanks && probabilities[numOfRanks] != Double.NEGATIVE_INFINITY)
 			throw new IndexOutOfBoundsException("The number of probabilities is more than the number of matching results.");
-		line.append(",");
+		line.append("|");
 		for (int i = 0; i < numOfRanks - 1; i++) {
-			line.append(breakPointBSList.get(i).toString()).append("|");
+			line.append(breakPointBSList.get(i).toString()).append(",");
 		}
 		line.append(breakPointBSList.get(numOfRanks - 1).toString());
 		line.append("\n");

@@ -14,7 +14,6 @@ import java.io.InputStream;
  */
 public class MapServiceLogger {
 	
-	private static final Logger LOG = Logger.getLogger(MapServiceLogger.class);   // log entry
 	
 	/**
 	 * Initialise the log file of the project given the file path and name
@@ -23,12 +22,13 @@ public class MapServiceLogger {
 	 * @param fileName The file name for the log without extension ".log"
 	 */
 	public static void logInit(String logPath, String fileName) {
+		System.setProperty("logfile.name", logPath + fileName + ".log");
 		// create the log folder if not exist, set the log file name
 		IOService.createFolder(logPath);
-		System.setProperty("logfile.name", logPath + fileName + ".log");
 		// read the log settings from property file
 		InputStream in = MapServiceLogger.class.getClassLoader().getResourceAsStream("log4j.properties");
 		PropertyConfigurator.configure(in); // refresh the log file path property
+		final Logger LOG = Logger.getLogger(MapServiceLogger.class);   // log entry
 		LOG.debug("Log initialization done.");
 	}
 }

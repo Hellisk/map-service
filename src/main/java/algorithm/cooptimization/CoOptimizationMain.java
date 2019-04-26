@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 public class CoOptimizationMain {
 	
-	private static final Logger LOG = Logger.getLogger(CoOptimizationMain.class);
 	
 	public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
 		
@@ -45,6 +44,7 @@ public class CoOptimizationMain {
 		// initialize log file
 		MapServiceLogger.logInit(logPath, logFileName);
 		
+		final Logger LOG = Logger.getLogger(CoOptimizationMain.class);
 		LOG.info("Map-Trajectory Co-Optimization with arguments: " + property.toString());
 		
 		boolean isManualGTRequired = property.getPropertyBoolean("data.IsManualGTRequired");

@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 
 public class PreprocessingMain {
 	
-	private static final Logger LOG = Logger.getLogger(PreprocessingMain.class);
 	
 	public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
 		
@@ -35,6 +34,7 @@ public class PreprocessingMain {
 		// initialize log file
 		MapServiceLogger.logInit(logPath, logFileName);
 		
+		final Logger LOG = Logger.getLogger(PreprocessingMain.class);
 		LOG.info("Map-Trajectory Co-Optimization with arguments: " + property.toString());
 		
 		if (!dataSet.contains("Beijing"))
