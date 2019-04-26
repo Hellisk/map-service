@@ -15,6 +15,13 @@ import util.settings.BaseProperty;
 
 import java.util.*;
 
+/**
+ * Trace clustering algorithm proposed in "X. Liu, J. Biagioni, J. Eriksson, Y. Wang, G. Forman, and Y. Zhu. Mining large-scale, sparse
+ * GPS traces for map inference: Comparison of approaches. In KDD, 2012." It is also used in <tt>CrowdAtlas</tt> map update method as the map
+ * inference step.
+ *
+ * @author Hellisk
+ */
 public class TrajectoryClusteringMapInference {
 	
 	private static final Logger LOG = Logger.getLogger(TrajectoryClusteringMapInference.class);
@@ -66,7 +73,6 @@ public class TrajectoryClusteringMapInference {
 				}
 			}
 		}
-		LOG.info(inputTraj.size() + " unmatched trajectories are split into " + trajInfoResult.size() + " trajectories.");
 		return trajInfoResult;
 	}
 	
@@ -189,11 +195,25 @@ public class TrajectoryClusteringMapInference {
 					currNodeList.add(new RoadNode(i + "", p.x(), p.y(), distFunc));
 				}
 				newRoadID2AnchorPoints.put(cluster.getId(), new Pair<>(cluster.getStartAnchorPoints(), cluster.getEndAnchorPoints()));
-				RoadWay currWay = new RoadWay(cluster.getId(), currNodeList, distFunc);
-				currWay.setNewRoad(true);
-				currWay.setConfidenceScore(1);
-				outputRoadWay.add(dpFilter.dpSimplifier(currWay));
-				continue;
+				if (currNodeList.size() > 0) {
+					RoadNode prevNode = currNodeList.get(0);
+					boolean isProblematicRoad = false;
+					for (int i = 1; i < currNodeList.size(); i++) {
+						if (currNodeList.get(i).toPoint().equals2D(prevNode.toPoint())) {
+							LOG.debug("map inference result contains duplicate points.");
+							isProblematicRoad = true;
+						}
+						prevNode = currNodeList.get(i);
+					}
+					if (!isProblematicRoad) {
+						RoadWay currWay = new RoadWay(cluster.getId(), currNodeList, distFunc);
+						currWay.setNewRoad(true);
+						currWay.setConfidenceScore(1);
+						outputRoadWay.add(dpFilter.dpSimplifier(currWay));
+						continue;
+					} else
+						continue;
+				}
 			}
 			try {
 //                System.out.println("Start " + cluster.getID() + " generation which has " + cluster.getTrajectoryList().size() + " " +

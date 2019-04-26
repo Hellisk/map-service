@@ -1,7 +1,7 @@
 package algorithm.mapmatching;
 
 import algorithm.mapmatching.hmm.NewsonHMM2009;
-import evaluation.ResultEvaluation;
+import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.GreatCircleDistanceFunction;
 import util.io.GlobalMapLoader;
@@ -96,8 +96,7 @@ public class MapMatchingMain {
 			// evaluation: map matching evaluation
 			results = MatchResultReader.readMatchResultsToList(outputMatchResultFolder, new GreatCircleDistanceFunction());    // used for
 			// evaluation only
-			ResultEvaluation resultEvaluation = new ResultEvaluation();
-			resultEvaluation.globalPrecisionRecallCalc(results, gtRouteMatchResult, rawDataFolder);
+			precisionRecallMatchingEvaluation.globalPrecisionRecallMapMatchingEval(results, gtRouteMatchResult, rawDataFolder);
 			System.out.println("Total number of trajectory points is " + trajPointCount);
 		} else if (dataSet.equals("Beijing")) {
 		

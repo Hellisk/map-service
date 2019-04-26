@@ -48,6 +48,7 @@ Temporary Items
 
 # compiled files
 target/
+Archive/
 
 # cython files
 *.pyx

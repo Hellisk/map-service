@@ -12,6 +12,7 @@ import util.object.structure.Pair;
 import util.settings.BaseProperty;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -54,51 +55,59 @@ public class BeijingTrajectoryLoader {
 		Map<String, RoadWay> id2RoadWayMapping = new HashMap<>();   // a mapping between the road ID and the road way
 		
 		initializeMapping(rawMap, id2VisitCountMapping, id2RoadWayMapping);
-		
-		List<String> lines = IOService.readFile(filePath);
-		// create folders for further writing
 		int tripID = 0;
-		for (String line : lines) {
-			String[] trajectoryInfo = line.split(",");
-			String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-			String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
-			
-			// test whether the matching result is included in the map
-			if (isMatchResultNotEnclosed(id2RoadWayMapping, matchedTrajectory)) {
-				continue;
-			}
-			
-			// test whether the raw trajectory is within the map area
-			boolean isInsideTrajectory = true;
-			String[] firstTrajectoryPoint = rawTrajectory[0].split(":");
-			double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
-			double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
-			if (rawMap.getBoundary().contains(firstLon, firstLat)) {
-				long prevTimeDiff = 0;
-				for (int i = 1; i < rawTrajectory.length; i++) {
-					String[] currTrajectoryPoint = rawTrajectory[i].split(":");
-					double lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
-					double lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
-					long currTime = Long.parseLong(currTrajectoryPoint[3]);
-					long currTimeDiff = currTime - prevTimeDiff;
-					if (rawMap.getBoundary().contains(lon, lat) && (sampleMaxIntervalSec == -1 || currTimeDiff <= sampleMaxIntervalSec)) {
-						prevTimeDiff = currTime;
-					} else {
-						isInsideTrajectory = false;
-						break;
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(filePath))); // use BufferedReader instead of IOService
+			// .readFile in case of OutOfMemory.
+			String line;
+			// create folders for further writing
+			while ((line = br.readLine()) != null) {
+				String[] trajectoryInfo = line.split(",");
+				String[] rawTrajectory = trajectoryInfo[28].split("\\|");
+				String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
+				
+				// test whether the matching result is included in the map
+				if (isMatchResultNotEnclosed(id2RoadWayMapping, matchedTrajectory)) {
+					continue;
+				}
+				
+				// test whether the raw trajectory is within the map area
+				boolean isInsideTrajectory = true;
+				String[] firstTrajectoryPoint = rawTrajectory[0].split(":");
+				double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
+				double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
+				if (rawMap.getBoundary().contains(firstLon, firstLat)) {
+					long prevTimeDiff = 0;
+					for (int i = 1; i < rawTrajectory.length; i++) {
+						String[] currTrajectoryPoint = rawTrajectory[i].split(":");
+						double lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
+						double lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
+						long currTime = Long.parseLong(currTrajectoryPoint[3]);
+						long currTimeDiff = currTime - prevTimeDiff;
+						if (rawMap.getBoundary().contains(lon, lat) && (sampleMaxIntervalSec == -1 || currTimeDiff <= sampleMaxIntervalSec)) {
+							prevTimeDiff = currTime;
+						} else {
+							isInsideTrajectory = false;
+							break;
+						}
 					}
+				} else {
+					continue;   // the first point is outside the road map area, skip the current trajectory
 				}
-			} else {
-				continue;   // the first point is outside the road map area, skip the current trajectory
-			}
-			
-			if (isInsideTrajectory) {   // the current trajectory is selected
-				for (String s : matchedTrajectory) {
-					int currCount = id2VisitCountMapping.get(s);
-					id2VisitCountMapping.replace(s, currCount + 1);
+				
+				if (isInsideTrajectory) {   // the current trajectory is selected
+					for (String s : matchedTrajectory) {
+						int currCount = id2VisitCountMapping.get(s);
+						id2VisitCountMapping.replace(s, currCount + 1);
+					}
+					tripID++;
 				}
-				tripID++;
 			}
+			br.close();
+		} catch (IOException e) {
+			LOG.error("Error reading input file.", e);
+			e.printStackTrace();
 		}
 		
 		DecimalFormat decimalFormat = new DecimalFormat(".00000");

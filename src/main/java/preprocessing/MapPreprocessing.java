@@ -65,7 +65,7 @@ public class MapPreprocessing {
 		List<RoadWay> removedRoadWayList = new ArrayList<>(removedRoadWaySet);
 		int vertexRemovalCount = roadGraph.isolatedNodeRemoval();
 		MapWriter.writeMap(roadGraph, outputFileFolder + percentage + ".txt");
-		MapWriter.writeWays(removedRoadWayList, outputFileFolder + "remove_" + percentage + ".txt");
+		MapWriter.writeWays(removedRoadWayList, outputFileFolder + "remove_edges_" + percentage + ".txt");
 		
 		LOG.info("Random road Removal done. Total removed roads: " + roadRemovalCount + ", total removed nodes:" + vertexRemovalCount);
 	}
@@ -112,7 +112,7 @@ public class MapPreprocessing {
 			System.out.println("Number of satisfied removal roads: " + satisfiedRoadList.size() + ", required road: " + wayList.size() * percentage / 100);
 		}
 		while (removedWaySet.size() * 100 / (double) wayList.size() < percentage) {
-			System.out.println("Current removed road count: " + removedWaySet.size());
+			LOG.debug("Current removed road count: " + removedWaySet.size());
 			for (RoadWay roadWay : satisfiedRoadList) {
 				if (removedWaySet.size() * 100 / (double) wayList.size() > percentage)
 					break;
@@ -172,7 +172,7 @@ public class MapPreprocessing {
 		
 		List<RoadWay> removedRoadWayList = new ArrayList<>(removedWaySet);
 		MapWriter.writeMap(roadGraph, outputFileFolder + percentage + ".txt");
-		MapWriter.writeWays(removedRoadWayList, outputFileFolder + "remove_" + percentage + ".txt");
+		MapWriter.writeWays(removedRoadWayList, outputFileFolder + "remove_edges_" + percentage + ".txt");
 		
 		LOG.info("Random road Removal done. Total number of satisfied roads: " + satisfiedRoadCount + ", total removed " +
 				"roads: " + removedWaySet.size() + ".");

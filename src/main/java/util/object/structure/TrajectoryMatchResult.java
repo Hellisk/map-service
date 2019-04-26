@@ -157,8 +157,8 @@ public class TrajectoryMatchResult {
 					+ "," + trajectorySize);
 		double[] probabilities = new double[requiredNumOfRanks];
 		List<BitSet> breakPointBSList = new ArrayList<>(requiredNumOfRanks);
-		String[] probabilityInfo = firstLine[4].split("\\|");
-		String[] breakPointBSInfo = firstLine[5].split("\\|");
+		String[] probabilityInfo = firstLine[4].split(",");
+		String[] breakPointBSInfo = firstLine[5].split("},\\{");
 		if (probabilityInfo.length != numOfMatches)
 			throw new IllegalArgumentException("The input number of probabilities is inconsistent with the number of matching results: "
 					+ probabilityInfo.length + "," + numOfMatches);
@@ -169,7 +169,7 @@ public class TrajectoryMatchResult {
 			probabilities[i] = Double.parseDouble(probabilityInfo[i]);
 			BitSet breakpointBS = new BitSet(trajectorySize);
 			if (breakPointBSInfo[i].length() > 2) {    // the BitSet contains values
-				String[] indices = breakPointBSInfo[i].substring(1, breakPointBSInfo[i].length() - 1).split(", ");
+				String[] indices = breakPointBSInfo[i].replace("{", "").replace("}", "").split(", ");
 				for (String index : indices) {
 					breakpointBS.set(Integer.parseInt(index));
 				}

@@ -86,7 +86,7 @@ class CoOptimization {
 					w.setId("temp_" + trajCount);
 					trajCount++;
 				}
-				MapWriter.writeWays(inferenceResult, cacheFolder + "inference/" + iteration + "/edge_" + percentage + ".txt");
+				MapWriter.writeWays(inferenceResult, cacheFolder + "inference/" + iteration + "/edges_" + percentage + ".txt");
 			} else {
 				// step 1-old: KDE map inference
 				KDEMapInference mapInference = new KDEMapInference(prop);

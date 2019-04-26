@@ -147,7 +147,7 @@ public final class IOService implements Serializable {
 	}
 	
 	/**
-	 * Read the given File as a List of file lines.
+	 * Read the given File as a List of file lines. Might cause OutOfMemory if the input file is huge.
 	 *
 	 * @param file The file to read.
 	 * @return A list with the file lines.

@@ -1,6 +1,6 @@
 package algorithm.cooptimization;
 
-import evaluation.ResultEvaluation;
+import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
@@ -29,17 +29,17 @@ public class CoOptimizationMain {
 		
 		// initialize arguments
 		CoOptimizationProperty property = new CoOptimizationProperty();
-		property.loadPropertiesFromResourceFile("algorithm.cooptimization.properties", args);
+		property.loadPropertiesFromResourceFile("cooptimization.properties", args);
 		long initTaskTime = System.currentTimeMillis();
 		
 		// setup java log
 		String logPath = property.getPropertyString("algorithm.cooptimization.log.LogFolder");  // obtain the log folder from args
-		String dataSet = property.getPropertyString("algorithm.cooptimization.data.Dataset");
+		String dataSet = property.getPropertyString("data.Dataset");
 		// log file name
 		String logFileName = dataSet + "_" + property.getPropertyString("algorithm.cooptimization.data.RoadRemovalPercentage") + "_"
 				+ property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
-				+ property.getPropertyString("algorithm.mapmatching.hmm.GapExtensionDistance") + "_"
-				+ property.getPropertyString("algorithm.mapmatching.RankLength") + "_"
+				+ property.getPropertyString("algorithm.cooptimization.GapExtensionDistance") + "_"
+				+ property.getPropertyString("algorithm.mapmatching.hmm.RankLength") + "_"
 				+ property.getPropertyString("algorithm.cooptimization.CorrectRoadPercentage") + "_" + initTaskTime;
 		// initialize log file
 		MapServiceLogger.logInit(logPath, logFileName);
@@ -66,7 +66,8 @@ public class CoOptimizationMain {
 			distanceFunction = new EuclideanDistanceFunction();
 		
 		RoadNetworkGraph initialMap = MapReader.readMap(inputMapFolder + percentage + ".txt", true, distanceFunction);
-		List<RoadWay> removedWayList = MapReader.readWays(inputMapFolder + "remove_" + percentage + ".txt", new HashMap<>(), distanceFunction);
+		List<RoadWay> removedWayList = MapReader.readWays(inputMapFolder + "remove_edges_" + percentage + ".txt", new HashMap<>(),
+				distanceFunction);
 		Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distanceFunction);
 //		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distanceFunction);
 		
@@ -75,8 +76,7 @@ public class CoOptimizationMain {
 		
 		// evaluation: map matching evaluation
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-		ResultEvaluation resultEvaluation = new ResultEvaluation();
-		resultEvaluation.beijingMapMatchingEval(coOptimizationResult._2(), gtRouteMatchResult, initialMap, removedWayList);
+		precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(coOptimizationResult._2(), gtRouteMatchResult, initialMap, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

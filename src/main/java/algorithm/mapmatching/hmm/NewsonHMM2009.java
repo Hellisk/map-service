@@ -425,6 +425,7 @@ public class NewsonHMM2009 implements Serializable {
 							Triplet<Trajectory, String, String> currUnmatchedTrajectory = new Triplet<>(trajectory.subTrajectory(start,
 									end + 1), rankedRoadPositionList.get(0)._1().get(start - 1).state.getRoadID(),
 									rankedRoadPositionList.get(0)._1().get(end + 1).state.getRoadID());
+							currUnmatchedTrajectory._1().setID(trajectory.getID() + "U" + unmatchedTrajectoryList.size());
 							unmatchedTrajectoryList.add(currUnmatchedTrajectory);
 						}
 						start = extendedBreakPointList.get(i);

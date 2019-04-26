@@ -68,18 +68,6 @@ public class RoadNetworkGraph implements Serializable {
 		if (!this.wayList.isEmpty() || !this.wayIDList.isEmpty())
 			throw new IllegalCallerException("The setNodes() should not be called when there were road ways in the map.");
 		this.clear();
-		for (RoadNode n : newNodeList) {
-			n.clearConnectedWays();
-			if (!nodeIDList.contains(n.getID())) {
-				n.clearConnectedWays();
-				this.nodeList.add(n);
-				this.nodeIDList.add(n.getID());
-				if (isUpdatable) {
-					if (Long.parseLong(n.getID()) > maxRoadNodeID)
-						maxRoadNodeID = Long.parseLong(n.getID());
-				}
-			} else LOG.error("Insert node to network failed. Node already exist: " + n.getID());
-		}
 		this.addNodes(newNodeList);
 	}
 	
@@ -96,10 +84,10 @@ public class RoadNetworkGraph implements Serializable {
 		this.maxMiniNodeID = 0;
 		this.maxVisitCount = 0;
 		this.hasBoundary = false;
-		this.minLat = Double.NEGATIVE_INFINITY;
-		this.minLon = Double.NEGATIVE_INFINITY;
-		this.maxLat = Double.POSITIVE_INFINITY;
-		this.maxLon = Double.POSITIVE_INFINITY;
+		this.minLat = Double.POSITIVE_INFINITY;
+		this.minLon = Double.POSITIVE_INFINITY;
+		this.maxLat = Double.NEGATIVE_INFINITY;
+		this.maxLon = Double.NEGATIVE_INFINITY;
 	}
 	
 	/**
@@ -246,10 +234,10 @@ public class RoadNetworkGraph implements Serializable {
 	 * Reset the boundary to better represent the size.
 	 */
 	public void updateBoundary() {
-		this.setMaxLon(Double.POSITIVE_INFINITY);
-		this.setMaxLat(Double.POSITIVE_INFINITY);
-		this.setMinLon(Double.NEGATIVE_INFINITY);
-		this.setMinLat(Double.NEGATIVE_INFINITY);
+		this.setMaxLon(Double.NEGATIVE_INFINITY);
+		this.setMaxLat(Double.NEGATIVE_INFINITY);
+		this.setMinLon(Double.POSITIVE_INFINITY);
+		this.setMinLat(Double.POSITIVE_INFINITY);
 		this.hasBoundary = false;
 		for (RoadNode n : this.getAllTypeOfNodes())
 			updateBoundary(n);

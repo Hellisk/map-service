@@ -21,7 +21,7 @@ public class PreprocessingMain {
 		
 		// initialize arguments
 		CoOptimizationProperty property = new CoOptimizationProperty();
-		property.loadPropertiesFromResourceFile("algorithm.cooptimization.properties", args);
+		property.loadPropertiesFromResourceFile("cooptimization.properties", args);
 		long initTaskTime = System.currentTimeMillis();
 		
 		// setup java log
@@ -50,7 +50,7 @@ public class PreprocessingMain {
 			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
 			RoadNetworkGraph roadNetworkGraph = shpReader.loadRawMap();
 			BeijingTrajectoryLoader trajFilter = new BeijingTrajectoryLoader(-1, -1, -1);
-			trajFilter.trajectoryVisitAssignment(roadNetworkGraph, rawDataFolder + "trajectory/beijingTrajectory");
+			trajFilter.trajectoryVisitAssignment(roadNetworkGraph, rawDataFolder + "trajectory/beijingTrajectory-50000");
 			// write the visited map to the ground truth folder
 			MapWriter.writeMap(roadNetworkGraph, gtMapFolder + "raw.txt");
 			

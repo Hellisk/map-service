@@ -482,12 +482,14 @@ public class MapMerge {
 		} else if (!loc2RoadWayMapping.containsKey(locIndex) && !removedRoadFound) {
 			String currNewID = (++maxAbsRoadWayID) + "";
 //            LOG.info("Create new edge: " + currNewID);
-			RoadWay newWay = roadMapConnection(currNewID, currRoadIntermediatePoint, currRoad.getConfidenceScore(), prevMatchPoint,
-					endPoint, false);
-			newWay.setConfidenceScore(currRoad.getConfidenceScore());
-			double startDist = distFunc.distance(prevMatchPoint, currRoadIntermediatePoint.get(0).toPoint());
-			double endDist = distFunc.distance(currRoadIntermediatePoint.get(currRoadIntermediatePoint.size() - 1).toPoint(), endPoint);
-			loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, (startDist + endDist) / 2));
+			if (!prevMatchPoint.equals2D(endPoint)) {
+				RoadWay newWay = roadMapConnection(currNewID, currRoadIntermediatePoint, currRoad.getConfidenceScore(), prevMatchPoint,
+						endPoint, false);
+				newWay.setConfidenceScore(currRoad.getConfidenceScore());
+				double startDist = distFunc.distance(prevMatchPoint, currRoadIntermediatePoint.get(0).toPoint());
+				double endDist = distFunc.distance(currRoadIntermediatePoint.get(currRoadIntermediatePoint.size() - 1).toPoint(), endPoint);
+				loc2InsertedWayDist.put(locIndex, new Pair<>(newWay, (startDist + endDist) / 2));
+			}
 		}
 	}
 	

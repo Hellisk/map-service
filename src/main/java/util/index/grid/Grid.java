@@ -48,7 +48,7 @@ public class Grid<T extends SpatialObject> implements SpatialDataStructure<T> {
 	@SuppressWarnings("unchecked")
 	public Grid(int n, int m, double minX, double minY, double maxX, double maxY, DistanceFunction df) {
 		if (n <= 0 || m <= 0) {
-			throw new IllegalArgumentException("Grid dimensions must be positive.");
+			throw new IllegalArgumentException("Grid dimensions must be positive: " + n + "," + m);
 		}
 		// create the index model of this partitioning structure
 		this.gridModel = new GridModel(n, m, minX, minY, maxX, maxY, df);
