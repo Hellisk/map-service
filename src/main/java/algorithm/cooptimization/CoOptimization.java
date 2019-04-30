@@ -1,8 +1,8 @@
 package algorithm.cooptimization;
 
 import algorithm.mapinference.kde.KDEMapInference;
-import algorithm.mapinference.trajectoryclustering.TrajectoryClusteringMapInference;
-import algorithm.mapmatching.hmm.NewsonHMM2009;
+import algorithm.mapinference.lineclustering.LineClusteringMapInference;
+import algorithm.mapmatching.hmm.HMMMapMatching;
 import algorithm.mapmerge.MapMerge;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
@@ -78,7 +78,7 @@ class CoOptimization {
 			if (inferenceMethod.equals("TC")) {
 				// step 1: Trace clustering map inference
 				List<Triplet<Trajectory, String, String>> unmatchedTrajList = prevMatchResultPair._2();
-				TrajectoryClusteringMapInference mapInference = new TrajectoryClusteringMapInference();
+				LineClusteringMapInference mapInference = new LineClusteringMapInference();
 				inferenceResult = mapInference.roadWayUpdateProcess(unmatchedTrajList, newRoadID2AnchorPoints, prop, distFunc);
 				// write inference result
 				int trajCount = 0;
@@ -214,7 +214,7 @@ class CoOptimization {
 				}
 				
 				prevMap.addWays(newWayList);
-				NewsonHMM2009 mapMatching = new NewsonHMM2009(prevMap, prop);
+				HMMMapMatching mapMatching = new HMMMapMatching(prevMap, prop);
 				HashMap<String, List<RoadWay>> id2DDWayList = new LinkedHashMap<>();
 				
 				// combine the double-directed road to one entry.
@@ -367,7 +367,7 @@ class CoOptimization {
 	 * @throws ExecutionException   Parallel error.
 	 * @throws InterruptedException Parallel error.
 	 */
-	private static void singleDDRoadMapMatchingBeijing(Stream<Trajectory> inputTrajStream, NewsonHMM2009 mapMatching,
+	private static void singleDDRoadMapMatchingBeijing(Stream<Trajectory> inputTrajStream, HMMMapMatching mapMatching,
 													   List<String> roadIDList, HashMap<String, List<Pair<String,
 			MatchResultWithUnmatchedTraj>>> trajID2MatchResultUpdate, CoOptimizationFunc coOptimizationFunc) throws ExecutionException,
 			InterruptedException {
@@ -401,7 +401,7 @@ class CoOptimization {
 	 CoOptimizationFunc coOptimizationFunc, BaseProperty prop) throws ExecutionException, InterruptedException {
 		
 		// start matching process
-		NewsonHMM2009 mapMatching = new NewsonHMM2009(roadMap, prop);
+		HMMMapMatching mapMatching = new HMMMapMatching(roadMap, prop);
 		Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(rawTrajectoryList);
 		List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
 		List<TrajectoryMatchResult> currMatchResultList = new ArrayList<>();

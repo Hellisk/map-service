@@ -246,12 +246,10 @@ public class SpatialUtils implements Serializable {
 	 */
 	public static double dotProduct(double[] v, double[] u) {
 		if (v == null || u == null) {
-			throw new NullPointerException("Vectors for dot product "
-					+ "calculation cannot be null.");
+			throw new NullPointerException("Vectors for dot product calculation cannot be null.");
 		}
 		if (u.length != v.length) {
-			throw new IllegalArgumentException("Vectors should be "
-					+ "of same size for dot product calculation.");
+			throw new IllegalArgumentException("Vectors should be of same size for dot product calculation.");
 		}
 		
 		if (v.length == 0) {

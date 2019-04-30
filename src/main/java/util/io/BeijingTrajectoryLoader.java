@@ -1,6 +1,6 @@
 package util.io;
 
-import algorithm.mapmatching.hmm.NewsonHMM2009;
+import algorithm.mapmatching.hmm.HMMMapMatching;
 import org.apache.log4j.Logger;
 import util.function.GreatCircleDistanceFunction;
 import util.object.roadnetwork.RoadNetworkGraph;
@@ -392,7 +392,7 @@ public class BeijingTrajectoryLoader {
 		LOG.info("Trajectory filter finished, total number of candidates: " + tripID + ". Start the ground-truth map-matching.");
 		
 		// start the generation of ground-truth map-matching result
-		NewsonHMM2009 hmm = new NewsonHMM2009(rawGrantMap, prop);
+		HMMMapMatching hmm = new HMMMapMatching(rawGrantMap, prop);
 		Stream<Trajectory> tempTrajStream = tempTrajList.stream();
 		// parallel processing
 		ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
@@ -622,7 +622,7 @@ public class BeijingTrajectoryLoader {
 //		BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));
 //		BufferedWriter bwRawTrajectory = new BufferedWriter(new FileWriter(rawTrajectories + "beijingTrajectoryNew"));
 //
-////        NewsonHMM2009 mapMatching = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH, roadNetworkGraph);
+////        HMMMapMatching mapMatching = new HMMMapMatching(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, RANK_LENGTH, roadNetworkGraph);
 //		String line;
 //		int tripCount = 0;
 //		List<Pair<Trajectory, String>> inputTrajList = new ArrayList<>();
@@ -667,7 +667,7 @@ public class BeijingTrajectoryLoader {
 //		LOG.info("Start ground-truth generation, total number of input trajectory: " + inputTrajList.size());
 //
 //		Stream<Pair<Trajectory, String>> inputTrajStream = inputTrajList.stream();
-//		NewsonHMM2009 hmm = new NewsonHMM2009(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph, false);
+//		HMMMapMatching hmm = new HMMMapMatching(CANDIDATE_RANGE, GAP_EXTENSION_RANGE, 1, roadNetworkGraph, false);
 //
 //		// parallel processing
 //		ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();

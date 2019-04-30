@@ -59,6 +59,10 @@ public class RoadNetworkGraph implements Serializable {
 		return nodeList;
 	}
 	
+	public RoadNode getNode(int index) {
+		return nodeList.get(index);
+	}
+	
 	/**
 	 * Reset the map by firstly setting the road node list.
 	 *
@@ -97,7 +101,7 @@ public class RoadNetworkGraph implements Serializable {
 	 */
 	public void addNode(RoadNode node) {
 		if (node != null) {
-			if (!nodeIDList.contains(node.getID())) {
+			if (!nodeIDList.contains(node.getID()) || node.getID().equals("")) {
 				node.clearConnectedWays();
 				nodeList.add(node);
 				nodeIDList.add(node.getID());
@@ -138,6 +142,10 @@ public class RoadNetworkGraph implements Serializable {
 	 */
 	public List<RoadWay> getWays() {
 		return wayList;
+	}
+	
+	public RoadWay getWay(int index) {
+		return wayList.get(index);
 	}
 	
 	/**

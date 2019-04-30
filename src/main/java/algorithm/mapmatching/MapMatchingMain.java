@@ -1,6 +1,6 @@
 package algorithm.mapmatching;
 
-import algorithm.mapmatching.hmm.NewsonHMM2009;
+import algorithm.mapmatching.hmm.HMMMapMatching;
 import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.GreatCircleDistanceFunction;
@@ -81,7 +81,7 @@ public class MapMatchingMain {
 				}
 				trajPointCount += currTraj.size();
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
-				NewsonHMM2009 mapMatching = new NewsonHMM2009(currMap, property);
+				HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
 				TrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
 				results.add(matchResult);
 			}

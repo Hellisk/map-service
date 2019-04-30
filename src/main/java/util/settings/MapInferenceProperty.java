@@ -49,7 +49,7 @@ public class MapInferenceProperty extends BaseProperty {
 							super.setProperty("algorithm.mapinference.kde.GaussianBlur", arg.substring(3));
 							break;
 						case "ie":
-							super.setProperty("algorithm.mapinference.traceclustering.DPEpsilon", arg.substring(3));
+							super.setProperty("algorithm.mapinference.lineclustering.DPEpsilon", arg.substring(3));
 							break;
 						case "ii":
 							super.setProperty("algorithm.mapinference.InferenceMethod", arg.substring(3));

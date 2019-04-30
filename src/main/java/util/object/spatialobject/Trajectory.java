@@ -82,6 +82,12 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 		return list;
 	}
 	
+	public List<Point> getPoints() {
+		List<Point> list = new ArrayList<>(size());
+		list.addAll(this);
+		return list;
+	}
+	
 	@Override
 	public List<Segment> getEdges() {
 		List<Segment> list = new ArrayList<>();

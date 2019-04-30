@@ -111,6 +111,14 @@ public final class RoadNode extends RoadNetworkPrimitive {
 		return lat;
 	}
 	
+	public Set<RoadWay> getInComingWayList() {
+		return inComingWayList;
+	}
+	
+	public Set<RoadWay> getOutGoingWayList() {
+		return outGoingWayList;
+	}
+	
 	/**
 	 * @return Return the spatial point object representation
 	 * of this road node.
@@ -173,11 +181,11 @@ public final class RoadNode extends RoadNetworkPrimitive {
 		this.outGoingWayList.clear();
 	}
 	
-	void addInComingWay(RoadWay way) {
+	public void addInComingWay(RoadWay way) {
 		this.inComingWayList.add(way);
 	}
 	
-	void addOutGoingWay(RoadWay way) {
+	public void addOutGoingWay(RoadWay way) {
 		this.outGoingWayList.add(way);
 	}
 	
