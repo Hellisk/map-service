@@ -78,6 +78,6 @@ public class MapInferenceMain {
 			RoadNetworkGraph resultMap = traceMergeMapInference.mapInferenceProcess(inputTrajList, eps, distFunc);
 			MapWriter.writeMap(resultMap, outputMapFolder + "0.txt");
 		}
-		LOG.info("Map inference finished. Total running time is: " + (System.currentTimeMillis() - startTaskTime));
+		LOG.info("Map inference finished. Total running time is: " + (System.currentTimeMillis() - startTaskTime / 1000));
 	}
 }

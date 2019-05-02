@@ -47,11 +47,11 @@ Temporary Items
 .apdisk
 
 # compiled files
-target/
-Archive/
+target
+Archive
 
 # cython files
 *.pyx
 
 # intellij IDEA configuration
-.idea/
+.idea

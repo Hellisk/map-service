@@ -38,6 +38,9 @@ public class MapWriter {
 		}
 		writeNodes(roadGraph.getNodes(), folderPath + "vertices_" + fileName);
 		writeWays(roadGraph.getWays(), folderPath + "edges_" + fileName);
+		LOG.info("Map written. Total number of intersections: " + roadGraph.getNodes().size()
+				+ ", total number of ways: " + roadGraph.getWays().size()
+				+ ", total number of mini nodes: " + (roadGraph.getAllTypeOfNodes().size() - roadGraph.getNodes().size()));
 	}
 	
 	/**

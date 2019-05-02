@@ -306,7 +306,7 @@ class CoOptimization {
 		// finish the iterations and write the final output
 		String outputMapFolder = prop.getPropertyString("path.OutputMapFolder");
 		String outputMatchResultFolder = prop.getPropertyString("path.OutputMatchResultFolder");
-		MapWriter.writeMap(prevMap, outputMapFolder + "map/" + percentage + ".txt");
+		MapWriter.writeMap(prevMap, outputMapFolder + percentage + ".txt");
 		MatchResultWriter.writeMatchResults(prevMatchResultPair._1(), outputMatchResultFolder);
 		LOG.info("Co-optimization finish. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 +
 				" seconds, matching time: " + matchingTime + ", update time: " + updateTime + ", refinement time: " +

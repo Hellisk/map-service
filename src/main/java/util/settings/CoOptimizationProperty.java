@@ -105,7 +105,7 @@ public class CoOptimizationProperty extends BaseProperty {
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec);
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
-		super.setProperty("path.OutputMapFolder", rootPath + "output/map");
+		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec);
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
 		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec);

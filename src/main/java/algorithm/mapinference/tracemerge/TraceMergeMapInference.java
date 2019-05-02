@@ -501,7 +501,6 @@ public class TraceMergeMapInference {
 			for (int k = 0; k < inputTrajList.size(); k++) {
 				
 				long startTime = System.currentTimeMillis();
-				TraceMergeMapInference.curveId = k;
 				TraceMergeMapInference.curveName = inputTrajList.get(k).getID();
 				
 				length += inputTrajList.get(k).length();
@@ -532,9 +531,9 @@ public class TraceMergeMapInference {
 				
 				this.mapConstruction(constructedMap, edges, map, inputTrajList.get(k), eps, df);
 				this.commitEdgeSplitsAll(constructedMap, map, siblingMap, edges);
-				
-				LOG.info("k :" + k + " " + TraceMergeMapInference.curveName + " " + length + " :"
-						+ (System.currentTimeMillis() - startTime) / 60000.00);
+				if (inputTrajList.size() > 100 && k % Math.floor(inputTrajList.size() / 100) == 0)
+					LOG.info(k / Math.floor(inputTrajList.size() / 100) + " percent of map inference finished. Time spent: "
+							+ (System.currentTimeMillis() - startTime) / 60000.00);
 				
 			}
 		} catch (Exception e) {

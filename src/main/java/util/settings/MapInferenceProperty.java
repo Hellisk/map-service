@@ -97,7 +97,7 @@ public class MapInferenceProperty extends BaseProperty {
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec);
-		super.setProperty("path.OutputMapFolder", rootPath + "output/map");
+		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
 		super.setProperty("algorithm.mapinference.path.CacheFolder", rootPath + "inference/cache/");
 		super.setProperty("algorithm.mapinference.log.LogFolder", rootPath + "inference/log/");
