@@ -39,6 +39,7 @@ $RECYCLE.BIN/
 .Trashes
 .VolumeIcon.icns
 
+
 # Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop
@@ -47,11 +48,12 @@ Temporary Items
 .apdisk
 
 # compiled files
-target
-Archive
+target/
+Archive/
 
 # cython files
 *.pyx
 
 # intellij IDEA configuration
-.idea
+.idea/
+*.iml
