@@ -2,6 +2,7 @@ package util.function;
 
 import util.exceptions.DistanceFunctionException;
 import util.object.spatialobject.Point;
+import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
 import util.object.spatialobject.Vector2D;
 
@@ -206,6 +207,14 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 	@Override
 	public double getCoordinateOffsetY(double distance, double referenceX) {
 		return getCoordinateOffset(distance);
+	}
+	
+	@Override
+	public double area(Rect rectangle) {
+		if (rectangle.maxX() < rectangle.minX() || rectangle.maxY() < rectangle.minY())
+			throw new IllegalArgumentException("The input rectangle is illegal: " + rectangle.maxY() + "," + rectangle.minY() + ","
+					+ rectangle.maxX() + "," + rectangle.minX());
+		return (rectangle.maxY() - rectangle.minY()) * (rectangle.maxX() - rectangle.minX());
 	}
 	
 	// TODO: Check the correctness of the algorithm

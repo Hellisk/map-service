@@ -1,6 +1,7 @@
 package util.function;
 
 import util.object.spatialobject.Point;
+import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
 
 import java.text.DecimalFormat;
@@ -206,6 +207,46 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		return s1d < s2d ? s1d : s2d;
 	}
 	
+	// TODO test the correctness
+	@Override
+	public double area(Rect rectangle) {
+		double totalAngle = 0;
+		// calculate total inner angle
+		Point p1 = new Point(rectangle.minX(), rectangle.minY(), rectangle.getDistanceFunction());
+		Point p2 = new Point(rectangle.minX(), rectangle.maxY(), rectangle.getDistanceFunction());
+		Point p3 = new Point(rectangle.maxX(), rectangle.maxY(), rectangle.getDistanceFunction());
+		Point p4 = new Point(rectangle.maxX(), rectangle.minY(), rectangle.getDistanceFunction());
+		totalAngle += getAngle(p1, p2, p3);
+		totalAngle += getAngle(p2, p3, p4);
+		totalAngle += getAngle(p3, p4, p1);
+		totalAngle += getAngle(p4, p1, p2);
+		double sphericalExcess = totalAngle - 360;
+		if (sphericalExcess > 420.0) {
+			totalAngle = 4 * 360.0 - totalAngle;
+			sphericalExcess = totalAngle - 360;
+		} else if (sphericalExcess > 300.0 && sphericalExcess < 420.0) {
+			sphericalExcess = Math.abs(360.0 - sphericalExcess);
+		}
+		return Math.toDegrees(sphericalExcess) * SpatialUtils.EARTH_RADIUS * SpatialUtils.EARTH_RADIUS;
+	}
+	
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param p1 Endpoint of first segment.
+	 * @param p2 Intersect point.
+	 * @param p3 Endpoint of second segment.
+	 */
+	public double getAngle(Point p1, Point p2, Point p3) {
+		double bearing21 = getHeading(p2.x(), p2.y(), p1.x(), p1.y());
+		double bearing23 = getHeading(p2.x(), p2.y(), p3.x(), p3.y());
+		var angle = bearing21 - bearing23;
+		if (angle < 0) {
+			angle += 360;
+		}
+		return angle;
+	}
+	
 	@Override
 	public double getHeading(double x1, double y1, double x2, double y2) {
 		double lon1 = Math.toRadians(x1);
@@ -214,6 +255,8 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		double lat2 = Math.toRadians(y2);
 		double headingRadians = Math.atan2(Math.asin(lon2 - lon1) * Math.cos(lat2),
 				Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
+		if (headingRadians < 0)
+			headingRadians += Math.PI * 2.0;
 		return Math.toDegrees(headingRadians);
 	}
 }

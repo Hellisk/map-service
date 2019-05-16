@@ -264,10 +264,10 @@ public class BeijingTrajectoryLoader {
 						continue;
 					numOfPartialTraj++;
 				}
-				trajectoryValidityCheck(newTraj);
-				
 				if (newTraj.size() < 2)
 					continue;
+				trajectoryValidityCheck(newTraj);
+				
 				resultTrajList.add(newTraj);
 				gtRouteMatchList.add(newMatchResult);
 				maxTimeDiff = maxTimeDiff > currMaxTimeDiff ? maxTimeDiff : currMaxTimeDiff;

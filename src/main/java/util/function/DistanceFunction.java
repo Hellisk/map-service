@@ -1,6 +1,7 @@
 package util.function;
 
 import util.object.spatialobject.Point;
+import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
 
 /**
@@ -121,6 +122,14 @@ public interface DistanceFunction {
 	 * @return the coordinate offset
 	 */
 	double getCoordinateOffsetY(double distance, double referenceX);
+	
+	/**
+	 * Calculate the area of a rectangle.
+	 *
+	 * @param rectangle The given rectangle.
+	 * @return The area of the rectangle.
+	 */
+	double area(Rect rectangle);
 	
 	/**
 	 * Calculate the heading of a segment or two points.
