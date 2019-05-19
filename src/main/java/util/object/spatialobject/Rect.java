@@ -235,6 +235,14 @@ public class Rect extends SimpleSpatialObject {
 		return false;
 	}
 	
+	public Rect extendByDist(double distance) {
+		double currMinX = minX - distFunc.getCoordinateOffsetX(distance, (minY + maxY) / 2);
+		double currMaxX = maxX + distFunc.getCoordinateOffsetX(distance, (minY + maxY) / 2);
+		double currMinY = minY - distFunc.getCoordinateOffsetY(distance, (minX + maxX) / 2);
+		double currMaxY = maxY + distFunc.getCoordinateOffsetY(distance, (minX + maxX) / 2);
+		return new Rect(currMinX, currMinY, currMaxX, currMaxY, distFunc);
+	}
+	
 	/**
 	 * Check whether this rectangle contains the given point p = (x,y) inside its perimeter.
 	 *

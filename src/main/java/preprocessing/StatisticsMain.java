@@ -30,7 +30,7 @@ public class StatisticsMain {
 		String logPath = property.getPropertyString("algorithm.preprocessing.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
-		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
+		String inputMapPath = property.getPropertyString("path.InputMapFolder");
 		// log file name
 		String logFileName = "statistics_" + dataSet + "_" + initTaskTime;
 		// initialize log file
@@ -46,7 +46,7 @@ public class StatisticsMain {
 			distFunc = new EuclideanDistanceFunction();
 		}
 		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-		RoadNetworkGraph inputMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
+		RoadNetworkGraph inputMap = MapReader.readMap(inputMapPath + "0.txt", false, distFunc);
 		PreprocessingStatistics.datasetStatsCalc(inputTrajList, inputMap);
 		LOG.info("Statistics calculation done.");
 	}

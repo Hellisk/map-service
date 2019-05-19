@@ -303,7 +303,7 @@ public class BeijingMapLoader {
 		return true;
 	}
 	
-	private void insertNode(List<RoadNode> roadNodeList, Map<String, RoadNode> id2Node, String pointID, RoadNode newRoadNode) {
+	static void insertNode(List<RoadNode> roadNodeList, Map<String, RoadNode> id2Node, String pointID, RoadNode newRoadNode) {
 		if (!id2Node.containsKey(pointID)) {
 			id2Node.put(pointID, newRoadNode);
 			roadNodeList.add(newRoadNode);

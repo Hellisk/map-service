@@ -3,15 +3,14 @@ package preprocessing;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
-import util.io.BeijingMapLoader;
-import util.io.BeijingTrajectoryLoader;
-import util.io.MapReader;
-import util.io.MapWriter;
+import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
+import util.object.spatialobject.Trajectory;
 import util.settings.MapServiceLogger;
 import util.settings.PreprocessingProperty;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class PreprocessingMain {
@@ -53,8 +52,6 @@ public class PreprocessingMain {
 			LOG.info("Start reading the raw road map from SHP file.");
 			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
 			RoadNetworkGraph initialMap = shpReader.loadRawMap();
-			BeijingTrajectoryLoader initialTrajFilter = new BeijingTrajectoryLoader(-1, -1, -1);
-			initialTrajFilter.trajectoryVisitAssignment(initialMap, rawDataFolder + "trajectory/beijingTrajectory");
 			// write the visited map to the ground truth folder
 			MapWriter.writeMap(initialMap, gtMapFolder + "raw.txt");
 			
@@ -106,7 +103,21 @@ public class PreprocessingMain {
 //				// folder
 //			else
 //				MapPreprocessing.popularityBasedRoadRemoval(roadNetworkGraph, percentage, candidateRange / 2, minRoadLength, inputMapFolder);
-		}
+		} else if (dataSet.contains("Chicago") || dataSet.contains("Berlin") || dataSet.contains("Athens")) {
+			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
+			LOG.info("Initializing the road map for " + dataSet + ".");
+			OSMMapLoader mapLoader = new OSMMapLoader(rawDataFolder + "map/");
+			RoadNetworkGraph currMap = mapLoader.loadRawMap(dataSet);
+			MapWriter.writeMap(currMap, gtMapFolder + "0.txt");
+			LOG.info("Map initialized, total number of nodes: " + currMap.getNodes().size() + ", number of edges: " + currMap.getWays().size()
+					+ ", total number of mini nodes: " + (currMap.getAllTypeOfNodes().size() - currMap.getNodes().size()) + ".");
+			LOG.info("Start initializing the trajectories.");
+			OSMTrajectoryLoader trajLoader = new OSMTrajectoryLoader(numOfTraj, trajMinLengthSec, sampleMaxIntervalSec);
+			List<Trajectory> trajList = trajLoader.loadTrajectories(currMap, rawDataFolder + "trajectory/", inputTrajFolder);
+			trajLoader.trajectoryVisitAssignmentWithMapMatching(currMap, trajList, property);
+			MapWriter.writeMap(currMap, inputMapFolder + "0.txt");
+		} else
+			throw new IllegalArgumentException("Wrong dataset specified: " + dataSet);
 		
 		LOG.info("Data preprocessing finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

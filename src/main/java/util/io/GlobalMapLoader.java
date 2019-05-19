@@ -33,7 +33,6 @@ public class GlobalMapLoader {
 		double maxLat = Double.NEGATIVE_INFINITY, maxLon = Double.NEGATIVE_INFINITY;
 		double minLat = Double.POSITIVE_INFINITY, minLon = Double.POSITIVE_INFINITY;        // boarder of the map
 		RoadNetworkGraph roadGraph = new RoadNetworkGraph(false, distFunc);
-		roadGraph.setUpdatable(false);
 		List<RoadNode> nodes = new ArrayList<>();
 		Map<String, RoadNode> index2Node = new HashMap<>();
 		List<RoadWay> ways = new ArrayList<>();

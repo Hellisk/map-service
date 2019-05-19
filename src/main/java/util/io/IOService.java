@@ -132,7 +132,7 @@ public final class IOService implements Serializable {
 	 * @param pathName The absolute path to the file to read.
 	 * @return A list with the file lines.
 	 */
-	public static synchronized List<String> readFile(final String pathName) {
+	static synchronized List<String> readFile(final String pathName) {
 		return readFile(Paths.get(pathName).toAbsolutePath());
 	}
 	
@@ -152,7 +152,7 @@ public final class IOService implements Serializable {
 	 * @param file The file to read.
 	 * @return A list with the file lines.
 	 */
-	private static synchronized List<String> readFile(final File file) {
+	static synchronized List<String> readFile(final File file) {
 		List<String> fileLines = new ArrayList<>();
 		BufferedReader bufferReader = null;
 		try {
@@ -178,7 +178,7 @@ public final class IOService implements Serializable {
 	 * @param pathName The absolute path to the file to read.
 	 * @return A Stream with the file lines.
 	 */
-	public static synchronized Stream<String> readFileAsStream(final String pathName) {
+	static synchronized Stream<String> readFileAsStream(final String pathName) {
 		Stream<String> linesStream = null;
 		try {
 			linesStream = Files.lines(Paths.get(pathName));
@@ -194,7 +194,7 @@ public final class IOService implements Serializable {
 	 * @param file The file to read.
 	 * @return A Stream with the file lines.
 	 */
-	public static synchronized Stream<String> readFileAsStream(final File file) {
+	static synchronized Stream<String> readFileAsStream(final File file) {
 		Stream<String> linesStream = null;
 		try {
 			linesStream = Files.lines(file.toPath());
@@ -210,7 +210,7 @@ public final class IOService implements Serializable {
 	 * @param pathName The absolute path to the file to read.
 	 * @return The file content as a String.
 	 */
-	public static synchronized String readFileContent(final String pathName) {
+	static synchronized String readFileContent(final String pathName) {
 		StringBuilder fileContent = new StringBuilder();
 		BufferedReader bufferReader = null;
 		try {
@@ -240,7 +240,7 @@ public final class IOService implements Serializable {
 	 *                     e.g. "file.txt"
 	 * @return The resource file content as a String.
 	 */
-	public static synchronized String readResourcesFileContent(final String resourceName) {
+	static synchronized String readResourcesFileContent(final String resourceName) {
 		StringBuilder fileContent = new StringBuilder();
 		BufferedReader bufferReader = null;
 		try {
@@ -263,8 +263,7 @@ public final class IOService implements Serializable {
 	}
 	
 	/**
-	 * Returns a list with the absolute paths of all files in
-	 * the given path. Open directories recursively.
+	 * Returns a list with the absolute paths of all files in the given path. Open directories recursively.
 	 *
 	 * @param path The path to the root directory to read.
 	 * @return A list with the files path.

@@ -182,7 +182,7 @@ public class GridModel implements SpatialIndexModel {
 	@Override
 	public String search(double x, double y) {
 		if (!boundary.contains(x, y)) {
-			System.err.println("ERROR! The specific location is not included in the map.");
+			LOG.error("ERROR! The specific location is not included in the map: " + x + "," + y);
 			return null; // didn't find anything
 		}
 		double width = cellsWidth();

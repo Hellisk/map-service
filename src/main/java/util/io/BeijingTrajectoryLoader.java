@@ -12,7 +12,6 @@ import util.object.structure.Pair;
 import util.settings.BaseProperty;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -46,68 +45,21 @@ public class BeijingTrajectoryLoader {
 	/**
 	 * Read raw trajectories and assign visit count to the given map, each trajectory must be inside the map.
 	 *
-	 * @param rawMap   Input map
-	 * @param filePath Input path for raw trajectories
+	 * @param rawMap              Input map
+	 * @param inputRouteMatchList Input trajectory matching result list
 	 */
-	public void trajectoryVisitAssignment(RoadNetworkGraph rawMap, String filePath) {
+	public void trajectoryVisitAssignment(RoadNetworkGraph rawMap, List<Pair<Integer, List<String>>> inputRouteMatchList) {
 		Map<String, Integer> id2VisitCountMapping = new HashMap<>();   // a mapping between the road ID and the number of trajectory
 		// visited
 		Map<String, RoadWay> id2RoadWayMapping = new HashMap<>();   // a mapping between the road ID and the road way
 		
 		initializeMapping(rawMap, id2VisitCountMapping, id2RoadWayMapping);
-		int tripID = 0;
 		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(filePath))); // use BufferedReader instead of IOService
-			// .readFile in case of OutOfMemory.
-			String line;
-			// create folders for further writing
-			while ((line = br.readLine()) != null) {
-				String[] trajectoryInfo = line.split(",");
-				String[] rawTrajectory = trajectoryInfo[28].split("\\|");
-				String[] matchedTrajectory = trajectoryInfo[4].split("\\|");
-				
-				// test whether the matching result is included in the map
-				if (isMatchResultNotEnclosed(id2RoadWayMapping, matchedTrajectory)) {
-					continue;
-				}
-				
-				// test whether the raw trajectory is within the map area
-				boolean isInsideTrajectory = true;
-				String[] firstTrajectoryPoint = rawTrajectory[0].split(":");
-				double firstLon = Double.parseDouble(firstTrajectoryPoint[0]) / 100000;
-				double firstLat = Double.parseDouble(firstTrajectoryPoint[1]) / 100000;
-				if (rawMap.getBoundary().contains(firstLon, firstLat)) {
-					long prevTimeDiff = 0;
-					for (int i = 1; i < rawTrajectory.length; i++) {
-						String[] currTrajectoryPoint = rawTrajectory[i].split(":");
-						double lon = firstLon + (Double.parseDouble(currTrajectoryPoint[0]) / 100000);
-						double lat = firstLat + (Double.parseDouble(currTrajectoryPoint[1]) / 100000);
-						long currTime = Long.parseLong(currTrajectoryPoint[3]);
-						long currTimeDiff = currTime - prevTimeDiff;
-						if (rawMap.getBoundary().contains(lon, lat) && (sampleMaxIntervalSec == -1 || currTimeDiff <= sampleMaxIntervalSec)) {
-							prevTimeDiff = currTime;
-						} else {
-							isInsideTrajectory = false;
-							break;
-						}
-					}
-				} else {
-					continue;   // the first point is outside the road map area, skip the current trajectory
-				}
-				
-				if (isInsideTrajectory) {   // the current trajectory is selected
-					for (String s : matchedTrajectory) {
-						int currCount = id2VisitCountMapping.get(s);
-						id2VisitCountMapping.replace(s, currCount + 1);
-					}
-					tripID++;
-				}
+		for (Pair<Integer, List<String>> routeMatch : inputRouteMatchList) {
+			for (String s : routeMatch._2()) {
+				int currCount = id2VisitCountMapping.get(s);
+				id2VisitCountMapping.replace(s, currCount + 1);
 			}
-			br.close();
-		} catch (IOException e) {
-			LOG.error("Error reading input file.", e);
-			e.printStackTrace();
 		}
 		
 		DecimalFormat decimalFormat = new DecimalFormat(".00000");
@@ -126,7 +78,7 @@ public class BeijingTrajectoryLoader {
 				}
 			}
 		}
-		LOG.debug("Beijing trajectories loaded. Total number of trajectories: " + tripID + ", max visit count: " + rawMap.getMaxVisitCount()
+		LOG.debug("Beijing trajectories loaded. Total number of trajectories: " + inputRouteMatchList.size() + ", max visit count: " + rawMap.getMaxVisitCount()
 				+ ", roads visited percentage: " + decimalFormat.format(totalVisitCount / (double) rawMap.getWays().size() * 100)
 				+ "%, visit more than " + visitThreshold + " times :"
 				+ decimalFormat.format(totalHighVisitCount / (double) rawMap.getWays().size() * 100) + "%");
@@ -168,10 +120,15 @@ public class BeijingTrajectoryLoader {
 			String[] trajectoryInfo = line.split(",");
 			String[] rawTrajectoryPointID = trajectoryInfo[28].split("\\|");
 			String[] matchedRoadWayID = trajectoryInfo[4].split("\\|");
-			
-			// test whether the matching result pass through the area and continuous
-			if (isMatchResultNotContinuous(id2RoadWayMapping, matchedRoadWayID))
+
+//			// test whether the matching result pass through the area
+			// continuous is required for better map-matching and map update quality
+//			if (doesNotHaveContinuousEnclosedSequence(id2RoadWayMapping, matchedRoadWayID))
+//				continue;
+			// continuous is not required for other applications
+			if (doesNotHaveEnclosedSequence(id2RoadWayMapping, matchedRoadWayID)) {
 				continue;
+			}
 			
 			Trajectory newTraj = new Trajectory(distFunc);
 			
@@ -226,13 +183,19 @@ public class BeijingTrajectoryLoader {
 					break;
 				}
 			}
-			if (newTraj.duration() >= trajMinLengthSec && newTraj.length() >= 3 * trajMinLengthSec) {   // the minimum average
+			if (newTraj.duration() >= trajMinLengthSec && newTraj.length() >= 3 * trajMinLengthSec && newTraj.length() > 0) {   // the
+				// minimum average
 				// speed should be larger than 10.8km/h
 				newTraj.setID(tripID + "");
 				Pair<Integer, List<String>> newMatchResult = new Pair<>(tripID, new ArrayList<>());
 				// test whether the matching result pass through the area and continuous
 				if (startIndex == 0 && currIndex == rawTrajectoryPointID.length) {
-					if (isMatchResultNotEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
+					
+					// continuous is required for higher quality map-matching and map update input
+//					if (isNotContinuouslyEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
+//						continue;
+//					}
+					if (isNotEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
 						continue;
 					}
 					for (String s : matchedRoadWayID) {
@@ -241,8 +204,7 @@ public class BeijingTrajectoryLoader {
 							id2VisitCountMapping.replace(s, currCount + 1);
 							newMatchResult._2().add(s);
 						} else {
-							System.out.println("WARNING! The current trajectory is fully inside the map but the ground-truth result is " +
-									"not.");
+							LOG.warn("The current trajectory is fully inside the map but the ground-truth result is not.");
 						}
 					}
 					if (newMatchResult._2().size() == 0)
@@ -276,13 +238,9 @@ public class BeijingTrajectoryLoader {
 				tripID++;
 			}
 		}
+		trajectoryVisitAssignment(roadGraph, gtRouteMatchList);
 		writeTrajAndRouteMatchResults(resultTrajList, gtRouteMatchList, outputTrajFolder, outputGTRouteMatchFolder);
 		
-		roadGraph.setMaxVisitCount(0);
-		for (RoadWay w : roadGraph.getWays()) {
-			w.setVisitCount(id2VisitCountMapping.get(w.getID()));
-			roadGraph.updateMaxVisitCount(id2VisitCountMapping.get(w.getID()));
-		}
 		LOG.debug(tripID + " trajectories extracted, including " + numOfCompleteTraj + " complete trajectories and " + numOfPartialTraj +
 				" partial ones. The average length is " + (int) (totalNumOfPoint / tripID));
 		LOG.debug("The maximum sampling interval is " + maxTimeDiff + "s, and the average time interval is "
@@ -327,7 +285,7 @@ public class BeijingTrajectoryLoader {
 			String[] matchedRoadWayID = trajectoryInfo[4].split("\\|");
 			
 			// test whether the matching result pass through the area and continuous
-			if (isMatchResultNotContinuous(id2RoadWayMapping, matchedRoadWayID))
+			if (doesNotHaveContinuousEnclosedSequence(id2RoadWayMapping, matchedRoadWayID))
 				continue;
 			
 			Trajectory newTraj = new Trajectory(distFunc);
@@ -406,7 +364,7 @@ public class BeijingTrajectoryLoader {
 						return null;
 					String[] bestMatchWayList = result.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList().toArray(new String[0]);
 					// test whether the matching result is included in the map
-					if (isMatchResultNotContinuous(id2RoadWayMapping, bestMatchWayList))
+					if (doesNotHaveContinuousEnclosedSequence(id2RoadWayMapping, bestMatchWayList))
 						return null;
 					return new Pair<>(Integer.parseInt(trajectory.getID()), bestMatchWayList);
 				}));
@@ -431,7 +389,7 @@ public class BeijingTrajectoryLoader {
 			if (id2MatchResult.containsKey(Integer.parseInt(currTraj.getID()))) {
 				String[] matchedRoadWayID = id2MatchResult.get(Integer.parseInt(currTraj.getID()));
 				// test whether the matching result pass through the area and continuous
-				if (!isMatchResultNotEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
+				if (!isNotContinuouslyEnclosed(id2RoadWayMapping, matchedRoadWayID)) {
 					Pair<Integer, List<String>> newMatchResult = new Pair<>(tripID, Arrays.asList(matchedRoadWayID));
 					currTraj.setID(tripID + "");
 					resultTrajList.add(currTraj);
@@ -538,14 +496,14 @@ public class BeijingTrajectoryLoader {
 	}
 	
 	/**
-	 * Check whether the ground-truth map-matching result satisfies the conditions that all roads must be included in the map area and the
+	 * Check whether the map-matching result satisfies the conditions that all roads must be included in the map area and the
 	 * map-matching result must be continuous.
 	 *
 	 * @param id2RoadWayMapping The road ID and the corresponding road way object.
 	 * @param matchedRoadWayID  The list of ground-truth map-matching result.
 	 * @return False if all map-matching result satisfy the requirement, otherwise true.
 	 */
-	private boolean isMatchResultNotEnclosed(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+	private boolean isNotContinuouslyEnclosed(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
 		RoadWay prevMatchRoad = null;
 		for (String s : matchedRoadWayID) {
 			if (!id2RoadWayMapping.containsKey(s)) { // current match road is not included in the map
@@ -566,13 +524,29 @@ public class BeijingTrajectoryLoader {
 	}
 	
 	/**
-	 * Check whether the ground-truth map-matching result contains a continuous matching sequence that is enclosed in the map area.
+	 * Check whether the map-matching result satisfies the conditions that all roads must be included in the map area.
+	 *
+	 * @param id2RoadWayMapping The road ID and the corresponding road way object.
+	 * @param matchedRoadWayID  The list of ground-truth map-matching result.
+	 * @return False if all map-matching result satisfy the requirement, otherwise true.
+	 */
+	private boolean isNotEnclosed(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+		for (String s : matchedRoadWayID) {
+			if (!id2RoadWayMapping.containsKey(s)) { // current match road is not included in the map
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Check whether the map-matching result contains a continuous matching sequence that is enclosed in the map area.
 	 *
 	 * @param id2RoadWayMapping The road ID and the corresponding road way object.
 	 * @param matchedRoadWayID  The list of ground-truth map-matching result ID.
 	 * @return False if the ground-truth matching result satisfies the requirement, otherwise true.
 	 */
-	private boolean isMatchResultNotContinuous(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+	private boolean doesNotHaveContinuousEnclosedSequence(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
 		RoadWay prevMatchRoad = null;
 		double roadLengthSum = 0;
 		for (String s : matchedRoadWayID) {
@@ -589,6 +563,37 @@ public class BeijingTrajectoryLoader {
 						if (roadLengthSum > 5 * trajMinLengthSec)     // the matching result is long enough
 							return false;
 					}
+				} else {
+					prevMatchRoad = id2RoadWayMapping.get(s);
+					roadLengthSum += currRoad.getLength();
+				}
+			} else if (prevMatchRoad != null) {
+				prevMatchRoad = null;
+				roadLengthSum = 0;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Check whether the map-matching result contains a matching sequence that is enclosed in the map area.
+	 *
+	 * @param id2RoadWayMapping The road ID and the corresponding road way object.
+	 * @param matchedRoadWayID  The list of ground-truth map-matching result ID.
+	 * @return False if the ground-truth matching result satisfies the requirement, otherwise true.
+	 */
+	private boolean doesNotHaveEnclosedSequence(Map<String, RoadWay> id2RoadWayMapping, String[] matchedRoadWayID) {
+		RoadWay prevMatchRoad = null;
+		double roadLengthSum = 0;
+		for (String s : matchedRoadWayID) {
+			if (id2RoadWayMapping.containsKey(s)) { // current match road is included in the map
+				RoadWay currRoad = id2RoadWayMapping.get(s);
+				if (prevMatchRoad != null) {    // check the connectivity of the match roadID
+					prevMatchRoad = currRoad;
+					roadLengthSum += currRoad.getLength();
+					if (roadLengthSum > 5 * trajMinLengthSec)     // the matching result is long enough
+						return false;
+					
 				} else {
 					prevMatchRoad = id2RoadWayMapping.get(s);
 					roadLengthSum += currRoad.getLength();

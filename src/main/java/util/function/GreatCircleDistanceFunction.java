@@ -207,7 +207,7 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		return s1d < s2d ? s1d : s2d;
 	}
 	
-	// TODO test the correctness
+	// TODO test the correctness. Seems wrong currently.
 	@Override
 	public double area(Rect rectangle) {
 		double totalAngle = 0;
@@ -227,7 +227,7 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		} else if (sphericalExcess > 300.0 && sphericalExcess < 420.0) {
 			sphericalExcess = Math.abs(360.0 - sphericalExcess);
 		}
-		return Math.toDegrees(sphericalExcess) * SpatialUtils.EARTH_RADIUS * SpatialUtils.EARTH_RADIUS;
+		return Math.toRadians(sphericalExcess) * SpatialUtils.EARTH_RADIUS * SpatialUtils.EARTH_RADIUS;
 	}
 	
 	/**

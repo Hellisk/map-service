@@ -279,6 +279,7 @@ public class HMMMapMatching implements Serializable {
 	 * @param trajectory Input trajectory.
 	 * @return Pair(Map - matching result, List ( unmatched trajectory, preceding match way, succeeding match way)).
 	 */
+	// TODO Null result occurred, find the reason.
 	public MatchResultWithUnmatchedTraj doMatching(final Trajectory trajectory) {
 		// Compute the candidate road segment list for every GPS point through grid index
 //        long startTime = System.currentTimeMillis();

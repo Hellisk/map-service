@@ -37,11 +37,10 @@ public class PreprocessingStatistics {
 		long totalTimeDiff = 0;
 		boolean isValidTraj;
 		Map<Long, Integer> samplingRateCount = new LinkedHashMap<>();
-		long prevTime;
+		long prevTime = 0;
 		long currTimeDiff;
 		for (Trajectory traj : inputTrajList) {
 			isValidTraj = true;
-			prevTime = traj.get(0).time();
 			for (int i = 0; i < traj.size(); i++) {
 				TrajectoryPoint point = traj.get(i);
 				if (!isValidTraj) {
@@ -63,14 +62,16 @@ public class PreprocessingStatistics {
 							samplingRateCount.replace(currTimeDiff, samplingRateCount.get(currTimeDiff) + 1);
 						}
 					}
-				} else
-					prevTime = point.time();
+				}
+				
+				prevTime = point.time();
 			}
 			if (isValidTraj)
 				trajPointCount += traj.size();
 		}
-		LOG.info("Average sampling rate is : " + totalTimeDiff / (trajPointCount - inputTrajList.size()) + ". Min time interval: "
-				+ minTimeDiff + "sec, max time inverval: " + maxTimeDiff + "sec");
+		LOG.info("Total number of trajectories: " + inputTrajList.size() + ", trajectory point count: " + trajPointCount);
+		LOG.info("Average sampling rate is : " + totalTimeDiff / (double) (trajPointCount - inputTrajList.size()) + ". Min time interval: "
+				+ minTimeDiff + " sec, max time interval: " + maxTimeDiff + " sec");
 		
 		// road network stats
 		int vertexCount = inputMap.getNodes().size();
@@ -85,7 +86,7 @@ public class PreprocessingStatistics {
 		double mapScaleXBottom = df.pointToPointDistance(mapBoundary.maxX(), mapBoundary.minY(), mapBoundary.minX(), mapBoundary.minY());
 		double mapScaleYLeft = df.pointToPointDistance(mapBoundary.minX(), mapBoundary.maxY(), mapBoundary.minX(), mapBoundary.minY());
 		double mapScaleYRight = df.pointToPointDistance(mapBoundary.maxX(), mapBoundary.maxY(), mapBoundary.maxX(), mapBoundary.minY());
-		
+		LOG.info("Boundary is: " + mapBoundary.minX() + ", " + mapBoundary.maxX() + ", " + mapBoundary.minY() + ", " + mapBoundary.maxY());
 		LOG.info("Map size: " + mapSize + " km^2, the boundary lengths are: (top) " + mapScaleXTop + " (bottom) " + mapScaleXBottom +
 				" (left) " + mapScaleYLeft + " (right) " + mapScaleYRight);
 		
@@ -110,6 +111,6 @@ public class PreprocessingStatistics {
 		LOG.info("Road Node count: " + vertexCount + " + " + miniNodeCount + ", road way count: " + roadWayCount);
 		LOG.info("Road unvisited count: " + noVisitRoadCount / (double) inputMap.getWays().size() + ", length: " + noVisitRoadLength / totalRoadWayLength);
 		LOG.info("Road low visited(<=5) count: " + lowVisitRoadCount / (double) inputMap.getWays().size() + ", length: " + lowVisitRoadLength / totalRoadWayLength);
-		LOG.info("Map density: " + mapDensity + ", trajectory density: " + trajDensity);
+		LOG.info("Map density: " + mapDensity / 1000 + " km/km^2, trajectory density: " + trajDensity + " pts/km^2");
 	}
 }
