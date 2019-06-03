@@ -494,13 +494,13 @@ public class TraceMergeMapInference {
 		// map contains mapping between vertex keys and their indices in
 		// constructedMap
 		Map<String, Integer> map = new HashMap<>();
+		long startTime = System.currentTimeMillis();
 		try {
 			double length = 0;
 			
 			// generate list of files in the folder to process
 			for (int k = 0; k < inputTrajList.size(); k++) {
 				
-				long startTime = System.currentTimeMillis();
 				TraceMergeMapInference.curveName = inputTrajList.get(k).getID();
 				
 				length += inputTrajList.get(k).length();
@@ -533,7 +533,7 @@ public class TraceMergeMapInference {
 				this.commitEdgeSplitsAll(constructedMap, map, siblingMap, edges);
 				if (inputTrajList.size() > 100 && k % Math.floor(inputTrajList.size() / 100) == 0)
 					LOG.info(k / Math.floor(inputTrajList.size() / 100) + " percent of map inference finished. Time spent: "
-							+ (System.currentTimeMillis() - startTime) / 60000.00);
+							+ (System.currentTimeMillis() - startTime) / 1000);
 				
 			}
 		} catch (Exception e) {

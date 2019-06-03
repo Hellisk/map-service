@@ -285,7 +285,7 @@ public class RoadWay extends RoadNetworkPrimitive {
 	}
 	
 	/**
-	 * Makes an exact copy of this object
+	 * Makes an exact copy of this object. SHOULD NOT BE USED if the reference of the endpoints are to be preserved.
 	 */
 	@Override
 	public RoadWay clone() throws CloneNotSupportedException {
@@ -299,8 +299,6 @@ public class RoadWay extends RoadNetworkPrimitive {
 		clone.calculateCenter();
 		return clone;
 	}
-	
-	// TODO check the correctness.
 	
 	/**
 	 * Convert the road way into string, for write purpose. The format is as follows:
@@ -450,5 +448,52 @@ public class RoadWay extends RoadNetworkPrimitive {
 	
 	public void setWayLevel(short roadWayLevel) {
 		this.getTags().put("wayLevel", roadWayLevel);
+	}
+	
+	
+	public List<RoadWay> splitAtNode(RoadNode intersectionNode) {
+		return splitAtNode(intersectionNode, null);
+	}
+	
+	/**
+	 * Split the current road into two roads based on the given the intersection node which is on one of its road segment. The ID of the
+	 * new roads is the original ID with an additional '+' or '-' based on whether it is the upper part or lower part, respectively.
+	 *
+	 * @param intersectionNode The intersection node.
+	 * @param edge             The segment which the intersection located. =null if the intersection is one of its mini node.
+	 * @return List of roads (two roads) after split.
+	 */
+	public List<RoadWay> splitAtNode(RoadNode intersectionNode, Segment edge) {
+		List<RoadNode> startMiniNodeList = new ArrayList<>();
+		String id = this.getID();
+		int splitIndex = 0;
+		if (edge != null) {
+			while (!this.getNode(splitIndex).toPoint().equals2D(edge.p1()) && splitIndex < this.size() - 1) {
+				startMiniNodeList.add(this.getNode(splitIndex));
+				splitIndex++;
+			}
+			if (splitIndex >= this.size() - 1 || !this.getNode(splitIndex + 1).toPoint().equals2D(edge.p2()))
+				throw new IndexOutOfBoundsException("New intersection found, but cannot locate it.");
+			// the intersection occurs
+			startMiniNodeList.add(this.getNode(splitIndex));
+			startMiniNodeList.add(intersectionNode);
+		} else {
+			while (!this.getNode(splitIndex).toPoint().equals2D(intersectionNode.toPoint()) && splitIndex < this.size() - 1) {
+				startMiniNodeList.add(this.getNode(splitIndex));
+				splitIndex++;
+			}
+			if (splitIndex >= this.size() - 1)
+				throw new IndexOutOfBoundsException("New intersection found, but cannot locate it.");
+			startMiniNodeList.add(this.getNode(splitIndex));
+		}
+		RoadWay startWay = new RoadWay(id + "+", startMiniNodeList, this.getDistanceFunction());
+		List<RoadNode> endMiniNodeList = new ArrayList<>();
+		endMiniNodeList.add(intersectionNode);
+		endMiniNodeList.addAll(this.getNodes().subList(splitIndex + 1, this.size()));
+		RoadWay endWay = new RoadWay(id + "-", endMiniNodeList, this.getDistanceFunction());
+		List<RoadWay> splitWayList = new ArrayList<>();
+		splitWayList.add(startWay);
+		splitWayList.add(endWay);
+		return splitWayList;
 	}
 }

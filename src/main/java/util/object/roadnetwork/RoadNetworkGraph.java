@@ -2,7 +2,9 @@ package util.object.roadnetwork;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
+import util.object.spatialobject.Point;
 import util.object.spatialobject.Rect;
+import util.object.spatialobject.Segment;
 
 import java.io.Serializable;
 import java.util.*;
@@ -30,6 +32,7 @@ public class RoadNetworkGraph implements Serializable {
 	private double minLat = Double.NEGATIVE_INFINITY, minLon = Double.NEGATIVE_INFINITY;
 	private double maxLat = Double.POSITIVE_INFINITY, maxLon = Double.POSITIVE_INFINITY;
 	
+	private boolean isDirectedMap = true;    // false when it stores an undirected map, all roads has its reverse road
 	
 	private int maxVisitCount = 0;
 	
@@ -157,6 +160,14 @@ public class RoadNetworkGraph implements Serializable {
 		return hasBoundary;
 	}
 	
+	/**
+	 * Check if the current map is directed. The default value is true.
+	 *
+	 * @return True if it is directed.
+	 */
+	public boolean isDirectedMap() {
+		return this.isDirectedMap;
+	}
 	
 	/**
 	 * Get all nodes in the map, including intersections and mini nodes.
@@ -173,40 +184,8 @@ public class RoadNetworkGraph implements Serializable {
 		return pointList;
 	}
 	
-	/**
-	 * Adds the given Way to this road network graph. Make sure the endpoints of the road way should exist in the current node list
-	 * unless it is a temp road.
-	 *
-	 * @param way The road way to add.
-	 */
-	public void addWay(RoadWay way) {
-		if (way != null) {
-			if (!wayIDList.contains(way.getID())) {
-				if (!nodeIDList.contains(way.getFromNode().getID()) || !nodeIDList.contains(way.getToNode().getID()))
-					LOG.warn("The endpoints of the inserted road way do not exist in the current map: " + way.getFromNode().getID() + ","
-							+ way.getToNode().getID());
-				wayList.add(way);
-				wayIDList.add(way.getID());
-				way.getFromNode().addOutGoingWay(way);
-				way.getToNode().addInComingWay(way);
-				if (this.maxVisitCount < way.getVisitCount())
-					this.maxVisitCount = way.getVisitCount();
-				for (RoadNode n : way.getNodes())
-					updateBoundary(n);
-				if (isUpdatable) {
-					if (!way.getID().contains("temp_")) {
-						maxAbsWayID = Math.abs(Long.parseLong(way.getID())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getID())) :
-								maxAbsWayID;
-						for (RoadNode n : way.getNodes()) {
-							maxMiniNodeID = Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) > maxMiniNodeID ?
-									Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
-						}
-					} else    // temporary road way
-						LOG.error("Temporary edges should not be included in the road map.");
-				}
-			} else
-				throw new IllegalArgumentException("ERROR! Road way already exist: " + way.getID());
-		}
+	public void setDirectedMap(boolean directedMap) {
+		isDirectedMap = directedMap;
 	}
 	
 	/**
@@ -236,6 +215,46 @@ public class RoadNetworkGraph implements Serializable {
 		this.minLat = minLat;
 		this.maxLat = maxLat;
 		this.hasBoundary = true;
+	}
+	
+	/**
+	 * Add the given Way to this road network graph. Make sure the endpoints of the road way should exist in the current node list
+	 * unless it is a temp road.
+	 *
+	 * @param way The road way to add.
+	 */
+	public void addWay(RoadWay way) {
+		if (way != null) {
+			if (!wayIDList.contains(way.getID())) {
+				if (!nodeIDList.contains(way.getFromNode().getID()) || !nodeIDList.contains(way.getToNode().getID()))
+					LOG.warn("The endpoints of the inserted road way do not exist in the current map: " + way.getFromNode().getID() + ","
+							+ way.getToNode().getID());
+				wayList.add(way);
+				wayIDList.add(way.getID());
+				way.getFromNode().addOutGoingWay(way);
+				way.getToNode().addInComingWay(way);
+				if (!isDirectedMap) {    // for undirected map, the road should be both incoming and outgoing adjacent road.
+					way.getFromNode().addInComingWay(way);
+					way.getToNode().addOutGoingWay(way);
+				}
+				if (this.maxVisitCount < way.getVisitCount())
+					this.maxVisitCount = way.getVisitCount();
+				for (RoadNode n : way.getNodes())
+					updateBoundary(n);
+				if (isUpdatable) {
+					if (!way.getID().contains("temp_")) {
+						maxAbsWayID = Math.abs(Long.parseLong(way.getID())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getID())) :
+								maxAbsWayID;
+						for (RoadNode n : way.getNodes()) {
+							maxMiniNodeID = Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) > maxMiniNodeID ?
+									Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
+						}
+					} else    // temporary road way
+						LOG.error("Temporary edges should not be included in the road map.");
+				}
+			} else
+				throw new IllegalArgumentException("Road way already exist: " + way.getID());
+		}
 	}
 	
 	/**
@@ -350,13 +369,17 @@ public class RoadNetworkGraph implements Serializable {
 		return nodeList == null || nodeList.isEmpty();
 	}
 	
-	public void removeRoadWayList(Set<RoadWay> roadWayList) {
+	public void removeRoadWayList(Collection<RoadWay> roadWayList) {
 		List<RoadWay> removedWayList = new ArrayList<>();
 		for (RoadWay way : roadWayList) {
 			if (wayIDList.contains(way.getID())) {
 				wayIDList.remove(way.getID());
 				way.getFromNode().removeInComingWayFromList(way);
 				way.getToNode().removeOutGoingWayFromList(way);
+				if (!isDirectedMap()) {
+					way.getFromNode().removeOutGoingWayFromList(way);
+					way.getToNode().removeInComingWayFromList(way);
+				}
 			} else
 				LOG.error("The road to be removed is not in the map: " + way.getID());
 			removedWayList.add(way);
@@ -431,13 +454,26 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	@Override
-	public RoadNetworkGraph clone() throws CloneNotSupportedException {
+	public RoadNetworkGraph clone() {
 		RoadNetworkGraph clone = new RoadNetworkGraph(isUpdatable, distFunc);
+		Map<String, RoadNode> id2NodeMapping = new HashMap<>();
 		for (RoadNode n : this.getNodes()) {
-			clone.addNode(n.clone());
+			RoadNode cloneNode = n.clone();
+			cloneNode.clearConnectedWays();
+			clone.addNode(cloneNode);
+			id2NodeMapping.put(cloneNode.getID(), cloneNode);
 		}
 		for (RoadWay w : this.getWays()) {
-			clone.addWay(w.clone());
+			RoadWay cloneWay = new RoadWay(w.getID(), w.getDistanceFunction());
+			if (!id2NodeMapping.containsKey(w.getNode(0).getID()) || !id2NodeMapping.containsKey(w.getNode(w.size() - 1).getID()))
+				throw new IllegalArgumentException("The road way to be cloned " + w.getID() + " is not originally linked to the " +
+						"intersections.");
+			cloneWay.addNode(id2NodeMapping.get(w.getNode(0).getID()));
+			for (int i = 1; i < w.getNodes().size() - 1; i++) {
+				cloneWay.addNode(w.getNode(i).clone());
+			}
+			cloneWay.addNode(id2NodeMapping.get(w.getNode(w.size() - 1).getID()));
+			clone.addWay(cloneWay);
 		}
 		if (clone.getMaxLon() != this.getMaxLon() || clone.getMinLon() != this.getMinLon() || clone.getMaxLat() != this.getMaxLat()
 				|| clone.getMinLat() != this.getMinLat())
@@ -445,5 +481,196 @@ public class RoadNetworkGraph implements Serializable {
 		if (clone.maxAbsWayID != this.maxAbsWayID || clone.maxMiniNodeID != this.maxMiniNodeID || clone.maxRoadNodeID != this.maxRoadNodeID)
 			LOG.warn("Clone result has different count of roads.");
 		return clone;
+	}
+	
+	/**
+	 * Convert a directed map to an undirected map.
+	 *
+	 * @return The undirected map.
+	 */
+	public RoadNetworkGraph toUndirectedMap() {
+		RoadNetworkGraph tempMap = this.clone();
+		int maxVisitCount = 0;
+		List<RoadWay> reverseWayList = new ArrayList<>();
+		List<RoadWay> remainingWayList = new ArrayList<>();
+		Set<String> wayEndPointPositionSet = new HashSet<>();
+		for (RoadWay w : tempMap.getWays()) {
+			if (!w.getID().contains("-")) {    // reverse
+				String endPointPosition =
+						w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode().lat();
+				String reverseEndPointPosition =
+						w.getToNode().lon() + "_" + w.getToNode().lat() + "," + w.getFromNode().lon() + "_" + w.getFromNode().lat();
+				if (wayEndPointPositionSet.contains(endPointPosition) || wayEndPointPositionSet.contains(reverseEndPointPosition)) {
+					LOG.error("Multiple roads have the same endpoints: " + endPointPosition);
+				} else {
+					wayEndPointPositionSet.add(endPointPosition);
+					maxVisitCount = maxVisitCount < w.getVisitCount() ? w.getVisitCount() : maxVisitCount;
+					remainingWayList.add(w);
+				}
+			} else
+				reverseWayList.add(w);
+		}
+		
+		// check if the removed roads have unique connection. Theoretically, they should all have reverse road included in the new map
+		for (RoadWay w : reverseWayList) {
+			String endPointPosition =
+					w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode().lat();
+			String reverseEndPointPosition =
+					w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode().lat();
+			if (!wayEndPointPositionSet.contains(endPointPosition) && !wayEndPointPositionSet.contains(reverseEndPointPosition)) {
+				LOG.error("Reverse road of " + w.getID() + " does not appear in the map.");
+				if (tempMap.wayIDList.contains(w.getID().substring(1))) {
+					LOG.error("More interestingly, " + w.getID() + " has reverse road but is not included in the new map.");
+				} else {
+					w.setId(w.getID().substring(1));
+					remainingWayList.add(w);
+				}
+			}
+		}
+		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, this.distFunc);
+		resultMap.setDirectedMap(false);
+		List<RoadNode> nodeList = new ArrayList<>();
+		for (RoadNode node : tempMap.getNodes()) {
+			node.clearConnectedWays();
+			nodeList.add(node);
+		}
+		resultMap.setNodes(nodeList);
+		resultMap.addWays(remainingWayList);
+		resultMap.updateBoundary();
+		return resultMap;
+	}
+	
+	public boolean isPlanarMap() {
+		return nonPlanarNodeCount() == 0;
+	}
+	
+	/**
+	 * Calculate the total number of crosses happens for roads that do not have intersection. =0 means the map is planar.
+	 *
+	 * @return Count of potential intersections
+	 */
+	public int nonPlanarNodeCount() {
+		RoadNetworkGraph currMap;
+		int count = 0;
+		if (isDirectedMap)
+			currMap = this.toUndirectedMap();
+		else
+			currMap = this.clone();
+		// TODO optimize the performance
+		for (int i = 0; i < currMap.getWays().size(); i++) {
+			RoadWay firstWay = currMap.getWay(i);
+			for (int j = i + 1; j < currMap.getWays().size(); j++) {
+				RoadWay secondWay = currMap.getWay(j);
+				for (Segment firstEdge : firstWay.getEdges()) {
+					for (Segment secondEdge : secondWay.getEdges()) {
+						if (firstEdge.intersects(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2()))
+							count++;
+					}
+				}
+			}
+		}
+		return count;
+	}
+	
+	/**
+	 * Convert the current map to a planar map.
+	 *
+	 * @return The result planar map.
+	 */
+	// TODO Test the function
+	public RoadNetworkGraph toPlanarMap() {
+		RoadNetworkGraph tempMap;
+		if (isDirectedMap)
+			tempMap = this.toUndirectedMap();
+		else
+			tempMap = this.clone();
+		List<RoadNode> newNodeList = new ArrayList<>();
+		List<RoadWay> newWayList = new ArrayList<>();
+		Set<RoadWay> removeWayList = new HashSet<>();
+		HashMap<String, List<RoadWay>> removedID2ReplacedRoadList = new HashMap<>();    // for each split road, its id and the generated roads
+		// intersection,
+		// TODO optimize the performance, same as the nonPlanarNodeCount()
+		for (int i = 0; i < tempMap.getWays().size(); i++) {
+			RoadWay firstWay = tempMap.getWay(i);
+			for (int j = i + 1; j < tempMap.getWays().size(); j++) {
+				RoadWay secondWay = tempMap.getWay(j);
+				boolean isIntersected = false;
+				for (Segment firstEdge : firstWay.getEdges()) {
+					for (Segment secondEdge : secondWay.getEdges()) {
+						if (firstEdge.intersects(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2())) {
+							if (isIntersected)
+								LOG.warn("The same road pair intersects more than once: " + firstWay.getID() + "," + secondWay.getID());
+							Point intersection = firstEdge.getIntersection(secondEdge);
+							RoadNode intersectionNode = new RoadNode("", intersection.x(), intersection.y(), distFunc);
+							
+							// split the first road
+							RoadWay candidateWay = null;    // the first road to be cut
+							if (!removeWayList.contains(firstWay)) {    // the first time this road got cut
+								candidateWay = firstWay;
+								removeWayList.add(firstWay);
+								removedID2ReplacedRoadList.put(firstWay.getID(), new ArrayList<>());
+							} else {
+								if (!removedID2ReplacedRoadList.containsKey(firstWay.getID()))
+									throw new IllegalArgumentException("Inconsistency between removedRoadWay and remove ID");
+								boolean isActualRoadFound = false;    // the actual road to be cut, instead of firstWay, is found
+								for (RoadWay way : removedID2ReplacedRoadList.get(firstWay.getID())) {
+									for (RoadNode node : way.getNodes()) {
+										if (node.toPoint().equals2D(firstEdge.p1())) {
+											candidateWay = way;
+											isActualRoadFound = true;
+											break;
+										}
+									}
+									if (isActualRoadFound)
+										break;
+								}
+								if (!isActualRoadFound)
+									throw new IllegalArgumentException("The actual sub road to be cut is not found:" + firstWay.getID());
+								newWayList.remove(candidateWay);
+								removedID2ReplacedRoadList.get(firstWay.getID()).remove(candidateWay);
+							}
+							List<RoadWay> splitFirstWayList = candidateWay.splitAtNode(intersectionNode, firstEdge);
+							newNodeList.add(intersectionNode);
+							newWayList.addAll(splitFirstWayList);
+							removedID2ReplacedRoadList.get(firstWay.getID()).addAll(splitFirstWayList);
+							
+							// split the second road
+							if (!removeWayList.contains(secondWay)) {    // the first time this road got cut
+								candidateWay = secondWay;
+								removeWayList.add(secondWay);
+								removedID2ReplacedRoadList.put(secondWay.getID(), new ArrayList<>());
+							} else {
+								if (!removedID2ReplacedRoadList.containsKey(secondWay.getID()))
+									throw new IllegalArgumentException("Inconsistency between removedRoadWay and remove ID");
+								boolean isActualRoadFound = false;    // the actual road to be cut, instead of secondWay, is found
+								for (RoadWay way : removedID2ReplacedRoadList.get(secondWay.getID())) {
+									for (RoadNode node : way.getNodes()) {
+										if (node.toPoint().equals2D(secondEdge.p1())) {
+											candidateWay = way;
+											isActualRoadFound = true;
+											break;
+										}
+									}
+									if (isActualRoadFound)
+										break;
+								}
+								if (!isActualRoadFound)
+									throw new IllegalArgumentException("The actual sub road to be cut is not found:" + secondWay.getID());
+								newWayList.remove(candidateWay);
+								removedID2ReplacedRoadList.get(secondWay.getID()).remove(candidateWay);
+							}
+							List<RoadWay> splitSecondWayList = candidateWay.splitAtNode(intersectionNode, secondEdge);
+							newWayList.addAll(splitSecondWayList);
+							removedID2ReplacedRoadList.get(secondWay.getID()).addAll(splitSecondWayList);
+							isIntersected = true;
+						}
+					}
+				}
+			}
+		}
+		tempMap.removeRoadWayList(removeWayList);
+		tempMap.addNodes(newNodeList);
+		tempMap.addWays(newWayList);
+		return tempMap;
 	}
 }

@@ -311,8 +311,7 @@ public class Segment extends SimpleSpatialObject {
 	 */
 	public Point getIntersection(Segment s) {
 		if (s == null) return null;
-		Coordinate c = this.toJTSLineSegment().
-				intersection(s.toJTSLineSegment());
+		Coordinate c = this.toJTSLineSegment().intersection(s.toJTSLineSegment());
 		if (c == null) {
 			return null;
 		}

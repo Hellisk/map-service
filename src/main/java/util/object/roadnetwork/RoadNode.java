@@ -21,12 +21,12 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	/**
 	 * Longitude coordinate (x)
 	 */
-	private final double lon; // x
+	private double lon; // x
 	
 	/**
 	 * Latitude coordinate (y)
 	 */
-	private final double lat; // y
+	private double lat; // y
 	
 	/**
 	 * In-coming and out-going way lists. An intersection should have non-empty way lists, whereas the mini nodes have empty lists.
@@ -109,6 +109,11 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	 */
 	public double lat() {
 		return lat;
+	}
+	
+	public void setLocation(double lon, double lat) {
+		this.lon = lon;
+		this.lat = lat;
 	}
 	
 	public Set<RoadWay> getInComingWayList() {

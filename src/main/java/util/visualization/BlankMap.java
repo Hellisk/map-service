@@ -1,4 +1,4 @@
-package util.visualisation;
+package util.visualization;
 
 import de.fhpotsdam.unfolding.core.Coordinate;
 import de.fhpotsdam.unfolding.providers.OpenStreetMap;

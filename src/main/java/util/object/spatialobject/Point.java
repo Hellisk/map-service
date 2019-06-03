@@ -36,9 +36,9 @@ public class Point extends SimpleSpatialObject {
 	/**
 	 * Point coordinates
 	 */
-	private final double x;
-	private final double y;
-	private final DistanceFunction distFunc;
+	private double x;
+	private double y;
+	private DistanceFunction distFunc;
 	/**
 	 * Auxiliary point from JTS old version
 	 */
@@ -77,6 +77,19 @@ public class Point extends SimpleSpatialObject {
 	 */
 	public double y() {
 		return y;
+	}
+	
+	/**
+	 * Reset the point and set kn kn new
+	 *
+	 * @param x  Nex X coordinate.
+	 * @param y  New Y coordinate.
+	 * @param df New distance function.
+	 */
+	public void setPoint(double x, double y, DistanceFunction df) {
+		this.x = x;
+		this.y = y;
+		this.distFunc = df;
 	}
 	
 	/**

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
 		extends ArrayList<T> implements SpatialObject {
-	private final DistanceFunction distFunc;
+	private DistanceFunction distFunc;
 	/**
 	 * Spatial object identifier.
 	 */
@@ -81,6 +81,10 @@ public abstract class ComplexSpatialObject<T extends SimpleSpatialObject>
 	@Override
 	public DistanceFunction getDistanceFunction() {
 		return distFunc;
+	}
+	
+	public void setDistanceFunction(DistanceFunction distFunc) {
+		this.distFunc = distFunc;
 	}
 	
 	@Override

@@ -6,7 +6,6 @@ import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,9 +29,8 @@ public class MapReader {
 	 * @param isUpdatable True if this map will be used for map update.
 	 * @param df          The distance function of the map.
 	 * @return A road network graph containing the road nodes and road ways.
-	 * @throws IOException File not found
 	 */
-	public static RoadNetworkGraph readMap(String filePath, boolean isUpdatable, DistanceFunction df) throws IOException {
+	public static RoadNetworkGraph readMap(String filePath, boolean isUpdatable, DistanceFunction df) {
 		String folderPath = filePath.substring(0, filePath.lastIndexOf('/') + 1);
 		String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
 		RoadNetworkGraph roadGraph = new RoadNetworkGraph(isUpdatable, df);
@@ -48,6 +46,7 @@ public class MapReader {
 		List<RoadWay> wayList = readWays(folderPath + "edges_" + fileName, index2Node, df);
 		roadGraph.addWays(wayList);
 		int removedNodeCount = roadGraph.isolatedNodeRemoval();
+		roadGraph.updateBoundary();
 		LOG.info(fileName + " road map read done. isolate nodes: " + removedNodeCount + ", total nodes:" + roadGraph.getNodes().size() + ", " +
 				"total road ways: " + roadGraph.getWays().size());
 		return roadGraph;
@@ -61,10 +60,9 @@ public class MapReader {
 	 * @param boundingBox The specified bounding box, same as readMap(0) when the bounding box is empty
 	 * @param df          The distance function of the map.
 	 * @return The road network graph enclosed by the given bounding box
-	 * @throws IOException file not found
 	 */
 	public static RoadNetworkGraph extractMapWithBoundary(String filePath, boolean isUpdatable, double[] boundingBox,
-														  DistanceFunction df) throws IOException {
+														  DistanceFunction df) {
 		// call readMap() if no boundary is set
 		if (boundingBox.length != 4)
 			return readMap(filePath, isUpdatable, df);
@@ -103,7 +101,7 @@ public class MapReader {
 	 * @param df       The distance function for the road nodes to be read.
 	 * @return A list of road nodes from the file.
 	 */
-	public static List<RoadNode> readNodes(String filePath, DistanceFunction df) {
+	private static List<RoadNode> readNodes(String filePath, DistanceFunction df) {
 		if (!filePath.contains("vertices_"))
 			LOG.warn("Invalid file name for a road node file: " + filePath);
 		List<RoadNode> nodeList = new ArrayList<>();
