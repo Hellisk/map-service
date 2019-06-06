@@ -417,5 +417,4 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 	public void print() {
 		LOG.info("TRAJECTORY ( " + toString() + " )");
 	}
-	
 }

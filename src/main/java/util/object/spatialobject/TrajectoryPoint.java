@@ -21,7 +21,7 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	private final long time;        // timestamps
 	private final double speed;        // the instantaneous speed of the object at the current time
 	private final double heading;    // the heading of trajectory point ranging between -179~180. Degree 0 = (1,0)
-	private final DistanceFunction distFunc;
+	private DistanceFunction distFunc;
 	
 	/**
 	 * Create a new empty point with zero time stamp.
@@ -120,6 +120,10 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	@Override
 	public DistanceFunction getDistanceFunction() {
 		return this.distFunc;
+	}
+	
+	public void setDistFunc(DistanceFunction distFunc) {
+		this.distFunc = distFunc;
 	}
 	
 	@Override

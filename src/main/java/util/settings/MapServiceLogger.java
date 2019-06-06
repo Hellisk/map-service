@@ -27,7 +27,6 @@ public class MapServiceLogger {
 		// read the log settings from property file
 		InputStream in = MapServiceLogger.class.getClassLoader().getResourceAsStream("log4j.properties");
 		PropertyConfigurator.configure(in); // refresh the log file path property
-		System.setProperty("log4j.rootLogger", "INFO, file, stdout");
 		final Logger LOG = Logger.getLogger(MapServiceLogger.class);   // log entry
 		LOG.debug("Log initialization done.");
 	}

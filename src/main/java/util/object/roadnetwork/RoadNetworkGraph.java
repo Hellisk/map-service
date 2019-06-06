@@ -17,7 +17,7 @@ import java.util.*;
 public class RoadNetworkGraph implements Serializable {
 	
 	private static final Logger LOG = Logger.getLogger(RoadNetworkGraph.class);
-	private final DistanceFunction distFunc;
+	private DistanceFunction distFunc;
 	/**
 	 * OSM primitives
 	 */
@@ -360,6 +360,10 @@ public class RoadNetworkGraph implements Serializable {
 		return distFunc;
 	}
 	
+	public void setDistanceFunction(DistanceFunction distFunc) {
+		this.distFunc = distFunc;
+	}
+	
 	/**
 	 * Check whether this road network graph is empty.
 	 *
@@ -475,6 +479,7 @@ public class RoadNetworkGraph implements Serializable {
 			cloneWay.addNode(id2NodeMapping.get(w.getNode(w.size() - 1).getID()));
 			clone.addWay(cloneWay);
 		}
+		clone.updateBoundary();
 		if (clone.getMaxLon() != this.getMaxLon() || clone.getMinLon() != this.getMinLon() || clone.getMaxLat() != this.getMaxLat()
 				|| clone.getMinLat() != this.getMinLat())
 			LOG.warn("Clone result has different boundary as the original object.");
@@ -550,20 +555,22 @@ public class RoadNetworkGraph implements Serializable {
 	 * @return Count of potential intersections
 	 */
 	public int nonPlanarNodeCount() {
-		RoadNetworkGraph currMap;
+		RoadNetworkGraph currMap = this.clone();
 		int count = 0;
-		if (isDirectedMap)
-			currMap = this.toUndirectedMap();
-		else
-			currMap = this.clone();
 		// TODO optimize the performance
 		for (int i = 0; i < currMap.getWays().size(); i++) {
 			RoadWay firstWay = currMap.getWay(i);
 			for (int j = i + 1; j < currMap.getWays().size(); j++) {
 				RoadWay secondWay = currMap.getWay(j);
+				if (secondWay.getFromNode().toPoint().equals2D(firstWay.getToNode().toPoint())
+						|| secondWay.getFromNode().toPoint().equals2D(firstWay.getFromNode().toPoint())
+						|| secondWay.getToNode().toPoint().equals2D(firstWay.getFromNode().toPoint())
+						|| secondWay.getToNode().toPoint().equals2D(firstWay.getToNode().toPoint())) {
+					continue;
+				}
 				for (Segment firstEdge : firstWay.getEdges()) {
 					for (Segment secondEdge : secondWay.getEdges()) {
-						if (firstEdge.intersects(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2()))
+						if (firstEdge.crosses(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2()))
 							count++;
 					}
 				}
@@ -579,29 +586,41 @@ public class RoadNetworkGraph implements Serializable {
 	 */
 	// TODO Test the function
 	public RoadNetworkGraph toPlanarMap() {
-		RoadNetworkGraph tempMap;
-		if (isDirectedMap)
-			tempMap = this.toUndirectedMap();
-		else
-			tempMap = this.clone();
+		RoadNetworkGraph tempMap = this.clone();
 		List<RoadNode> newNodeList = new ArrayList<>();
 		List<RoadWay> newWayList = new ArrayList<>();
 		Set<RoadWay> removeWayList = new HashSet<>();
-		HashMap<String, List<RoadWay>> removedID2ReplacedRoadList = new HashMap<>();    // for each split road, its id and the generated roads
-		// intersection,
+		Map<String, List<RoadWay>> removedID2ReplacedRoadList = new HashMap<>();    // for each split road, its id and the generated road
+		// intersections
+		Map<String, RoadNode> location2NewIntersectionMap = new HashMap<>();
 		// TODO optimize the performance, same as the nonPlanarNodeCount()
 		for (int i = 0; i < tempMap.getWays().size(); i++) {
 			RoadWay firstWay = tempMap.getWay(i);
 			for (int j = i + 1; j < tempMap.getWays().size(); j++) {
 				RoadWay secondWay = tempMap.getWay(j);
+				if (secondWay.getFromNode().toPoint().equals2D(firstWay.getToNode().toPoint())
+						|| secondWay.getFromNode().toPoint().equals2D(firstWay.getFromNode().toPoint())
+						|| secondWay.getToNode().toPoint().equals2D(firstWay.getFromNode().toPoint())
+						|| secondWay.getToNode().toPoint().equals2D(firstWay.getToNode().toPoint())) {
+					continue;
+				}
 				boolean isIntersected = false;
 				for (Segment firstEdge : firstWay.getEdges()) {
 					for (Segment secondEdge : secondWay.getEdges()) {
-						if (firstEdge.intersects(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2())) {
+						if (firstEdge.crosses(secondEdge.x1(), secondEdge.y1(), secondEdge.x2(), secondEdge.y2())) {
 							if (isIntersected)
 								LOG.warn("The same road pair intersects more than once: " + firstWay.getID() + "," + secondWay.getID());
 							Point intersection = firstEdge.getIntersection(secondEdge);
-							RoadNode intersectionNode = new RoadNode("", intersection.x(), intersection.y(), distFunc);
+							String interSectLocation = intersection.x() + "_" + intersection.y();
+							RoadNode intersectionNode;
+							if (location2NewIntersectionMap.containsKey(interSectLocation))
+								intersectionNode = location2NewIntersectionMap.get(interSectLocation);
+							else {
+								intersectionNode = new RoadNode(intersection.x() + intersection.y() + "", intersection.x(), intersection.y(),
+										distFunc);
+								newNodeList.add(intersectionNode);
+								location2NewIntersectionMap.put(interSectLocation, intersectionNode);
+							}
 							
 							// split the first road
 							RoadWay candidateWay = null;    // the first road to be cut
@@ -609,14 +628,24 @@ public class RoadNetworkGraph implements Serializable {
 								candidateWay = firstWay;
 								removeWayList.add(firstWay);
 								removedID2ReplacedRoadList.put(firstWay.getID(), new ArrayList<>());
+								List<RoadWay> splitFirstWayList = candidateWay.splitAtNode(intersectionNode, firstEdge);
+								newWayList.addAll(splitFirstWayList);
+								removedID2ReplacedRoadList.get(firstWay.getID()).addAll(splitFirstWayList);
 							} else {
 								if (!removedID2ReplacedRoadList.containsKey(firstWay.getID()))
 									throw new IllegalArgumentException("Inconsistency between removedRoadWay and remove ID");
 								boolean isActualRoadFound = false;    // the actual road to be cut, instead of firstWay, is found
 								for (RoadWay way : removedID2ReplacedRoadList.get(firstWay.getID())) {
-									for (RoadNode node : way.getNodes()) {
+									List<RoadNode> nodes = way.getNodes();
+									for (int index = 0; index < nodes.size(); index++) {
+										RoadNode node = nodes.get(index);
 										if (node.toPoint().equals2D(firstEdge.p1())) {
-											candidateWay = way;
+											if (index == 0 || index == nodes.size() - 1) {    // the end point of the current way is the
+												// intersection, has been cut correctly.
+												candidateWay = null;
+											} else {
+												candidateWay = way;
+											}
 											isActualRoadFound = true;
 											break;
 										}
@@ -626,27 +655,39 @@ public class RoadNetworkGraph implements Serializable {
 								}
 								if (!isActualRoadFound)
 									throw new IllegalArgumentException("The actual sub road to be cut is not found:" + firstWay.getID());
-								newWayList.remove(candidateWay);
-								removedID2ReplacedRoadList.get(firstWay.getID()).remove(candidateWay);
+								if (candidateWay != null) {    // new break happens
+									newWayList.remove(candidateWay);
+									removedID2ReplacedRoadList.get(firstWay.getID()).remove(candidateWay);
+									List<RoadWay> splitFirstWayList = candidateWay.splitAtNode(intersectionNode, firstEdge);
+									newWayList.addAll(splitFirstWayList);
+									removedID2ReplacedRoadList.get(firstWay.getID()).addAll(splitFirstWayList);
+								}
 							}
-							List<RoadWay> splitFirstWayList = candidateWay.splitAtNode(intersectionNode, firstEdge);
-							newNodeList.add(intersectionNode);
-							newWayList.addAll(splitFirstWayList);
-							removedID2ReplacedRoadList.get(firstWay.getID()).addAll(splitFirstWayList);
 							
 							// split the second road
+							candidateWay = null;    // the second road to be cut
 							if (!removeWayList.contains(secondWay)) {    // the first time this road got cut
 								candidateWay = secondWay;
 								removeWayList.add(secondWay);
 								removedID2ReplacedRoadList.put(secondWay.getID(), new ArrayList<>());
+								List<RoadWay> splitSecondWayList = candidateWay.splitAtNode(intersectionNode, secondEdge);
+								newWayList.addAll(splitSecondWayList);
+								removedID2ReplacedRoadList.get(secondWay.getID()).addAll(splitSecondWayList);
 							} else {
 								if (!removedID2ReplacedRoadList.containsKey(secondWay.getID()))
 									throw new IllegalArgumentException("Inconsistency between removedRoadWay and remove ID");
 								boolean isActualRoadFound = false;    // the actual road to be cut, instead of secondWay, is found
 								for (RoadWay way : removedID2ReplacedRoadList.get(secondWay.getID())) {
-									for (RoadNode node : way.getNodes()) {
+									List<RoadNode> nodes = way.getNodes();
+									for (int index = 0; index < nodes.size(); index++) {
+										RoadNode node = nodes.get(index);
 										if (node.toPoint().equals2D(secondEdge.p1())) {
-											candidateWay = way;
+											if (index == 0 || index == nodes.size() - 1) {    // the end point of the current way is the
+												// intersection, has been cut correctly.
+												candidateWay = null;
+											} else {
+												candidateWay = way;
+											}
 											isActualRoadFound = true;
 											break;
 										}
@@ -656,12 +697,15 @@ public class RoadNetworkGraph implements Serializable {
 								}
 								if (!isActualRoadFound)
 									throw new IllegalArgumentException("The actual sub road to be cut is not found:" + secondWay.getID());
-								newWayList.remove(candidateWay);
-								removedID2ReplacedRoadList.get(secondWay.getID()).remove(candidateWay);
+								if (candidateWay != null) {    // new break happens
+									newWayList.remove(candidateWay);
+									removedID2ReplacedRoadList.get(secondWay.getID()).remove(candidateWay);
+									List<RoadWay> splitSecondWayList = candidateWay.splitAtNode(intersectionNode, secondEdge);
+									newWayList.addAll(splitSecondWayList);
+									removedID2ReplacedRoadList.get(secondWay.getID()).addAll(splitSecondWayList);
+								}
 							}
-							List<RoadWay> splitSecondWayList = candidateWay.splitAtNode(intersectionNode, secondEdge);
-							newWayList.addAll(splitSecondWayList);
-							removedID2ReplacedRoadList.get(secondWay.getID()).addAll(splitSecondWayList);
+							
 							isIntersected = true;
 						}
 					}

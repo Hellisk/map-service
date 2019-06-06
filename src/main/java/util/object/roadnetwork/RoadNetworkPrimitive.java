@@ -12,7 +12,7 @@ import java.util.Map;
  * @author uqdalves, Hellisk
  */
 public abstract class RoadNetworkPrimitive implements Cloneable, Serializable {
-	private final DistanceFunction distFunc;
+	private DistanceFunction distFunc;
 	/**
 	 * Common attributes of OSM primitives - as in the OSM file
 	 */
@@ -111,6 +111,10 @@ public abstract class RoadNetworkPrimitive implements Cloneable, Serializable {
 	 */
 	public DistanceFunction getDistanceFunction() {
 		return this.distFunc;
+	}
+	
+	public void setDistFunc(DistanceFunction distFunc) {
+		this.distFunc = distFunc;
 	}
 	
 	/**

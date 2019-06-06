@@ -9,7 +9,9 @@ import util.object.spatialobject.*;
 import util.object.structure.Pair;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation of miscellaneous utilities functions.
@@ -361,6 +363,7 @@ public class SpatialUtils implements Serializable {
 	public static Pair<Double, Double> convertGCJ2WGS(double lon, double lat) {
 		// the GCJ-02 is only used in China region
 		if (outOfChina(lon, lat)) {
+			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
 			return new Pair<>(lon, lat);
 		}
 		double[] delta = delta(lon, lat);
@@ -377,6 +380,7 @@ public class SpatialUtils implements Serializable {
 	public static Pair<Double, Double> convertWGS2GCJ(double lon, double lat) {
 		// the GCJ-02 is only used in China region
 		if (outOfChina(lon, lat)) {
+			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
 			return new Pair<>(lon, lat);
 		}
 		double[] delta = delta(lon, lat);
@@ -570,94 +574,129 @@ public class SpatialUtils implements Serializable {
 	}
 	
 	/**
-	 * Change the coordinate system for a list of trajectories under GCJ-02 to Mercator Projection.
+	 * Change the coordination system of a trajectory from GCJ-02 to WGS84.
 	 *
-	 * @param inputTrajList The input trajectory list.
-	 * @return The output trajectory list with Mercator coordinate system.
+	 * @param traj The input trajectory.
 	 */
-	public static List<Trajectory> convertTrajectoriesGCJ2UTM(List<Trajectory> inputTrajList) {
-		DistanceFunction newDistFunc = new EuclideanDistanceFunction();
-		for (Trajectory traj : inputTrajList) {
-			for (TrajectoryPoint p : traj) {
-				double lon = p.x();
-				double lat = p.y();
-				Pair<Double, Double> resultWGS = SpatialUtils.convertGCJ2WGS(lon, lat);
-				Pair<Double, Double> resultUTM = SpatialUtils.convertWGS2UTM(resultWGS._1(), resultWGS._2());
-				p.setPoint(resultUTM._1(), resultUTM._2(), newDistFunc);
-			}
-			traj.setDistanceFunction(newDistFunc);
+	public static void convertTrajGCJ2WGS(Trajectory traj) {
+		for (TrajectoryPoint trajPoint : traj) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertGCJ2WGS(trajPoint.x(), trajPoint.y());
+			trajPoint.setPoint(wgsPosition._1(), wgsPosition._2(), trajPoint.getDistanceFunction());
 		}
-		return inputTrajList;
 	}
 	
 	/**
-	 * Change the coordinate system for a list of trajectories under WGS84 to Mercator Projection.
+	 * Change the coordination system of a trajectory from WGS84 to UTM.
 	 *
-	 * @param inputTrajList The input trajectory list.
-	 * @return The output trajectory list with Mercator coordinate system.
+	 * @param traj The input trajectory.
 	 */
-	public static List<Trajectory> convertTrajectoriesWGS2UTM(List<Trajectory> inputTrajList) {
-		DistanceFunction newDistFunc = new EuclideanDistanceFunction();
-		for (Trajectory traj : inputTrajList) {
-			for (TrajectoryPoint p : traj) {
-				double lon = p.x();
-				double lat = p.y();
-				Pair<Double, Double> resultUTM = SpatialUtils.convertWGS2UTM(lon, lat);
-				p.setPoint(resultUTM._1(), resultUTM._2(), newDistFunc);
-			}
-			traj.setDistanceFunction(newDistFunc);
+	public static void convertTrajWGS2UTM(Trajectory traj) {
+		DistanceFunction distFunc = new EuclideanDistanceFunction();
+		traj.setDistanceFunction(distFunc);
+		for (TrajectoryPoint trajPoint : traj) {
+			Pair<Double, Double> utmPosition = SpatialUtils.convertWGS2UTM(trajPoint.x(), trajPoint.y());
+			trajPoint.setPoint(utmPosition._1(), utmPosition._2(), distFunc);
 		}
-		return inputTrajList;
 	}
 	
 	/**
-	 * Change the coordinate system for a map under GCJ-02 to Mercator Projection.
+	 * Change the coordination system of a trajectory from GCJ-02 to UTM.
 	 *
-	 * @param inputMap The input map.
-	 * @return The map output with Mercator coordinate system.
+	 * @param traj The input trajectory.
 	 */
-	public static RoadNetworkGraph convertMapGCJ2UTM(RoadNetworkGraph inputMap) {
-		DistanceFunction newDistFunc = new EuclideanDistanceFunction();
-		RoadNetworkGraph newGraph = new RoadNetworkGraph(false, newDistFunc);
-		Map<String, RoadNode> index2Node = new HashMap<>();
-		List<RoadNode> nodeList = new ArrayList<>();
-		List<RoadWay> wayList = new ArrayList<>();
-		
-		for (RoadNode n : inputMap.getNodes()) {
-			double lon = n.lon();
-			double lat = n.lat();
-			Pair<Double, Double> resultWGS = SpatialUtils.convertGCJ2WGS(lon, lat);
-			Pair<Double, Double> resultUTM = SpatialUtils.convertWGS2UTM(resultWGS._1(), resultWGS._2());
-			RoadNode currNode = new RoadNode(n.getID(), resultUTM._1(), resultUTM._2(), newDistFunc);
-			index2Node.put(n.getID(), currNode);
-			nodeList.add(currNode);
+	public static void convertTrajGCJ2UTM(Trajectory traj) {
+		DistanceFunction distFunc = new EuclideanDistanceFunction();
+		traj.setDistanceFunction(distFunc);
+		for (TrajectoryPoint trajPoint : traj) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertGCJ2WGS(trajPoint.x(), trajPoint.y());
+			Pair<Double, Double> utmPosition = SpatialUtils.convertWGS2UTM(wgsPosition._1(), wgsPosition._2());
+			trajPoint.setPoint(utmPosition._1(), utmPosition._2(), distFunc);
 		}
-		newGraph.setNodes(nodeList);
-		
-		for (RoadWay w : inputMap.getWays()) {
-			RoadWay currWay = new RoadWay(w.getID(), newDistFunc);
-			List<RoadNode> miniNodeList = new ArrayList<>();
-			List<RoadNode> nodes = w.getNodes();
-			if (index2Node.containsKey(w.getNode(0).getID()) && index2Node.containsKey(w.getNode(nodes.size() - 1).getID())) {
-				miniNodeList.add(index2Node.get(w.getNode(0).getID()));
-				for (int i = 1; i < nodes.size() - 1; i++) {
-					RoadNode n = nodes.get(i);
-					double lon = n.lon();
-					double lat = n.lat();
-					Pair<Double, Double> resultWGS = SpatialUtils.convertGCJ2WGS(lon, lat);
-					Pair<Double, Double> resultUTM = SpatialUtils.convertWGS2UTM(resultWGS._1(), resultWGS._2());
-					RoadNode currMiniNode = new RoadNode(n.getID(), resultUTM._1(), resultUTM._2(), newDistFunc);
-					miniNodeList.add(currMiniNode);
-				}
-				miniNodeList.add(index2Node.get(w.getNode(nodes.size() - 1).getID()));
-			}
-			currWay.setNodes(miniNodeList);
-			wayList.add(currWay);
+	}
+	
+	/**
+	 * Change the coordination system of a trajectory from UTM to WGS84.
+	 *
+	 * @param traj The input trajectory.
+	 */
+	public static void convertTrajUTM2WGS(Trajectory traj, int zone, char letter) {
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();
+		traj.setDistanceFunction(distFunc);
+		for (TrajectoryPoint trajPoint : traj) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertUTM2WGS(trajPoint.x(), trajPoint.y(), zone, letter);
+			trajPoint.setPoint(wgsPosition._1(), wgsPosition._2(), distFunc);
 		}
-		newGraph.addWays(wayList);
-		int removeCount = newGraph.isolatedNodeRemoval();
-		if (removeCount != 0)
-			throw new IllegalArgumentException("New nodes found to be isolated after coordination conversion: " + removeCount);
-		return newGraph;
+	}
+	
+	
+	/**
+	 * Change the coordination system of the input map from GCJ-02 to WGS84.
+	 *
+	 * @param map The input map.
+	 */
+	public static void convertMapGCJ2WGS(RoadNetworkGraph map) {
+		for (RoadNode node : map.getAllTypeOfNodes()) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertGCJ2WGS(node.lon(), node.lat());
+			node.setLocation(wgsPosition._1(), wgsPosition._2());
+		}
+		map.updateBoundary();
+	}
+	
+	/**
+	 * Change the coordination system of the input map from WGS84 to UTM. The distance function should be changed.
+	 *
+	 * @param map The input map.
+	 */
+	public static void convertMapWGS2UTM(RoadNetworkGraph map) {
+		DistanceFunction distFunc = new EuclideanDistanceFunction();
+		map.setDistanceFunction(distFunc);
+		for (RoadNode node : map.getAllTypeOfNodes()) {
+			Pair<Double, Double> utmPosition = SpatialUtils.convertWGS2UTM(node.lon(), node.lat());
+			node.setLocation(utmPosition._1(), utmPosition._2());
+			node.setDistFunc(distFunc);
+		}
+		for (RoadWay way : map.getWays()) {
+			way.setDistFunc(distFunc);
+		}
+		map.updateBoundary();
+	}
+	
+	/**
+	 * Change the coordination system of the input map from GCJ-02 to UTM.
+	 *
+	 * @param map The input map.
+	 */
+	public static void convertMapGCJ2UTM(RoadNetworkGraph map) {
+		DistanceFunction distFunc = new EuclideanDistanceFunction();
+		map.setDistanceFunction(distFunc);
+		for (RoadNode node : map.getAllTypeOfNodes()) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertGCJ2WGS(node.lon(), node.lat());
+			Pair<Double, Double> utmPosition = SpatialUtils.convertWGS2UTM(wgsPosition._1(), wgsPosition._2());
+			node.setLocation(utmPosition._1(), utmPosition._2());
+			node.setDistFunc(distFunc);
+		}
+		for (RoadWay way : map.getWays()) {
+			way.setDistFunc(distFunc);
+		}
+		map.updateBoundary();
+	}
+	
+	/**
+	 * Change the coordination system of the input map from UTM to WGS84.
+	 *
+	 * @param map The input map.
+	 */
+	public static void convertMapUTM2WGS(RoadNetworkGraph map, int zone, char letter) {
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();
+		map.setDistanceFunction(distFunc);
+		for (RoadNode node : map.getAllTypeOfNodes()) {
+			Pair<Double, Double> wgsPosition = SpatialUtils.convertUTM2WGS(node.lon(), node.lat(), zone, letter);
+			node.setLocation(wgsPosition._1(), wgsPosition._2());
+			node.setDistFunc(distFunc);
+		}
+		for (RoadWay way : map.getWays()) {
+			way.setDistFunc(distFunc);
+		}
+		map.updateBoundary();
 	}
 }

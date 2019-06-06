@@ -250,6 +250,8 @@ public class LineClusteringMapInference {
 					Point p = traj.get(i);
 					currNodeList.add(new RoadNode(i + "", p.x(), p.y(), distFunc));
 				}
+				if (currNodeList.size() < 2)
+					continue;
 				RoadWay currWay = new RoadWay(cluster.getId(), currNodeList, distFunc);
 				currWay.setNewRoad(true);
 				currWay.setConfidenceScore(1);

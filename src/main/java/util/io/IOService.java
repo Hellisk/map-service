@@ -25,12 +25,13 @@ public final class IOService implements Serializable {
 	 */
 	public static synchronized void createFolder(String folderPath) {
 		File fileFolder = new File(folderPath);
-		if (!fileFolder.exists())
+		if (!fileFolder.exists()) {
 			if (!fileFolder.mkdirs()) try {
 				throw new IOException("Folder create fail.");   // do not use LOG as it may not be initialised yet
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
 	}
 	
 	/**

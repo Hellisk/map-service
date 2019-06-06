@@ -456,7 +456,7 @@ public class RoadWay extends RoadNetworkPrimitive {
 	}
 	
 	/**
-	 * Split the current road into two roads based on the given the intersection node which is on one of its road segment. The ID of the
+	 * Split the current road into two roads based on the given intersection node which is on one of its road segment. The ID of the
 	 * new roads is the original ID with an additional '+' or '-' based on whether it is the upper part or lower part, respectively.
 	 *
 	 * @param intersectionNode The intersection node.

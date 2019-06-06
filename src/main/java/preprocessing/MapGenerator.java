@@ -20,7 +20,7 @@ import java.util.*;
  * Created 31/05/2019
  */
 public class MapGenerator {
-	private static double CANDIDATE_RANGE = 50;
+	private static double CANDIDATE_RANGE = 5;
 	
 	/**
 	 * Generate map which contains only topological errors.
@@ -39,15 +39,20 @@ public class MapGenerator {
 		
 		Set<RoadWay> removedWayList = new LinkedHashSet<>();
 		Set<String> completeWaySet = new HashSet<>();    // roads that has been processed by its reverse direction
+		Set<String> insertNodeIDSet = new HashSet<>();
 		for (RoadWay currWay : candidateWayList) {
 			if (completeWaySet.contains(currWay.getID()))
 				continue;
-			if (currWay.getLength() < CANDIDATE_RANGE)
+			if (currWay.getLength() < CANDIDATE_RANGE) {
 				removedWayList.add(currWay);
+				continue;
+			}
 			// remove the connection
 			RoadNode prevIntersection = currWay.getToNode();
 			prevIntersection.removeInComingWayFromList(currWay);
-			String replaceID = currWay.getToNode().getID();
+			String replaceID = currWay.getToNode().getID() + "+";
+			if (insertNodeIDSet.contains(replaceID))
+				replaceID = replaceID + "+";
 			Segment lastSegment = currWay.getEdges().get(currWay.size() - 2);    // the last segment
 			currWay.getNodes().remove(currWay.getToNode());
 			RoadNode newIntersection;
@@ -55,17 +60,19 @@ public class MapGenerator {
 				newIntersection = currWay.getToNode();
 			} else {
 				double ratio = (lastSegment.length() - CANDIDATE_RANGE) / lastSegment.length();
-				double replaceX = (lastSegment.x2() - lastSegment.x1()) * ratio;
-				double replaceY = (lastSegment.y2() - lastSegment.y1()) * ratio;
+				double replaceX = lastSegment.x2() - (lastSegment.x2() - lastSegment.x1()) * ratio;
+				double replaceY = lastSegment.y2() - (lastSegment.y2() - lastSegment.y1()) * ratio;
 				newIntersection = new RoadNode(replaceID, replaceX, replaceY, currWay.getDistanceFunction());
 			}
 			newIntersection.setId(replaceID);
 			newIntersection.addInComingWay(currWay);
+			currWay.addNode(newIntersection);
 			completeWaySet.add(currWay.getID());
 			// find if the reverse road exists, remove the corresponding point as well
+			RoadWay reverseWay = null;
 			for (RoadWay way : prevIntersection.getOutGoingWayList()) {
 				if (way.getToNode().toPoint().equals2D(currWay.getFromNode().toPoint())) {
-					prevIntersection.removeOutGoingWayFromList(way);
+					reverseWay = way;
 					way.getNodes().remove(0);
 					List<RoadNode> nodeList = new ArrayList<>();
 					nodeList.add(newIntersection);
@@ -73,9 +80,13 @@ public class MapGenerator {
 					way.setNodes(nodeList);
 					way.getFromNode().addOutGoingWay(way);
 					completeWaySet.add(way.getID());
+					break;
 				}
 			}
+			if (reverseWay != null)
+				prevIntersection.removeOutGoingWayFromList(reverseWay);
 			originalGraph.addNode(newIntersection);
+			insertNodeIDSet.add(newIntersection.getID());
 		}
 		originalGraph.removeRoadWayList(removedWayList);
 		return originalGraph;
@@ -93,7 +104,7 @@ public class MapGenerator {
 		// randomly select intersections
 		Set<Integer> selectedIndex = new LinkedHashSet<>();
 		DistanceFunction distFunc = originalMap.getDistanceFunction();
-		Random random = new Random();
+		Random random = new Random(20);
 		int nodeSize = originalMap.getNodes().size();
 		while (selectedIndex.size() < nodeSize * percentage / 100.0) {
 			selectedIndex.add(random.nextInt(nodeSize));
@@ -176,8 +187,8 @@ public class MapGenerator {
 		// build index for spurious road search
 		double lonDistance = distFunc.pointToPointDistance(originalMap.getMaxLon(), 0d, originalMap.getMinLon(), 0d);
 		double latDistance = distFunc.pointToPointDistance(0d, originalMap.getMaxLat(), 0d, originalMap.getMinLat());
-		int columnNum = (int) Math.round(lonDistance / 2 * averageLength);
-		int rowNum = (int) Math.round(latDistance / 2 * averageLength);
+		int columnNum = (int) Math.round(lonDistance / (2 * averageLength));
+		int rowNum = (int) Math.round(latDistance / (2 * averageLength));
 		Grid<Point> grid = new Grid<>(columnNum + 2, rowNum + 2, originalMap.getMinLon(), originalMap.getMinLat(),
 				originalMap.getMaxLon(), originalMap.getMaxLat(), distFunc);
 		
@@ -215,8 +226,8 @@ public class MapGenerator {
 		
 		Random random = new Random();
 		double spuriousRoadLength = 0;
-		int pairsPerSearch = 5;
 		Set<String> selectedPairSet = new HashSet<>();    // store all pairs that have been checked (not necessarily valid) to avoid double
+		Set<String> addedWayIDSet = new HashSet<>();    // avoid roads with the same id, it can happen when one road is split twice
 		// check
 		List<RoadWay> newWayList = new ArrayList<>();
 		List<RoadNode> newNodeList = new ArrayList<>();
@@ -224,71 +235,83 @@ public class MapGenerator {
 			int position = random.nextInt(rowNum * columnNum);
 			int row = position / rowNum;
 			int column = position % rowNum;
+			if (grid.get(row, column) == null || grid.get(row, column).isEmpty())
+				continue;
 			List<XYObject<Point>> centreCandidateList = grid.get(row, column).getObjectsList();
 			List<GridPartition<Point>> adjacentPartitionList = grid.adjacentPartitionSearch(row, column);
 			List<XYObject<Point>> adjacentCandidateList = new ArrayList<>();
 			for (GridPartition<Point> partition : adjacentPartitionList) {
-				adjacentCandidateList.addAll(partition.getObjectsList());
+				if (partition != null && !partition.isEmpty())
+					adjacentCandidateList.addAll(partition.getObjectsList());
 			}
-			for (int i = 0; i < pairsPerSearch; i++) {
-				Point startPoint = centreCandidateList.get(random.nextInt(centreCandidateList.size())).getSpatialObject();
-				Point endPoint = adjacentCandidateList.get(random.nextInt(adjacentCandidateList.size())).getSpatialObject();
-				if (!selectedPairSet.contains(startPoint.getID() + "," + endPoint.getID())) {
-					selectedPairSet.add(startPoint.getID() + "," + endPoint.getID());
-					boolean isValidPair = true;
-					RoadWay startWay = allWayMapping.get(Integer.parseInt(startPoint.getID()));
-					RoadWay endWay = allWayMapping.get(Integer.parseInt(endPoint.getID()));
-					RoadNode startNode = allNodeMapping.get(Integer.parseInt(startPoint.getID()));
-					RoadNode endNode = allNodeMapping.get(Integer.parseInt(endPoint.getID()));
-					// check if the two points are on the same way or not, if so, ignore the current pair
-					if (startWay.equals(emptyWay)) {    // start node is an intersection
-						if (endWay.equals(emptyWay)) {    // two nodes are all intersection nodes
-							for (RoadWay way : startNode.getOutGoingWayList()) {
-								if (endNode.getInComingWayList().contains(way)) {    // two nodes are already connected, discard this pair
-									isValidPair = false;
-									break;
-								}
+			if (adjacentCandidateList.isEmpty())
+				continue;
+			Point startPoint = centreCandidateList.get(random.nextInt(centreCandidateList.size())).getSpatialObject();
+			Point endPoint = adjacentCandidateList.get(random.nextInt(adjacentCandidateList.size())).getSpatialObject();
+			if (!selectedPairSet.contains(startPoint.getID()) && !selectedPairSet.contains(endPoint.getID())) {    // current point pair
+				// is never touched
+				selectedPairSet.add(startPoint.getID());
+				selectedPairSet.add(endPoint.getID());
+				boolean isValidPair = true;
+				RoadWay startWay = allWayMapping.get(Integer.parseInt(startPoint.getID()));
+				RoadWay endWay = allWayMapping.get(Integer.parseInt(endPoint.getID()));
+				RoadNode startNode = allNodeMapping.get(Integer.parseInt(startPoint.getID()));
+				RoadNode endNode = allNodeMapping.get(Integer.parseInt(endPoint.getID()));
+				// check if the two points are on the same way or not, if so, ignore the current pair
+				if (startWay.equals(emptyWay)) {    // start node is an intersection
+					if (endWay.equals(emptyWay)) {    // two nodes are all intersection nodes
+						for (RoadWay way : startNode.getOutGoingWayList()) {
+							if (endNode.getInComingWayList().contains(way)) {    // two nodes are already connected, discard this pair
+								isValidPair = false;
+								break;
 							}
-						} else {
-							if (startNode.getOutGoingWayList().contains(endWay) || startNode.getInComingWayList().contains(endWay))
-								isValidPair = false;
 						}
-					} else {    // start node is not an intersection
-						if (endWay.equals(emptyWay)) {
-							if (endNode.getInComingWayList().contains(startWay) || endNode.getOutGoingWayList().contains(startWay))
-								isValidPair = false;
-						} else {
-							String reverseStartID = startWay.getID().charAt(0) == '-' ? startWay.getID().substring(1) :
-									"-" + startWay.getID();
-							if (startWay.getID().equals(endWay.getID()) || reverseStartID.equals(endWay.getID()))
-								isValidPair = false;
-						}
+					} else {
+						if (startNode.getOutGoingWayList().contains(endWay) || startNode.getInComingWayList().contains(endWay))
+							isValidPair = false;
 					}
-					if (isValidPair) {
-						spuriousRoadLength += distFunc.distance(startPoint, endPoint);
-						
-						if (!startWay.equals(emptyWay)) {    // split the current roads and add new roads
-							startWay.getFromNode().removeOutGoingWayFromList(startWay);
-							startWay.getToNode().removeInComingWayFromList(startWay);
-							newWayList.addAll(startWay.splitAtNode(startNode));
-							newNodeList.add(startNode);
-						}
-						if (!endWay.equals(emptyWay)) {    // split the current roads and add new roads
-							endWay.getFromNode().removeOutGoingWayFromList(endWay);
-							endWay.getToNode().removeInComingWayFromList(endWay);
-							newWayList.addAll(endWay.splitAtNode(endNode));
-							newNodeList.add(endNode);
-						}
-						List<RoadNode> spuriousNodeList = new ArrayList<>();
-						spuriousNodeList.add(startNode);
-						spuriousNodeList.add(endNode);
-						RoadWay spuriousWay = new RoadWay(startNode.getID() + "_" + endNode.getID(), spuriousNodeList, distFunc);
-						newWayList.add(spuriousWay);
+				} else {    // start node is not an intersection
+					if (endWay.equals(emptyWay)) {
+						if (endNode.getInComingWayList().contains(startWay) || endNode.getOutGoingWayList().contains(startWay))
+							isValidPair = false;
+					} else {
+						String reverseStartID = startWay.getID().charAt(0) == '-' ? startWay.getID().substring(1) :
+								"-" + startWay.getID();
+						if (startWay.getID().equals(endWay.getID()) || reverseStartID.equals(endWay.getID()))
+							isValidPair = false;
 					}
+				}
+				if (isValidPair) {
+					spuriousRoadLength += distFunc.distance(startPoint, endPoint);
+					
+					if (!startWay.equals(emptyWay)) {    // split the current roads and add new roads
+						startWay.getFromNode().removeOutGoingWayFromList(startWay);
+						startWay.getToNode().removeInComingWayFromList(startWay);
+						newWayList.addAll(startWay.splitAtNode(startNode));
+						newNodeList.add(startNode);
+					}
+					if (!endWay.equals(emptyWay)) {    // split the current roads and add new roads
+						endWay.getFromNode().removeOutGoingWayFromList(endWay);
+						endWay.getToNode().removeInComingWayFromList(endWay);
+						newWayList.addAll(endWay.splitAtNode(endNode));
+						newNodeList.add(endNode);
+					}
+					List<RoadNode> spuriousNodeList = new ArrayList<>();
+					spuriousNodeList.add(startNode);
+					spuriousNodeList.add(endNode);
+					RoadWay spuriousWay = new RoadWay(startNode.getID() + "_" + endNode.getID(), spuriousNodeList, distFunc);
+					newWayList.add(spuriousWay);
+//						count++;
 				}
 			}
 		}
 		originalMap.addNodes(newNodeList);
+		for (RoadWay currWay : newWayList) {
+			while (addedWayIDSet.contains(currWay.getID())) {
+				currWay.setId(currWay.getID() + "+");
+			}
+			addedWayIDSet.add(currWay.getID());
+		}
 		originalMap.addWays(newWayList);
 		return originalMap;
 	}
@@ -365,13 +388,11 @@ public class MapGenerator {
 	/**
 	 * Generate map which contains only topological errors.
 	 *
-	 * @param originalMap      Original road map.
-	 * @param percentage       The percentage of errors.
-	 * @param isCompleteRandom The randomness is based on complete random or weighted random on road visit frequency.
+	 * @param originalMap Original road map.
+	 * @param percentage  The percentage of errors.
 	 * @return The returning error map.
 	 */
-	public static RoadNetworkGraph intersectionErrorMapGenerator(RoadNetworkGraph originalMap, double percentage,
-																 boolean isCompleteRandom) {
+	public static RoadNetworkGraph intersectionErrorMapGenerator(RoadNetworkGraph originalMap, double percentage) {
 		// randomly select intersections
 		Set<Integer> selectedIndex = new LinkedHashSet<>();
 		DistanceFunction distFunc = originalMap.getDistanceFunction();
@@ -384,7 +405,7 @@ public class MapGenerator {
 			if (selectedIndex.contains(index))
 				continue;
 			selectedIndex.add(index);
-			RoadNode currNode = originalMap.getNode(random.nextInt(nodeSize));
+			RoadNode currNode = originalMap.getNode(index);
 			if ((currNode.getDegree() == 4 && currNode.getInComingDegree() == currNode.getOutGoingDegree()) || currNode.getDegree() > 4) {
 				double angle = random.nextDouble() * Math.PI * 2;
 				// two intersections are symmetric centred at currNode
@@ -398,9 +419,10 @@ public class MapGenerator {
 					if (currNode.getInComingDegree() > currNode.getOutGoingDegree()) {    // select a road from in-coming roads.
 						RoadWay currWay = currNode.getInComingWayList().iterator().next();
 						String reverseID = currWay.getID().charAt(0) == '-' ? currWay.getID().substring(1) : '-' + currWay.getID();
+						RoadWay reverseWay = null;
 						for (RoadWay way : currNode.getOutGoingWayList()) {
 							if (way.getID().equals(reverseID)) {    // switch the reverse road to the new intersection
-								currNode.removeOutGoingWayFromList(way);
+								reverseWay = way;
 								List<RoadNode> wayNodeList = new ArrayList<>();
 								wayNodeList.add(newNode);
 								wayNodeList.addAll(way.getNodes());
@@ -408,6 +430,8 @@ public class MapGenerator {
 								newNode.addOutGoingWay(way);
 							}
 						}
+						if (reverseWay != null)
+							currNode.removeOutGoingWayFromList(reverseWay);
 						currNode.removeInComingWayFromList(currWay);
 						currWay.getNodes().remove(currWay.getNodes().size() - 1);
 						currWay.addNode(newNode);
@@ -415,14 +439,17 @@ public class MapGenerator {
 					} else {
 						RoadWay currWay = currNode.getOutGoingWayList().iterator().next();
 						String reverseID = currWay.getID().charAt(0) == '-' ? currWay.getID().substring(1) : '-' + currWay.getID();
+						RoadWay reverseWay = null;
 						for (RoadWay way : currNode.getInComingWayList()) {
 							if (way.getID().equals(reverseID)) {    // switch the reverse road to the new intersection
-								currNode.removeInComingWayFromList(way);
+								reverseWay = way;
 								way.getNodes().remove(way.getNodes().size() - 1);
 								way.addNode(newNode);
 								newNode.addInComingWay(way);
 							}
 						}
+						if (reverseWay != null)
+							currNode.removeInComingWayFromList(reverseWay);
 						currNode.removeOutGoingWayFromList(currWay);
 						List<RoadNode> wayNodeList = new ArrayList<>();
 						wayNodeList.add(newNode);
@@ -448,7 +475,7 @@ public class MapGenerator {
 	private static List<RoadWay> completeRandomWayList(RoadNetworkGraph originalMap, double percentage) {
 		List<RoadWay> wayList = originalMap.getWays();
 		Set<String> selectIDSet = new LinkedHashSet<>();
-		Random random = new Random();
+		Random random = new Random(20);
 		while (selectIDSet.size() < wayList.size() * percentage / 100.0) {    // keep finding the next road
 			String wayID = wayList.get(random.nextInt(wayList.size())).getID();
 			selectIDSet.add(wayID);

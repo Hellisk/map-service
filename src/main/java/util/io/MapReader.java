@@ -130,7 +130,8 @@ public class MapReader {
 		// read road ways
 		List<String> lines = IOService.readFile(filePath);
 		for (String line : lines) {
-			wayList.add(RoadWay.parseRoadWay(line, index2Node, df));
+			RoadWay currWay = RoadWay.parseRoadWay(line, index2Node, df);
+			wayList.add(currWay);
 		}
 		return wayList;
 	}
