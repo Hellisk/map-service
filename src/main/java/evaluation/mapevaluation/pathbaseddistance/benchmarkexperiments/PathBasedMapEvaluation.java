@@ -52,6 +52,8 @@ public class PathBasedMapEvaluation {
 	 */
 	public static String pathBasedFrechetMapEval(RoadNetworkGraph outputMap, RoadNetworkGraph gtMap, String linkLength,
 												 String cacheFolder) {
+		if (outputMap.getDistanceFunction().getClass() != gtMap.getDistanceFunction().getClass())
+			throw new IllegalArgumentException("Input map and ground-truth map has different coordinate system.");
 		GeneratePaths gp = new GeneratePaths();
 		MapMatching mapMatching = new MapMatching();
 		
@@ -113,7 +115,8 @@ public class PathBasedMapEvaluation {
 	
 	public static String pathBasedHausdorffMapEval(RoadNetworkGraph outputMap, RoadNetworkGraph gtMap, String linkLength,
 												   String cacheFolder) {
-		
+		if (outputMap.getDistanceFunction().getClass() != gtMap.getDistanceFunction().getClass())
+			throw new IllegalArgumentException("Input map and ground-truth map has different coordinate system.");
 		GeneratePaths gp = new GeneratePaths();
 		HausdorffDistance hausdorffDistance = new HausdorffDistance();
 		

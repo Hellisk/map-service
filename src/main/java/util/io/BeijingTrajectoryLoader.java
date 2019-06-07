@@ -621,7 +621,7 @@ public class BeijingTrajectoryLoader {
 			return pointY >= roadGraph.getMinLat() + latDiff && pointY <= roadGraph.getMaxLat() - latDiff;
 		return false;
 	}
-//
+
 //	public void generateGTMatchResult(RoadNetworkGraph roadNetworkGraph, String rawTrajectories, double minDist) throws IOException, ExecutionException, InterruptedException {
 //		LOG.info("Generated ground-truth result required, start generating matching result.");
 //		BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajectories + "beijingTrajectory"));

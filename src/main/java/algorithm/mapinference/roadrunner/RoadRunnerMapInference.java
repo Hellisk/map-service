@@ -1,4 +1,4 @@
-package algorithm.mapinference.kde;
+package algorithm.mapinference.roadrunner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -17,31 +17,32 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * Command line entrance for Biagioni KDE map inference algorithm. The original code is written in Python and we run the Python code
- * through this class.
+ * Command line entrance for He's RoadRunner map inference algorithm. The original code is written in Python and Golang, we prepare the
+ * command line code and run the algorithms through console. We read the output map and convert into our format after all processes are
+ * done.
  * <p>
  * Reference:
  * <p>
- * Biagioni, James, and Jakob Eriksson. "Map inference in the face of noise and disparity." Proceedings of the 20th International
- * Conference on Advances in Geographic Information Systems. ACM, 2012.
+ * He, Songtao, et al. "RoadRunner: improving the precision of road network inference from GPS trajectories." Proceedings of the 26th ACM
+ * SIGSPATIAL International Conference on Advances in Geographic Information Systems. ACM, 2018.
  *
  * @author Hellisk
+ * Created 7/06/2019
  */
-
-public class KDEMapInference {
+public class RoadRunnerMapInference {
 	
-	private static final Logger LOG = Logger.getLogger(KDEMapInference.class);
+	private static final Logger LOG = Logger.getLogger(RoadRunnerMapInference.class);
 	private int cellSize;    // meter
 	private int gaussianBlur;
 	private String os;
 	
-	public KDEMapInference(BaseProperty prop) {
+	public RoadRunnerMapInference(BaseProperty prop) {
 		this.cellSize = prop.getPropertyInteger("algorithm.mapinference.kde.CellSize");
 		this.gaussianBlur = prop.getPropertyInteger("algorithm.mapinference.kde.GaussianBlur");
 		this.os = prop.getPropertyString("OS");
 	}
 	
-	// use python script to run map inference python code
+	// use scripts to run map inference Python and Golang code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
 		List<String> pythonCmd = new ArrayList<>();
 		
@@ -125,20 +126,15 @@ public class KDEMapInference {
 	
 	private void runCode(List<String> pythonCmd) throws Exception {
 		if (os.equals("Linux")) {
-			LOG.info("Start the python map inference process.");
-			StringBuilder command = new StringBuilder();
-			command.append(pythonCmd.get(0));
-			for (int i = 1; i < pythonCmd.size(); i++) {
-				String pc = pythonCmd.get(i);
-				command.append(" && ").append(pc);
-			}
-			Runtime r = Runtime.getRuntime();
-			Process p = r.exec(command.toString());
-			p.waitFor();
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line = "";
-			while ((line = br.readLine()) != null) {
-				LOG.info(line);
+			for (String s : pythonCmd) {
+				Runtime r = Runtime.getRuntime();
+				Process p = r.exec(s);
+				p.waitFor();
+				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line = "";
+				while ((line = br.readLine()) != null) {
+					LOG.info(line);
+				}
 			}
 		} else {
 			StringBuilder command = new StringBuilder();

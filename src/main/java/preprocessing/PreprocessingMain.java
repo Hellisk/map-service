@@ -46,15 +46,14 @@ public class PreprocessingMain {
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
 			
 			// raw map initialisation step, not required unless the raw data changes
-			LOG.info("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
-			// initialization: read raw map shape file and convert into csv file with default boundaries
-			LOG.info("Start reading the raw road map from SHP file.");
-			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
-			RoadNetworkGraph initialMap = shpReader.loadRawMap();
-			// write the visited map to the ground truth folder
-			MapWriter.writeMap(initialMap, gtMapFolder + "raw.txt");
-			
-			LOG.info("Raw file initialization done.");
+//			LOG.info("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
+//			// initialization: read raw map shape file and convert into csv file with default boundaries
+//			LOG.info("Start reading the raw road map from SHP file.");
+//			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
+//			RoadNetworkGraph initialMap = shpReader.loadRawMap();
+//			// write the visited map to the ground truth folder
+//			MapWriter.writeMap(initialMap, gtMapFolder + "raw.txt");
+//			LOG.info("Raw file initialization done.");
 			
 			LOG.info("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
 			
@@ -88,9 +87,9 @@ public class PreprocessingMain {
 //				trajFilter.readTrajAndGenerateGTRouteMatchResult(roadNetworkGraph, rawCompleteMap, rawDataFolder + "trajectory" +
 //						"/beijingTrajectory", inputTrajFolder, gtManualMatchResultFolder, property);
 //			} else
+			
 			trajFilter.readTrajWithGTRouteMatchResult(roadNetworkGraph, rawDataFolder + "trajectory/beijingTrajectory",
 					inputTrajFolder, gtMatchResultFolder);
-
 //			// pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
 //			int percentage = property.getPropertyInteger("algorithm.cooptimization.data.RoadRemovalPercentage");
 //			int candidateRange = property.getPropertyInteger("algorithm.mapmatching.hmm.CandidateRange");

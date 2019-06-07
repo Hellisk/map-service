@@ -75,7 +75,7 @@ class CoOptimization {
 			HashMap<String, Pair<HashSet<String>, HashSet<String>>> newRoadID2AnchorPoints = new HashMap<>();
 			List<RoadWay> inferenceResult;
 			String inferenceMethod = prop.getPropertyString("algorithm.mapinference.InferenceMethod");
-			if (inferenceMethod.equals("TC")) {
+			if (inferenceMethod.equals("LC")) {
 				// step 1: Trace clustering map inference
 				List<Triplet<Trajectory, String, String>> unmatchedTrajList = prevMatchResultPair._2();
 				LineClusteringMapInference mapInference = new LineClusteringMapInference();
@@ -91,7 +91,7 @@ class CoOptimization {
 				// step 1-old: KDE map inference
 				KDEMapInference mapInference = new KDEMapInference(prop);
 				String localDir = System.getProperty("user.dir");
-				mapInference.startMapInference(localDir + "/src/main/python/",
+				mapInference.mapInferenceProcess(localDir + "/src/main/python/",
 						cacheFolder + "unmatchedTrajectoryNextInput/" + iteration + "/",
 						cacheFolder + "inference/" + iteration + "/");
 				inferenceResult = MapReader.readWays(cacheFolder + "inference/" + iteration + "/", new HashMap<>(), distFunc);

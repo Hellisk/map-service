@@ -594,8 +594,7 @@ public class MapMatching {
 				}
 				bool1 = this.mapMatching(graph, curves, i);
 				if (debug)
-					System.out.println(start + ", " + end + " " + i + " = "
-							+ bool1);
+					System.out.println(start + ", " + end + " " + i + " = " + bool1);
 				if (bool1) {
 					min = i;
 					return;
@@ -654,13 +653,9 @@ public class MapMatching {
 						this.found = false;
 					}
 				}
-				double dist = Math.sqrt(Math.pow(
-						curves.get(0).x - curves.get(curves.size() - 1).x, 2)
-						+ Math.pow(
-						curves.get(0).y
-								- curves.get(curves.size() - 1).y, 2));
-				bwWays.write(file.getName() + " " + curves.size() + " "
-						+ this.min + " " + dist + "\n");
+				double dist = Math.sqrt(Math.pow(curves.get(0).x - curves.get(curves.size() - 1).x, 2) + Math.pow(
+						curves.get(0).y - curves.get(curves.size() - 1).y, 2));
+				bwWays.write(file.getName() + " " + curves.size() + " " + this.min + " " + dist + "\n");
 				
 				System.out.println(count + "  " + file.getName() + " size = " + curves.size() + " Frechet distance = " + this.min
 						+ " length of path = " + dist);

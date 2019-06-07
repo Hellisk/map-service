@@ -139,7 +139,7 @@ public class TrajectoryGenerator {
 	 * @param distFunc      The distance function.
 	 */
 	private static void trajPointShift(List<TrajectoryPoint> trajPointList, double sigma, DistanceFunction distFunc) {
-		Random random = new Random();
+		Random random = new Random(10);
 		for (TrajectoryPoint point : trajPointList) {
 			double newLon = point.x() + distFunc.getCoordinateOffsetX(random.nextGaussian() * sigma, point.y());
 			double newLat = point.y() + distFunc.getCoordinateOffsetY(random.nextGaussian() * sigma, point.x());

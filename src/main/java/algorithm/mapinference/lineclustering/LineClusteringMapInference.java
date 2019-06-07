@@ -230,10 +230,11 @@ public class LineClusteringMapInference {
 	}
 	
 	// TODO work on this implementation
-	public RoadNetworkGraph mapInferenceProcess(List<Trajectory> inputTrajList, BaseProperty prop, DistanceFunction distFunc) throws InterruptedException {
+	public RoadNetworkGraph mapInferenceProcess(List<Trajectory> inputTrajList, BaseProperty prop) throws InterruptedException {
 		double maxAngleChange = prop.getPropertyDouble("algorithm.mapinference.lineclustering.MaximumAngleChangeDegree");
 		double maxClusteringDist = prop.getPropertyDouble("algorithm.mapinference.lineclustering.MaximumClusteringDistance");
 		double dpEpsilon = prop.getPropertyDouble("algorithm.mapinference.lineclustering.DPEpsilon");
+		DistanceFunction distFunc = inputTrajList.get(0).getDistanceFunction();
 		List<Trajectory> trajList = new ArrayList<>();
 		for (Trajectory traj : inputTrajList) {
 			trajList.addAll(splitTrajectory(traj, maxAngleChange, distFunc));
@@ -250,10 +251,9 @@ public class LineClusteringMapInference {
 					Point p = traj.get(i);
 					currNodeList.add(new RoadNode(i + "", p.x(), p.y(), distFunc));
 				}
-				if (currNodeList.size() < 2)
+				if (currNodeList.size() < 2 || currNodeList.get(0).toPoint().equals2D(currNodeList.get(currNodeList.size() - 1).toPoint()))
 					continue;
 				RoadWay currWay = new RoadWay(cluster.getId(), currNodeList, distFunc);
-				currWay.setNewRoad(true);
 				currWay.setConfidenceScore(1);
 				outputRoadWay.add(dpFilter.dpSimplifier(currWay));
 				continue;
@@ -264,10 +264,48 @@ public class LineClusteringMapInference {
 				RoadWay inferredRoad = principalCurveGen.startPrincipalCurveGen(cluster);
 				outputRoadWay.add(dpFilter.dpSimplifier(inferredRoad));
 			} catch (IllegalStateException | IndexOutOfBoundsException e) {
-//                e.printStackTrace();
-//                LOG.warning("WARNING! Ignore cluster " + cluster.getID() + " due to principal curve generation failure.");
+				e.printStackTrace();
+				LOG.warn("WARNING! Ignore cluster " + cluster.getId() + " due to principal curve generation failure.");
 			}
 		}
-		return new RoadNetworkGraph(false, distFunc);
+		
+		return convert2Map(outputRoadWay);
+	}
+	
+	private RoadNetworkGraph convert2Map(List<RoadWay> outputRoadWay) {
+		DistanceFunction distFunc = outputRoadWay.get(0).getDistanceFunction();
+		Map<String, RoadNode> location2NodeMap = new LinkedHashMap<>();
+		int nodeCount = 0;
+		for (RoadWay currWay : outputRoadWay) {
+			List<RoadNode> replaceNodeList = new ArrayList<>();
+			String startLocation = currWay.getFromNode().lon() + "_" + currWay.getFromNode().lat();
+			if (location2NodeMap.containsKey(startLocation)) {    // the intersection already exists
+				replaceNodeList.add(location2NodeMap.get(startLocation));
+			} else {
+				replaceNodeList.add(currWay.getFromNode());
+				currWay.getFromNode().setId(nodeCount + "");
+				nodeCount++;
+				location2NodeMap.put(startLocation, currWay.getFromNode());
+			}
+			replaceNodeList.addAll(currWay.getNodes().subList(1, currWay.size() - 1));
+			String endLocation = currWay.getToNode().lon() + "_" + currWay.getToNode().lat();
+			if (location2NodeMap.containsKey(endLocation)) {    // the intersection already exists
+				replaceNodeList.add(location2NodeMap.get(endLocation));
+			} else {
+				replaceNodeList.add(currWay.getToNode());
+				currWay.getToNode().setId(nodeCount + "");
+				nodeCount++;
+				location2NodeMap.put(startLocation, currWay.getToNode());
+			}
+			currWay.setNodes(replaceNodeList);
+		}
+		List<RoadNode> currNodeList = new ArrayList<>();
+		for (Map.Entry<String, RoadNode> entry : location2NodeMap.entrySet()) {
+			currNodeList.add(entry.getValue());
+		}
+		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, distFunc);
+		resultMap.addNodes(currNodeList);
+		resultMap.addWays(outputRoadWay);
+		return resultMap;
 	}
 }

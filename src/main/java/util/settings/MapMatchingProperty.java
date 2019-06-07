@@ -92,20 +92,19 @@ public class MapMatchingProperty extends BaseProperty {
 			// folder name for different data specification
 			dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
 					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
-					+ "_N" + super.getPropertyString("data.NumberOfTrajectory") + "/";
+					+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
 		} else {
 			dataSpec = "";
-			
 		}
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec);
+		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
-		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec);
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec);
+		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
 		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
 		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
-		
+		super.setProperty("data.DataSpec", dataSpec);
 		// set the root path for all map-matching processes
 		super.setProperty("algorithm.mapmatching.path.RootPath", rootPath);
 	}

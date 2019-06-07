@@ -7,6 +7,7 @@ import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.settings.BaseProperty;
 
 import java.util.*;
 
@@ -488,12 +489,14 @@ public class TraceMergeMapInference {
 	/**
 	 * Constructs map from poses and returns string representation of the map.
 	 */
-	public RoadNetworkGraph mapInferenceProcess(List<Trajectory> inputTrajList, double eps, DistanceFunction df) {
+	public RoadNetworkGraph mapInferenceProcess(List<Trajectory> inputTrajList, BaseProperty property) {
 		
 		List<VertexTM> constructedMap = new ArrayList<>();
 		// map contains mapping between vertex keys and their indices in
 		// constructedMap
 		Map<String, Integer> map = new HashMap<>();
+		double eps = property.getPropertyDouble("algorithm.mapinference.tracemerge.Epsilon");    // epsilon, see the paper for detail
+		DistanceFunction distFunc = inputTrajList.get(0).getDistanceFunction();
 		long startTime = System.currentTimeMillis();
 		try {
 			double length = 0;
@@ -529,7 +532,7 @@ public class TraceMergeMapInference {
 					}
 				}
 				
-				this.mapConstruction(constructedMap, edges, map, inputTrajList.get(k), eps, df);
+				this.mapConstruction(constructedMap, edges, map, inputTrajList.get(k), eps, distFunc);
 				this.commitEdgeSplitsAll(constructedMap, map, siblingMap, edges);
 				if (inputTrajList.size() > 100 && k % Math.floor(inputTrajList.size() / 100) == 0)
 					LOG.info(k / Math.floor(inputTrajList.size() / 100) + " percent of map inference finished. Time spent: "
@@ -540,7 +543,7 @@ public class TraceMergeMapInference {
 			e.printStackTrace();
 		}
 		
-		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, df);
+		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, distFunc);
 		List<RoadNode> nodeList = new ArrayList<>();
 		List<RoadWay> wayList = new ArrayList<>();
 		Map<String, RoadNode> id2NodeMapping = new HashMap<>();
@@ -548,7 +551,7 @@ public class TraceMergeMapInference {
 		int count = 0;
 		// insert road nodes
 		for (int i = 0; i < constructedMap.size(); i++) {
-			RoadNode currNode = new RoadNode(i + "", constructedMap.get(i).getX(), constructedMap.get(i).getY(), df);
+			RoadNode currNode = new RoadNode(i + "", constructedMap.get(i).getX(), constructedMap.get(i).getY(), distFunc);
 			id2NodeMapping.put(i + "", currNode);
 			nodeList.add(currNode);
 		}
@@ -559,7 +562,7 @@ public class TraceMergeMapInference {
 			for (int j = 0; j < v.getDegree(); j++) {
 				if (i != v.getAdjacentElementAt(j)) {
 					
-					RoadWay currWay = new RoadWay(count + "", df);
+					RoadWay currWay = new RoadWay(count + "", distFunc);
 					if (id2NodeMapping.containsKey(i + "") && id2NodeMapping.containsKey(v.getAdjacentElementAt(j) + "")) {
 						currWay.addNode(id2NodeMapping.get(i + ""));
 						currWay.addNode(id2NodeMapping.get(v.getAdjacentElementAt(j) + ""));

@@ -75,17 +75,18 @@ public class PreprocessingProperty extends BaseProperty {
 		// folder name for different data specification
 		String dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
 				+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
-				+ "_N" + super.getPropertyString("data.NumberOfTrajectory") + "/";
+				+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
 		
 		// different paths in Beijing dataset
 		if (dataset.contains("Beijing")) {
 			super.setProperty("path.RawDataFolder", super.getPropertyString("data.RootPath") + "Beijing/raw/");
 		} else
 			super.setProperty("path.RawDataFolder", rootPath + "raw/");
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec);
+		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec);
+		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
 		super.setProperty("algorithm.preprocessing.log.LogFolder", rootPath + "preprocessing/log/");
+		super.setProperty("data.DataSpec", dataSpec);
 	}
 }

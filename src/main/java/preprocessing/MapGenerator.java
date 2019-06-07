@@ -104,7 +104,7 @@ public class MapGenerator {
 		// randomly select intersections
 		Set<Integer> selectedIndex = new LinkedHashSet<>();
 		DistanceFunction distFunc = originalMap.getDistanceFunction();
-		Random random = new Random(20);
+		Random random = new Random(10);
 		int nodeSize = originalMap.getNodes().size();
 		while (selectedIndex.size() < nodeSize * percentage / 100.0) {
 			selectedIndex.add(random.nextInt(nodeSize));
@@ -224,7 +224,7 @@ public class MapGenerator {
 					allWayMapping.size() + "," + indexPointList.size());
 		grid.insertAll(indexPointList);
 		
-		Random random = new Random();
+		Random random = new Random(20);
 		double spuriousRoadLength = 0;
 		Set<String> selectedPairSet = new HashSet<>();    // store all pairs that have been checked (not necessarily valid) to avoid double
 		Set<String> addedWayIDSet = new HashSet<>();    // avoid roads with the same id, it can happen when one road is split twice
@@ -396,7 +396,7 @@ public class MapGenerator {
 		// randomly select intersections
 		Set<Integer> selectedIndex = new LinkedHashSet<>();
 		DistanceFunction distFunc = originalMap.getDistanceFunction();
-		Random random = new Random();
+		Random random = new Random(30);
 		int processedNodeCount = 0;
 		int nodeSize = originalMap.getNodes().size();
 		int index;
@@ -475,7 +475,7 @@ public class MapGenerator {
 	private static List<RoadWay> completeRandomWayList(RoadNetworkGraph originalMap, double percentage) {
 		List<RoadWay> wayList = originalMap.getWays();
 		Set<String> selectIDSet = new LinkedHashSet<>();
-		Random random = new Random(20);
+		Random random = new Random(40);
 		while (selectIDSet.size() < wayList.size() * percentage / 100.0) {    // keep finding the next road
 			String wayID = wayList.get(random.nextInt(wayList.size())).getID();
 			selectIDSet.add(wayID);
@@ -512,7 +512,7 @@ public class MapGenerator {
 			weightSum += currWay.getVisitCount();
 			itemRange[i] = weightSum;
 		}
-		Random random = new Random();
+		Random random = new Random(50);
 		while (selectIDSet.size() < itemRange.length * percentage / 100.0) {    // keep finding the next road
 			int value = random.nextInt(weightSum);
 			int index = (int) Math.floor(value / (weightSum / (double) itemRange.length));

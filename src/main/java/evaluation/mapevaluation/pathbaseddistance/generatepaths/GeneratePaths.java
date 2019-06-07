@@ -69,9 +69,7 @@ public class GeneratePaths {
 					curves[i][j] = new ArrayList<>();
 					curves[i][j].add(prev);
 					cur = graph.get(prev.adjacencyList[j]);
-					pathLength[i][j] += Math
-							.sqrt((Math.pow(cur.x - prev.x, 2) + Math.pow(cur.y
-									- prev.y, 2)));
+					pathLength[i][j] += Math.sqrt((Math.pow(cur.x - prev.x, 2) + Math.pow(cur.y - prev.y, 2)));
 					curves[i][j].add(cur);
 					//boolean found1=false,found2=false;
 					//if(prev.getKeyString().equals("390018.101 5817597.233"))found1=true;
@@ -82,8 +80,7 @@ public class GeneratePaths {
 				i++;
 				
 			}
-			System.out.println("PBDVertex set size: " + vList.size()
-					+ " max degree: " + maxDegree);
+			System.out.println("PBDVertex set size: " + vList.size() + " max degree: " + maxDegree);
 			
 			Stack<Integer> stack;
 			int no = 0, index1, index2;
@@ -97,7 +94,7 @@ public class GeneratePaths {
 						file2.delete();
 				}
 			}
-			System.out.println("Generating PBDLine Segment paths: ");
+			System.out.println("Generating line segment paths: ");
 			for (int k = 0; k < vList.size(); k++) {
 				
 				v1 = graph.get(vList.get(k));
@@ -1515,40 +1512,31 @@ public class GeneratePaths {
 				this.generateLengthOnePaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkTwo":
-				this.generateLengthTwoPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthTwoPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkThree":
-				this.generateLengthThreePaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthThreePaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkFour":
-				this.generateLengthFourPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthFourPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkFive":
-				this.generateLengthFivePaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthFivePaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkSix":
-				this.generateLengthSixPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthSixPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkSeven":
-				this.generateLengthSevenPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthSevenPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkEight":
-				this.generateLengthEightPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthEightPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkNine":
-				this.generateLengthNinePaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthNinePaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "LinkTen":
-				this.generateLengthTenPaths(graph, pathPath + linkLength + "/",
-						obj1);
+				this.generateLengthTenPaths(graph, pathPath + linkLength + "/", obj1);
 				break;
 			case "ShortestPaths":
 				this.getShortestPaths(graph, pathPath + linkLength + "/", obj1);
