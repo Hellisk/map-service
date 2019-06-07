@@ -97,10 +97,11 @@ public class PathBasedMapEvaluation {
 		LOG.info("processing linkLength " + linkLength + " paths of ...");
 		long start_time = System.currentTimeMillis();
 		int count = 0;
+		List<Integer> distList = new ArrayList<>();
 		for (int l = 0; l < 5; l++) {
 			File file2 = new File(pathFolder + folder.getName() + "/" + l);
 			if (file2.exists()) {
-				mapMatching.pathSimilarity(gtGraph, file2, resultFolder + linkLength, l);
+				distList.addAll(mapMatching.pathSimilarity(gtGraph, file2, resultFolder + linkLength, l));
 				count += (Objects.requireNonNull(file2.listFiles())).length;
 			} else {
 				LOG.warn("Folder doesn't exits..." + pathFolder + linkLength);
@@ -108,9 +109,21 @@ public class PathBasedMapEvaluation {
 		}
 		long end_time = System.currentTimeMillis();
 		
-		LOG.info("Path-based evaluation complete. Total running time: " + (end_time - start_time) / 1000.0);
-		LOG.info("Result: " + linkLength + "," + count);
-		return linkLength + "," + count;
+		if (distList.size() != count)
+			LOG.warn("Total number of paths is not equals to distance result: " + count + "," + distList.size());
+		int minDist = Integer.MAX_VALUE;
+		int maxDist = 0;
+		int totalDist = 0;
+		for (int distance : distList) {
+			minDist = minDist > distance ? distance : minDist;
+			maxDist = maxDist < distance ? distance : maxDist;
+			totalDist += distance;
+		}
+		
+		LOG.info("Frechet path-based evaluation complete. Total running time: " + (end_time - start_time) / 1000.0);
+		LOG.info(linkLength + " result: min distance=" + minDist + ", max distance=" + maxDist + ", average distance=" +
+				((double) totalDist / distList.size()) + ", total paths=" + count);
+		return minDist + "," + maxDist + "," + ((double) totalDist / distList.size());
 	}
 	
 	public static String pathBasedHausdorffMapEval(RoadNetworkGraph outputMap, RoadNetworkGraph gtMap, String linkLength,
@@ -161,13 +174,13 @@ public class PathBasedMapEvaluation {
 		long start_time = System.currentTimeMillis();
 		
 		ArrayList<PBDEdge> eGraph = hausdorffDistance.getGraphEdge(gtGraph);
-		
+		List<Double> distList = new ArrayList<>();
 		int count = 0;
 		for (int l = 0; l < 5; l++) {
 			File file2 = new File(pathFolder + folder.getName() + "/" + l);
 			
 			if (file2.exists()) {
-				hausdorffDistance.pathSimilarity(eGraph, file2, resultFolder + linkLength, l);
+				distList.addAll(hausdorffDistance.pathSimilarity(eGraph, file2, resultFolder + linkLength, l));
 				count += (Objects.requireNonNull(file2.listFiles())).length;
 			} else {
 				LOG.warn("Folder doesn't exits..." + pathFolder + linkLength);
@@ -176,9 +189,21 @@ public class PathBasedMapEvaluation {
 		}
 		long end_time = System.currentTimeMillis();
 		
-		LOG.info("Path-based Hausdorff evaluation complete. Total running time: " + (end_time - start_time) / 1000.0);
-		LOG.info("Result: " + linkLength + "," + count);
-		return linkLength + "," + count;
+		if (distList.size() != count)
+			LOG.warn("Total number of paths is not equals to distance result: " + count + "," + distList.size());
+		double minDist = Double.MAX_VALUE;
+		double maxDist = 0;
+		double totalDist = 0;
+		for (double distance : distList) {
+			minDist = minDist > distance ? distance : minDist;
+			maxDist = maxDist < distance ? distance : maxDist;
+			totalDist += distance;
+		}
+		
+		LOG.info("Hausdorff path-based evaluation complete. Total running time: " + (end_time - start_time) / 1000.0);
+		LOG.info(linkLength + " result: min distance=" + minDist + ", max distance=" + maxDist + ", average distance=" +
+				totalDist / distList.size() + ", total paths=" + count);
+		return minDist + "," + maxDist + "," + totalDist / distList.size();
 	}
 	
 	public static ArrayList<PBDVertex> convertMap(HashMap<String, Integer> id2VertexIndex, RoadNetworkGraph map) {

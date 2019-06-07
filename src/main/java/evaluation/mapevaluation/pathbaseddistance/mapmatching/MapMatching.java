@@ -49,7 +49,7 @@ public class MapMatching {
 			String str;
 			while ((str = in.readLine()) != null) {
 				StringTokenizer strToken = new StringTokenizer(str, " ");
-				Double d = new Double(strToken.nextToken());
+				double d = Double.parseDouble(strToken.nextToken());
 				double p1 = d;
 				d = Double.parseDouble(strToken.nextToken());
 				double p2 = d;
@@ -379,53 +379,37 @@ public class MapMatching {
 		double[] interval = new double[2];
 		while (vertex.right < curves.size()) {
 			if (debug)
-				System.out.println("\nCurrent Interval " + vertex.reachable
-						+ " " + vertex.vertexID + " " + vertex.degree + " ("
-						+ vertex.left + "," + vertex.right + ")");
+				System.out.println("\nCurrent Interval " + vertex.reachable + " " + vertex.vertexID + " " + vertex.degree + " (" +
+						vertex.left + "," + vertex.right + ")");
 			if (vertex.reachable && vertex.right >= curves.size() - 1)
 				return true;
 			for (int k = 0; k < vertex.degree; k++) {
 				PBDVertex adjacentVertex = vList.get(vertex.adjacencyList[k]);
 				
 				if (debug && vertex.vertexID == 220)
-					System.out.println("next Interval 0 "
-							+ adjacentVertex.vertexID + " " + adjacentVertex.x
-							+ " " + adjacentVertex.y + " "
-							+ adjacentVertex.startindex + " "
-							+ adjacentVertex.endindex + "("
-							+ adjacentVertex.left + "," + adjacentVertex.right
-							+ ")");
+					System.out.println("next Interval 0 " + adjacentVertex.vertexID + " " + adjacentVertex.x
+							+ " " + adjacentVertex.y + " " + adjacentVertex.startindex + " " + adjacentVertex.endindex + "("
+							+ adjacentVertex.left + "," + adjacentVertex.right + ")");
 				
 				if (!vertex.equals(adjacentVertex)
-						&& adjacentVertex.left < adjacentVertex.right
-						&& !adjacentVertex.done) {//
+						&& adjacentVertex.left < adjacentVertex.right && !adjacentVertex.done) {//
 					if (debug)
-						System.out.println("next Interval 1 "
-								+ adjacentVertex.vertexID + " "
-								+ adjacentVertex.startindex + " "
-								+ adjacentVertex.endindex + "("
-								+ adjacentVertex.left + ","
-								+ adjacentVertex.right + ")");
-					interval = this.computeReachabilityInterval(vertex,
-							adjacentVertex, curves, x, eps);
+						System.out.println("next Interval 1 " + adjacentVertex.vertexID + " " + adjacentVertex.startindex + " "
+								+ adjacentVertex.endindex + "(" + adjacentVertex.left + "," + adjacentVertex.right + ")");
+					interval = this.computeReachabilityInterval(vertex, adjacentVertex, curves, x, eps);
 					if (interval != null) {
-						adjacentVertex.left = Math.max(interval[0],
-								adjacentVertex.left);
+						adjacentVertex.left = Math.max(interval[0], adjacentVertex.left);
 						
-						adjacentVertex.startindex = (int) Math
-								.floor(adjacentVertex.left);
+						adjacentVertex.startindex = (int) Math.floor(adjacentVertex.left);
 						if (interval[0] > adjacentVertex.right) {
 							adjacentVertex.right = interval[1];
-							adjacentVertex.endindex = (int) Math
-									.ceil(adjacentVertex.right);
+							adjacentVertex.endindex = (int) Math.ceil(adjacentVertex.right);
 						}
 						pq.remove(adjacentVertex);
 						pq.add(adjacentVertex);
 						adjacentVertex.reachable = true;
 						if (debug)
-							System.out.println("next Interval 2 "
-									+ adjacentVertex.left + ","
-									+ adjacentVertex.right);
+							System.out.println("next Interval 2 " + adjacentVertex.left + "," + adjacentVertex.right);
 					} else {
 						
 						if (debug)
@@ -435,14 +419,12 @@ public class MapMatching {
 						&& adjacentVertex.done)// new
 				{
 					adjacentVertex.startindex = curves.size() - 1;
-					interval = this.computeReachabilityInterval(vertex,
-							adjacentVertex, curves, x, eps);
+					interval = this.computeReachabilityInterval(vertex, adjacentVertex, curves, x, eps);
 					
 					if (interval != null && interval[0] == curves.size() - 1) {
 						
 						adjacentVertex.endindex = curves.size() - 1;
-						adjacentVertex.startindex = (int) Math
-								.floor(interval[0]);
+						adjacentVertex.startindex = (int) Math.floor(interval[0]);
 						adjacentVertex.left = interval[0];
 						adjacentVertex.right = interval[1];
 						pq.remove(adjacentVertex);
@@ -620,11 +602,12 @@ public class MapMatching {
 		}
 	}
 	
-	public void pathSimilarity(ArrayList<PBDVertex> graph, File fin, String strInput, int fileNo) {
+	public List<Integer> pathSimilarity(ArrayList<PBDVertex> graph, File fin, String strInput, int fileNo) {
 		boolean debug = false;
 		ArrayList<PBDVertex> curves;
 		int min = 1, max = 1600;
 		int count = 0;
+		List<Integer> distanceList = new ArrayList<>();
 		try {
 			
 			File folder = new File(strInput + "/");
@@ -648,6 +631,7 @@ public class MapMatching {
 					}
 					
 					this.found = false;
+//					this.min = 10000000;
 					this.getEpsilon(graph, curves, min, max);
 					if (this.min == max + 1) {
 						this.found = false;
@@ -655,6 +639,7 @@ public class MapMatching {
 				}
 				double dist = Math.sqrt(Math.pow(curves.get(0).x - curves.get(curves.size() - 1).x, 2) + Math.pow(
 						curves.get(0).y - curves.get(curves.size() - 1).y, 2));
+				distanceList.add(this.min);
 				bwWays.write(file.getName() + " " + curves.size() + " " + this.min + " " + dist + "\n");
 				
 				System.out.println(count + "  " + file.getName() + " size = " + curves.size() + " Frechet distance = " + this.min
@@ -666,6 +651,8 @@ public class MapMatching {
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
+		
+		return distanceList;
 	}
 	
 	public ArrayList<PBDVertex> removeDuplicates(ArrayList<PBDVertex> curves) {

@@ -249,10 +249,11 @@ public class HausdorffDistance {
 		}
 	}
 	
-	public void pathSimilarity(ArrayList<PBDEdge> graph, File fin, String strInput, int fileNo) {
+	public List<Double> pathSimilarity(ArrayList<PBDEdge> graph, File fin, String strInput, int fileNo) {
 		boolean debug = false;
 		ArrayList<PBDVertex> curves;
 		int min = 1, max = 1600;
+		List<Double> distanceList = new ArrayList<>();
 		File file1 = new File(strInput);
 		if (!file1.exists())
 			file1.mkdirs();
@@ -288,22 +289,19 @@ public class HausdorffDistance {
 				}
 				
 				double dist = Math.sqrt(Math.pow(
-						curves.get(0).x - curves.get(curves.size() - 1).x, 2)
-						+ Math.pow(
-						curves.get(0).y
-								- curves.get(curves.size() - 1).y, 2));
-				bwWays.write(file.getName() + " " + curves.size() + " "
-						+ this.min + " " + dist + "\n");
-				
-				System.out.println(count + "  " + file.getName() + " size = "
-						+ curves.size() + " Hausdorff distance = " + this.min
-						+ " length of path = " + dist);
+						curves.get(0).x - curves.get(curves.size() - 1).x, 2) + Math.pow(curves.get(0).y - curves.get(curves.size() - 1).y, 2));
+				bwWays.write(file.getName() + " " + curves.size() + " " + this.min + " " + dist + "\n");
+				distanceList.add(this.min);
+				System.out.println(count + "  " + file.getName() + " size = " + curves.size() + " Hausdorff distance = " + this.min +
+						" length of path = " + dist);
 				count++;
 			}
 			bwWays.close();
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
+		
+		return distanceList;
 	}
 	
 	public ArrayList<PBDEdge> getGraphEdge(ArrayList<PBDVertex> vList) {

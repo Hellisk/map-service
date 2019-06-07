@@ -164,8 +164,7 @@ public class GeneratePaths {
 					
 					while (cur.degree == 2) {
 						
-						pathLength[i][j] += Math.sqrt((Math.pow(cur.x - prev.x,
-								2) + Math.pow(cur.y - prev.y, 2)));
+						pathLength[i][j] += Math.sqrt((Math.pow(cur.x - prev.x, 2) + Math.pow(cur.y - prev.y, 2)));
 						
 						curves[i][j].add(cur);
 						map.put(curVertexIndex, curVertexIndex);
@@ -190,9 +189,7 @@ public class GeneratePaths {
 						
 					}
 					
-					pathLength[i][j] += Math
-							.sqrt((Math.pow(cur.x - prev.x, 2) + Math.pow(cur.y
-									- prev.y, 2)));
+					pathLength[i][j] += Math.sqrt((Math.pow(cur.x - prev.x, 2) + Math.pow(cur.y - prev.y, 2)));
 					curves[i][j].add(cur);
 					v1.adjacencyList[j] = curVertexIndex;
 				}
@@ -1326,8 +1323,7 @@ public class GeneratePaths {
 		System.out.println("Total number shortest of paths: " + no);
 	}
 	
-	public void printPath(ArrayList<PBDVertex> graph, Stack<Integer> stack,
-						  ArrayList<Integer> vList, ArrayList<PBDVertex>[][] curves,
+	public void printPath(ArrayList<PBDVertex> graph, Stack<Integer> stack, ArrayList<Integer> vList, ArrayList<PBDVertex>[][] curves,
 						  String filepath, int no) {
 		
 		try {
