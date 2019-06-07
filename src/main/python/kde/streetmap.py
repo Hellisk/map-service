@@ -13,7 +13,7 @@ import pyximport
 
 pyximport.install()
 import spatialfunclib
-import spatialfunclib_accel
+from pylibs import spatialfunclib_accel
 from rtree import Rtree
 
 # global parameters

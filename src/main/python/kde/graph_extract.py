@@ -4,9 +4,10 @@ import sqlite3
 from collections import deque
 
 import numpy as np
-import projection_onto_line
 from itertools import izip
 from scipy.ndimage import imread
+
+from pylibs.spatialfunclib import projection_onto_line
 
 # globals
 min_lat, min_lon, max_lat, max_lon = None, None, None, None
