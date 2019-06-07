@@ -44,17 +44,17 @@ public class PreprocessingMain {
 		if (dataSet.contains("Beijing")) {
 			DistanceFunction distFunc = new GreatCircleDistanceFunction();
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
-
-//			// raw map initialisation step, not required unless the raw data changes
-//			LOG.info("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
-//			// initialization: read raw map shape file and convert into csv file with default boundaries
-//			LOG.info("Start reading the raw road map from SHP file.");
-//			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
-//			RoadNetworkGraph initialMap = shpReader.loadRawMap();
-//			// write the visited map to the ground truth folder
-//			MapWriter.writeMap(initialMap, gtMapFolder + "raw.txt");
-//
-//			LOG.info("Raw file initialization done.");
+			
+			// raw map initialisation step, not required unless the raw data changes
+			LOG.info("Initializing the entire Beijing road map... This step is not required unless the raw data is changed.");
+			// initialization: read raw map shape file and convert into csv file with default boundaries
+			LOG.info("Start reading the raw road map from SHP file.");
+			BeijingMapLoader shpReader = new BeijingMapLoader(rawDataFolder + "map/");
+			RoadNetworkGraph initialMap = shpReader.loadRawMap();
+			// write the visited map to the ground truth folder
+			MapWriter.writeMap(initialMap, gtMapFolder + "raw.txt");
+			
+			LOG.info("Raw file initialization done.");
 			
 			LOG.info("Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...");
 			
@@ -77,7 +77,7 @@ public class PreprocessingMain {
 			// area
 //			boolean isManualGTRequired = property.getPropertyBoolean("data.IsManualGTRequired");
 //			String gtManualMatchResultFolder = property.getPropertyString("path.GroundTruthManualMatchResultFolder");
-
+//
 //			if (isManualGTRequired)
 //				LOG.info("Start the trajectory filtering and ground-truth result generation.");
 //			else
@@ -86,7 +86,7 @@ public class PreprocessingMain {
 //			if (isManualGTRequired) {
 //				RoadNetworkGraph rawCompleteMap = MapReader.readMap(gtMapFolder + "raw.txt", false, distFunc);
 //				trajFilter.readTrajAndGenerateGTRouteMatchResult(roadNetworkGraph, rawCompleteMap, rawDataFolder + "trajectory" +
-//						"/beijingTrajectory-50000", inputTrajFolder, gtManualMatchResultFolder, property);
+//						"/beijingTrajectory", inputTrajFolder, gtManualMatchResultFolder, property);
 //			} else
 			trajFilter.readTrajWithGTRouteMatchResult(roadNetworkGraph, rawDataFolder + "trajectory/beijingTrajectory",
 					inputTrajFolder, gtMatchResultFolder);
