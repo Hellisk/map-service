@@ -55,7 +55,7 @@ class TripLoader:
         for trip_filename in os.listdir(trips_path):
 
             # if filename starts with "trip_"
-            if (trip_filename.startswith("trip_") is True):
+            if trip_filename.startswith("trip_") is True:
 
                 # load trip from file
                 new_trip = TripLoader.load_trip_from_file(trips_path + "/" + trip_filename)
@@ -78,15 +78,15 @@ class TripLoader:
         trip_file = open(trip_filename, 'r')
 
         # read through trip file, a line at a time
+        point_count = 1
         for trip_location in trip_file:
             # parse out location elements
-            location_elements = trip_location.strip('\n').split(',')
+            location_elements = trip_location.strip('\n').split(' ')
 
             # create and store new location object
-            new_trip.add_location(
-                Location(str(location_elements[0]), float(location_elements[1]), float(location_elements[2]),
-                         float(location_elements[3])))
-
+            new_trip.add_location(Location(str(point_count), float(location_elements[0]), float(location_elements[1]),
+                                           float(location_elements[2])))
+            point_count += 1
         # close trip file
         trip_file.close()
 

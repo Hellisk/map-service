@@ -1,16 +1,27 @@
 package algorithm.mapinference;
 
+import algorithm.mapinference.kde.KDEMapInference;
+import algorithm.mapinference.lineclustering.LineClusteringMapInference;
+import algorithm.mapinference.tracemerge.TraceMergeMapInference;
 import evaluation.mapevaluation.pathbaseddistance.benchmarkexperiments.PathBasedMapEvaluation;
 import org.apache.log4j.Logger;
+import preprocessing.TrajectoryGenerator;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
 import util.function.GreatCircleDistanceFunction;
-import util.io.MapReader;
+import util.function.SpatialUtils;
+import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
+import util.object.spatialobject.Trajectory;
+import util.object.structure.Pair;
 import util.settings.MapInferenceProperty;
 import util.settings.MapServiceLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author uqpchao
@@ -29,6 +40,7 @@ public class MapInferenceMain {
 		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
 		String cacheFolder = property.getPropertyString("algorithm.mapinference.path.CacheFolder");    // used to store temporary files
 		String dataSet = property.getPropertyString("data.Dataset");
+		String pythonRootFolder = property.getPropertyString("data.PythonCodeRootPath");
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
 		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
 		String inferenceMethod = property.getPropertyString("algorithm.mapinference.InferenceMethod");
@@ -68,73 +80,92 @@ public class MapInferenceMain {
 		
 		// preprocessing step
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
-//		List<Trajectory> inputTrajList;
-//		if (dataSet.contains("Beijing") && property.getPropertyBoolean("data.IsSyntheticTrajectory")) {
-//			double sigma = 5;    // parameter for trajectory noise level
-//			int samplingInterval = 15;    // trajectory sampling interval minimum 1s
-//			LOG.info("Generate synthetic dataset with sigma=" + sigma + " and sampling interval=" + samplingInterval + ".");
-//			// generate synthetic dataset according to the existing dataset provided
-//			String inputSyntheticTrajFolder = property.getPropertyString("path.InputSyntheticTrajectoryFolder");
-//			String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
-//			List<Trajectory> originalInputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-//			for (Trajectory traj : originalInputTrajList) {    // convert the coordinate to UTM
-//				SpatialUtils.convertTrajGCJ2UTM(traj);
-//			}
-//			SpatialUtils.convertMapGCJ2UTM(gtMap);
-//			List<Pair<Integer, List<String>>> originalGTRouteList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-//			Map<Integer, List<String>> id2GTRouteMap = new HashMap<>();
-//			for (Pair<Integer, List<String>> routePair : originalGTRouteList) {
-//				if (!id2GTRouteMap.containsKey(routePair._1())) {
-//					id2GTRouteMap.put(routePair._1(), routePair._2());
-//				} else
-//					throw new IllegalArgumentException("Two trajectories has the same id:" + routePair._1());
-//			}
-//			List<Long> timeDiffList = new ArrayList<>();
-//			List<Pair<String, List<String>>> gtRouteList = new ArrayList<>();
-//			for (Trajectory traj : originalInputTrajList) {
-//				if (id2GTRouteMap.containsKey(Integer.parseInt(traj.getID()))) {
-//					long timeDiff = traj.getSTPoints().get(traj.size() - 1).time() - traj.getSTPoints().get(0).time();
-//					timeDiffList.add(timeDiff);
-//					gtRouteList.add(new Pair<>(traj.getID(), id2GTRouteMap.get(Integer.parseInt(traj.getID()))));
-//				} else
-//					throw new IllegalArgumentException("Cannot find the corresponding ground-truth for trajectory: " + traj.getID());
-//			}
-//			inputTrajList = TrajectoryGenerator.rawTrajGenerator(gtRouteList, timeDiffList, gtMap, sigma, samplingInterval);
-//			TrajectoryWriter.writeTrajectories(inputTrajList, inputSyntheticTrajFolder);
-//		} else {
-//			inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-//			if (dataSet.contains("Beijing")) {
-//				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
-//					SpatialUtils.convertTrajGCJ2UTM(traj);
-//				}
-//				SpatialUtils.convertMapGCJ2UTM(gtMap);
-//			}
-//		}
-//
-//		// inference step
-//		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
-//		RoadNetworkGraph outputMap;
-//		if (inferenceMethod.equals("TC")) {
-//			LineClusteringMapInference mapInference = new LineClusteringMapInference();
-//			outputMap = mapInference. mapInferenceProcess(inputTrajList, property, distFunc);
-//			MapWriter.writeMap(outputMap, outputMapFolder + "0.txt");
-//		} else if (inferenceMethod.equals("TM")) {
-//			TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
-//
-//			// epsilon, see the paper for detail
-//			double eps = property.getPropertyDouble("algorithm.mapinference.tracemerge.Epsilon");
-//			// TODO trajectory points whose pairwise point distance <2m are to be removed.
-//			outputMap = traceMergeMapInference.mapInferenceProcess(inputTrajList, eps, distFunc);
-//			MapWriter.writeMap(outputMap, outputMapFolder + "0.txt");
-//		} else {	// TODO continue
-//			outputMap = gtMap;
-//		}
-//
-//		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().size() + "/" + outputMap.getWays().size()
-//				+ ", Total running time: " + (System.currentTimeMillis() - initTaskTime) / 1000);
+		List<Trajectory> inputTrajList;
+		if (dataSet.contains("Beijing") && property.getPropertyBoolean("data.IsSyntheticTrajectory")) {
+			double sigma = 5;    // parameter for trajectory noise level
+			int samplingInterval = 15;    // trajectory sampling interval minimum 1s
+			LOG.info("Generate synthetic dataset with sigma=" + sigma + " and sampling interval=" + samplingInterval + ".");
+			// generate synthetic dataset according to the existing dataset provided
+			String inputSyntheticTrajFolder = property.getPropertyString("path.InputSyntheticTrajectoryFolder");
+			String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
+			List<Trajectory> originalInputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+			for (Trajectory traj : originalInputTrajList) {    // convert the coordinate to UTM
+				SpatialUtils.convertTrajGCJ2UTM(traj);
+			}
+			SpatialUtils.convertMapGCJ2UTM(gtMap);
+			List<Pair<Integer, List<String>>> originalGTRouteList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
+			Map<Integer, List<String>> id2GTRouteMap = new HashMap<>();
+			for (Pair<Integer, List<String>> routePair : originalGTRouteList) {
+				if (!id2GTRouteMap.containsKey(routePair._1())) {
+					id2GTRouteMap.put(routePair._1(), routePair._2());
+				} else
+					throw new IllegalArgumentException("Two trajectories has the same id:" + routePair._1());
+			}
+			List<Long> timeDiffList = new ArrayList<>();
+			List<Pair<String, List<String>>> gtRouteList = new ArrayList<>();
+			for (Trajectory traj : originalInputTrajList) {
+				if (id2GTRouteMap.containsKey(Integer.parseInt(traj.getID()))) {
+					long timeDiff = traj.getSTPoints().get(traj.size() - 1).time() - traj.getSTPoints().get(0).time();
+					timeDiffList.add(timeDiff);
+					gtRouteList.add(new Pair<>(traj.getID(), id2GTRouteMap.get(Integer.parseInt(traj.getID()))));
+				} else
+					throw new IllegalArgumentException("Cannot find the corresponding ground-truth for trajectory: " + traj.getID());
+			}
+			inputTrajList = TrajectoryGenerator.rawTrajGenerator(gtRouteList, timeDiffList, gtMap, sigma, samplingInterval);
+			TrajectoryWriter.writeTrajectories(inputTrajList, inputSyntheticTrajFolder);
+		} else {
+			inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+			if (inferenceMethod.equals("KDE")) {        // KDE uses great circle (Haversine) distance
+				if (dataSet.contains("Berlin")) {
+					for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
+						SpatialUtils.convertTrajUTM2WGS(traj, 33, 'U');
+					}
+					SpatialUtils.convertMapUTM2WGS(gtMap, 33, 'U');
+				} else if (dataSet.contains("Chicago")) {
+					for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
+						SpatialUtils.convertTrajUTM2WGS(traj, 16, 'T');
+					}
+					SpatialUtils.convertMapUTM2WGS(gtMap, 16, 'T');
+				}
+			} else {        // other methods use Euclidean distance
+				if (dataSet.contains("Beijing")) {
+					for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
+						SpatialUtils.convertTrajGCJ2UTM(traj);
+					}
+					SpatialUtils.convertMapGCJ2UTM(gtMap);
+				}
+			}
+		}
+		
+		// inference step
+		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
+		RoadNetworkGraph outputMap;
+		if (inferenceMethod.equals("TC")) {
+			LineClusteringMapInference mapInference = new LineClusteringMapInference();
+			outputMap = mapInference.mapInferenceProcess(inputTrajList, property, distFunc);
+			MapWriter.writeMap(outputMap, outputMapFolder + "0.txt");
+		} else if (inferenceMethod.equals("KDE")) {
+			KDEMapInference kdeMapInference = new KDEMapInference(property);
+			outputMap = kdeMapInference.startMapInference(pythonRootFolder + "kde/", inputTrajFolder, cacheFolder + "kde/");
+			SpatialUtils.convertMapWGS2UTM(outputMap);
+			MapWriter.writeMap(outputMap, outputMapFolder + "0.txt");
+		} else if (inferenceMethod.equals("TM")) {
+			TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
+			
+			// epsilon, see the paper for detail
+			double eps = property.getPropertyDouble("algorithm.mapinference.tracemerge.Epsilon");
+			// TODO trajectory points whose pairwise point distance <2m are to be removed.
+			outputMap = traceMergeMapInference.mapInferenceProcess(inputTrajList, eps, distFunc);
+			MapWriter.writeMap(outputMap, outputMapFolder + "0.txt");
+		} else {    // TODO continue
+			outputMap = gtMap;
+		}
+		
+		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().size() + "/" + outputMap.getWays().size()
+				+ ", Total inference time: " + (System.currentTimeMillis() - startTaskTime) / 1000);
 		
 		// evaluation step
-		RoadNetworkGraph outputMap = MapReader.readMap(outputMapFolder + "0.txt", false, new EuclideanDistanceFunction());
+//		RoadNetworkGraph outputMap = MapReader.readMap(outputMapFolder + "0.txt", false, new EuclideanDistanceFunction());
 		String pathBasedFrechetResult = PathBasedMapEvaluation.pathBasedFrechetMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
 		String pathBasedHausdorffResult = PathBasedMapEvaluation.pathBasedHausdorffMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
 	}

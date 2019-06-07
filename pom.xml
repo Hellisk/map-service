@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.uq.dke</groupId>
-    <artifactId>map-update</artifactId>
-    <version>1.0</version>
+    <artifactId>map-service</artifactId>
+    <version>0.8.0</version>
 
     <build>
         <resources>
@@ -49,11 +49,17 @@
                 </executions>
                 <configuration>
                     <archive>
-                        <manifest>
-                            <mainClass>algorithm.cooptimization.CoOptimizationMain</mainClass>
-                        </manifest>
+                        <!--                        <manifest>-->
+                        <!--                            <mainClass>algorithm.cooptimization.CoOptimizationMain</mainClass>-->
+                        <!--                        </manifest>-->
                         <manifest>
                             <mainClass>preprocessing.PreprocessingMain</mainClass>
+                        </manifest>
+                        <manifest>
+                            <mainClass>evaluation.mapevaluation.MeasureEvaluationMain</mainClass>
+                        </manifest>
+                        <manifest>
+                            <mainClass>algorithm.mapinference.MapInferenceMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

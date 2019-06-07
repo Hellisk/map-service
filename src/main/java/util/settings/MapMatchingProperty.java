@@ -73,7 +73,7 @@ public class MapMatchingProperty extends BaseProperty {
 				break;
 			case "Linux":   // performed on server
 				if (dataset.contains("Global"))
-					rootPath = "/media/dragon_data/Hellisk/data/" + dataset + "/";
+					rootPath = "/media/dragon_data/uqpchao/map-service/data/" + dataset + "/";
 				else
 					throw new IllegalArgumentException("Wrong property value: data.Dataset=" + dataset);
 				break;

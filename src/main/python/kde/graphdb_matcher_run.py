@@ -2,7 +2,6 @@ import math
 
 import spatialfunclib
 from graphdb_matcher import GraphDBMatcher
-from kde import root_path
 
 MAX_SPEED_M_PER_S = 20.0
 
@@ -110,30 +109,34 @@ import os
 
 if __name__ == '__main__':
 
-    graphdb_filename = root_path + "skeleton_maps/skeleton_map_1m.db"
-    constraint_length = 10
-    max_dist = 100
-    trip_directory = root_path + "output/unmatchedNextInput/TP0_TI0_TC0"  # the current folder should not exist, replaced by -t argument
-    output_directory = root_path + "matched_trips_1m/"
+    cache_folder = ""
+    input_folder = ""  # the current folder should not exist, replaced by -t argument
+    temp_graphdb_filename = "skeleton_maps/skeleton_map_1m.db"
+    temp_output_directory = "matched_trips_1m/"
 
-    (opts, args) = getopt.getopt(sys.argv[1:], "c:m:d:t:o:h")
-
+    (opts, args) = getopt.getopt(sys.argv[1:], "f:c:m:d:t:o:h")
     for o, a in opts:
-        if o == "-c":
+        if o == "-f":
+            cache_folder = str(a)
+        elif o == "-c":
             constraint_length = int(a)
         elif o == "-m":
             max_dist = int(a)
         elif o == "-d":
-            graphdb_filename = root_path + str(a)
+            temp_graphdb_filename = str(a)
         elif o == "-t":
-            trip_directory = str(a)
+            input_folder = str(a)
         elif o == "-o":
-            output_directory = root_path + str(a)
+            temp_output_directory = str(a)
         elif o == "-h":
             print "Usage: python graphdb_matcher_run.py [-c <constraint_length>] [-m <max_dist>] [-d " \
-                  "<graphdb_filename>] [-t <trip_directory>] [-o <output_directory>] [-h] "
+                  "<graphdb_filename>] [-t <trip_directory>] [-f <cache_folder>] [-o <output_directory>] [-h] "
             exit()
 
+    graphdb_filename = cache_folder + temp_graphdb_filename
+    output_directory = cache_folder + temp_output_directory
+    constraint_length = 10
+    max_dist = 100
     # print "constraint length: " + str(constraint_length)
     # print "max dist: " + str(max_dist)
     # print "graphdb filename: " + str(graphdb_filename)
@@ -147,13 +150,13 @@ if __name__ == '__main__':
 
     match_graphdb = MatchGraphDB(graphdb_filename, constraint_length, max_dist)
 
-    all_trip_files = filter(lambda x: x.startswith("trip_") and x.endswith(".txt"), os.listdir(trip_directory))
+    all_trip_files = filter(lambda x: x.startswith("trip_") and x.endswith(".txt"), os.listdir(input_folder))
 
     for i in range(0, len(all_trip_files)):
         # sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trip_files)) + "... ")
         sys.stdout.flush()
 
-        match_graphdb.process_trip(trip_directory, all_trip_files[i], output_directory)
+        match_graphdb.process_trip(input_folder, all_trip_files[i], output_directory)
 
     # sys.stdout.write("done.\n")
     sys.stdout.flush()

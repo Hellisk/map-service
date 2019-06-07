@@ -72,7 +72,7 @@ public class MapInferenceProperty extends BaseProperty {
 				rootPath += dataset + "/";
 				break;
 			case "Linux":   // performed on server
-				rootPath = "/media/dragon_data/Hellisk/data" + dataset + "/";
+				rootPath = "/media/dragon_data/uqpchao/map-service/data/" + dataset + "/";
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong property value: OS=" + os);

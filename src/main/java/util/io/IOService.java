@@ -133,7 +133,7 @@ public final class IOService implements Serializable {
 	 * @param pathName The absolute path to the file to read.
 	 * @return A list with the file lines.
 	 */
-	static synchronized List<String> readFile(final String pathName) {
+	public static synchronized List<String> readFile(final String pathName) {
 		return readFile(Paths.get(pathName).toAbsolutePath());
 	}
 	

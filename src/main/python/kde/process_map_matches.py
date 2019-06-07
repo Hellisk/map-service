@@ -2,8 +2,7 @@ import sqlite3
 
 import math
 
-from kde import root_path
-from pylibs import spatialfunclib
+import spatialfunclib
 from streetmap import StreetMap
 
 
@@ -308,22 +307,31 @@ import sys, getopt
 import os
 
 if __name__ == '__main__':
-    graphdb_filename = root_path + "skeleton_maps/skeleton_map_1m.db"
-    matched_trips_directory = root_path + "matched_trips_1m/"
-    output_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1.db"
 
-    (opts, args) = getopt.getopt(sys.argv[1:], "d:t:o:h")
+    cache_folder = ""
+    temp_graphdb_filename = "skeleton_maps/skeleton_map_1m.db"
+    temp_matched_trips_directory = "matched_trips_1m/"
+    temp_output_filename = "skeleton_maps/skeleton_map_1m_mm1.db"
+
+    (opts, args) = getopt.getopt(sys.argv[1:], "d:t:o:f:h")
 
     for o, a in opts:
         if o == "-d":
-            graphdb_filename = root_path + str(a)
+            temp_graphdb_filename = str(a)
         elif o == "-t":
-            matched_trips_directory = root_path + str(a)
+            temp_matched_trips_directory = str(a)
         elif o == "-o":
-            output_filename = root_path + str(a)
+            temp_output_filename = str(a)
+        elif o == "-f":
+            cache_folder = str(a)
         elif o == "-h":
-            print "Usage: python process_map_matches.py [-d <graphdb_filename>] [-t <matched_trips_directory>] [-o <output_filename>] [-h]"
+            print "Usage: python process_map_matches.py [-d <graphdb_filename>] [-t <matched_trips_directory>] [-o <output_filename>] [" \
+                  "-f <cache_folder>] [-h]"
             exit()
+
+    graphdb_filename = cache_folder + temp_graphdb_filename
+    matched_trips_directory = cache_folder + temp_matched_trips_directory
+    output_filename = cache_folder + temp_output_filename
 
     # print "graphdb filename: " + str(graphdb_filename)
     # print "matched trips directory: " + str(matched_trips_directory)

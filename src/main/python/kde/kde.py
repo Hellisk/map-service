@@ -5,8 +5,8 @@ import cv
 import sys
 from itertools import tee, izip
 
+import spatialfunclib
 from location import TripLoader
-from pylibs import spatialfunclib
 
 ##
 ## important parameters
@@ -14,14 +14,6 @@ from pylibs import spatialfunclib
 
 cell_size = 1  # meters
 gaussian_blur = 17
-
-dataset_option = 1  # 1 = home, 2 = school, 3 = server
-beijing_home_path = "F:/data/beijingTrajectory/"  # the root folder of all data
-beijing_school_path = "C:/data/beijingTrajectory/"  # the root folder of all data
-beijing_server_path = "/media/dragon_data/Hellisk/MapUpdate/beijingTrajectory/"  # the root folder of all data
-root_folder = beijing_home_path if dataset_option == 1 else beijing_school_path if dataset_option == 2 else beijing_server_path
-root_path = root_folder + "mapInference/" if dataset_option != 3 else "/home/Hellisk/data/mapInference/"
-input_path = root_folder + "output/unmatchedNextInput/TP0_TI0_TC0/"
 
 
 def pairwise(iterable):
@@ -80,7 +72,7 @@ class KDE:
         sys.stdout.flush()
 
         # open bounding box file
-        boundingbox_file = open(root_path + "bounding_box.txt", 'w')
+        boundingbox_file = open(cache_folder + "bounding_box.txt", 'w')
 
         # output lat and lot to file
         boundingbox_file.write(str(min_lat) + " " + str(min_lon) + " " + str(max_lat) + " " + str(max_lon))
@@ -153,7 +145,7 @@ class KDE:
                 cv.Line(lines, (ox, oy), (dx, dy), (255), 1, cv.CV_AA)
 
         # save the lines
-        cv.SaveImage(root_path + "raw_data.png", lines)
+        cv.SaveImage(cache_folder + "raw_data.png", lines)
 
         print "done."
         print "Intensity map acquired."
@@ -162,7 +154,7 @@ class KDE:
 
         # create the mask and compute the contour
         cv.Smooth(themap, themap, cv.CV_GAUSSIAN, gaussian_blur, gaussian_blur)
-        cv.SaveImage(root_path + "kde.png", themap)
+        cv.SaveImage(cache_folder + "kde.png", themap)
 
         print "done."
         print "\nKDE generation complete."
@@ -170,20 +162,24 @@ class KDE:
 
 if __name__ == '__main__':
 
-    opts, args = getopt.getopt(sys.argv[1:], "c:b:p:h")
+    opts, args = getopt.getopt(sys.argv[1:], "c:b:i:f:h")
+    input_path = ""
+    cache_folder = ""
     for o, a in opts:
         if o == "-c":
             cell_size = int(a)
         elif o == "-b":
             gaussian_blur = int(a)
-        elif o == "-p":
+        elif o == "-i":
             input_path = str(a)
+        elif o == "-f":
+            cache_folder = str(a)
         elif o == "-h":
-            print "Usage: kde.py [-c <cell_size>] [-b <gaussian_blur_size>] [-p <trips_path>] [-h]\n"
+            print "Usage: kde.py [-c <cell_size>] [-b <gaussian_blur_size>] [-i <input_trips_path>] [-f <cache_folder>][-h]\n"
             sys.exit()
 
     # create output directory
-    os.mkdir(root_path)
+    os.mkdir(cache_folder)
 
     k = KDE()
     k.create_kde_with_trips(TripLoader.load_all_trips(input_path))

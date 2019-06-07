@@ -1,13 +1,12 @@
+import getopt
 import os
 import sqlite3
 from collections import deque
 
 import numpy as np
+import projection_onto_line
 from itertools import izip
 from scipy.ndimage import imread
-
-from kde import root_path
-from pylibs.spatialfunclib import projection_onto_line
 
 # globals
 min_lat, min_lon, max_lat, max_lon = None, None, None, None
@@ -42,7 +41,7 @@ def douglas_peucker(segment, epsilon):
 
 
 def pixels_to_coords((i, j)):
-    return ((((height - i) / yscale) + min_lat), ((j / xscale) + min_lon))
+    return (((height - i) / yscale) + min_lat), ((j / xscale) + min_lon)
 
 
 class Node:
@@ -69,7 +68,7 @@ class MainCrossing:
 
     @property
     def location(self):
-        return (self.i, self.j)
+        return self.i, self.j
 
 
 class Graph:
@@ -107,7 +106,7 @@ class Graph:
         for segment in new_segments:
             segment_weight = 0
 
-            if (len(segment) > 2):
+            if len(segment) > 2:
                 for i in range(1, len(segment) - 1):
                     segment_weight += segment[i].weight
                 segment_weight /= float(len(segment) - 2)
@@ -118,7 +117,7 @@ class Graph:
             smoothed_segment = douglas_peucker(segment, 10)
 
             for node in smoothed_segment:
-                if (node.id is None):
+                if node.id is None:
                     node.id = node_id
                     cur.execute("INSERT INTO nodes VALUES (" + str(node.id) + "," + str(node.latitude) + "," + str(
                         node.longitude) + "," + str(node.weight) + ")")
@@ -487,9 +486,18 @@ if __name__ == '__main__':
     #
     # usage: python graph_extract.py skeletons/skeleton_7m.png bounding_boxes/bounding_box_7m.txt skeleton_maps/skeleton_map_7m.db
     #
-    skeleton_filename = root_path + "skeleton.png"
-    bounding_box_filename = root_path + "bounding_box.txt"
-    output_filename = root_path + "skeleton_maps/skeleton_map_1m.db"
+    opts, args = getopt.getopt(sys.argv[1:], "f:h")
+    cache_folder = ""
+    for o, a in opts:
+        if o == "-f":
+            cache_folder = str(a)
+        elif o == "-h":
+            print "Usage: skeleton.py [-f <cache_folder>][-h]\n"
+            sys.exit()
+
+    skeleton_filename = cache_folder + "skeleton.png"
+    bounding_box_filename = cache_folder + "bounding_box.txt"
+    output_filename = cache_folder + "skeleton_maps/skeleton_map_1m.db"
 
     # print "skeleton filename: " + str(skeleton_filename)
     # print "bounding box filename: " + str(bounding_box_filename)
@@ -514,9 +522,9 @@ if __name__ == '__main__':
     g = Graph()
 
     # create database directory
-    if (not os.path.exists(root_path + "skeleton_maps/")):
+    if not os.path.exists(cache_folder + "skeleton_maps/"):
         # create trips directory
-        os.mkdir(root_path + "skeleton_maps/")
+        os.mkdir(cache_folder + "skeleton_maps/")
 
     start_time = time.time()
     g.extract(skeleton.astype(np.bool).astype(np.int), skeleton, output_filename)

@@ -5,15 +5,16 @@
 # Created: 6/6/11
 #
 
-import sqlite3
+import getopt
 import os
+import sqlite3
+
 import pyximport
 
 pyximport.install()
-from pylibs import spatialfunclib
-from pylibs import spatialfunclib_accel
+import spatialfunclib
+import spatialfunclib_accel
 from rtree import Rtree
-from kde import root_path
 
 # global parameters
 intersection_size = 50.0  # meters
@@ -724,22 +725,29 @@ class StreetMap:
         map_file = open(map_filename, 'w')
 
         # iterate through all map edges
+        edge_count = 0
+        mini_node_count = 0
         for curr_segment in self.segments.values():
             confident_score = 0
             edge_list = ""
             count = 0
             # insert all edge information to a string
             for curr_edge in curr_segment.edges:
-                count += 1
-                edge_list += "null," + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|"
-                confident_score += curr_edge.weight
-                if count == len(curr_segment.edges):
+                if count == 1:
+                    edge_list += "null," + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|"
+                elif count == len(curr_segment.edges) - 1:
                     edge_list += "null," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude)
+                else:
+                    edge_list += str(mini_node_count) + "-," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude)
+                    mini_node_count += 1
+                count += 1
+                confident_score += curr_edge.weight
 
             confident_score = confident_score / len(curr_segment.edges)
 
             # output current edge to file, including 4 nulls, a confident score and a null for raw visit count, then mini edge list
-            map_file.write("null|-1|{}|0.0|" + str(confident_score) + "|true|0|" + edge_list + "\n")
+            map_file.write(str(edge_count) + "|-1|null|-1.0|" + str(confident_score) + "|false|-1|" + edge_list + "\n")
+            edge_count += 1
 
         # close map file
         map_file.close()
@@ -761,9 +769,20 @@ if __name__ == '__main__':
     #     exit()
 
     start_time = time.time()
+    opts, args = getopt.getopt(sys.argv[1:], "f:d:h")
     db_type = "graphdb"
-    db_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1.db"
-    output_filename = root_path + "inferred_edges.txt"
+    cache_folder = ""
+    temp_graphdb_filename = "skeleton_maps/skeleton_map_1m_mm2.db"
+    for o, a in opts:
+        if o == "-f":
+            cache_folder = str(a)
+        elif o == "-d":
+            temp_graphdb_filename = str(a)
+        elif o == "-h":
+            print "Usage: skeleton.py [-f <cache_folder>][-h]\n"
+            sys.exit()
+    db_filename = cache_folder + temp_graphdb_filename
+    output_filename = cache_folder + "inferred_edges.txt"
 
     m = StreetMap()
 

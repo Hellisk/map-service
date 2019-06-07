@@ -1,6 +1,9 @@
-import numpy as np
+import getopt
 import os
+
+import numpy as np
 import pyximport
+import sys
 
 pyximport.install(setup_args={'include_dirs': np.get_include()})
 import subiterations
@@ -10,10 +13,7 @@ from scipy.misc import imsave, toimage
 from scipy.stats import threshold
 from multiprocessing import Manager, cpu_count
 from scipy.ndimage.morphology import grey_closing
-from kde import root_path
 import math
-
-skeleton_images_path = root_path + "skeleton_images/"
 
 
 class GrayscaleSkeleton:
@@ -228,8 +228,19 @@ def circle(radius):
 import time
 
 if __name__ == '__main__':
-    input_filename = root_path + "kde.png"
-    output_filename = root_path + "skeleton.png"
+
+    opts, args = getopt.getopt(sys.argv[1:], "f:h")
+    cache_folder = ""
+    for o, a in opts:
+        if o == "-f":
+            cache_folder = str(a)
+        elif o == "-h":
+            print "Usage: skeleton.py [-f <cache_folder>][-h]\n"
+            sys.exit()
+
+    skeleton_images_path = cache_folder + "skeleton_images/"
+    input_filename = cache_folder + "kde.png"
+    output_filename = cache_folder + "skeleton.png"
 
     # print "input filename: " + str(input_filename)
     # print "output filename: " + str(output_filename)

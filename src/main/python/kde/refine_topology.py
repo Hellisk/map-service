@@ -2,8 +2,7 @@ import sqlite3
 
 import math
 
-from kde import root_path
-from pylibs import spatialfunclib
+import spatialfunclib
 from streetmap import StreetMap, Node
 
 
@@ -356,22 +355,30 @@ import sys, getopt
 import os
 
 if __name__ == '__main__':
-    graphdb_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1.db"
-    matched_traces_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1_traces.txt"
-    output_filename = root_path + "skeleton_maps/skeleton_map_1m_mm1_tr.db"
+    cache_folder = ""
+    temp_graphdb_filename = "skeleton_maps/skeleton_map_1m_mm1.db"
+    temp_matched_traces_filename = "skeleton_maps/skeleton_map_1m_mm1_traces.txt"
+    temp_output_filename = "skeleton_maps/skeleton_map_1m_mm1_tr.db"
 
-    (opts, args) = getopt.getopt(sys.argv[1:], "d:t:o:h")
+    (opts, args) = getopt.getopt(sys.argv[1:], "d:t:o:f:h")
 
     for o, a in opts:
         if o == "-d":
-            graphdb_filename = str(a)
+            temp_graphdb_filename = str(a)
         elif o == "-t":
-            matched_traces_filename = str(a)
+            temp_matched_traces_filename = str(a)
         elif o == "-o":
-            output_filename = str(a)
+            temp_output_filename = str(a)
+        elif o == "-f":
+            cache_folder = str(a)
         elif o == "-h":
-            print "Usage: python refine_topology.py [-d <graphdb_filename>] [-t <matched_traces_filename>] [-o <output_filename>] [-h]"
+            print "Usage: python refine_topology.py [-d <graphdb_filename>] [-t <matched_traces_filename>] [-o <output_filename>] [" \
+                  "-f <cache_folder>] [-h]"
             exit()
+
+    graphdb_filename = cache_folder + temp_graphdb_filename
+    matched_traces_filename = cache_folder + temp_matched_traces_filename
+    output_filename = cache_folder + temp_output_filename
 
     # print "graphdb filename: " + str(graphdb_filename)
     # print "matched traces filename: " + str(matched_traces_filename)
