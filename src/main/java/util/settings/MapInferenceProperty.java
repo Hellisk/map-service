@@ -39,6 +39,12 @@ public class MapInferenceProperty extends BaseProperty {
 						case "ds":
 							super.setProperty("data.SampleMaximalIntervalSec", arg.substring(3));
 							break;
+						case "di":
+							super.setProperty("data.Sigma", arg.substring(3));
+							break;
+						case "dr":
+							super.setProperty("data.SamplingInterval", arg.substring(3));
+							break;
 						case "dn":
 							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
@@ -67,6 +73,8 @@ public class MapInferenceProperty extends BaseProperty {
 		String os = super.getPropertyString("OS");
 		String dataset = super.getPropertyString("data.Dataset");
 		String rootPath = super.getPropertyString("data.RootPath");
+		int sigma = super.getPropertyInteger("data.Sigma");
+		int samplingInterval = super.getPropertyInteger("data.SamplingInterval");
 		switch (os) {
 			case "Win":     // performed on either school or home computer
 				rootPath += dataset + "/";
@@ -97,7 +105,8 @@ public class MapInferenceProperty extends BaseProperty {
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
-		super.setProperty("path.InputSyntheticTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "S/");    // only usable in Beijing dataset
+		// synthetic data only usable in Beijing dataset
+		super.setProperty("path.InputSyntheticTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "_S" + sigma + "_R" + samplingInterval);
 		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
 		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");

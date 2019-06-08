@@ -41,7 +41,7 @@ public class PBDVertex implements Serializable {
 	public int vertexID;
 	public double x, y, lat, lon;
 	public int degree = 0;
-	public int[] adjacencyList = new int[15];
+	public int[] adjacencyList = new int[25];
 	public double left = Double.MAX_VALUE, right = -1;//left and right endpoint of reachability interval or left is used as path label while
 	// computing shortest Paths.
 	public int startindex = -1;

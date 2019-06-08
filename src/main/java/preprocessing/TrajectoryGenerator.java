@@ -126,7 +126,8 @@ public class TrajectoryGenerator {
 			}
 		}
 		if (coveredWaySet.size() < mapWaySize * percentage)
-			System.out.println("Cannot achieve required road coverage, the actual coverage is: " + (double) coveredWaySet.size() / mapWaySize * 100 + "%");
+			LOG.warn("Cannot achieve required road coverage, the actual coverage is: " + (double) coveredWaySet.size() / mapWaySize * 100 +
+					"%");
 		return rawTrajGenerator(tempGTRouteList, tempTimeDiffList, map, sigma, samplingInterval);
 	}
 	

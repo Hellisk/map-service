@@ -232,7 +232,8 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	}
 	
 	public void setNodeType(short nodeType) {
-		addTag("nodeType", nodeType);
+		if (nodeType != -2)
+			addTag("nodeType", nodeType);
 	}
 	
 }

@@ -81,6 +81,8 @@ public class MapInferenceMain {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		List<Trajectory> inputTrajList;
 		if (dataSet.contains("Beijing") && property.getPropertyBoolean("data.IsSyntheticTrajectory")) {
+			int sigma = property.getPropertyInteger("data.Sigma");    // parameter for trajectory noise level
+			int samplingInterval = property.getPropertyInteger("data.SamplingInterval");    // trajectory sampling interval minimum 1s
 			String inputSyntheticTrajFolder = property.getPropertyString("path.InputSyntheticTrajectoryFolder");
 			File inputSyntheticFileFolder = new File(inputSyntheticTrajFolder);
 			if (inputSyntheticFileFolder.exists() && Objects.requireNonNull(inputSyntheticFileFolder.listFiles()).length > 0) {
@@ -88,8 +90,6 @@ public class MapInferenceMain {
 				LOG.info("The synthetic dataset " + dataSpec + " already exist, read them instead.");
 				inputTrajList = TrajectoryReader.readTrajectoriesToList(inputSyntheticTrajFolder, distFunc);
 			} else {
-				double sigma = 5;    // parameter for trajectory noise level
-				int samplingInterval = 15;    // trajectory sampling interval minimum 1s
 				LOG.info("Generate synthetic dataset with sigma=" + sigma + " and sampling interval=" + samplingInterval + ".");
 				// generate synthetic dataset according to the existing dataset provided
 				String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
