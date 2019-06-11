@@ -308,14 +308,14 @@ public class RoadWay extends RoadNetworkPrimitive {
 	 */
 	@Override
 	public String toString() {
-		DecimalFormat df = new DecimalFormat("0.00000");
+		DecimalFormat decFor = new DecimalFormat("0.00000");
 		StringBuilder s = new StringBuilder(this.getID() + "|");
 		s.append(this.getWayLevel()).append("|").append(this.getWayType() == null ? "null" : this.getWayType().toString()).append("|");
 		s.append(this.getInfluenceScore()).append("|").append(this.getConfidenceScore()).append("|");
 		s.append(this.isNewRoad ? "true" : "false").append("|");
 		s.append(this.getVisitCount());
 		for (RoadNode n : this.getNodes()) {
-			s.append("|").append(n.getID()).append(",").append(df.format(n.lon())).append(",").append(df.format(n.lat()));
+			s.append("|").append(n.getID()).append(",").append(decFor.format(n.lon())).append(",").append(decFor.format(n.lat()));
 		}
 		return s.toString();
 	}

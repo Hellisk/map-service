@@ -31,21 +31,21 @@ import java.util.Map;
 public class UnfoldingBeijingMapDisplay extends PApplet {
 	
 	private UnfoldingMap currMapDisplay;
-	private String inputMapFolder = "C:/data/Beijing-S/output/map/";
+	private String inputMapFolder = "F:/data/Beijing-S/input/map/";
 	//	private String inputTrajPath = "F:/data/Beijing-S/input/trajectory/L180_I-1_N5000S/";
 //	private String gtMatchResultPath = "F:/data/Beijing-S/groundTruth/matchResult/L180_I-1_N5000/";
 	private DistanceFunction distFunc = new EuclideanDistanceFunction();
 	private UnfoldingMap fullMapDisplay;    // full map visualization
-	private UnfoldingMap compareMapDisplay;    // map for comparison
+//	private UnfoldingMap compareMapDisplay;    // map for comparison
 	
 	public void setup() {
 		size(1440, 990);
 //		this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OpenStreetMapProvider());
 //		this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
 		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
-		this.compareMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
+//		this.compareMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
 		MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
-		MapUtils.createMouseEventDispatcher(this, compareMapDisplay);
+//		MapUtils.createMouseEventDispatcher(this, compareMapDisplay);
 		
 		int[] blue = {0, 128, 255};
 		int[] green = {102, 255, 178};
@@ -55,9 +55,9 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		int[] black = {0, 0, 0};
 		
 		// read the complete map, fill into fullMapDisplay
-		RoadNetworkGraph rawMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
-//		SpatialUtils.convertMapGCJ2WGS(rawMap);
-		SpatialUtils.convertMapUTM2WGS(rawMap, 50, 'S');
+		RoadNetworkGraph rawMap = MapReader.readMap(inputMapFolder + "roadShape.txt", false, distFunc);
+		SpatialUtils.convertMapGCJ2WGS(rawMap);
+//		SpatialUtils.convertMapUTM2WGS(rawMap, 50, 'S');
 		Map<String, RoadWay> id2WayMap = new HashMap<>();
 		for (RoadWay way : rawMap.getWays()) {
 			if (!id2WayMap.containsKey(way.getID())) {
@@ -67,16 +67,16 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		}
 		List<Marker> mapMarker = roadWayMarkerBeijingGen(rawMap.getWays(), lightPurple, 2);
 		fullMapDisplay.addMarkers(mapMarker);
-		
-		RoadNetworkGraph planarRawMap = rawMap.toPlanarMap();
-		List<Marker> compareMapMarker = roadWayMarkerBeijingGen(planarRawMap.getWays(), pink, 2);
-		compareMapDisplay.addMarkers(compareMapMarker);
+
+//		RoadNetworkGraph planarRawMap = rawMap.toPlanarMap();
+//		List<Marker> compareMapMarker = roadWayMarkerBeijingGen(planarRawMap.getWays(), pink, 2);
+//		compareMapDisplay.addMarkers(compareMapMarker);
 		
 		// set map centre
 		Location mapCenter = new Location((float) (rawMap.getMaxLat() + rawMap.getMinLat()) / 2, (float) (rawMap
 				.getMaxLon() + rawMap.getMinLon()) / 2);
 		fullMapDisplay.zoomAndPanTo(14, mapCenter);
-		compareMapDisplay.zoomAndPanTo(14, mapCenter);
+//		compareMapDisplay.zoomAndPanTo(14, mapCenter);
 
 //		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajPath, distFunc);
 //		List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultPath);
@@ -141,21 +141,21 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		result.add(currLineMarker);
 		return result;
 	}
-	
-	public void keyPressed() {
-		switch (key) {
-			case '1': {
-				currMapDisplay = fullMapDisplay;
-				break;
-			}
-			case '2': {
-				currMapDisplay = compareMapDisplay;
-				break;
-			}
-			default:
-				break;
-		}
-	}
+//
+//	public void keyPressed() {
+//		switch (key) {
+//			case '1': {
+//				currMapDisplay = fullMapDisplay;
+//				break;
+//			}
+//			case '2': {
+//				currMapDisplay = compareMapDisplay;
+//				break;
+//			}
+//			default:
+//				break;
+//		}
+//	}
 	
 	public void draw() {
 		currMapDisplay.draw();

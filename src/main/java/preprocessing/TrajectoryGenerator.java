@@ -2,6 +2,11 @@ package preprocessing;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
+import util.function.GreatCircleDistanceFunction;
+import util.io.MapReader;
+import util.io.MatchResultReader;
+import util.io.TrajectoryReader;
+import util.io.TrajectoryWriter;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
@@ -9,7 +14,10 @@ import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
+import util.settings.MapInferenceProperty;
+import util.settings.MapServiceLogger;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -20,7 +28,137 @@ import java.util.*;
  */
 public class TrajectoryGenerator {
 	
-	private static final Logger LOG = Logger.getLogger(TrajectoryGenerator.class);
+	private static Logger LOG;
+	
+	public static void main(String[] args) {
+		
+		MapInferenceProperty property = new MapInferenceProperty();
+		property.loadPropertiesFromResourceFile("mapinference.properties", args);
+		long initTaskTime = System.currentTimeMillis();
+		
+		// setup java log
+		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
+		String dataSet = property.getPropertyString("data.Dataset");
+		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
+		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
+		String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
+		String dataSpec = property.getPropertyString("data.DataSpec");
+		
+		
+		// log file name
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();    // only perform on Beijing dataset
+		String logFileName = "syntheticTrajGeneration_" + dataSet + "_" + dataSpec + "_" + initTaskTime;
+		// initialize log file
+		MapServiceLogger.logInit(logFolder, logFileName);
+		
+		// use global dataset to evaluate the map-matching accuracy
+		LOG = Logger.getLogger(TrajectoryGenerator.class);
+		
+		int sigma;    // parameter for trajectory noise level
+		int samplingInterval;    // trajectory sampling interval minimum 1s
+		int coverage;    // road coverage among the map region
+		String syntheticSpec;
+		String outputTrajFolderName;
+		File outputTrajFolder;
+		
+		LOG.info("Start the synthetic trajectory generation with various sigma.");
+		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
+		samplingInterval = 5;
+		coverage = -1;
+		for (sigma = 0; sigma < 40; sigma += 5) {
+			LOG.info("Start the generation on sigma=" + sigma);
+			syntheticSpec = "_S" + sigma + "_R" + samplingInterval + "_C" + coverage;
+			outputTrajFolderName = inputTrajFolder.substring(0, inputTrajFolder.length() - 1) + syntheticSpec + "/";        // remove the
+			// last "/"
+			outputTrajFolder = new File(outputTrajFolderName);
+			if (outputTrajFolder.exists() && Objects.requireNonNull(outputTrajFolder.listFiles()).length > 0) {
+				// the folder already exist, read the folder
+				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
+						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
+			} else {
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
+				List<Long> timeDiffList = new ArrayList<>();
+				for (int i = 0; i < inputTrajList.size(); i++) {
+					Trajectory traj = inputTrajList.get(i);
+					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
+						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
+						timeDiffList.add(0L);
+					} else {
+						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+						timeDiffList.add(currTimeDiff);
+					}
+				}
+				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, timeDiffList, gtMap, sigma, samplingInterval);
+				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
+				LOG.info("Trajectory written for sigma=" + sigma + " is done");
+			}
+		}
+		int[] samplingValues = {1, 10, 20, 30, 45, 60, 90, 120, 180};
+		sigma = 0;
+		for (int samplingValue : samplingValues) {
+			samplingInterval = samplingValue;
+			LOG.info("Start the generation on sampling rate=" + samplingInterval);
+			syntheticSpec = "_S" + sigma + "_R" + samplingInterval + "_C" + coverage;
+			outputTrajFolderName = inputTrajFolder.substring(0, inputTrajFolder.length() - 1) + syntheticSpec + "/";        // remove the
+			// last "/"
+			outputTrajFolder = new File(outputTrajFolderName);
+			if (outputTrajFolder.exists() && Objects.requireNonNull(outputTrajFolder.listFiles()).length > 0) {
+				// the folder already exist, read the folder
+				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
+						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
+			} else {
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
+				List<Long> timeDiffList = new ArrayList<>();
+				for (int i = 0; i < inputTrajList.size(); i++) {
+					Trajectory traj = inputTrajList.get(i);
+					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
+						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
+						timeDiffList.add(0L);
+					} else {
+						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+						timeDiffList.add(currTimeDiff);
+					}
+				}
+				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, timeDiffList, gtMap, sigma, samplingInterval);
+				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
+				LOG.info("Trajectory written for sampling rate=" + samplingInterval + " is done");
+			}
+		}
+		sigma = 0;
+		samplingInterval = 1;
+		for (coverage = 10; coverage <= 60; coverage += 10) {
+			LOG.info("Start the generation on coverage=" + coverage);
+			syntheticSpec = "_S" + sigma + "_R" + samplingInterval + "_C" + coverage;
+			outputTrajFolderName = inputTrajFolder.substring(0, inputTrajFolder.length() - 1) + syntheticSpec + "/";        // remove the
+			// last "/"
+			outputTrajFolder = new File(outputTrajFolderName);
+			if (outputTrajFolder.exists() && Objects.requireNonNull(outputTrajFolder.listFiles()).length > 0) {
+				// the folder already exist, read the folder
+				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
+						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
+			} else {
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
+				List<Long> timeDiffList = new ArrayList<>();
+				for (int i = 0; i < inputTrajList.size(); i++) {
+					Trajectory traj = inputTrajList.get(i);
+					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
+						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
+						timeDiffList.add(0L);
+					} else {
+						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+						timeDiffList.add(currTimeDiff);
+					}
+				}
+				List<Trajectory> resultTraj = rawTrajWithCoverageGenerator(gtMatchResultList, timeDiffList, gtMap, sigma,
+						samplingInterval, coverage);
+				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
+				LOG.info("Trajectory written for coverage=" + coverage + " is done");
+			}
+		}
+	}
 	
 	/**
 	 * Generate a list of synthetic trajectories that follows the given distribution and sampling rate.
@@ -32,8 +170,8 @@ public class TrajectoryGenerator {
 	 * @param samplingInterval The number of seconds per point.
 	 * @return The generated trajectories, which has the same size as the input route list.
 	 */
-	public static List<Trajectory> rawTrajGenerator(List<Pair<String, List<String>>> gtRouteList, List<Long> timeDiffList,
-													RoadNetworkGraph map, double sigma, int samplingInterval) {
+	private static List<Trajectory> rawTrajGenerator(List<Pair<Integer, List<String>>> gtRouteList, List<Long> timeDiffList,
+													 RoadNetworkGraph map, double sigma, int samplingInterval) {
 		DistanceFunction distFunc = map.getDistanceFunction();
 		if (gtRouteList.size() != timeDiffList.size())
 			throw new IllegalArgumentException("The size of the input route list and time different list is inconsistent.");
@@ -84,7 +222,7 @@ public class TrajectoryGenerator {
 			// add start point
 			trajPointList.add(new TrajectoryPoint(endNode.lon(), endNode.lat(), trajPointList.size() + 1, distFunc));
 			trajPointShift(trajPointList, sigma, distFunc);
-			Trajectory currTraj = new Trajectory(gtRouteList.get(i)._1(), trajPointList);
+			Trajectory currTraj = new Trajectory(gtRouteList.get(i)._1() + "", trajPointList);
 			resultTrajList.add(currTraj);
 		}
 		return resultTrajList;
@@ -102,12 +240,12 @@ public class TrajectoryGenerator {
 	 * @param percentage       The percentage of roads to be covered.
 	 * @return The generated trajectories, which has the same size as the input route list.
 	 */
-	public static List<Trajectory> rawTrajWithCoverageGenerator(List<Pair<String, List<String>>> gtRouteList, List<Long> timeDiffList,
-																RoadNetworkGraph map, double sigma, int samplingInterval, double percentage) {
+	private static List<Trajectory> rawTrajWithCoverageGenerator(List<Pair<Integer, List<String>>> gtRouteList, List<Long> timeDiffList,
+																 RoadNetworkGraph map, double sigma, int samplingInterval, double percentage) {
 		Set<String> coveredWaySet = new HashSet<>();
 		boolean isNewRoadOccurred;
 		double mapWaySize = map.getWays().size();
-		List<Pair<String, List<String>>> tempGTRouteList = new ArrayList<>();
+		List<Pair<Integer, List<String>>> tempGTRouteList = new ArrayList<>();
 		List<Long> tempTimeDiffList = new ArrayList<>();
 		for (int i = 0; i < gtRouteList.size(); i++) {
 			isNewRoadOccurred = false;
@@ -141,6 +279,9 @@ public class TrajectoryGenerator {
 	 */
 	private static void trajPointShift(List<TrajectoryPoint> trajPointList, double sigma, DistanceFunction distFunc) {
 		Random random = new Random(10);
+		if (sigma == 0) {
+			return;        // no shift required
+		}
 		for (TrajectoryPoint point : trajPointList) {
 			double newLon = point.x() + distFunc.getCoordinateOffsetX(random.nextGaussian() * sigma, point.y());
 			double newLat = point.y() + distFunc.getCoordinateOffsetY(random.nextGaussian() * sigma, point.x());

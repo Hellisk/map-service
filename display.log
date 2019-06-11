@@ -53,3 +53,159 @@
 2019-06-06 16:48:19 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:1181, total road ways: 2238
 2019-06-06 16:52:14 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:1181, total road ways: 2238
 2019-06-06 16:53:02 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:1181, total road ways: 2238
+2019-06-09 00:50:51 INFO  [MapReader]: topo.txt road map read done. isolate nodes: 58, total nodes:3033, total road ways: 4453
+2019-06-09 02:07:21 INFO  [MapReader]: geo.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-09 02:10:30 INFO  [MapReader]: spuriousRoad.txt road map read done. isolate nodes: 0, total nodes:3096, total road ways: 6672
+2019-06-09 02:13:01 INFO  [MapReader]: spuriousRoad.txt road map read done. isolate nodes: 0, total nodes:3096, total road ways: 6672
+2019-06-09 02:23:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:05 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:25 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:25 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:26 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:26 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:26 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:27 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:23:30 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:43 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:43 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:43 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:44 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:44 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:44 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:44 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:45 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:45 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:45 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:45 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:45 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:46 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:46 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:46 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:46 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:47 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:48 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:48 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:48 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:49 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:50 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:51 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:51 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:52 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:53 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:54 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:55 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:56 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:57 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:58 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:25:59 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:00 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:00 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:00 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:01 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:02 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 02:26:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-06-09 03:06:38 INFO  [MapReader]: spuriousRoad.txt road map read done. isolate nodes: 0, total nodes:2997, total road ways: 5800
+2019-06-09 03:08:05 INFO  [MapReader]: intersection.txt road map read done. isolate nodes: 0, total nodes:3009, total road ways: 4484
+2019-06-09 03:24:28 INFO  [MapReader]: intersection.txt road map read done. isolate nodes: 0, total nodes:3009, total road ways: 4484
+2019-06-09 03:34:13 INFO  [MapReader]: intersection.txt road map read done. isolate nodes: 0, total nodes:3009, total road ways: 5874
+2019-06-09 03:35:43 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-09 04:00:52 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-09 04:03:24 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-09 04:05:42 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-09 04:07:20 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-11 00:57:26 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-06-11 01:16:29 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484

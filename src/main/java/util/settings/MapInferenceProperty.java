@@ -45,6 +45,9 @@ public class MapInferenceProperty extends BaseProperty {
 						case "dr":
 							super.setProperty("data.SamplingInterval", arg.substring(3));
 							break;
+						case "dc":
+							super.setProperty("data.Coverage", arg.substring(3));
+							break;
 						case "dn":
 							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
@@ -73,8 +76,6 @@ public class MapInferenceProperty extends BaseProperty {
 		String os = super.getPropertyString("OS");
 		String dataset = super.getPropertyString("data.Dataset");
 		String rootPath = super.getPropertyString("data.RootPath");
-		int sigma = super.getPropertyInteger("data.Sigma");
-		int samplingInterval = super.getPropertyInteger("data.SamplingInterval");
 		switch (os) {
 			case "Win":     // performed on either school or home computer
 				rootPath += dataset + "/";
@@ -92,21 +93,36 @@ public class MapInferenceProperty extends BaseProperty {
 			super.setProperty("data.BoundingBox", super.getPropertyString("data.BoundingBox" + size));
 		}
 		
-		String dataSpec;
-		if (dataset.contains("Beijing")) {
+		String dataSpec;    // used for setting the input and log folder
+		String rawSpec;        // used to find the corresponding folder for synthetic data generation
+		if (dataset.contains("Beijing") && super.getPropertyBoolean("data.IsSyntheticTrajectory")) {
+			// folder name for different data specification
+			dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
+					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
+					+ "_N" + super.getPropertyString("data.NumberOfTrajectory")
+					+ "_S" + super.getPropertyInteger("data.Sigma")
+					+ "_R" + super.getPropertyInteger("data.SamplingInterval")
+					+ "_C" + super.getPropertyInteger("data.Coverage");
+			
+			rawSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
+					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
+					+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
+		} else if (dataset.contains("Beijing")) {
 			// folder name for different data specification
 			dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
 					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
 					+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
+			rawSpec = dataSpec;
 		} else {
 			dataSpec = "";
+			rawSpec = dataSpec;
 			
 		}
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
+		super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + rawSpec + "/");
 		// synthetic data only usable in Beijing dataset
-		super.setProperty("path.InputSyntheticTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "_S" + sigma + "_R" + samplingInterval);
 		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
 		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");

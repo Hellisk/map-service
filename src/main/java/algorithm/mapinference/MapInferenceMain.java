@@ -6,21 +6,20 @@ import algorithm.mapinference.roadrunner.RoadRunnerMapInference;
 import algorithm.mapinference.tracemerge.TraceMergeMapInference;
 import evaluation.mapevaluation.pathbaseddistance.benchmarkexperiments.PathBasedMapEvaluation;
 import org.apache.log4j.Logger;
-import preprocessing.TrajectoryGenerator;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.function.SpatialUtils;
-import util.io.*;
+import util.io.MapReader;
+import util.io.MapWriter;
+import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
-import util.object.structure.Pair;
 import util.settings.MapInferenceProperty;
 import util.settings.MapServiceLogger;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author uqpchao
@@ -79,45 +78,8 @@ public class MapInferenceMain {
 		LOG.info("Map inference on the " + dataSet + " dataset with input from: " + inputTrajFolder);
 		// preprocessing step
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
-		List<Trajectory> inputTrajList;
-		if (dataSet.contains("Beijing") && property.getPropertyBoolean("data.IsSyntheticTrajectory")) {
-			int sigma = property.getPropertyInteger("data.Sigma");    // parameter for trajectory noise level
-			int samplingInterval = property.getPropertyInteger("data.SamplingInterval");    // trajectory sampling interval minimum 1s
-			String inputSyntheticTrajFolder = property.getPropertyString("path.InputSyntheticTrajectoryFolder");
-			File inputSyntheticFileFolder = new File(inputSyntheticTrajFolder);
-			if (inputSyntheticFileFolder.exists() && Objects.requireNonNull(inputSyntheticFileFolder.listFiles()).length > 0) {
-				// the folder already exist, read the folder
-				LOG.info("The synthetic dataset " + dataSpec + " already exist, read them instead.");
-				inputTrajList = TrajectoryReader.readTrajectoriesToList(inputSyntheticTrajFolder, distFunc);
-			} else {
-				LOG.info("Generate synthetic dataset with sigma=" + sigma + " and sampling interval=" + samplingInterval + ".");
-				// generate synthetic dataset according to the existing dataset provided
-				String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
-				List<Trajectory> originalInputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-				List<Pair<Integer, List<String>>> originalGTRouteList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-				Map<Integer, List<String>> id2GTRouteMap = new HashMap<>();
-				for (Pair<Integer, List<String>> routePair : originalGTRouteList) {
-					if (!id2GTRouteMap.containsKey(routePair._1())) {
-						id2GTRouteMap.put(routePair._1(), routePair._2());
-					} else
-						throw new IllegalArgumentException("Two trajectories has the same id:" + routePair._1());
-				}
-				List<Long> timeDiffList = new ArrayList<>();
-				List<Pair<String, List<String>>> gtRouteList = new ArrayList<>();
-				for (Trajectory traj : originalInputTrajList) {
-					if (id2GTRouteMap.containsKey(Integer.parseInt(traj.getID()))) {
-						long timeDiff = traj.getSTPoints().get(traj.size() - 1).time() - traj.getSTPoints().get(0).time();
-						timeDiffList.add(timeDiff);
-						gtRouteList.add(new Pair<>(traj.getID(), id2GTRouteMap.get(Integer.parseInt(traj.getID()))));
-					} else
-						throw new IllegalArgumentException("Cannot find the corresponding ground-truth for trajectory: " + traj.getID());
-				}
-				inputTrajList = TrajectoryGenerator.rawTrajGenerator(gtRouteList, timeDiffList, gtMap, sigma, samplingInterval);
-				TrajectoryWriter.writeTrajectories(inputTrajList, inputSyntheticTrajFolder);
-			}
-		} else {
-			inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-		}
+		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+		
 		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR")) {        // KDE and RoadRunner uses great circle
 			// (Haversine) distance
 			if (dataSet.contains("Berlin")) {
@@ -171,7 +133,11 @@ public class MapInferenceMain {
 		}
 		
 		// note that all output map should be under the UTM coordination system
-		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().size() + "/" + outputMap.getWays().size()
+		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().
+				
+				size() + "/" + outputMap.getWays().
+				
+				size()
 				+ ", Total inference time: " + (System.currentTimeMillis() - startTaskTime) / 1000);
 		
 		// evaluation step
@@ -181,6 +147,7 @@ public class MapInferenceMain {
 			LOG.info("Convert the ground-truth map into UTM before path-based evaluation");
 			SpatialUtils.convertMapGCJ2UTM(gtMap);
 		}
+		
 		String pathBasedFrechetResult = PathBasedMapEvaluation.pathBasedFrechetMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
 		String pathBasedHausdorffResult = PathBasedMapEvaluation.pathBasedHausdorffMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
 	}

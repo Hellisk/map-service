@@ -63,6 +63,10 @@ public class MapWriter {
 		// write road node file
 		List<String> fileLines = new ArrayList<>(wayList.size());
 		for (RoadWay n : wayList) {
+			if (n.getFromNode().toPoint().equals2D(n.getToNode().toPoint())) {
+				LOG.warn("Road " + n.getID() + " has the same start and end points.");
+				continue;
+			}
 			fileLines.add(n.toString());
 		}
 		IOService.writeFile(fileLines, folderPath, fileName);

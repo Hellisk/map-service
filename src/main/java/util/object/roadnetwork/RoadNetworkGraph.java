@@ -227,8 +227,8 @@ public class RoadNetworkGraph implements Serializable {
 		if (way != null) {
 			if (!wayIDList.contains(way.getID())) {
 				if (!nodeIDList.contains(way.getFromNode().getID()) || !nodeIDList.contains(way.getToNode().getID()))
-					LOG.warn("The endpoints of the inserted road way do not exist in the current map: " + way.getFromNode().getID() + ","
-							+ way.getToNode().getID());
+					throw new IllegalArgumentException("The endpoints of the inserted road way do not exist in the current map: "
+							+ way.getFromNode().getID() + "," + way.getToNode().getID());
 				wayList.add(way);
 				wayIDList.add(way.getID());
 				way.getFromNode().addOutGoingWay(way);

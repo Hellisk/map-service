@@ -211,8 +211,10 @@ public class PathBasedMapEvaluation {
 		boolean isDirected = map.isDirectedMap();
 		Set<String> id2NodeMap = new HashSet<>();
 		for (RoadNode node : map.getAllTypeOfNodes()) {
-			if (id2NodeMap.contains(node.getID()))
-				throw new IllegalArgumentException("Input map contains duplicate node id: " + node.getID());
+			if (id2NodeMap.contains(node.getID())) {
+				LOG.warn("Input map contains duplicate node id: " + node.getID());
+				continue;
+			}
 			id2NodeMap.add(node.getID());
 			if (!id2VertexIndex.containsKey(node.getID())) {
 				PBDVertex v = new PBDVertex(node.getID(), node.lon(), node.lat());
