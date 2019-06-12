@@ -4,7 +4,6 @@ import algorithm.mapinference.kde.KDEMapInference;
 import algorithm.mapinference.lineclustering.LineClusteringMapInference;
 import algorithm.mapinference.roadrunner.RoadRunnerMapInference;
 import algorithm.mapinference.tracemerge.TraceMergeMapInference;
-import evaluation.mapevaluation.pathbaseddistance.benchmarkexperiments.PathBasedMapEvaluation;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
@@ -47,6 +46,7 @@ public class MapInferenceMain {
 		// log file name
 		String logFileName = "";
 		DistanceFunction distFunc;
+		
 		if (dataSet.contains("Beijing"))
 			distFunc = new GreatCircleDistanceFunction();
 		else
@@ -54,18 +54,18 @@ public class MapInferenceMain {
 		
 		switch (inferenceMethod) {
 			case "LC":
-				logFileName = dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.lineclustering.MaximumClusteringDistance") + "_"
 						+ property.getPropertyString("algorithm.mapinference.lineclustering.DPEpsilon") + "_"
 						+ property.getPropertyString("algorithm.mapinference.lineclustering.MaximumAngleChangeDegree") + "_" + initTaskTime;
 				break;
 			case "KDE":
-				logFileName = dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.kde.CellSize") + "_"
 						+ property.getPropertyString("algorithm.mapinference.kde.GaussianBlur") + "_" + initTaskTime;
 				break;
 			case "TM":
-				logFileName = dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.tracemerge.Epsilon") + "_" + initTaskTime;
 				break;
 		}
@@ -76,7 +76,8 @@ public class MapInferenceMain {
 		final Logger LOG = Logger.getLogger(MapInferenceMain.class);
 		
 		LOG.info("Map inference on the " + dataSet + " dataset with input from: " + inputTrajFolder);
-		// preprocessing step
+		
+		// start the process
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 		
@@ -106,49 +107,41 @@ public class MapInferenceMain {
 		LOG.info("Input data prepared. Start the map inference process.");
 		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 		RoadNetworkGraph outputMap;
-		if (inferenceMethod.equals("LC")) {
-			LineClusteringMapInference mapInference = new LineClusteringMapInference();
-			outputMap = mapInference.mapInferenceProcess(inputTrajList, property);
-			if (!(outputMap.getDistanceFunction() instanceof EuclideanDistanceFunction)) {
-				SpatialUtils.convertMapGCJ2UTM(outputMap);
-			}
-			MapWriter.writeMap(outputMap, outputMapFolder + "LC_" + dataSpec + ".txt");
-		} else if (inferenceMethod.equals("KDE")) {
-			KDEMapInference kdeMapInference = new KDEMapInference(property);
-			outputMap = kdeMapInference.mapInferenceProcess(pythonRootFolder + "kde/", inputTrajFolder, cacheFolder + "kde/");
-			SpatialUtils.convertMapWGS2UTM(outputMap);
-			MapWriter.writeMap(outputMap, outputMapFolder + "KDE_" + dataSpec + ".txt");
-		} else if (inferenceMethod.equals("TM")) {
-			TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
-			// TODO trajectory points whose pairwise point distance <2m are to be removed.
-			outputMap = traceMergeMapInference.mapInferenceProcess(inputTrajList, property);
-			MapWriter.writeMap(outputMap, outputMapFolder + "TM_" + dataSpec + ".txt");
-		} else if (inferenceMethod.equals("RR")) {
-			RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property);
-			outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,
-					cacheFolder + "roadRunner/");
-			MapWriter.writeMap(outputMap, outputMapFolder + "RR_" + dataSpec + ".txt");
-		} else {    // TODO continue
-			outputMap = gtMap;
+		switch (inferenceMethod) {
+			case "LC":
+				LineClusteringMapInference mapInference = new LineClusteringMapInference();
+				outputMap = mapInference.mapInferenceProcess(inputTrajList, property);
+				if (!(outputMap.getDistanceFunction() instanceof EuclideanDistanceFunction)) {
+					SpatialUtils.convertMapGCJ2UTM(outputMap);
+				}
+				MapWriter.writeMap(outputMap, outputMapFolder + "LC_" + dataSpec + ".txt");
+				break;
+			case "KDE":
+				KDEMapInference kdeMapInference = new KDEMapInference(property);
+				outputMap = kdeMapInference.mapInferenceProcess(pythonRootFolder + "kde/", inputTrajFolder, cacheFolder + "kde/");
+				SpatialUtils.convertMapWGS2UTM(outputMap);
+				MapWriter.writeMap(outputMap, outputMapFolder + "KDE_" + dataSpec + ".txt");
+				break;
+			case "TM":
+				TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
+				// TODO trajectory points whose pairwise point distance <2m are to be removed.
+				outputMap = traceMergeMapInference.mapInferenceProcess(inputTrajList, property);
+				MapWriter.writeMap(outputMap, outputMapFolder + "TM_" + dataSpec + ".txt");
+				break;
+			case "RR":
+				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property);
+				outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,
+						cacheFolder + "roadRunner/");
+				MapWriter.writeMap(outputMap, outputMapFolder + "RR_" + dataSpec + ".txt");
+				break;
+			default:     // TODO continue
+				LOG.error("The inference method " + inferenceMethod + "does not exist.");
+				outputMap = gtMap;
+				break;
 		}
 		
 		// note that all output map should be under the UTM coordination system
-		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().
-				
-				size() + "/" + outputMap.getWays().
-				
-				size()
+		LOG.info("Map inference finished. Total number of road/node: " + outputMap.getNodes().size() + "/" + outputMap.getWays().size()
 				+ ", Total inference time: " + (System.currentTimeMillis() - startTaskTime) / 1000);
-		
-		// evaluation step
-//		RoadNetworkGraph outputMap = MapReader.readMap(outputMapFolder + inferenceMethod +"_" + dataSpec + ".txt", false, new
-//		EuclideanDistanceFunction());
-		if (dataSet.contains("Beijing")) {
-			LOG.info("Convert the ground-truth map into UTM before path-based evaluation");
-			SpatialUtils.convertMapGCJ2UTM(gtMap);
-		}
-		
-		String pathBasedFrechetResult = PathBasedMapEvaluation.pathBasedFrechetMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
-		String pathBasedHausdorffResult = PathBasedMapEvaluation.pathBasedHausdorffMapEval(outputMap, gtMap, "LinkThree", cacheFolder);
 	}
 }

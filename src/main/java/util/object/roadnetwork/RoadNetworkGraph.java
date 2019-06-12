@@ -117,6 +117,16 @@ public class RoadNetworkGraph implements Serializable {
 		}
 	}
 	
+	public void removeNode(RoadNode node) {
+		if (!this.nodeIDList.contains(node.getID()))
+			throw new IllegalArgumentException("The node " + node.getID() + " is not an intersection in the map.");
+		if (node.getDegree() != 0)
+			throw new IllegalArgumentException("The node to be removed is connected by some edges.");
+		if (!this.nodeList.remove(node))
+			throw new IllegalArgumentException("The node " + node.getID() + " is in the dictionary but not in the item list.");
+		this.nodeIDList.remove(node.getID());
+	}
+	
 	/**
 	 * Add all the nodes in the list to this road network graph.
 	 *
@@ -716,5 +726,40 @@ public class RoadNetworkGraph implements Serializable {
 		tempMap.addNodes(newNodeList);
 		tempMap.addWays(newWayList);
 		return tempMap;
+	}
+	
+	/**
+	 * Convert a map to its simple form. A simple map does not have intersections whose degree is two.
+	 *
+	 * @return The output simple map.
+	 */
+	public RoadNetworkGraph toSimpleMap() {
+		int degree2NodeCount = 0;
+		RoadNetworkGraph cloneMap = this.clone();
+		List<RoadNode> removeNodeList = new ArrayList<>();
+		for (RoadNode node : cloneMap.getAllTypeOfNodes()) {
+			if (node.getDegree() == 2 && node.getInComingDegree() == node.getOutGoingDegree()) {
+				degree2NodeCount++;
+				RoadWay inComingWay = node.getInComingWayList().iterator().next();
+				RoadWay outGoingWay = node.getOutGoingWayList().iterator().next();
+				List<RoadNode> mergedNodeList = new ArrayList<>();
+				List<RoadWay> removeWayList = new ArrayList<>();
+				mergedNodeList.addAll(inComingWay.getNodes());
+				mergedNodeList.addAll(outGoingWay.getNodes().subList(1, outGoingWay.getNodes().size()));
+				node.removeInComingWayFromList(inComingWay);
+				node.removeOutGoingWayFromList(outGoingWay);
+				removeWayList.add(inComingWay);
+				removeWayList.add(outGoingWay);
+				cloneMap.removeRoadWayList(removeWayList);
+				removeNodeList.add(node);
+				RoadWay mergeWay = new RoadWay(inComingWay.getID() + "_" + outGoingWay.getID(), mergedNodeList, cloneMap.getDistanceFunction());
+				cloneMap.addWay(mergeWay);
+			}
+		}
+		for (RoadNode node : removeNodeList) {
+			cloneMap.removeNode(node);
+		}
+		LOG.info("Finish simple map coversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes());
+		return cloneMap;
 	}
 }

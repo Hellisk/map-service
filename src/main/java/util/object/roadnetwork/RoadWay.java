@@ -342,11 +342,16 @@ public class RoadWay extends RoadNetworkPrimitive {
 	}
 	
 	public RoadNode getFromNode() {
-		return this.nodeList.size() != 0 ? this.nodeList.get(0) : null;
+		if (this.nodeList.size() == 0)
+			throw new IndexOutOfBoundsException("The current road way is empty.");
+		
+		return this.nodeList.get(0);
 	}
 	
 	public RoadNode getToNode() {
-		return this.nodeList.size() != 0 ? this.nodeList.get(this.nodeList.size() - 1) : null;
+		if (this.nodeList.size() == 0)
+			throw new IndexOutOfBoundsException("The current road way is empty.");
+		return this.nodeList.get(this.nodeList.size() - 1);
 	}
 	
 	public Point getVirtualCenter() {
