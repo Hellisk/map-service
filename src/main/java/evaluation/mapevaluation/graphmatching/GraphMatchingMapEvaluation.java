@@ -96,9 +96,11 @@ public class GraphMatchingMapEvaluation {
 		for (int i = 0; i < outputNodeMapping.size(); i++) {
 			RoadNode node = outputNodeMapping.get(i);
 			List<Point> indexPointList = new ArrayList<>();
-			List<XYObject<Point>> gtCandidateList = gtMapGrid.partitionSearch(node.lon(), node.lat()).getObjectsList();
-			for (XYObject<Point> pointXYObject : gtCandidateList) {
-				indexPointList.add(pointXYObject.getSpatialObject());
+			GridPartition<Point> gtCandidatePartition = gtMapGrid.partitionSearch(node.lon(), node.lat());
+			if (gtCandidatePartition != null) {
+				for (XYObject<Point> pointXYObject : gtCandidatePartition.getObjectsList()) {
+					indexPointList.add(pointXYObject.getSpatialObject());
+				}
 			}
 			List<GridPartition<Point>> adjacentPartitionList = gtMapGrid.adjacentPartitionSearch(node.lon(), node.lat());
 			for (GridPartition<Point> partition : adjacentPartitionList) {
@@ -130,9 +132,11 @@ public class GraphMatchingMapEvaluation {
 		for (int i = 0; i < gtNodeMapping.size(); i++) {
 			RoadNode node = gtNodeMapping.get(i);
 			List<Point> indexPointList = new ArrayList<>();
-			List<XYObject<Point>> outputCandidateList = outputMapGrid.partitionSearch(node.lon(), node.lat()).getObjectsList();
-			for (XYObject<Point> pointXYObject : outputCandidateList) {
-				indexPointList.add(pointXYObject.getSpatialObject());
+			GridPartition<Point> outputCandidatePartition = outputMapGrid.partitionSearch(node.lon(), node.lat());
+			if (outputCandidatePartition != null) {
+				for (XYObject<Point> pointXYObject : outputCandidatePartition.getObjectsList()) {
+					indexPointList.add(pointXYObject.getSpatialObject());
+				}
 			}
 			List<GridPartition<Point>> adjacentPartitionList = outputMapGrid.adjacentPartitionSearch(node.lon(), node.lat());
 			for (GridPartition<Point> partition : adjacentPartitionList) {
@@ -161,7 +165,7 @@ public class GraphMatchingMapEvaluation {
 		
 		double nodePrecision = (nodeMatchOutputInGT / (double) outputNodeMapping.size());
 		double nodeRecall = (nodeMatchGTInOutput / (double) gtNodeMapping.size());
-		double nodeFScore = nodePrecision * nodeRecall / 2 * (nodePrecision + nodeRecall);
+		double nodeFScore = 2 * nodePrecision * nodeRecall / (nodePrecision + nodeRecall);
 		
 		// start edge match, register all road way indices first
 		for (RoadWay way : outputSimpleMap.getWays()) {
@@ -222,7 +226,7 @@ public class GraphMatchingMapEvaluation {
 		
 		double edgePrecision = (edgeMatchOutputInGT / (double) outputSimpleMap.getWays().size());
 		double edgeRecall = (edgeMatchGTInOutput / (double) gtSimpleMap.getWays().size());
-		double edgeFScore = edgePrecision * edgeRecall / 2 * (edgePrecision + edgeRecall);
+		double edgeFScore = 2 * edgePrecision * edgeRecall / (edgePrecision + edgeRecall);
 		
 		LOG.info("Graph item matching evaluation done.");
 		LOG.info("Node precision=" + nodePrecision + ", node recall=" + nodeRecall + ", node F-score=" + nodeFScore);

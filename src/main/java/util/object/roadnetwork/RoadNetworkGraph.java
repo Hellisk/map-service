@@ -759,7 +759,7 @@ public class RoadNetworkGraph implements Serializable {
 		for (RoadNode node : removeNodeList) {
 			cloneMap.removeNode(node);
 		}
-		LOG.info("Finish simple map coversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes());
+		LOG.info("Finish simple map coversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes().size() + " nodes.");
 		return cloneMap;
 	}
 }

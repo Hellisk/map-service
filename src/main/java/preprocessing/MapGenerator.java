@@ -76,6 +76,9 @@ public class MapGenerator {
 					reverseWay = way;
 					way.getNodes().remove(0);
 					List<RoadNode> nodeList = new ArrayList<>();
+					if (newIntersection.toPoint().equals2D(way.getFromNode().toPoint())) {
+						way.getNodes().remove(0);
+					}
 					nodeList.add(newIntersection);
 					nodeList.addAll(way.getNodes());
 					way.setNodes(nodeList);
@@ -529,8 +532,9 @@ public class MapGenerator {
 		}
 		List<RoadWay> resultList = new ArrayList<>();
 		for (RoadWay way : wayList) {
-			if (selectIDSet.contains(way.getID()))
+			if (selectIDSet.contains(way.getID())) {
 				resultList.add(way);
+			}
 		}
 		return resultList;
 	}

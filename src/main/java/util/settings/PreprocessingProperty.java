@@ -60,7 +60,7 @@ public class PreprocessingProperty extends BaseProperty {
 				rootPath += dataset + "/";
 				break;
 			case "Linux":   // performed on server
-				rootPath = "/media/cifs_dragon/uqpchao/map-service/data/" + dataset + "/";
+				rootPath = "/home/uqpchao/data/" + dataset + "/";
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong property value: OS=" + os);

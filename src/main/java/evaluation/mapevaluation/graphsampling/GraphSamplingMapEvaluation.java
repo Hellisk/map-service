@@ -115,9 +115,11 @@ public class GraphSamplingMapEvaluation {
 			
 			// find the corresponding root on the output map
 			List<Point> candidatePointList = new ArrayList<>();
-			List<XYObject<Point>> outputCandidateList = outputMapGrid.partitionSearch(currGTRoot.lon(), currGTRoot.lat()).getObjectsList();
-			for (XYObject<Point> pointXYObject : outputCandidateList) {
-				candidatePointList.add(pointXYObject.getSpatialObject());
+			GridPartition<Point> outputCandidatePartition = outputMapGrid.partitionSearch(currGTRoot.lon(), currGTRoot.lat());
+			if (outputCandidatePartition != null) {
+				for (XYObject<Point> pointXYObject : outputCandidatePartition.getObjectsList()) {
+					candidatePointList.add(pointXYObject.getSpatialObject());
+				}
 			}
 			List<GridPartition<Point>> adjacentPartitionList = outputMapGrid.adjacentPartitionSearch(currGTRoot.lon(), currGTRoot.lat());
 			for (GridPartition<Point> partition : adjacentPartitionList) {
@@ -215,7 +217,7 @@ public class GraphSamplingMapEvaluation {
 		
 		double precision = totalMatchedMarbleHoleCount / (double) totalOutputSampleCount;
 		double recall = totalMatchedMarbleHoleCount / (double) totalGTSampleCount;
-		double fScore = precision * recall / 2 * (precision + recall);
+		double fScore = 2 * precision * recall / (precision + recall);
 		
 		LOG.info("Graph sampling evaluation done. Total missing seed match: " + missingMatchCount);
 		LOG.info("Precision=" + precision + ", edge recall=" + recall + ", edge F-score=" + fScore);
