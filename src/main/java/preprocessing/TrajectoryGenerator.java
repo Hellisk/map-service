@@ -259,11 +259,11 @@ public class TrajectoryGenerator {
 				coveredWaySet.addAll(gtRouteList.get(i)._2());
 				tempGTRouteList.add(gtRouteList.get(i));
 				tempTimeDiffList.add(timeDiffList.get(i));
-				if (coveredWaySet.size() >= mapWaySize * percentage)
+				if (coveredWaySet.size() >= mapWaySize / 100 * percentage)
 					break;
 			}
 		}
-		if (coveredWaySet.size() < mapWaySize * percentage)
+		if (coveredWaySet.size() < mapWaySize / 100 * percentage)
 			LOG.warn("Cannot achieve required road coverage, the actual coverage is: " + (double) coveredWaySet.size() / mapWaySize * 100 +
 					"%");
 		return rawTrajGenerator(tempGTRouteList, tempTimeDiffList, map, sigma, samplingInterval);
