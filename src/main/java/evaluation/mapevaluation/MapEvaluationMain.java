@@ -49,7 +49,7 @@ public class MapEvaluationMain {
 		// use global dataset to evaluate the map-matching accuracy
 		final Logger LOG = Logger.getLogger(MapEvaluationMain.class);
 		
-		// evaluation step, read the output and ground-truth datasets
+		// evaluation step, read the output and ground-truth dataset
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		if (dataSet.contains("Beijing")) {
 			LOG.info("Convert the ground-truth map into UTM before path-based evaluation");
