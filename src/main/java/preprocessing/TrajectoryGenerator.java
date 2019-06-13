@@ -78,18 +78,12 @@ public class TrajectoryGenerator {
 			} else {
 				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-				List<Long> timeDiffList = new ArrayList<>();
-				for (int i = 0; i < inputTrajList.size(); i++) {
-					Trajectory traj = inputTrajList.get(i);
-					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
-						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
-						timeDiffList.add(0L);
-					} else {
-						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
-						timeDiffList.add(currTimeDiff);
-					}
+				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
+				for (Trajectory traj : inputTrajList) {
+					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, timeDiffList, gtMap, sigma, samplingInterval);
+				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap, gtMap, sigma, samplingInterval);
 				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
 				LOG.info("Trajectory written for sigma=" + sigma + " is done");
 			}
@@ -110,18 +104,12 @@ public class TrajectoryGenerator {
 			} else {
 				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-				List<Long> timeDiffList = new ArrayList<>();
-				for (int i = 0; i < inputTrajList.size(); i++) {
-					Trajectory traj = inputTrajList.get(i);
-					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
-						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
-						timeDiffList.add(0L);
-					} else {
-						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
-						timeDiffList.add(currTimeDiff);
-					}
+				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
+				for (Trajectory traj : inputTrajList) {
+					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, timeDiffList, gtMap, sigma, samplingInterval);
+				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap, gtMap, sigma, samplingInterval);
 				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
 				LOG.info("Trajectory written for sampling rate=" + samplingInterval + " is done");
 			}
@@ -141,18 +129,12 @@ public class TrajectoryGenerator {
 			} else {
 				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
-				List<Long> timeDiffList = new ArrayList<>();
-				for (int i = 0; i < inputTrajList.size(); i++) {
-					Trajectory traj = inputTrajList.get(i);
-					if (Integer.parseInt(traj.getID()) != gtMatchResultList.get(i)._1()) {
-						LOG.warn("trajectory ID inconsistency: " + traj.getID() + "," + gtMatchResultList.get(i)._1());
-						timeDiffList.add(0L);
-					} else {
-						long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
-						timeDiffList.add(currTimeDiff);
-					}
+				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
+				for (Trajectory traj : inputTrajList) {
+					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
+					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				List<Trajectory> resultTraj = rawTrajWithCoverageGenerator(gtMatchResultList, timeDiffList, gtMap, sigma,
+				List<Trajectory> resultTraj = rawTrajWithCoverageGenerator(gtMatchResultList, id2timeDiffMap, gtMap, sigma,
 						samplingInterval, coverage);
 				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
 				LOG.info("Trajectory written for coverage=" + coverage + " is done");
@@ -164,27 +146,25 @@ public class TrajectoryGenerator {
 	 * Generate a list of synthetic trajectories that follows the given distribution and sampling rate.
 	 *
 	 * @param gtRouteList      The input list of routes and trajectory IDs, the input route may not be continuous on the map.
-	 * @param timeDiffList     The time span of each route travel.
+	 * @param id2timeDiffMap   The trajectory ID and its time span of the travel
 	 * @param map              The underlying map.
 	 * @param sigma            The Gaussian function parameter. Pr(x\in[x-sigma,x+sigma])=0.6526, Pr(x\in[x-2*sigma,x+2*sigma])=0.9544
 	 * @param samplingInterval The number of seconds per point.
 	 * @return The generated trajectories, which has the same size as the input route list.
 	 */
-	private static List<Trajectory> rawTrajGenerator(List<Pair<Integer, List<String>>> gtRouteList, List<Long> timeDiffList,
+	private static List<Trajectory> rawTrajGenerator(List<Pair<Integer, List<String>>> gtRouteList, Map<Integer, Long> id2timeDiffMap,
 													 RoadNetworkGraph map, double sigma, int samplingInterval) {
 		DistanceFunction distFunc = map.getDistanceFunction();
-		if (gtRouteList.size() != timeDiffList.size())
-			throw new IllegalArgumentException("The size of the input route list and time different list is inconsistent.");
 		Map<String, RoadWay> id2WayMap = new HashMap<>();
 		for (RoadWay way : map.getWays()) {
 			id2WayMap.put(way.getID(), way);
 		}
 		List<Trajectory> resultTrajList = new ArrayList<>();
-		for (int i = 0; i < gtRouteList.size(); i++) {
+		for (Pair<Integer, List<String>> integerListPair : gtRouteList) {
 			List<RoadWay> currRoute = new ArrayList<>();
 			double length = 0;
 			boolean isContinuous = true;
-			for (String s : gtRouteList.get(i)._2()) {
+			for (String s : integerListPair._2()) {
 				RoadWay currWay = id2WayMap.get(s);
 				if (currRoute.size() != 0) {
 					if (!currRoute.get(currRoute.size() - 1).getToNode().equals(currWay.getFromNode())) {
@@ -199,7 +179,9 @@ public class TrajectoryGenerator {
 			if (!isContinuous)    // the current route is omitted
 				continue;
 			List<TrajectoryPoint> trajPointList = new ArrayList<>();
-			double interval = length / timeDiffList.get(i) * samplingInterval;        // the distance per point
+			if (!id2timeDiffMap.containsKey(integerListPair._1()))
+				throw new IllegalArgumentException("The ground-truth route id cannot be found in time difference list: " + integerListPair._1());
+			double interval = length / id2timeDiffMap.get(integerListPair._1()) * samplingInterval;        // the distance per point
 			double remainLength = 0;    // used when the previous road way has left-over distance
 			RoadNode startNode = currRoute.get(0).getFromNode();
 			
@@ -222,7 +204,7 @@ public class TrajectoryGenerator {
 			// add start point
 			trajPointList.add(new TrajectoryPoint(endNode.lon(), endNode.lat(), trajPointList.size() + 1, distFunc));
 			trajPointShift(trajPointList, sigma, distFunc);
-			Trajectory currTraj = new Trajectory(gtRouteList.get(i)._1() + "", trajPointList);
+			Trajectory currTraj = new Trajectory(integerListPair._1() + "", trajPointList);
 			resultTrajList.add(currTraj);
 		}
 		return resultTrajList;
@@ -233,32 +215,31 @@ public class TrajectoryGenerator {
 	 * requirement.
 	 *
 	 * @param gtRouteList      The input list of routes and trajectory IDs, the input route may not be continuous on the map.
-	 * @param timeDiffList     The time span of each route travel.
+	 * @param id2timeDiffMap   The mapping between trajectory id and its time span of the travel.
 	 * @param map              The underlying map.
 	 * @param sigma            The Gaussian function parameter. Pr(x\in[x-sigma,x+sigma])=0.6526, Pr(x\in[x-2*sigma,x+2*sigma])=0.9544
 	 * @param samplingInterval The number of seconds per point.
 	 * @param percentage       The percentage of roads to be covered.
 	 * @return The generated trajectories, which has the same size as the input route list.
 	 */
-	private static List<Trajectory> rawTrajWithCoverageGenerator(List<Pair<Integer, List<String>>> gtRouteList, List<Long> timeDiffList,
-																 RoadNetworkGraph map, double sigma, int samplingInterval, double percentage) {
+	private static List<Trajectory> rawTrajWithCoverageGenerator(List<Pair<Integer, List<String>>> gtRouteList,
+																 Map<Integer, Long> id2timeDiffMap, RoadNetworkGraph map, double sigma,
+																 int samplingInterval, double percentage) {
 		Set<String> coveredWaySet = new HashSet<>();
 		boolean isNewRoadOccurred;
 		double mapWaySize = map.getWays().size();
 		List<Pair<Integer, List<String>>> tempGTRouteList = new ArrayList<>();
-		List<Long> tempTimeDiffList = new ArrayList<>();
-		for (int i = 0; i < gtRouteList.size(); i++) {
+		for (Pair<Integer, List<String>> integerListPair : gtRouteList) {
 			isNewRoadOccurred = false;
-			for (String s : gtRouteList.get(i)._2()) {
+			for (String s : integerListPair._2()) {
 				if (!coveredWaySet.contains(s)) {
 					isNewRoadOccurred = true;
 					break;
 				}
 			}
 			if (isNewRoadOccurred) {
-				coveredWaySet.addAll(gtRouteList.get(i)._2());
-				tempGTRouteList.add(gtRouteList.get(i));
-				tempTimeDiffList.add(timeDiffList.get(i));
+				coveredWaySet.addAll(integerListPair._2());
+				tempGTRouteList.add(integerListPair);
 				if (coveredWaySet.size() >= mapWaySize / 100 * percentage)
 					break;
 			}
@@ -266,7 +247,7 @@ public class TrajectoryGenerator {
 		if (coveredWaySet.size() < mapWaySize / 100 * percentage)
 			LOG.warn("Cannot achieve required road coverage, the actual coverage is: " + (double) coveredWaySet.size() / mapWaySize * 100 +
 					"%");
-		return rawTrajGenerator(tempGTRouteList, tempTimeDiffList, map, sigma, samplingInterval);
+		return rawTrajGenerator(tempGTRouteList, id2timeDiffMap, map, sigma, samplingInterval);
 	}
 	
 	/**
