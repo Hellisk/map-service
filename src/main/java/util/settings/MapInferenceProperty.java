@@ -126,6 +126,7 @@ public class MapInferenceProperty extends BaseProperty {
 		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
 		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthOriginalMatchResultFolder", rootPath + "groundTruth/matchResult/" + rawSpec + "/");
 		super.setProperty("algorithm.mapinference.path.CacheFolder", rootPath + "inference/cache/");
 		super.setProperty("algorithm.mapinference.log.LogFolder", rootPath + "inference/log/");
 		super.setProperty("data.DataSpec", dataSpec);

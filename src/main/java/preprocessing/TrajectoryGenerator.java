@@ -39,9 +39,9 @@ public class TrajectoryGenerator {
 		// setup java log
 		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
-		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
+		String inputTrajFolder = property.getPropertyString("path.InputOriginalTrajectoryFolder");
 		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
-		String gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
+		String gtMatchResultFolder = property.getPropertyString("path.GroundTruthOriginalMatchResultFolder");
 		String dataSpec = property.getPropertyString("data.DataSpec");
 		
 		
