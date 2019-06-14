@@ -147,7 +147,7 @@ public class KDEMapInference {
 		builder.redirectErrorStream(true);
 		Process p = builder.start();
 		BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String line = "";
+		String line;
 		while ((line = br.readLine()) != null) {
 			LOG.info(line);
 		}

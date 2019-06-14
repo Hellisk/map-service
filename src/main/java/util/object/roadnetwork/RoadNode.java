@@ -92,7 +92,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	
 	public static RoadNode parseRoadNode(String s, DistanceFunction df) {
 		String[] nodeInfo = s.split(",");
-		if (nodeInfo.length != 4) throw new IndexOutOfBoundsException("ERROR! Failed to read road node: input data format is wrong. " + s);
+		if (nodeInfo.length != 4) throw new IndexOutOfBoundsException("Failed to read road node: input data format is wrong. " + s);
 		return new RoadNode(nodeInfo[0], Double.parseDouble(nodeInfo[1]), Double.parseDouble(nodeInfo[2]), Short.parseShort(nodeInfo[3]),
 				df);
 	}

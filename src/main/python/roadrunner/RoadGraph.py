@@ -916,18 +916,16 @@ class RoadGraph:
         node_file = open(node_filename, 'w')
 
         # iterate through all map nodes
-        node_count = 0
-        for curr_node in self.nodes:
-            curr_node_info = str(node_count) + "," + str(curr_node.lon) + "," + str(curr_node.lat) + "," + str(0)
+        for k, v in self.nodes.items():
+            curr_node_info = str(k) + "," + str(v[1]) + "," + str(v[0]) + "," + str(0)
             node_file.write(curr_node_info + "\n")
-            node_count += 1
 
         # close node file
         node_file.close()
         edge_file = open(edge_filename, 'w')
 
-        for curr_edge in self.edges:
-            edge_file.write(str(curr_edge.n1) + "," + str(curr_edge.n2) + "\n")
+        for k, v in self.edges.items():
+            edge_file.write(str(v[0]) + "," + str(v[1]) + "\n")
 
         # close map file
         edge_file.close()

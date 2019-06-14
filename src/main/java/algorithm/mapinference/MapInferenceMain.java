@@ -12,6 +12,7 @@ import util.function.SpatialUtils;
 import util.io.MapReader;
 import util.io.MapWriter;
 import util.io.TrajectoryReader;
+import util.io.TrajectoryWriter;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Rect;
 import util.object.spatialobject.Trajectory;
@@ -126,6 +127,10 @@ public class MapInferenceMain {
 				break;
 			case "KDE":
 				KDEMapInference kdeMapInference = new KDEMapInference(property);
+				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
+					inputTrajFolder = cacheFolder + "kdeTraj/";
+					TrajectoryWriter.writeTrajectories(inputTrajList, inputTrajFolder);
+				}
 				outputMap = kdeMapInference.mapInferenceProcess(pythonRootFolder + "kde/", inputTrajFolder, cacheFolder + "kde/");
 				SpatialUtils.convertMapWGS2UTM(outputMap);
 				MapWriter.writeMap(outputMap, outputMapFolder + "KDE_" + dataSpec + ".txt");
@@ -155,6 +160,10 @@ public class MapInferenceMain {
 					}
 				} else {
 					boundary = gtMap.getBoundary();
+				}
+				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
+					inputTrajFolder = cacheFolder + "roadRunnerTraj/";
+					TrajectoryWriter.writeTrajectories(inputTrajList, inputTrajFolder);
 				}
 				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property, boundary);
 				outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,

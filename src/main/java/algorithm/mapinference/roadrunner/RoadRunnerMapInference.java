@@ -1,17 +1,23 @@
 package algorithm.mapinference.roadrunner;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.io.IOService;
+import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Rect;
+import util.object.spatialobject.Trajectory;
 import util.settings.BaseProperty;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Command line entrance for He's RoadRunner map inference algorithm. The original code is written in Python and Golang, we prepare the
@@ -41,14 +47,14 @@ public class RoadRunnerMapInference {
 	
 	// use scripts to run map inference Python and Golang code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
-
-//		// remove the previous cache directory
-//		IOService.createFolder(cacheFolder);
-//		FileUtils.cleanDirectory(new File(cacheFolder));
-//		IOService.createFolder(cacheFolder + "index_folder/");    // create the folder for trajectory index
-//		IOService.createFolder(cacheFolder + "output/");    // create the folder for trajectory index
 		
-		writeConfigureFile(cacheFolder, this.mapBoundary);
+		// remove the previous cache directory
+		IOService.createFolder(cacheFolder);
+		FileUtils.cleanDirectory(new File(cacheFolder));
+		IOService.createFolder(cacheFolder + "index_folder/");    // create the folder for trajectory index
+		IOService.createFolder(cacheFolder + "output/");    // create the folder for trajectory index
+		
+		writeConfigureFile(cacheFolder, this.mapBoundary, inputTrajFolder);
 		List<String> goCmd = new ArrayList<>();
 		List<String> pythonCmd = new ArrayList<>();
 		
@@ -71,14 +77,24 @@ public class RoadRunnerMapInference {
 	/**
 	 * Write the configure file for the following road runner process.
 	 *
-	 * @param cacheFolder The cache folder used to store configure file.
-	 * @param mapBoundary The boundary of the map area.
+	 * @param cacheFolder     The cache folder used to store configure file.
+	 * @param mapBoundary     The boundary of the map area.
+	 * @param inputTrajFolder The trajectory folder.
 	 */
-	private void writeConfigureFile(String cacheFolder, Rect mapBoundary) throws IOException {
+	private void writeConfigureFile(String cacheFolder, Rect mapBoundary, String inputTrajFolder) throws IOException {
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		File confFile = new File(cacheFolder + "configure.json");
+		if (confFile.exists()) {
+			if (!confFile.delete())
+				throw new IOException("Cannot delete previous configuration file.");
+		}
 		int historyLength = property.getPropertyInteger("algorithm.mapinference.roadrunner.HistoryLength");
 		int numOfDeferredBranch = property.getPropertyInteger("algorithm.mapinference.roadrunner.NumberOfDeferredBranch");
 		int minTrajCount = property.getPropertyInteger("algorithm.mapinference.roadrunner.MinNumberOfTrajectory");
+		List<Trajectory> inputTrajList = new ArrayList<>();
+		for (int i = 0; i < 10; i++) {
+			inputTrajList.add(TrajectoryReader.readTrajectory(inputTrajFolder + "trip_" + i + ".txt", i + "", distFunc));
+		}
 		if (confFile.exists())
 			if (!confFile.delete())
 				throw new IOException("Cannot delete the current configuration file.");
@@ -104,6 +120,15 @@ public class RoadRunnerMapInference {
 		confFileWriter.write("      \"Lat\": " + mapBoundary.maxY() + ",\n");
 		confFileWriter.write("      \"Lon\": " + mapBoundary.maxX() + ",\n");
 		confFileWriter.write("	\"ID\": 4\n");
+		// add some trajectory start node as start point to ensure correctness
+		for (int i = 0; i < inputTrajList.size(); i++) {
+			Trajectory traj = inputTrajList.get(i);
+			confFileWriter.write("    },\n");
+			confFileWriter.write("    {\n");
+			confFileWriter.write("      \"Lat\": " + traj.get(0).y() + ",\n");
+			confFileWriter.write("      \"Lon\": " + traj.get(0).x() + ",\n");
+			confFileWriter.write("	\"ID\": " + (5 + i) + "\n");
+		}
 		confFileWriter.write("    }\n");
 		confFileWriter.write("  ],\n");
 		confFileWriter.write("  \"CNNInput\": null,\n");
@@ -132,57 +157,53 @@ public class RoadRunnerMapInference {
 	 */
 	private RoadNetworkGraph readRoadRunnerOutputMap(String inputMapFolder) {
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
+		List<RoadNode> nodeList = new ArrayList<>();
 		List<RoadWay> wayList = new ArrayList<>();
 		// read road ways
-		List<String> lines = IOService.readFile(inputMapFolder);
-		for (String line : lines) {
-			RoadWay currWay = RoadWay.parseRoadWay(line, new HashMap<>(), distFunc);
+		List<String> nodeLines = IOService.readFile(inputMapFolder + "vertices_RR.txt");
+		Map<String, RoadNode> id2NodeMap = new HashMap<>();
+		for (String line : nodeLines) {
+			RoadNode currNode = RoadNode.parseRoadNode(line, distFunc);
+			if (id2NodeMap.containsKey(currNode.getID()))
+				throw new IllegalArgumentException("The same node occurs more than once.");
+			id2NodeMap.put(currNode.getID(), currNode);
+			nodeList.add(currNode);
+		}
+		
+		// read edges
+		List<String> wayLines = IOService.readFile(inputMapFolder + "edges_RR.txt");
+		int wayCount = 0;
+		for (String line : wayLines) {
+			String[] lineString = line.split(",");
+			if (lineString[0].equals(lineString[1])) {
+				LOG.warn("The edge connects two same points.");
+				continue;
+			}
+			if (!id2NodeMap.containsKey(lineString[0]) || !id2NodeMap.containsKey(lineString[1]))
+				throw new IllegalArgumentException("The end point of this edge is not found: " + lineString[0] + "," + lineString[1]);
+			List<RoadNode> wayNodeList = new ArrayList<>();
+			wayNodeList.add(id2NodeMap.get(lineString[0]));
+			wayNodeList.add(id2NodeMap.get(lineString[1]));
+			RoadWay currWay = new RoadWay(wayCount + "", wayNodeList, distFunc);
 			wayList.add(currWay);
+			wayCount++;
 		}
-		Map<String, RoadNode> location2NodeMap = new LinkedHashMap<>();
-		int nodeCount = 0;
-		for (RoadWay currWay : wayList) {
-			List<RoadNode> replaceNodeList = new ArrayList<>();
-			String startLocation = currWay.getFromNode().lon() + "_" + currWay.getFromNode().lat();
-			if (location2NodeMap.containsKey(startLocation)) {    // the intersection already exists
-				replaceNodeList.add(location2NodeMap.get(startLocation));
-			} else {
-				replaceNodeList.add(currWay.getFromNode());
-				currWay.getFromNode().setId(nodeCount + "");
-				nodeCount++;
-				location2NodeMap.put(startLocation, currWay.getFromNode());
-			}
-			replaceNodeList.addAll(currWay.getNodes().subList(1, currWay.size() - 1));
-			String endLocation = currWay.getToNode().lon() + "_" + currWay.getToNode().lat();
-			if (location2NodeMap.containsKey(endLocation)) {    // the intersection already exists
-				replaceNodeList.add(location2NodeMap.get(endLocation));
-			} else {
-				replaceNodeList.add(currWay.getToNode());
-				currWay.getToNode().setId(nodeCount + "");
-				nodeCount++;
-				location2NodeMap.put(startLocation, currWay.getToNode());
-			}
-			currWay.setNodes(replaceNodeList);
-		}
-		List<RoadNode> currNodeList = new ArrayList<>();
-		for (Map.Entry<String, RoadNode> entry : location2NodeMap.entrySet()) {
-			currNodeList.add(entry.getValue());
-		}
+		
 		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, distFunc);
-		resultMap.addNodes(currNodeList);
+		resultMap.addNodes(nodeList);
 		resultMap.addWays(wayList);
 		return resultMap;
 	}
 	
 	private void runCode(List<String> goCmd, List<String> pythonCmd) throws Exception {
 		// run go command to build the index
-		if (goCmd.size() != 2)
-			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
+//		if (goCmd.size() != 2)
+//			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
 //		ProcessBuilder goBuilder;
 //		if (os.equals("Linux")) {
-//			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.get(0));
+//			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.iterator().next());
 //		} else {
-//			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.get(0));
+//			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.iterator().next());
 //		}
 //		goBuilder.redirectErrorStream(true);
 //		Process goProcess = goBuilder.start();
@@ -198,9 +219,9 @@ public class RoadRunnerMapInference {
 		
 		// start the TraceServer
 		if (os.equals("Linux")) {
-			Runtime.getRuntime().exec("/bin/sh -c " + goCmd.get(1));
+			Runtime.getRuntime().exec("/bin/sh -c " + goCmd.iterator().next());
 		} else {
-			Runtime.getRuntime().exec("cmd.exe /c " + goCmd.get(1));
+			Runtime.getRuntime().exec("cmd.exe /c " + goCmd.iterator().next());
 		}
 		Thread.sleep(15000);    // wait for the server to start
 		LOG.info("The server is started. Start the inference process.");
