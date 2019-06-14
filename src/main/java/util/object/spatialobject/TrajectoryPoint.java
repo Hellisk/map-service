@@ -85,7 +85,8 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 					Long.parseLong(pointInfo[2]), Double.parseDouble(pointInfo[3]), Double.parseDouble(pointInfo[4]), df);
 		else if (pointInfo.length == 3)
 			return new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
-					Long.parseLong(pointInfo[2]), df);
+					Long.parseLong(pointInfo[2].substring(0, pointInfo[2].contains(".") ? pointInfo[2].lastIndexOf('.') : pointInfo[2].length())),
+					df);
 		else if (pointInfo.length == 2)
 			return new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]), df);
 		throw new IllegalArgumentException("The input text cannot be parsed to a trajectory point: " + s);
