@@ -41,8 +41,6 @@ public class RoadRunnerMapInference {
 	
 	// use scripts to run map inference Python and Golang code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
-		
-		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 
 //		// remove the previous cache directory
 //		IOService.createFolder(cacheFolder);
@@ -59,7 +57,7 @@ public class RoadRunnerMapInference {
 				"index_folder/");
 		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/trace_server.go " + cacheFolder + "index_folder/ " + inputTrajFolder + " " + 50000);
 		pythonCmd.add("python " + codeRootFolder + "RoadRunner.py " + cacheFolder + "configure.json" + " test_");
-		pythonCmd.add("python " + codeRootFolder + "RoadForest2RoadGraph.py " + cacheFolder + "output_file_last" + " test_graph.p");
+		pythonCmd.add("python " + codeRootFolder + "RoadForest2RoadGraph.py " + cacheFolder + "output_file_last" + " " + cacheFolder);
 		
 		try {
 			runCode(goCmd, pythonCmd);
@@ -67,8 +65,7 @@ public class RoadRunnerMapInference {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String inputMapPath = cacheFolder + "test_graph.p";
-		return readRoadRunnerOutputMap(inputMapPath);
+		return readRoadRunnerOutputMap(cacheFolder);
 	}
 	
 	/**
@@ -128,16 +125,16 @@ public class RoadRunnerMapInference {
 	}
 	
 	/**
-	 * Convert the KDE output edge file to a regular RoadNetworkGraph.
+	 * Convert the RoadRunner output map files to a regular RoadNetworkGraph.
 	 *
-	 * @param inputEdgeListPath The generated road list
+	 * @param inputMapFolder The folder that contains inferred map information, including vertices_RR.txt and edges_RR.txt
 	 * @return The output map
 	 */
-	private RoadNetworkGraph readRoadRunnerOutputMap(String inputEdgeListPath) {
+	private RoadNetworkGraph readRoadRunnerOutputMap(String inputMapFolder) {
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		List<RoadWay> wayList = new ArrayList<>();
 		// read road ways
-		List<String> lines = IOService.readFile(inputEdgeListPath);
+		List<String> lines = IOService.readFile(inputMapFolder);
 		for (String line : lines) {
 			RoadWay currWay = RoadWay.parseRoadWay(line, new HashMap<>(), distFunc);
 			wayList.add(currWay);

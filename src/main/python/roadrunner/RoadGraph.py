@@ -1,3 +1,6 @@
+from __future__ import print_function
+
+import os
 import pickle
 import socket
 from multiprocessing.pool import Pool
@@ -895,6 +898,41 @@ class RoadGraph:
             if nodeId not in self.nodeLinkReverse.keys():
                 self.nodeLinkReverse[nodeId] = []
 
+    def write_map_to_file(self, map_filename):
+        # output that we are starting the writing process
+        print("Writing map to file... ")
+        sys.stdout.flush()
+
+        node_filename = map_filename + "vertices_RR.txt"
+        edge_filename = map_filename + "edges_RR.txt"
+
+        if os.path.exists(node_filename):
+            os.remove(node_filename)
+
+        if os.path.exists(edge_filename):
+            os.remove(edge_filename)
+
+        # open map file
+        node_file = open(node_filename, 'w')
+
+        # iterate through all map nodes
+        node_count = 0
+        for curr_node in self.nodes:
+            curr_node_info = str(node_count) + "," + str(curr_node.lon) + "," + str(curr_node.lat) + "," + str(0)
+            node_file.write(curr_node_info + "\n")
+            node_count += 1
+
+        # close node file
+        node_file.close()
+        edge_file = open(edge_filename, 'w')
+
+        for curr_edge in self.edges:
+            edge_file.write(str(curr_edge.n1) + "," + str(curr_edge.n2) + "\n")
+
+        # close map file
+        edge_file.close()
+        print("done.")
+
     def CombineSimilarSnippets(self, region=None, oneround=False, score_threshold=0):
         idx = index.Index()
         for idthis in self.nodes.keys():
@@ -902,11 +940,13 @@ class RoadGraph:
                 if self.nodeScore[idthis] > score_threshold:
                     if region == None:
                         idx.insert(idthis, (
-                        self.nodes[idthis][0], self.nodes[idthis][1], self.nodes[idthis][0] + 0.000001, self.nodes[idthis][1] + 0.000001))
+                            self.nodes[idthis][0], self.nodes[idthis][1], self.nodes[idthis][0] + 0.000001,
+                            self.nodes[idthis][1] + 0.000001))
                     elif self.nodes[idthis][0] > region[0] and self.nodes[idthis][1] > region[1] and self.nodes[idthis][0] < region[2] and \
                             self.nodes[idthis][1] < region[3]:
                         idx.insert(idthis, (
-                        self.nodes[idthis][0], self.nodes[idthis][1], self.nodes[idthis][0] + 0.000001, self.nodes[idthis][1] + 0.000001))
+                            self.nodes[idthis][0], self.nodes[idthis][1], self.nodes[idthis][0] + 0.000001,
+                            self.nodes[idthis][1] + 0.000001))
 
         # self.deletedNodes = {}
 

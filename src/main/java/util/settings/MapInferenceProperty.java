@@ -121,13 +121,17 @@ public class MapInferenceProperty extends BaseProperty {
 		}
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
-		super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + rawSpec + "/");
+		if (dataset.contains("Beijing")) {
+			super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + rawSpec + "/");
+			super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
+			super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
+			super.setProperty("path.GroundTruthOriginalMatchResultFolder", rootPath + "groundTruth/matchResult/" + rawSpec + "/");
+		} else {
+			super.setProperty("path.InputTrajectoryFolder", rootPath + "raw/trajectory/");
+		}
 		// synthetic data only usable in Beijing dataset
 		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
-		super.setProperty("path.GroundTruthOriginalMatchResultFolder", rootPath + "groundTruth/matchResult/" + rawSpec + "/");
 		super.setProperty("algorithm.mapinference.path.CacheFolder", rootPath + "inference/cache/");
 		super.setProperty("algorithm.mapinference.log.LogFolder", rootPath + "inference/log/");
 		super.setProperty("data.DataSpec", dataSpec);

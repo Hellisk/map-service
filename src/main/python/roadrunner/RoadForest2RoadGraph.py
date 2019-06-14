@@ -1,9 +1,4 @@
-import numpy as np
-import math
-import sys
 # import cv
-import pickle
-import RoadGraph as splfy
 # import cv
 import pickle
 
@@ -240,6 +235,7 @@ RoadGraph.ReverseDirectionLink()
 # RoadGraph.region = region
 # OSMRoadGraph.region = region
 
-pickle.dump(RoadGraph, open(sys.argv[2], "w"))
+RoadGraph.write_map_to_file(str(sys.argv[2]))
+# pickle.dump(RoadGraph, open(sys.argv[2], "w"))
 
 # TOPORender.RenderGraphSVG(OSMRoadGraph, RoadGraph, sys.argv[3])
