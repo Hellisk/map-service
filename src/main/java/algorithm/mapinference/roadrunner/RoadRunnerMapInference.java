@@ -1,6 +1,5 @@
 package algorithm.mapinference.roadrunner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -8,12 +7,10 @@ import util.io.IOService;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
+import util.object.spatialobject.Rect;
 import util.settings.BaseProperty;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -32,46 +29,102 @@ import java.util.*;
 public class RoadRunnerMapInference {
 	
 	private static final Logger LOG = Logger.getLogger(RoadRunnerMapInference.class);
-	private int cellSize;    // meter
-	private int gaussianBlur;
 	private String os;
+	private BaseProperty property;
+	private Rect mapBoundary;
 	
-	public RoadRunnerMapInference(BaseProperty prop) {
-		this.cellSize = prop.getPropertyInteger("algorithm.mapinference.kde.CellSize");
-		this.gaussianBlur = prop.getPropertyInteger("algorithm.mapinference.kde.GaussianBlur");
+	public RoadRunnerMapInference(BaseProperty prop, Rect boundary) {
 		this.os = prop.getPropertyString("OS");
+		this.property = prop;
+		this.mapBoundary = boundary;
 	}
 	
 	// use scripts to run map inference Python and Golang code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
+		
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();
+
+//		// remove the previous cache directory
+//		IOService.createFolder(cacheFolder);
+//		FileUtils.cleanDirectory(new File(cacheFolder));
+//		IOService.createFolder(cacheFolder + "index_folder/");    // create the folder for trajectory index
+//		IOService.createFolder(cacheFolder + "output/");    // create the folder for trajectory index
+		
+		writeConfigureFile(cacheFolder, this.mapBoundary);
+		List<String> goCmd = new ArrayList<>();
 		List<String> pythonCmd = new ArrayList<>();
 		
-		// remove the map inference directory
-		IOService.createFolder(cacheFolder);
-		FileUtils.cleanDirectory(new File(cacheFolder));
-		FileUtils.deleteDirectory(new File(cacheFolder));
-		
 		// setup each command manually
-		pythonCmd.add("python " + codeRootFolder + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -i " + inputTrajFolder + " -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "skeleton.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "graph_extract.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -f " + cacheFolder + " -t " + inputTrajFolder);
-		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "refine_topology.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -o " +
-				"matched_trips_1m_mm1_tr/ -t " + inputTrajFolder + " -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -t " +
-				"matched_trips_1m_mm1_tr - o skeleton_maps/skeleton_map_1m_mm2.db" + " -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "streetmap.py -f " + cacheFolder);
+		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/create_index.go " + inputTrajFolder + " " + cacheFolder +
+				"index_folder/");
+		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/trace_server.go " + cacheFolder + "index_folder/ " + inputTrajFolder + " " + 50000);
+		pythonCmd.add("python " + codeRootFolder + "RoadRunner.py " + cacheFolder + "configure.json" + " test_");
+		pythonCmd.add("python " + codeRootFolder + "RoadForest2RoadGraph.py " + cacheFolder + "output_file_last" + " test_graph.p");
 		
 		try {
-			runCode(pythonCmd);
+			runCode(goCmd, pythonCmd);
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String inputMapPath = cacheFolder + "inferred_edges.txt";
-		return readKDEOutputMap(inputMapPath);
+		String inputMapPath = cacheFolder + "test_graph.p";
+		return readRoadRunnerOutputMap(inputMapPath);
+	}
+	
+	/**
+	 * Write the configure file for the following road runner process.
+	 *
+	 * @param cacheFolder The cache folder used to store configure file.
+	 * @param mapBoundary The boundary of the map area.
+	 */
+	private void writeConfigureFile(String cacheFolder, Rect mapBoundary) throws IOException {
+		File confFile = new File(cacheFolder + "configure.json");
+		int historyLength = property.getPropertyInteger("algorithm.mapinference.roadrunner.HistoryLength");
+		int numOfDeferredBranch = property.getPropertyInteger("algorithm.mapinference.roadrunner.NumberOfDeferredBranch");
+		int minTrajCount = property.getPropertyInteger("algorithm.mapinference.roadrunner.MinNumberOfTrajectory");
+		if (confFile.exists())
+			if (!confFile.delete())
+				throw new IOException("Cannot delete the current configuration file.");
+		BufferedWriter confFileWriter = new BufferedWriter(new FileWriter(confFile));
+		confFileWriter.write("{\n");
+		confFileWriter.write("  \"Entrances\": [\n");
+		confFileWriter.write("    {\n");
+		confFileWriter.write("      \"Lat\": " + mapBoundary.minY() + ",\n");
+		confFileWriter.write("      \"Lon\": " + mapBoundary.minX() + ",\n");
+		confFileWriter.write("	\"ID\": 1\n");
+		confFileWriter.write("    },\n");
+		confFileWriter.write("    {\n");
+		confFileWriter.write("      \"Lat\": " + mapBoundary.maxY() + ",\n");
+		confFileWriter.write("      \"Lon\": " + mapBoundary.minX() + ",\n");
+		confFileWriter.write("	\"ID\": 2\n");
+		confFileWriter.write("    },\n");
+		confFileWriter.write("    {\n");
+		confFileWriter.write("      \"Lat\": " + mapBoundary.minY() + ",\n");
+		confFileWriter.write("      \"Lon\": " + mapBoundary.maxX() + ",\n");
+		confFileWriter.write("	\"ID\": 3\n");
+		confFileWriter.write("    },\n");
+		confFileWriter.write("    {\n");
+		confFileWriter.write("      \"Lat\": " + mapBoundary.maxY() + ",\n");
+		confFileWriter.write("      \"Lon\": " + mapBoundary.maxX() + ",\n");
+		confFileWriter.write("	\"ID\": 4\n");
+		confFileWriter.write("    }\n");
+		confFileWriter.write("  ],\n");
+		confFileWriter.write("  \"CNNInput\": null,\n");
+		confFileWriter.write("  \"Exits\": [], \n");
+		confFileWriter.write("  \"Region\": [\n");
+		confFileWriter.write("    " + mapBoundary.minY() + ",\n");
+		confFileWriter.write("    " + mapBoundary.minX() + ",\n");
+		confFileWriter.write("    " + mapBoundary.maxY() + ",\n");
+		confFileWriter.write("    " + mapBoundary.maxX() + "\n");
+		confFileWriter.write("  ],\n");
+		confFileWriter.write("  \"RegionMask\": null,\n");
+		confFileWriter.write("  \"OutputFolder\": \"" + cacheFolder.substring(0, cacheFolder.length() - 1) + "\",\n");
+		confFileWriter.write("  \"history_length\": " + historyLength + ",\n");
+		confFileWriter.write("  \"minimal_number_of_trips_deferred_branch\": " + numOfDeferredBranch + ",\n");
+		confFileWriter.write("  \"minimal_number_of_trips\": " + minTrajCount + "\n");
+		confFileWriter.write("}\n");
+		confFileWriter.flush();
+		confFileWriter.close();
 	}
 	
 	/**
@@ -80,7 +133,7 @@ public class RoadRunnerMapInference {
 	 * @param inputEdgeListPath The generated road list
 	 * @return The output map
 	 */
-	private RoadNetworkGraph readKDEOutputMap(String inputEdgeListPath) {
+	private RoadNetworkGraph readRoadRunnerOutputMap(String inputEdgeListPath) {
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		List<RoadWay> wayList = new ArrayList<>();
 		// read road ways
@@ -124,37 +177,60 @@ public class RoadRunnerMapInference {
 		return resultMap;
 	}
 	
-	private void runCode(List<String> pythonCmd) throws Exception {
+	private void runCode(List<String> goCmd, List<String> pythonCmd) throws Exception {
+		// run go command to build the index
+		if (goCmd.size() != 2)
+			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
+//		ProcessBuilder goBuilder;
+//		if (os.equals("Linux")) {
+//			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.get(0));
+//		} else {
+//			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.get(0));
+//		}
+//		goBuilder.redirectErrorStream(true);
+//		Process goProcess = goBuilder.start();
+//		BufferedReader goReader = new BufferedReader(new InputStreamReader(goProcess.getInputStream()));
+//		String goLine;
+//		while (true) {
+//			goLine = goReader.readLine();
+//			if (goLine == null) {
+//				break;
+//			}
+//			LOG.info(goLine);
+//		}
+		
+		// start the TraceServer
 		if (os.equals("Linux")) {
-			for (String s : pythonCmd) {
-				Runtime r = Runtime.getRuntime();
-				Process p = r.exec(s);
-				p.waitFor();
-				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				String line = "";
-				while ((line = br.readLine()) != null) {
-					LOG.info(line);
-				}
-			}
+			Runtime.getRuntime().exec("/bin/sh -c " + goCmd.get(1));
 		} else {
-			StringBuilder command = new StringBuilder();
-			command.append(pythonCmd.get(0));
-			for (int i = 1; i < pythonCmd.size(); i++) {
-				String pc = pythonCmd.get(i);
-				command.append(" && ").append(pc);
+			Runtime.getRuntime().exec("cmd.exe /c " + goCmd.get(1));
+		}
+		Thread.sleep(15000);    // wait for the server to start
+		LOG.info("The server is started. Start the inference process.");
+		
+		// run python code
+		StringBuilder pythonCommand = new StringBuilder();
+		pythonCommand.append(pythonCmd.get(0));
+		for (int i = 1; i < pythonCmd.size(); i++) {
+			String pc = pythonCmd.get(i);
+			pythonCommand.append(" && ").append(pc);
+		}
+		ProcessBuilder builder;
+		if (os.equals("Linux")) {
+			builder = new ProcessBuilder("/bin/sh", "-c", pythonCommand.toString());
+		} else {
+			builder = new ProcessBuilder("cmd.exe", "/c", pythonCommand.toString());
+		}
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) {
+				break;
 			}
-			ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command.toString());
-			builder.redirectErrorStream(true);
-			Process p = builder.start();
-			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line;
-			while (true) {
-				line = r.readLine();
-				if (line == null) {
-					break;
-				}
-				LOG.info(line);
-			}
+			LOG.info(line);
 		}
 	}
 }

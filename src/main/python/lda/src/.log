@@ -1,0 +1,265 @@
+2016-04-07 20:52:08,213 - 9377527928732.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 20:52:08,213 - 9377527928732.TrajMap - INFO -
+	Started
+2016-04-07 20:52:08,307 - 9377527928732.main - DEBUG -
+	Started
+2016-04-07 20:52:08,307 - 9377527928732.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 20:52:13,384 - 9377527928732.TrajMap - WARNING -
+	Aborted after 0:00:05!
+2016-04-07 20:52:24,447 - 9377544228776.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 20:52:24,448 - 9377544228776.TrajMap - INFO -
+	Started
+2016-04-07 20:52:24,453 - 9377544228776.main - DEBUG -
+	Started
+2016-04-07 20:52:24,453 - 9377544228776.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 20:52:24,456 - 9377544228776.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 20:52:24,458 - 9377544228776.TrajMap - INFO -
+	Completed after 0:00:00
+2016-04-07 21:01:15,304 - 9378075030448.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:01:15,304 - 9378075030448.TrajMap - INFO -
+	Started
+2016-04-07 21:01:15,308 - 9378075030448.main - DEBUG -
+	Started
+2016-04-07 21:01:15,308 - 9378075030448.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:01:15,312 - 9378075030448.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:01:15,313 - 9378075030448.TrajMap - INFO -
+	Completed after 0:00:00
+2016-04-07 21:05:07,005 - 9378306730760.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:05:07,005 - 9378306730760.TrajMap - INFO -
+	Started
+2016-04-07 21:05:07,010 - 9378306730760.main - DEBUG -
+	Started
+2016-04-07 21:05:07,010 - 9378306730760.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:05:07,013 - 9378306730760.main - INFO -
+	Test
+2016-04-07 21:05:07,014 - 9378306730760.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:05:07,015 - 9378306730760.TrajMap - INFO -
+	Completed after 0:00:00
+2016-04-07 21:05:09,992 - 9378309730783.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:05:09,993 - 9378309730783.TrajMap - INFO -
+	Started
+2016-04-07 21:05:09,997 - 9378309730783.main - DEBUG -
+	Started
+2016-04-07 21:05:09,997 - 9378309730783.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:05:10,000 - 9378309730783.main - INFO -
+	Test
+2016-04-07 21:05:10,000 - 9378309730783.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:05:10,001 - 9378309730783.TrajMap - INFO -
+	Completed after 0:00:00
+2016-04-07 21:07:29,096 - 9378448830964.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:07:29,097 - 9378448830964.TrajMap - INFO -
+	Started
+2016-04-07 21:07:29,102 - 9378448830964.main - DEBUG -
+	Started
+2016-04-07 21:07:29,102 - 9378448830964.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:07:29,106 - 9378448830964.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:07:50,542 - 9378470331007.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:07:50,543 - 9378470331007.TrajMap - INFO -
+	Started
+2016-04-07 21:07:50,548 - 9378470331007.main - DEBUG -
+	Started
+2016-04-07 21:07:50,548 - 9378470331007.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:07:50,552 - 9378470331007.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:10:07,757 - 9378607531380.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:10:07,758 - 9378607531380.TrajMap - INFO -
+	Started
+2016-04-07 21:10:07,763 - 9378607531380.main - DEBUG -
+	Started
+2016-04-07 21:10:07,763 - 9378607531380.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:10:07,768 - 9378607531380.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:14:09,314 - 9378849031730.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:14:09,314 - 9378849031730.TrajMap - INFO -
+	Started
+2016-04-07 21:14:09,320 - 9378849031730.main - DEBUG -
+	Started
+2016-04-07 21:14:09,320 - 9378849031730.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:14:09,324 - 9378849031730.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:14:25,367 - 9378865131767.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:14:25,368 - 9378865131767.TrajMap - INFO -
+	Started
+2016-04-07 21:14:25,373 - 9378865131767.main - DEBUG -
+	Started
+2016-04-07 21:14:25,373 - 9378865131767.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:14:25,376 - 9378865131767.test - DEBUG -
+	Started
+2016-04-07 21:14:25,377 - 9378865131767.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:16:28,743 - 9378988531941.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:16:28,743 - 9378988531941.TrajMap - INFO -
+	Started
+2016-04-07 21:16:28,748 - 9378988531941.main - DEBUG -
+	Started
+2016-04-07 21:16:28,748 - 9378988531941.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:16:28,752 - 9378988531941.test - DEBUG -
+	Started
+2016-04-07 21:16:28,753 - 9378988531941.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:17:17,000 - 9379036732034.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:17:17,001 - 9379036732034.TrajMap - INFO -
+	Started
+2016-04-07 21:17:17,006 - 9379036732034.main - DEBUG -
+	Started
+2016-04-07 21:17:17,007 - 9379036732034.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:17:17,010 - 9379036732034.test - DEBUG -
+	Started
+2016-04-07 21:17:17,010 - 9379036732034.test - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:17:17,010 - 9379036732034.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:17:17,011 - 9379036732034.TrajMap - INFO -
+	Completed after 0:00:00
+2016-04-07 21:58:21,639 - 938150144016.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:58:21,640 - 938150144016.TrajMap - INFO -
+	Started
+2016-04-07 21:58:21,645 - 938150144016.main - DEBUG -
+	Started
+2016-04-07 21:58:21,645 - 938150144016.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:58:21,649 - 938150144016.test - DEBUG -
+	Started
+2016-04-07 21:58:21,650 - 938150144016.TrajMap - ERROR -
+	Failed after 0:00:00!
+2016-04-07 21:58:44,214 - 938152394059.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 21:58:44,215 - 938152394059.TrajMap - INFO -
+	Started
+2016-04-07 21:58:44,220 - 938152394059.main - DEBUG -
+	Started
+2016-04-07 21:58:44,220 - 938152394059.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 21:58:44,224 - 938152394059.test - DEBUG -
+	Started
+2016-04-07 21:58:44,265 - 938152394059.test - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:58:44,266 - 938152394059.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 21:58:47,483 - 938152394059.TrajMap - WARNING -
+	An error ocurred in the '<sacred.observers.mongo.MongoObserver object at 0x7fd7cfafabd0>' observer: Run contained an unserializable entry.(most likely in the info)
+2016-04-07 21:58:47,484 - 938152394059.TrajMap - INFO -
+	Completed after 0:00:03
+2016-04-07 21:59:52,307 - 938152394059.TrajMap - WARNING -
+	The observer '<sacred.observers.mongo.MongoObserver object at 0x7fd7cfafabd0>' failed at some point during the run.
+2016-04-07 22:02:11,105 - 938173085321.TrajMap - INFO -
+	Running command 'main'
+2016-04-07 22:02:11,106 - 938173085321.TrajMap - INFO -
+	Started
+2016-04-07 22:02:11,112 - 938173085321.main - DEBUG -
+	Started
+2016-04-07 22:02:11,112 - 938173085321.main - INFO -
+	data_file: ../Data/Shanghai/minsh_1000.pickle 
+	side: 10
+	k: 50
+	percent: 0.010
+	width: 4
+	alpha: 0.90
+2016-04-07 22:02:11,136 - 938173085321.test - DEBUG -
+	Started
+2016-04-07 22:02:11,138 - 938173085321.test - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 22:02:11,139 - 938173085321.main - DEBUG -
+	Finished after 0:00:00.
+2016-04-07 22:02:11,140 - 938173085321.TrajMap - INFO -
+	Completed after 0:00:00

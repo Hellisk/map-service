@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>设置地图显示内容</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.3&key=c86ccb338e0c05e511b80b8764eb83cb"></script>
+    <script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script type="text/javascript" src="readfile.js"></script>
+</head>
+<body onload="checkFileAPI();">
+<div id="container" class="map" tabindex="0"></div>
+<div style="position:absolute;z-index:999">
+    <input type="file" onchange='readGPS_untransform(this)'/>
+</div>
+<div class='button-group' style="background-color: #0d9bf2">
+    <input type='checkbox' onclick='refresh()' checked name='bg'>背景
+    <input type='checkbox' onclick='refresh()' checked name='road'>道路
+    <input type='checkbox' onclick='refresh()' checked name='building'>建筑物
+    <input type='checkbox' onclick='refresh()' checked name='point'>标注
+</div>
+<script type="text/javascript">
+    var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 15,
+        center: [121.397428, 31.20923]
+    });
+    //var toolBar = new AMap.ToolBar({})
+    //map.addControl(toolBar)
+    //map.setLang('en');
+    function refresh() {
+        var boxes = document.getElementsByTagName('input');
+        var features = [];
+        for (var i = 0; i < boxes.length; i += 1) {
+            if (boxes[i].checked === true) {
+                features.push(boxes[i].name);
+            }
+        }
+        map.setFeatures(features);
+    }
+
+    map.setFitView();
+
+
+</script>
+</body>
+</html>

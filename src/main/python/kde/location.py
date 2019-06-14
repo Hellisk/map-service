@@ -84,7 +84,7 @@ class TripLoader:
             location_elements = trip_location.strip('\n').split(' ')
 
             # create and store new location object
-            new_trip.add_location(Location(str(point_count), float(location_elements[0]), float(location_elements[1]),
+            new_trip.add_location(Location(str(point_count), float(location_elements[1]), float(location_elements[0]),
                                            float(location_elements[2])))
             point_count += 1
         # close trip file

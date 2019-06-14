@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <style type="text/css">
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+
+        #allmap {
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+        }
+
+        .myBtn {
+            width: 100%;
+            height: 20px;
+            font-size: 12px;
+        }
+
+        dl, dt, dd, ul, li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        p {
+            font-size: 12px;
+        }
+
+        dt {
+            font-size: 14px;
+            font-family: "微软雅黑";
+            font-weight: bold;
+            border-bottom: 1px dotted #000;
+            padding: 5px 0 5px 5px;
+            margin: 5px 0;
+        }
+
+        dd {
+            padding: 5px 0 0 5px;
+        }
+
+        li {
+            line-height: 28px;
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=FB562bb228945d3e06dae4d1a02c4e04"></script>
+    <!--加载鼠标绘制工具-->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css"/>
+    <!--加载检索信息窗口-->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.js"></script>
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.css"/>
+
+    <style type="text/css" media="screen">
+        .btn {
+            display: block;
+            position: relative;
+            background: #2ae;
+            padding: 4px 12px 4px 12px;
+            float: right;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn.pink {
+            background: #e1a;
+        }
+
+        .btn:hover {
+            background-color: #aaa;
+        }
+
+        .btn:active {
+            background-color: #444;
+        }
+
+        * html .btn {
+            border: 3px double #aaa;
+        }
+
+        * html .btn.pink {
+            border-color: #e1a;
+        }
+
+        * html .btn:hover {
+            border-color: #a00;
+        }
+
+        p .btn {
+            margin-right: 1em;
+        }
+    </style>
+
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#getResultBtn").click(function () {
+                $.getJSON('/ajax_lines/', function (ret) {
+                    var lines = ret;
+                    for (var i = 0; i < ret.length; i++) {
+                        var resultlinespoints = [];
+                        for (var j = 0; j < ret[i].length; ++j) {
+                            resultlinespoints.push(new BMap.Point(ret[i][j][0], ret[i][j][1]));
+                        }
+                        var newOverlay = new BMap.Polyline(resultlinespoints, {strokeColor: "#D80FE8", strokeWeight: 12, strokeOpacity: 1});
+                        map.addOverlay(newOverlay);
+                        overlays.push(newOverlay); // clearAll function can remove it
+                    }
+
+                });
+            });
+        });
+    </script>
+
+    <title>MyMap</title>
+</head>
+<body>
+<div id="allmap" style="overflow:hidden;zoom:1;position:relative;">
+    <div id="map" style="height:100%;-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;"></div>
+</div>
+<div class="myBtn">
+    <p>
+        <input id="getResultBtn" type="button" value="GetResult" class="btn pink"/>
+        <input id="clearAllBtn" type="button" value="ClearAll" onclick="clearAll()" class="btn"/>
+    </p>
+</div>
+
+
+<script type="text/javascript">
+
+    // 百度地图API功能
+    var map = new BMap.Map('map');
+    var poi = new BMap.Point(116.307852, 40.057031);
+    map.centerAndZoom(poi, 13);
+    map.enableScrollWheelZoom();
+    var overlays = [];
+
+    //store overlays
+    var rectangles = [];
+
+    var styleOptions = {
+        strokeColor: "#0C59FF",  //边线颜色。
+        fillColor: "#0C59FF",    //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 3,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.7,    //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.4,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid' //边线的样式，solid或dashed。
+    };
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //是否开启绘制模式
+        enableDrawingTool: true, //是否显示工具栏
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+            offset: new BMap.Size(5, 5), //偏离值
+        },
+        circleOptions: styleOptions, //圆的样式
+        polylineOptions: styleOptions, //线的样式
+        polygonOptions: styleOptions, //多边形的样式
+        rectangleOptions: styleOptions //矩形的样式
+
+    });
+    //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('rectanglecomplete', function (overlay) {
+        overlays.push(overlay);
+        rectangles.push(overlay.getPath());
+    });
+
+    function clearAll() {
+        for (var i = 0; i < overlays.length; i++) {
+            map.removeOverlay(overlays[i]);
+        }
+        overlays.length = 0
+    }
+
+</script>
+</body>
+</html>

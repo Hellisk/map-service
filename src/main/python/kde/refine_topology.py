@@ -55,7 +55,7 @@ class RefineTopology:
         #
         #
 
-        # sys.stdout.write("Refining intersections... ")
+        sys.stdout.write("Refining intersections... ")
         sys.stdout.flush()
 
         node_id = max(self.graphdb.nodes.keys()) + 1

@@ -14,7 +14,7 @@ class MatchGraphDB:
     def process_trip(self, trip_directory, trip_filename, output_directory):
 
         trip_file = open(trip_directory + "/" + trip_filename, 'r')
-        raw_observations = map(lambda x: x.strip("\n").split(",")[1:4], trip_file.readlines())
+        raw_observations = map(lambda x: x.strip("\n").split(' ')[0:3], trip_file.readlines())
         trip_file.close()
 
         v = None
@@ -24,7 +24,7 @@ class MatchGraphDB:
         obs_states = []
         max_prob_p = None
 
-        (first_obs_lat, first_obs_lon, first_obs_time) = raw_observations[0]
+        (first_obs_lon, first_obs_lat, first_obs_time) = raw_observations[0]
 
         (v, p) = self.matcher.step((float(first_obs_lat), float(first_obs_lon)), v, p)
 
@@ -37,8 +37,8 @@ class MatchGraphDB:
         obs.append((first_obs_lat, first_obs_lon, first_obs_time))
 
         for index in range(1, len(raw_observations)):
-            (prev_lat, prev_lon, prev_time) = raw_observations[index - 1]
-            (curr_lat, curr_lon, curr_time) = raw_observations[index]
+            (prev_lon, prev_lat, prev_time) = raw_observations[index - 1]
+            (curr_lon, curr_lat, curr_time) = raw_observations[index]
 
             prev_time = float(prev_time)
             curr_time = float(curr_time)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     all_trip_files = filter(lambda x: x.startswith("trip_") and x.endswith(".txt"), os.listdir(input_folder))
 
     for i in range(0, len(all_trip_files)):
-        # sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trip_files)) + "... ")
+        sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trip_files)) + "... ")
         sys.stdout.flush()
 
         match_graphdb.process_trip(input_folder, all_trip_files[i], output_directory)

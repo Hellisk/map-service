@@ -39,6 +39,9 @@ public class MapInferenceProperty extends BaseProperty {
 						case "ds":
 							super.setProperty("data.SampleMaximalIntervalSec", arg.substring(3));
 							break;
+						case "dn":
+							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
+							break;
 						case "di":
 							super.setProperty("data.Sigma", arg.substring(3));
 							break;
@@ -47,9 +50,6 @@ public class MapInferenceProperty extends BaseProperty {
 							break;
 						case "dc":
 							super.setProperty("data.Coverage", arg.substring(3));
-							break;
-						case "dn":
-							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
 						case "ic":
 							super.setProperty("algorithm.mapinference.kde.CellSize", arg.substring(3));
@@ -91,8 +91,9 @@ public class MapInferenceProperty extends BaseProperty {
 		if (dataset.contains("Beijing")) {
 			String size = dataset.substring(dataset.lastIndexOf('-') + 1);
 			super.setProperty("data.BoundingBox", super.getPropertyString("data.BoundingBox" + size));
+		} else {
+			super.setProperty("data.BoundingBox", super.getPropertyString("data.BoundingBox" + dataset));
 		}
-		
 		String dataSpec;    // used for setting the input and log folder
 		String rawSpec;        // used to find the corresponding folder for synthetic data generation
 		if (dataset.contains("Beijing") && super.getPropertyBoolean("data.IsSyntheticTrajectory")) {

@@ -68,8 +68,8 @@ class Edge:
 
     @property
     def length(self):
-        return spatialfunclib.distance(self.in_node.latitude, self.in_node.longitude, self.out_node.latitude,
-                                       self.out_node.longitude)
+        return spatialfunclib.distance((self.in_node.latitude, self.in_node.longitude), (self.out_node.latitude,
+                                                                                         self.out_node.longitude))
 
     @property
     def bearing(self):
@@ -297,7 +297,7 @@ class StreetMap:
         for id, latitude, longitude, weight in query_result:
             # create and store node in nodes dictionary
             self.nodes[id] = Node(latitude, longitude, id, weight)
-
+        sys.stdout.write("\nNode count:" + str(len(self.nodes)) + "\n")
         print "done."
 
         # output that we are loading edges
@@ -341,6 +341,9 @@ class StreetMap:
                 # store out_node in valid_edge_nodes dictionary
                 if (out_node.id not in valid_edge_nodes.keys()):
                     valid_edge_nodes[out_node.id] = out_node
+
+        sys.stdout.write("\nEdge count:" + str(len(self.edges)))
+        sys.stdout.write("\nValid node count:" + str(len(valid_edge_nodes)) + "\n")
 
         # execute query on segments table
         cur.execute("SELECT id, edge_ids FROM segments")
@@ -676,17 +679,7 @@ class StreetMap:
                 intersection_nodes_index.insert(curr_node.id, (curr_node.longitude, curr_node.latitude))
 
         # return intersection nodes and index
-        return (intersection_nodes, intersection_nodes_index)
-
-    def _valid_node(self, node):
-
-        # if node falls inside the designated bounding box
-        if ((node.latitude >= 41.8619 and node.latitude <= 41.8842) and
-                (node.longitude >= -87.6874 and node.longitude <= -87.6398)):
-
-            return True
-        else:
-            return False
+        return intersection_nodes, intersection_nodes_index
 
     def _valid_highway_edge(self, highway_tag_value):
         if ((highway_tag_value == 'primary') or
@@ -731,14 +724,17 @@ class StreetMap:
             confident_score = 0
             edge_list = ""
             count = 0
+            if len(curr_segment.edges) < 2:
+                continue
             # insert all edge information to a string
             for curr_edge in curr_segment.edges:
-                if count == 1:
+                if count == 0:
                     edge_list += "null," + str(curr_edge.in_node.longitude) + "," + str(curr_edge.in_node.latitude) + "|"
                 elif count == len(curr_segment.edges) - 1:
                     edge_list += "null," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude)
                 else:
-                    edge_list += str(mini_node_count) + "-," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude)
+                    edge_list += str(mini_node_count) + "-," + str(curr_edge.out_node.longitude) + "," + str(curr_edge.out_node.latitude) \
+                                 + "|"
                     mini_node_count += 1
                 count += 1
                 confident_score += curr_edge.weight
@@ -755,7 +751,7 @@ class StreetMap:
         print "done."
 
     def _distance(self, location1, location2):
-        return spatialfunclib.distance(location1.latitude, location1.longitude, location2.latitude, location2.longitude)
+        return spatialfunclib.distance((location1.latitude, location1.longitude), (location2.latitude, location2.longitude))
 
 
 import sys

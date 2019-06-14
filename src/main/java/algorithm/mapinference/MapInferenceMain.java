@@ -13,7 +13,9 @@ import util.io.MapReader;
 import util.io.MapWriter;
 import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
+import util.object.spatialobject.Rect;
 import util.object.spatialobject.Trajectory;
+import util.object.structure.Pair;
 import util.settings.MapInferenceProperty;
 import util.settings.MapServiceLogger;
 
@@ -68,6 +70,12 @@ public class MapInferenceMain {
 				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.tracemerge.Epsilon") + "_" + initTaskTime;
 				break;
+			case "RR":
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+						+ property.getPropertyString("algorithm.mapinference.roadrunner.HistoryLength") + "_"
+						+ property.getPropertyString("algorithm.mapinference.roadrunner.NumberOfDeferredBranch") + "_"
+						+ property.getPropertyString("algorithm.mapinference.roadrunner.MinNumberOfTrajectory") + "_" + initTaskTime;
+				break;
 		}
 		// initialize log file
 		MapServiceLogger.logInit(logFolder, logFileName);
@@ -83,15 +91,15 @@ public class MapInferenceMain {
 		
 		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR")) {        // KDE and RoadRunner uses great circle
 			// (Haversine) distance
-			if (dataSet.contains("Berlin")) {
-				LOG.info("Convert the input trajectory into WGS84.");
-				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
-					SpatialUtils.convertTrajUTM2WGS(traj, 33, 'U');
-				}
-			} else if (dataSet.contains("Chicago")) {
+			if (dataSet.contains("Chicago")) {
 				LOG.info("Convert the input trajectory into WGS84.");
 				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
 					SpatialUtils.convertTrajUTM2WGS(traj, 16, 'T');
+				}
+			} else if (dataSet.contains("Berlin")) {
+				LOG.info("Convert the input trajectory into WGS84.");
+				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
+					SpatialUtils.convertTrajUTM2WGS(traj, 33, 'U');
 				}
 			}
 		} else {        // other methods use Euclidean distance
@@ -129,9 +137,29 @@ public class MapInferenceMain {
 				MapWriter.writeMap(outputMap, outputMapFolder + "TM_" + dataSpec + ".txt");
 				break;
 			case "RR":
-				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property);
+				Rect boundary;
+				if (dataSet.equals("Chicago") || dataSet.equals("Berlin")) {
+					boundary = gtMap.getBoundary();
+					if (dataSet.equals("Chicago")) {
+						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(boundary.minX(), boundary.minY(), 16, 'T');
+						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(boundary.maxX(), boundary.maxY(), 16, 'T');
+						boundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
+						LOG.info("Convert the Chicago map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
+								+ "," + minLonLat._2() + "," + maxLonLat._2());
+					} else {    // Berlin
+						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(boundary.minX(), boundary.minY(), 33, 'U');
+						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(boundary.maxX(), boundary.maxY(), 33, 'U');
+						boundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
+						LOG.info("Convert the Berlin map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
+								+ "," + minLonLat._2() + "," + maxLonLat._2());
+					}
+				} else {
+					boundary = gtMap.getBoundary();
+				}
+				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property, boundary);
 				outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,
 						cacheFolder + "roadRunner/");
+				SpatialUtils.convertMapWGS2UTM(outputMap);
 				MapWriter.writeMap(outputMap, outputMapFolder + "RR_" + dataSpec + ".txt");
 				break;
 			default:     // TODO continue

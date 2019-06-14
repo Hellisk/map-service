@@ -18,7 +18,7 @@ class ProcessMapMatches:
         self.graphdb = StreetMap()
         self.graphdb.load_graphdb(output_db_filename)
 
-        # sys.stdout.write("Coalescing segments... ")
+        sys.stdout.write("Coalescing segments... ")
         sys.stdout.flush()
 
         while (True):
@@ -44,7 +44,7 @@ class ProcessMapMatches:
                         next_segment = next_edge.segment  # self.graphdb.segment_lookup_table[next_edge.id]
                         merge_segments.append((segment, next_segment))
 
-            # print "merge segments: " + str(len(merge_segments))
+            print "merge segments: " + str(len(merge_segments))
             if (len(merge_segments) == 0): break
 
             for head_segment, tail_segment in merge_segments:
@@ -55,10 +55,10 @@ class ProcessMapMatches:
 
                 del self.graphdb.segments[tail_segment.id]
 
-        # sys.stdout.write("done.\n")
+        sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        # sys.stdout.write("Saving traces... ")
+        sys.stdout.write("Saving traces... ")
         sys.stdout.flush()
 
         output_traces_file = open(output_traces_filename, 'w')
@@ -74,13 +74,14 @@ class ProcessMapMatches:
                         output_traces_file.write(
                             str(curr_segment_id) + "," + str(edge_id) + "," + str(obs_lat) + "," + str(
                                 obs_lon) + "," + str(obs_time) + "\n")
+                        sys.stdout.write("\nTrace " + str(curr_segment_id) + "," + str(edge_id) + " saved.")
                     output_traces_file.write("\n")
         output_traces_file.close()
 
         # sys.stdout.write("done.\n")
         sys.stdout.flush()
 
-        # sys.stdout.write("Saving coalesced map... ")
+        sys.stdout.write("\nSaving coalesced map... ")
         sys.stdout.flush()
 
         try:
@@ -99,6 +100,8 @@ class ProcessMapMatches:
 
         valid_nodes = set()
         valid_intersections = set()
+
+        sys.stdout.write("\nTotal number of segments: " + str(len(self.graphdb.segments.values())))
 
         for segment in self.graphdb.segments.values():
             cur.execute("INSERT INTO segments VALUES (" + str(segment.id) + ",'" + str(
@@ -137,8 +140,7 @@ class ProcessMapMatches:
         all_segment_obs = {}  # indexed by segment_id
 
         for i in range(0, len(all_matched_trip_files)):
-            # sys.stdout.write(
-            #     "\rProcessing matched trip " + str(i + 1) + "/" + str(len(all_matched_trip_files)) + "... ")
+            sys.stdout.write("\rProcessing matched trip " + str(i + 1) + "/" + str(len(all_matched_trip_files)) + "... ")
             sys.stdout.flush()
 
             matched_trip_file = open(matched_trips_directory + "/" + all_matched_trip_files[i], 'r')
@@ -333,9 +335,9 @@ if __name__ == '__main__':
     matched_trips_directory = cache_folder + temp_matched_trips_directory
     output_filename = cache_folder + temp_output_filename
 
-    # print "graphdb filename: " + str(graphdb_filename)
-    # print "matched trips directory: " + str(matched_trips_directory)
-    # print "output filename: " + str(output_filename)
+    print "\ngraphdb filename: " + str(graphdb_filename)
+    print "matched trips directory: " + str(matched_trips_directory)
+    print "output filename: " + str(output_filename)
 
     # create skeleton image directory
     if not os.path.exists(matched_trips_directory):

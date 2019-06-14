@@ -44,12 +44,12 @@ public class KDEMapInference {
 	// use python script to run map inference python code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
 		List<String> pythonCmd = new ArrayList<>();
-		
+
 		// remove the map inference directory
 		IOService.createFolder(cacheFolder);
 		FileUtils.cleanDirectory(new File(cacheFolder));
 		FileUtils.deleteDirectory(new File(cacheFolder));
-		
+
 		// setup each command manually
 		pythonCmd.add("python " + codeRootFolder + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -i " + inputTrajFolder + " -f " + cacheFolder);
 		pythonCmd.add("python " + codeRootFolder + "skeleton.py -f " + cacheFolder);
@@ -59,8 +59,8 @@ public class KDEMapInference {
 		pythonCmd.add("python " + codeRootFolder + "refine_topology.py -f " + cacheFolder);
 		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -o " +
 				"matched_trips_1m_mm1_tr/ -t " + inputTrajFolder + " -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -t " +
-				"matched_trips_1m_mm1_tr - o skeleton_maps/skeleton_map_1m_mm2.db" + " -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder + " -d skeleton_maps/skeleton_map_1m_mm1_tr" +
+				".db -t matched_trips_1m_mm1_tr -o skeleton_maps/skeleton_map_1m_mm2.db");
 		pythonCmd.add("python " + codeRootFolder + "streetmap.py -f " + cacheFolder);
 		
 		try {
@@ -90,7 +90,12 @@ public class KDEMapInference {
 		}
 		Map<String, RoadNode> location2NodeMap = new LinkedHashMap<>();
 		int nodeCount = 0;
+		List<RoadWay> removedWayList = new ArrayList<>();
 		for (RoadWay currWay : wayList) {
+			if (currWay.getFromNode().toPoint().equals2D(currWay.getToNode().toPoint())) {
+				removedWayList.add(currWay);
+				continue;
+			}
 			List<RoadNode> replaceNodeList = new ArrayList<>();
 			String startLocation = currWay.getFromNode().lon() + "_" + currWay.getFromNode().lat();
 			if (location2NodeMap.containsKey(startLocation)) {    // the intersection already exists
@@ -109,10 +114,11 @@ public class KDEMapInference {
 				replaceNodeList.add(currWay.getToNode());
 				currWay.getToNode().setId(nodeCount + "");
 				nodeCount++;
-				location2NodeMap.put(startLocation, currWay.getToNode());
+				location2NodeMap.put(endLocation, currWay.getToNode());
 			}
 			currWay.setNodes(replaceNodeList);
 		}
+		wayList.removeIf(removedWayList::contains);
 		List<RoadNode> currNodeList = new ArrayList<>();
 		for (Map.Entry<String, RoadNode> entry : location2NodeMap.entrySet()) {
 			currNodeList.add(entry.getValue());
@@ -124,41 +130,26 @@ public class KDEMapInference {
 	}
 	
 	private void runCode(List<String> pythonCmd) throws Exception {
+		LOG.info("Start the python map inference process.");
+		StringBuilder command = new StringBuilder();
+		command.append(pythonCmd.get(0));
+		for (int i = 1; i < pythonCmd.size(); i++) {
+			String pc = pythonCmd.get(i);
+			command.append(" && ").append(pc);
+		}
+		ProcessBuilder builder;
+		
 		if (os.equals("Linux")) {
-			LOG.info("Start the python map inference process.");
-			StringBuilder command = new StringBuilder();
-			command.append(pythonCmd.get(0));
-			for (int i = 1; i < pythonCmd.size(); i++) {
-				String pc = pythonCmd.get(i);
-				command.append(" && ").append(pc);
-			}
-			Runtime r = Runtime.getRuntime();
-			Process p = r.exec(command.toString());
-			p.waitFor();
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line = "";
-			while ((line = br.readLine()) != null) {
-				LOG.info(line);
-			}
+			builder = new ProcessBuilder("/bin/sh", "-c", command.toString());
 		} else {
-			StringBuilder command = new StringBuilder();
-			command.append(pythonCmd.get(0));
-			for (int i = 1; i < pythonCmd.size(); i++) {
-				String pc = pythonCmd.get(i);
-				command.append(" && ").append(pc);
-			}
-			ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command.toString());
-			builder.redirectErrorStream(true);
-			Process p = builder.start();
-			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String line;
-			while (true) {
-				line = r.readLine();
-				if (line == null) {
-					break;
-				}
-				LOG.info(line);
-			}
+			builder = new ProcessBuilder("cmd.exe", "/c", command.toString());
+		}
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
+		BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line = "";
+		while ((line = br.readLine()) != null) {
+			LOG.info(line);
 		}
 	}
 }

@@ -1,0 +1,8 @@
+
+Dependencies for plsa.py:
+* Numpy
+
+Dependencies for example.py:
+
+* git clone http://www.mblondel.org/code/tfidf.git
+* git clone http://www.mblondel.org/code/taskmanager.git

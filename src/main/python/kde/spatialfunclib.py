@@ -160,10 +160,10 @@ def projection_onto_line(a_lat, a_lon, b_lat, b_lon, c_lat, c_lon, debug=False):
     ac_angle = path_bearing(a_lat, a_lon, c_lat, c_lon)
     if (debug): print "ac_angle: " + str(ac_angle) + " degrees"
 
-    ab_length = distance(a_lat, a_lon, b_lat, b_lon)
+    ab_length = distance((a_lat, a_lon), (b_lat, b_lon))
     if (debug): print "ab_length: " + str(ab_length) + " meters"
 
-    ac_length = distance(a_lat, a_lon, c_lat, c_lon)
+    ac_length = distance((a_lat, a_lon), (c_lat, c_lon))
     if (debug): print "ac_length: " + str(ac_length) + " meters"
 
     angle_diff = (ac_angle - ab_angle)
@@ -181,7 +181,7 @@ def projection_onto_line(a_lat, a_lon, b_lat, b_lon, c_lat, c_lon, debug=False):
     projected_point = point_along_line(a_lat, a_lon, b_lat, b_lon, fraction_along)
     if (debug): print "projected_point: " + str(projected_point)
 
-    cproj_length = distance(c_lat, c_lon, projected_point[0], projected_point[1])
+    cproj_length = distance((c_lat, c_lon), (projected_point[0], projected_point[1]))
     if (debug): print "cproj_length: " + str(cproj_length) + " meters"
 
     cproj_angle = path_bearing(c_lat, c_lon, projected_point[0], projected_point[1])
