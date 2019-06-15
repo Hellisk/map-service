@@ -3,23 +3,25 @@ package algorithm.mapinference;
 import algorithm.mapinference.kde.KDEMapInference;
 import algorithm.mapinference.lineclustering.LineClusteringMapInference;
 import algorithm.mapinference.roadrunner.RoadRunnerMapInference;
+import algorithm.mapinference.topicmodel.CRIFMapInference;
 import algorithm.mapinference.tracemerge.TraceMergeMapInference;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.function.SpatialUtils;
-import util.io.MapReader;
-import util.io.MapWriter;
-import util.io.TrajectoryReader;
-import util.io.TrajectoryWriter;
+import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Rect;
 import util.object.spatialobject.Trajectory;
+import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
 import util.settings.MapInferenceProperty;
 import util.settings.MapServiceLogger;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -77,6 +79,13 @@ public class MapInferenceMain {
 						+ property.getPropertyString("algorithm.mapinference.roadrunner.NumberOfDeferredBranch") + "_"
 						+ property.getPropertyString("algorithm.mapinference.roadrunner.MinNumberOfTrajectory") + "_" + initTaskTime;
 				break;
+			case "CRIF":
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+						+ property.getPropertyString("algorithm.mapinference.crif.CellWidth") + "_" + initTaskTime;
+				break;
+			default:
+				logFileName = "Failure";
+				break;
 		}
 		// initialize log file
 		MapServiceLogger.logInit(logFolder, logFileName);
@@ -90,8 +99,8 @@ public class MapInferenceMain {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 		
-		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR")) {        // KDE and RoadRunner uses great circle
-			// (Haversine) distance
+		// KDE, RoadRunner and CRIF uses great circle (Haversine) distance
+		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR")) {
 			if (dataSet.contains("Chicago")) {
 				LOG.info("Convert the input trajectory into WGS84.");
 				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
@@ -129,11 +138,62 @@ public class MapInferenceMain {
 				KDEMapInference kdeMapInference = new KDEMapInference(property);
 				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
 					inputTrajFolder = cacheFolder + "kdeTraj/";
+					IOService.cleanFolder(cacheFolder + "kdeTraj/");
 					TrajectoryWriter.writeTrajectories(inputTrajList, inputTrajFolder);
 				}
 				outputMap = kdeMapInference.mapInferenceProcess(pythonRootFolder + "kde/", inputTrajFolder, cacheFolder + "kde/");
 				SpatialUtils.convertMapWGS2UTM(outputMap);
 				MapWriter.writeMap(outputMap, outputMapFolder + "KDE_" + dataSpec + ".txt");
+				break;
+			case "CRIF":
+				Rect crifBoundary;
+				if (dataSet.contains("Beijing")) {
+					crifBoundary = gtMap.getBoundary();
+					Pair<Double, Double> minLonLat = SpatialUtils.convertGCJ2WGS(crifBoundary.minX(), crifBoundary.minY());
+					Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(crifBoundary.maxX(), crifBoundary.maxY(), 16, 'T');
+					crifBoundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
+					LOG.info("Convert the Chicago map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
+							+ "," + minLonLat._2() + "," + maxLonLat._2());
+					inputTrajFolder = cacheFolder + "roadRunnerTraj/";
+					// convert to a pickle file
+					IOService.createFolder(inputTrajFolder);
+					IOService.cleanFolder(inputTrajFolder);
+					BufferedWriter bw = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".pickle")));
+					for (Trajectory traj : inputTrajList) {
+						StringBuilder currTrajString = new StringBuilder();
+						for (int i = 0; i < traj.size(); i++) {
+							TrajectoryPoint trajPoint = traj.get(i);
+							currTrajString.append(i).append(',').append(trajPoint.x()).append(',').append(trajPoint.y())
+									.append(',').append(trajPoint.time()).append(',').append(traj.getID());
+						}
+						bw.write(currTrajString.toString() + "\n");
+					}
+					bw.flush();
+					bw.close();
+				} else {
+					crifBoundary = gtMap.getBoundary();
+				}
+				CRIFMapInference crifMapInference = new CRIFMapInference(property, crifBoundary);
+				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
+					inputTrajFolder = cacheFolder + "crifTraj/";
+					IOService.createFolder(inputTrajFolder);
+					IOService.cleanFolder(inputTrajFolder);
+					BufferedWriter bw = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".pickle")));
+					for (Trajectory traj : inputTrajList) {
+						StringBuilder currTrajString = new StringBuilder();
+						for (int i = 0; i < traj.size(); i++) {
+							TrajectoryPoint trajPoint = traj.get(i);
+							currTrajString.append(i).append(',').append(trajPoint.x()).append(',').append(trajPoint.y())
+									.append(',').append(trajPoint.time()).append(',').append(traj.getID());
+						}
+						bw.write(currTrajString.toString() + "\n");
+					}
+					bw.flush();
+					bw.close();
+				}
+				outputMap = crifMapInference.mapInferenceProcess(pythonRootFolder + "crif/", inputTrajFolder, cacheFolder + "crif/");
+				SpatialUtils.convertMapWGS2UTM(outputMap);
+				MapWriter.writeMap(outputMap, outputMapFolder + "CRIF_" + dataSpec + ".txt");
 				break;
 			case "TM":
 				TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
@@ -142,30 +202,28 @@ public class MapInferenceMain {
 				MapWriter.writeMap(outputMap, outputMapFolder + "TM_" + dataSpec + ".txt");
 				break;
 			case "RR":
-				Rect boundary;
+				Rect rrBoundary;
 				if (dataSet.equals("Chicago") || dataSet.equals("Berlin")) {
-					boundary = gtMap.getBoundary();
+					rrBoundary = gtMap.getBoundary();
 					if (dataSet.equals("Chicago")) {
-						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(boundary.minX(), boundary.minY(), 16, 'T');
-						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(boundary.maxX(), boundary.maxY(), 16, 'T');
-						boundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
+						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(rrBoundary.minX(), rrBoundary.minY(), 16, 'T');
+						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(rrBoundary.maxX(), rrBoundary.maxY(), 16, 'T');
+						rrBoundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
 						LOG.info("Convert the Chicago map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
 								+ "," + minLonLat._2() + "," + maxLonLat._2());
 					} else {    // Berlin
-						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(boundary.minX(), boundary.minY(), 33, 'U');
-						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(boundary.maxX(), boundary.maxY(), 33, 'U');
-						boundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
+						Pair<Double, Double> minLonLat = SpatialUtils.convertUTM2WGS(rrBoundary.minX(), rrBoundary.minY(), 33, 'U');
+						Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(rrBoundary.maxX(), rrBoundary.maxY(), 33, 'U');
+						rrBoundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
 						LOG.info("Convert the Berlin map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
 								+ "," + minLonLat._2() + "," + maxLonLat._2());
 					}
-				} else {
-					boundary = gtMap.getBoundary();
-				}
-				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
 					inputTrajFolder = cacheFolder + "roadRunnerTraj/";
 					TrajectoryWriter.writeTrajectories(inputTrajList, inputTrajFolder);
+				} else {
+					rrBoundary = gtMap.getBoundary();
 				}
-				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property, boundary);
+				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property, rrBoundary);
 				outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,
 						cacheFolder + "roadRunner/");
 				SpatialUtils.convertMapWGS2UTM(outputMap);

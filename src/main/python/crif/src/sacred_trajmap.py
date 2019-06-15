@@ -86,7 +86,7 @@ init()
 
 @ex.config
 def cfg():
-    data = 'chicago'
+    data = 'trajmap_k'
     side = 20
     k = 100
     ratio = None
@@ -105,80 +105,81 @@ def cfg():
 
 
 @ex.automain
-def main(ex_name, data, side, k, ratio, topic_model, percent, width, alpha, beta, sel_cand_method, maxiter, cands_num, fig_width, max_value,
-         combine_dist, _log, _run, inc=0, true_pass=False, cut_length=0):
-    if data == 'chicago':
-        data_file = "../Data/Chicago/chicago.pickle"
-        axis = gis.chc_utm_axis
-        map_file = "../Data/Chicago/min_map_df.csv"
-    elif data == 'minsh_2000':
-        data_file = "../Data/Shanghai/minsh_2000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_4000':
-        data_file = "../Data/Shanghai/minsh_4000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_6000':
-        data_file = "../Data/Shanghai/minsh_6000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_8000':
-        data_file = "../Data/Shanghai/minsh_8000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_10000':
-        data_file = "../Data/Shanghai/minsh_10000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_sparse_1000':
-        data_file = "../Data/Shanghai/minsh_sparse_1000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_sparse_5000':
-        data_file = "../Data/Shanghai/minsh_sparse_5000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'minsh_sparse_10000':
-        data_file = "../Data/Shanghai/minsh_sparse_10000.pickle"
-        axis = gis.minsh_utm_axis
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'maxsh_20000':
-        data_file = "../Data/Shanghai/maxsh_20000.pickle"
-        axis = gis.maxsh_utm_axis
-        # map_file = "../Data/Shanghai/sh_map_df.csv"
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'maxsh_40000':
-        data_file = "../Data/Shanghai/maxsh_40000.pickle"
-        axis = gis.maxsh_utm_axis
-        # map_file = "../Data/Shanghai/sh_map_df.csv"
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'maxsh_60000':
-        data_file = "../Data/Shanghai/maxsh_60000.pickle"
-        axis = gis.maxsh_utm_axis
-        # map_file = "../Data/Shanghai/sh_map_df.csv"
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'maxsh_80000':
-        data_file = "../Data/Shanghai/maxsh_80000.pickle"
-        axis = gis.maxsh_utm_axis
-        # map_file = "../Data/Shanghai/sh_map_df.csv"
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    elif data == 'maxsh_100000':
-        data_file = "../Data/Shanghai/maxsh_100000.pickle"
-        axis = gis.maxsh_utm_axis
-        # map_file = "../Data/Shanghai/sh_map_df.csv"
-        map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+def main(ex_name, data_file, minx, maxx, miny, maxy, side, k, ratio, topic_model, percent, width, alpha, beta, sel_cand_method, maxiter,
+         cands_num, fig_width, max_value, combine_dist, _log, _run, inc=0, true_pass=False, cut_length=0):
+    # if data == 'chicago':
+    #     data_file = "../Data/Chicago/chicago.pickle"
+    #     axis = gis.chc_utm_axis
+    #     map_file = "../Data/Chicago/min_map_df.csv"
+    # elif data == 'minsh_2000':
+    #     data_file = "../Data/Shanghai/minsh_2000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_4000':
+    #     data_file = "../Data/Shanghai/minsh_4000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_6000':
+    #     data_file = "../Data/Shanghai/minsh_6000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_8000':
+    #     data_file = "../Data/Shanghai/minsh_8000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_10000':
+    #     data_file = "../Data/Shanghai/minsh_10000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_sparse_1000':
+    #     data_file = "../Data/Shanghai/minsh_sparse_1000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_sparse_5000':
+    #     data_file = "../Data/Shanghai/minsh_sparse_5000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'minsh_sparse_10000':
+    #     data_file = "../Data/Shanghai/minsh_sparse_10000.pickle"
+    #     axis = gis.minsh_utm_axis
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'maxsh_20000':
+    #     data_file = "../Data/Shanghai/maxsh_20000.pickle"
+    #     axis = gis.maxsh_utm_axis
+    #     # map_file = "../Data/Shanghai/sh_map_df.csv"
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'maxsh_40000':
+    #     data_file = "../Data/Shanghai/maxsh_40000.pickle"
+    #     axis = gis.maxsh_utm_axis
+    #     # map_file = "../Data/Shanghai/sh_map_df.csv"
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'maxsh_60000':
+    #     data_file = "../Data/Shanghai/maxsh_60000.pickle"
+    #     axis = gis.maxsh_utm_axis
+    #     # map_file = "../Data/Shanghai/sh_map_df.csv"
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'maxsh_80000':
+    #     data_file = "../Data/Shanghai/maxsh_80000.pickle"
+    #     axis = gis.maxsh_utm_axis
+    #     # map_file = "../Data/Shanghai/sh_map_df.csv"
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    # elif data == 'maxsh_100000':
+    #     data_file = "../Data/Shanghai/maxsh_100000.pickle"
+    #     axis = gis.maxsh_utm_axis
+    #     # map_file = "../Data/Shanghai/sh_map_df.csv"
+    #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
+    axis = (minx, maxx, miny, maxy)
 
     global ex
     # ex.add_artifact('origin_gen_map.png')
     # return {}
-    map_df = pd.read_csv(map_file)
-    map_df = gis.scale_map_by_axis(map_df, axis)
-    map_df.index = map_df.rid
+    # map_df = pd.read_csv(map_file)
+    # map_df = gis.scale_map_by_axis(map_df, axis)
+    # map_df.index = map_df.rid
 
     _run.info['ex_name'] = ex_name
     _log.info('topic_model: %s \tdata_file: %s \tside: %d\tk: %d\tpercent: %.4f\twidth: %d\talpha: %.2f\tbeta: %.2f' % (
-    topic_model, data_file, side, k, percent, width, alpha, beta))
+        topic_model, data_file, side, k, percent, width, alpha, beta))
 
     trajs = pd.read_pickle(data_file)
     result = {}

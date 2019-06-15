@@ -42,6 +42,11 @@ public class MapInferenceProperty extends BaseProperty {
 						case "dn":
 							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
+						case "dy":
+							if (arg.substring(3).equals("true") || arg.substring(3).equals("false"))
+								super.setProperty("data.IsSyntheticTrajectory", arg.substring(3));
+							else
+								throw new IllegalArgumentException("The \"data.IsSyntheticTrajectory\" argument incorrect: " + arg.substring(3));
 						case "di":
 							super.setProperty("data.Sigma", arg.substring(3));
 							break;

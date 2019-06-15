@@ -77,7 +77,7 @@ func main() {
 
 	files, _ := ioutil.ReadDir(os.Args[1])
 
-	var samplingRate = 1          // Use this to simulate different sampling rate
+	var samplingRate = 5          // Use this to simulate different sampling rate
 	var isEnableInterpolation = 1 // Use this to turn on/off interpolation
 	if len(os.Args) > 3 {
 		samplingRate, _ = strconv.Atoi(os.Args[3])

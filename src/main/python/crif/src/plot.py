@@ -1,4 +1,3 @@
-import pandas as pd
 from collections import defaultdict
 
 import matplotlib.cm as matcm

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import print_function
+
 import sqlite3
 
 import math
@@ -277,8 +280,8 @@ class RefineTopology:
                 else:
                     # print "at least one trace failed! boo! :-(\n"
                     for edge in touched_edges:
-                        # print "delete " + str((edge.in_node.id, edge.out_node.id)) + ": " + str(
-                        #     (edge.in_node, edge.out_node)) + " = " + str(edge)
+                        print("delete " + str((edge.in_node.id, edge.out_node.id)) + ": " + str(
+                            (edge.in_node, edge.out_node)) + " = " + str(edge))
 
                         del self.graphdb.edge_lookup_table[(edge.in_node, edge.out_node)]
                         self.graphdb.edge_lookup_table[edge.old_key] = edge
@@ -372,8 +375,8 @@ if __name__ == '__main__':
         elif o == "-f":
             cache_folder = str(a)
         elif o == "-h":
-            print "Usage: python refine_topology.py [-d <graphdb_filename>] [-t <matched_traces_filename>] [-o <output_filename>] [" \
-                  "-f <cache_folder>] [-h]"
+            print("Usage: python refine_topology.py [-d <graphdb_filename>] [-t <matched_traces_filename>] [-o <output_filename>] [-f "
+                  "<cache_folder>] [-h]")
             exit()
 
     graphdb_filename = cache_folder + temp_graphdb_filename

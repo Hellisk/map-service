@@ -2,7 +2,6 @@
 
 import os
 
-import numpy as np
 import taskmanager as tm
 
 from lsa import LSA

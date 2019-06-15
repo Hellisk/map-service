@@ -74,7 +74,7 @@ class ProcessMapMatches:
                         output_traces_file.write(
                             str(curr_segment_id) + "," + str(edge_id) + "," + str(obs_lat) + "," + str(
                                 obs_lon) + "," + str(obs_time) + "\n")
-                        sys.stdout.write("\nTrace " + str(curr_segment_id) + "," + str(edge_id) + " saved.")
+                        # sys.stdout.write("\nTrace " + str(curr_segment_id) + "," + str(edge_id) + " saved.")
                     output_traces_file.write("\n")
         output_traces_file.close()
 

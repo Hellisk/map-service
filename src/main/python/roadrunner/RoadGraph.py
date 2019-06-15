@@ -38,7 +38,7 @@ def GetClassifierResult(img, host="localhost", port=8001):
     data_string = zlib.compress(data_string, 6)
 
     print(len(data_string))
-    # print("Compress", len(zlib.compress(data_string, 6)))
+    print("Compress", len(zlib.compress(data_string, 6)))
 
     data_length = pickle.dumps(len(data_string))
     s.send(data_length)
@@ -54,9 +54,9 @@ def GetClassifierResult(img, host="localhost", port=8001):
 
 
 def Coord2Pixels(lat, lon, min_lat, min_lon, max_lat, max_lon, sizex, sizey):
-    # print(max_lat, min_lat, sizex)
+    print(max_lat, min_lat, sizex)
     ilat = sizex - int((lat - min_lat) / ((max_lat - min_lat) / sizex))
-    # ilat = int((lat-min_lat) / ((max_lat - min_lat)/sizex))
+    ilat = int((lat - min_lat) / ((max_lat - min_lat) / sizex))
     ilon = int((lon - min_lon) / ((max_lon - min_lon) / sizey))
 
     return ilat, ilon
@@ -70,13 +70,13 @@ def TraceQueryBatch(data, host="localhost", port=8006):
         data_string = data_string + str(data[i * 5 + 0]) + "," + str(data[i * 5 + 1]) + "," + str(data[i * 5 + 2]) + "," + str(
             data[i * 5 + 3]) + "," + str(data[i * 5 + 4]) + ","
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
 
     s.send(data_string)
     result = s.recv(16384)
     items = result.split()
     result = [int(item) for item in items]
-    # print(result)
+    print(result)
 
     return result
 
@@ -90,13 +90,13 @@ def TraceQueryBatch3P(data, host="localhost", port=8002):
             data[i * 9 + 3]) + "," + str(data[i * 9 + 4]) + "," + str(data[i * 9 + 5]) + "," + str(data[i * 9 + 6]) + "," + str(
             data[i * 9 + 7]) + "," + str(data[i * 9 + 8]) + ",-1,-1,"
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
 
     s.send(data_string)
     result = s.recv(16384)
     items = result.split()
     result = [int(item) for item in items]
-    # print(result)
+    print(result)
 
     return result
 
@@ -109,13 +109,13 @@ def SpeedQueryBatch(data, host="localhost", port=8002):
         data_string = data_string + str(data[i * 4 + 0]) + "," + str(data[i * 4 + 1]) + "," + str(data[i * 4 + 2]) + "," + str(
             data[i * 4 + 3]) + ","
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
 
     s.send(data_string)
     result = s.recv(16384)
     items = result.split()
     result = [float(item) for item in items]
-    # print(result)
+    print(result)
 
     return result
 
@@ -1049,7 +1049,7 @@ class RoadGraph:
                                     if best_p2[i][2] != best_p1[i][2]:
                                         self.deletedNodes[best_p2[i][2]] = best_p1[i][2]
 
-            # print("Deleted ", self.deletedNodes)
+            print("Deleted ", self.deletedNodes)
 
             print(update_counter, " Update(s)")
             # break
@@ -1409,13 +1409,13 @@ class RoadGraph:
                     ilat, ilon, extend_length, ok = edgeIntersection(center_lat, center_lon, norm_lat, norm_lon, self.nodes[can_node1][0],
                                                                      self.nodes[can_node1][1], self.nodes[can_node2][0],
                                                                      self.nodes[can_node2][1])
-                    # print(ilat, ilon, extend_length, ok)
+                    print(ilat, ilon, extend_length, ok)
 
                     if ok == 0:
                         ilat, ilon, extend_length, ok = edgeIntersection(center_lat, center_lon, -norm_lat, -norm_lon,
                                                                          self.nodes[can_node1][0], self.nodes[can_node1][1],
                                                                          self.nodes[can_node2][0], self.nodes[can_node2][1])
-                    # print(ilat, ilon, extend_length, ok)
+                    print(ilat, ilon, extend_length, ok)
 
                     if ok == 0:
                         continue
@@ -1817,8 +1817,8 @@ class RoadGraphCombiner:
 
                 possibleEdges = list(idx.intersection((lat - r, lon - r, lat + r, lon + r)))
 
-                # if len(possibleEdges) > 0:
-                # 	print(len(possibleEdges))
+                if len(possibleEdges) > 0:
+                    print(len(possibleEdges))
 
                 min_dist = 0.00050
                 newlat = 0
@@ -1903,8 +1903,8 @@ class RoadGraphCombiner:
 
                 possibleEdges = list(idx.intersection((lat - r, lon - r, lat + r, lon + r)))
 
-                # if len(possibleEdges) > 0:
-                # 	print(len(possibleEdges))
+                if len(possibleEdges) > 0:
+                    print(len(possibleEdges))
 
                 min_dist = 0.00050
                 newlat = 0

@@ -17,7 +17,7 @@ import PathSimilarity
 
 base_port = 8001
 
-isDebugOn = False
+isDebugOn = True
 
 
 def debug_print(*args):
@@ -80,13 +80,13 @@ def TraceQueryBatch(data, host="localhost", port=8002):
         data_string = data_string + str(data[i * 5 + 0]) + "," + str(data[i * 5 + 1]) + "," + str(data[i * 5 + 2]) + "," + str(
             data[i * 5 + 3]) + "," + str(data[i * 5 + 4]) + ","
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
 
     s.send(data_string)
     result = s.recv(16384)
     items = result.split()
     result = [int(item) for item in items]
-    # print(result)
+    print(result)
 
     return result
 
@@ -105,14 +105,14 @@ def TraceQueryBatch3P(data, host="localhost", port=8002):
             data[i * 11 + 7]) + "," + str(data[i * 11 + 8]) + "," + str(data[i * 11 + 9]) + "," + str(data[i * 11 + 10]) + ","
     # data_string = data_string + str(data[i*11+0])+","+str(data[i*11+1])+","+str(data[i*11+2])+","+str(data[i*11+3])+","+str(data[i*11+4])+","+str(data[i*11+5])+","+str(data[i*11+6])+","+str(data[i*11+7])+","+str(data[i*11+8])+",-1,-1,"
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
     ts2 = time()
     s.send(data_string)
     result = s.recv(16384)
     ts3 = time()
     items = result.split()
     result = [int(item) for item in items]
-    # print(result)
+    print(result)
 
     t = time() - ts1
 
@@ -132,14 +132,14 @@ def TraceQueryNodeScores(data, host="localhost", port=8002):
     for i in range(len(data)):
         data_string = data_string + "%f,%f,%f,%f," % (data[i][0], data[i][1], data[i][2], data[i][3])
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
     ts2 = time()
     s.send(data_string)
     result = s.recv(16384)
     ts3 = time()
     items = result.split()
     result = [int(item) for item in items]
-    # print(result)
+    print(result)
 
     t = time() - ts1
 
@@ -161,7 +161,7 @@ def TraceQuery3PInterpolation(data, host="localhost", port=8002):
             data[i * 11 + 7]) + "," + str(data[i * 11 + 8]) + "," + str(data[i * 11 + 9]) + "," + str(data[i * 11 + 10]) + ","
     # data_string = data_string + str(data[i*11+0])+","+str(data[i*11+1])+","+str(data[i*11+2])+","+str(data[i*11+3])+","+str(data[i*11+4])+","+str(data[i*11+5])+","+str(data[i*11+6])+","+str(data[i*11+7])+","+str(data[i*11+8])+",-1,-1,"
 
-    # print("DataSentLen", len(data_string))
+    print("DataSentLen", len(data_string))
     s.send(data_string)
 
     num_str = s.recv(16384)
@@ -2136,7 +2136,7 @@ class RoadForest:
         self.ExitPoints = {}
 
         for item in config["Exits"]:
-            self.ExitPoints[item['ID']] = ((item['Lat'], item['Lon']))
+            self.ExitPoints[item['ID']] = (item['Lat'], item['Lon'])
 
         self.RoadTrees = []
         self.oks = []

@@ -400,6 +400,24 @@ public class SpatialUtils implements Serializable {
 	}
 	
 	/**
+	 * Convert GCJ-02 coordinate to WGS84.
+	 *
+	 * @param lon The input longitude.
+	 * @param lat The input latitude.
+	 * @return The output longitude and latitude, Pair(lon,lat)
+	 */
+	public static Pair<Double, Double> convertGCJ2UTM(double lon, double lat) {
+		// the GCJ-02 is only used in China region
+		if (outOfChina(lon, lat)) {
+			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
+			return new Pair<>(lon, lat);
+		}
+		Pair<Double, Double> wgsPoint = convertGCJ2WGS(lon, lat);
+		Pair<Double, Double> utmPoint = convertWGS2UTM(wgsPoint._1(), wgsPoint._2());
+		return new Pair<>(utmPoint._1(), utmPoint._2());
+	}
+	
+	/**
 	 * Find the corresponding zone and letter in Mercator projection given a WGS84 point.
 	 *
 	 * @param lon The input longitude.

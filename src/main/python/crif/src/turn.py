@@ -1,39 +1,25 @@
-import pandas as pd
-import pandas as pd
 import numpy as np
+import os
+from collections import defaultdict
+
+import math
+import numpy as np
+# %matplotlib inline
+import scipy
+import scipy.sparse
 import sys
 import time
-import math
-import pickle
-import random
-import matplotlib.pyplot as plt
-# %matplotlib inline
-import json
-import scipy
-import numpy, scipy.sparse
-import shapefile
-from collections import defaultdict
-import os
-import sys
-import matplotlib.cm as matcm
+
 import trajmap
 
 # import svd
 reload(trajmap)
-from matplotlib.patches import Circle
-from matplotlib.patches import Arrow
-import svd
 # import mpld3
 # from mpld3 import plugins, utils
-from itertools import permutations
-import plot
 import gis
 import networkx as nx
-from plsa import plsa
 
 sys.path.append('../matcher')
-
-from graphdb_matcher import GraphDBMatcher
 
 import matcher
 

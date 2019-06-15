@@ -1,5 +1,6 @@
-package algorithm.mapinference.kde;
+package algorithm.mapinference.topicmodel;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -7,59 +8,79 @@ import util.io.IOService;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
+import util.object.spatialobject.Rect;
 import util.settings.BaseProperty;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * Command line entrance for Biagioni KDE map inference algorithm. The original code is written in Python and we run the Python code
+ * Command line entrance for Zheng topic model map inference algorithm. The original code is written in Python and we run the Python code
  * through this class.
  * <p>
  * Reference:
  * <p>
- * Biagioni, James, and Jakob Eriksson. "Map inference in the face of noise and disparity." Proceedings of the 20th International
- * Conference on Advances in Geographic Information Systems. ACM, 2012.
+ * Zheng, Renjie, et al. "Topic model-based road network inference from massive trajectories." 18th IEEE International Conference on
+ * Mobile Data Management (MDM). IEEE, 2017.
  *
  * @author Hellisk
+ * @since 15/06/2019
  */
 
-public class KDEMapInference {
+public class CRIFMapInference {
 	
-	private static final Logger LOG = Logger.getLogger(KDEMapInference.class);
-	private int cellSize;    // meter
-	private int gaussianBlur;
+	private static final Logger LOG = Logger.getLogger(CRIFMapInference.class);
+	private int k;    // number of roads
+	private int cellWidth;
+	private int side = 10;    // h in paper, usually h*cellWidth should be roughly 50
+	private double ratio = 0.9;
+	private double percent = 0.02;
+	private double alpha = 0.9;
+	private double maxValue = 0.2;
+	private String topicModel = "pLSA";
 	private String os;
+	private String dataset;
+	private Rect boundary;
 	
-	public KDEMapInference(BaseProperty prop) {
-		this.cellSize = prop.getPropertyInteger("algorithm.mapinference.kde.CellSize");
-		this.gaussianBlur = prop.getPropertyInteger("algorithm.mapinference.kde.GaussianBlur");
+	public CRIFMapInference(BaseProperty prop, Rect crifBoundary) {
+		this.dataset = prop.getPropertyString("data.Dataset");
+		switch (dataset) {
+			case "Chicago":
+				this.k = 50;
+				break;
+			case "Berlin":
+			case "Beijing-S":
+				this.k = 400;
+				break;
+			case "Beijing-M":
+				this.k = 800;
+				break;
+			case "Beijing-L":
+				this.k = 1600;
+				break;
+		}
+		this.cellWidth = prop.getPropertyInteger("algorithm.mapinference.crif.CellWidth");
+		this.boundary = crifBoundary;
 		this.os = prop.getPropertyString("OS");
 	}
 	
 	// use python script to run map inference python code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
 		List<String> pythonCmd = new ArrayList<>();
-
-//		// remove the map inference directory
-//		IOService.createFolder(cacheFolder);
-//		FileUtils.cleanDirectory(new File(cacheFolder));
-//		FileUtils.deleteDirectory(new File(cacheFolder));
-
+		// remove the map inference directory
+		IOService.createFolder(cacheFolder);
+		FileUtils.cleanDirectory(new File(cacheFolder));
+		FileUtils.deleteDirectory(new File(cacheFolder));
+		String inputTrajFile = inputTrajFolder + dataset + ".pickle";
+		
 		// setup each command manually
-//		pythonCmd.add("python " + codeRootFolder + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -i " + inputTrajFolder + " -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "skeleton.py -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "graph_extract.py -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -f " + cacheFolder + " -t " + inputTrajFolder);
-//		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "refine_topology.py -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -o " +
-				"matched_trips_1m_mm1_tr/ -t " + inputTrajFolder + " -f " + cacheFolder);
-		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder + " -d skeleton_maps/skeleton_map_1m_mm1_tr" +
-				".db -t matched_trips_1m_mm1_tr -o skeleton_maps/skeleton_map_1m_mm2.db");
-		pythonCmd.add("python " + codeRootFolder + "streetmap.py -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "src/sacred_trajmap.py with ex_name=trajmap_k data_file=" + inputTrajFile + " " +
+				"minx=" + boundary.minX() + "maxx=" + boundary.maxX() + " miny=" + boundary.minY() + " maxy" + boundary.maxY() + " side=" +
+				side + " k=" + k + "ratio=" + ratio + " percent=" + percent + " width=" + cellWidth + " alpha=" + alpha + " max_value="
+				+ maxValue + " topic_model=" + topicModel);
 		
 		try {
 			runCode(pythonCmd);

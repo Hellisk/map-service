@@ -1,25 +1,24 @@
-import pandas as pd
-import numpy as np
-import time
-import math
+import copy
+import os
 import pickle
 import random
+from collections import defaultdict
+
+import math
 import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+import pandas as pd
 # %matplotlib inline
 import scipy
-from sparsesvd import sparsesvd
 import scipy.sparse
-from collections import defaultdict
-import os
 import sys
-import matplotlib.cm as matcm
+import time
 from itertools import tee, izip
-import networkx as nx
-from matplotlib.patches import Arrow
-import svd
+from sparsesvd import sparsesvd
+
 import plot
 from plsa import plsa
-import copy
 
 
 # from plsa.plsa import pLSA

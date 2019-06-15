@@ -1,15 +1,11 @@
-import os
-import sys
 import logging
+import os
+
+import matplotlib
+import sys
 import time
 
-import numpy as np
-import scipy
-import scipy.sparse
-import matplotlib
-
 matplotlib.use('Agg')
-from matplotlib.patches import Rectangle
 # %matplotlib inline
 from sacred import Experiment
 from sacred.observers import MongoObserver

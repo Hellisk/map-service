@@ -1,6 +1,5 @@
 package algorithm.mapinference.roadrunner;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -14,10 +13,7 @@ import util.object.spatialobject.Trajectory;
 import util.settings.BaseProperty;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Command line entrance for He's RoadRunner map inference algorithm. The original code is written in Python and Golang, we prepare the
@@ -50,9 +46,9 @@ public class RoadRunnerMapInference {
 		
 		// remove the previous cache directory
 		IOService.createFolder(cacheFolder);
-		FileUtils.cleanDirectory(new File(cacheFolder));
-		IOService.createFolder(cacheFolder + "index_folder/");    // create the folder for trajectory index
-		IOService.createFolder(cacheFolder + "output/");    // create the folder for trajectory index
+		IOService.cleanFolder(cacheFolder);
+		IOService.createFolder(cacheFolder + "index_folder/");
+		IOService.cleanFolder(cacheFolder + "index_folder/");
 		
 		writeConfigureFile(cacheFolder, this.mapBoundary, inputTrajFolder);
 		List<String> goCmd = new ArrayList<>();
@@ -159,6 +155,7 @@ public class RoadRunnerMapInference {
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		List<RoadNode> nodeList = new ArrayList<>();
 		List<RoadWay> wayList = new ArrayList<>();
+		Set<String> occurredNodeIDSet = new HashSet<>();
 		// read road ways
 		List<String> nodeLines = IOService.readFile(inputMapFolder + "vertices_RR.txt");
 		Map<String, RoadNode> id2NodeMap = new HashMap<>();
@@ -176,7 +173,7 @@ public class RoadRunnerMapInference {
 		for (String line : wayLines) {
 			String[] lineString = line.split(",");
 			if (lineString[0].equals(lineString[1])) {
-				LOG.warn("The edge connects two same points.");
+				LOG.warn("The edge connects two same points: " + lineString[0]);
 				continue;
 			}
 			if (!id2NodeMap.containsKey(lineString[0]) || !id2NodeMap.containsKey(lineString[1]))
@@ -186,36 +183,42 @@ public class RoadRunnerMapInference {
 			wayNodeList.add(id2NodeMap.get(lineString[1]));
 			RoadWay currWay = new RoadWay(wayCount + "", wayNodeList, distFunc);
 			wayList.add(currWay);
+			occurredNodeIDSet.add(lineString[0]);
+			occurredNodeIDSet.add(lineString[1]);
 			wayCount++;
 		}
 		
 		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, distFunc);
-		resultMap.addNodes(nodeList);
+		for (RoadNode currNode : nodeList) {
+			if (occurredNodeIDSet.contains(currNode.getID())) {
+				resultMap.addNode(currNode);
+			}
+		}
 		resultMap.addWays(wayList);
 		return resultMap;
 	}
 	
 	private void runCode(List<String> goCmd, List<String> pythonCmd) throws Exception {
 		// run go command to build the index
-//		if (goCmd.size() != 2)
-//			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
-//		ProcessBuilder goBuilder;
-//		if (os.equals("Linux")) {
-//			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.iterator().next());
-//		} else {
-//			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.iterator().next());
-//		}
-//		goBuilder.redirectErrorStream(true);
-//		Process goProcess = goBuilder.start();
-//		BufferedReader goReader = new BufferedReader(new InputStreamReader(goProcess.getInputStream()));
-//		String goLine;
-//		while (true) {
-//			goLine = goReader.readLine();
-//			if (goLine == null) {
-//				break;
-//			}
-//			LOG.info(goLine);
-//		}
+		if (goCmd.size() != 2)
+			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
+		ProcessBuilder goBuilder;
+		if (os.equals("Linux")) {
+			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.iterator().next());
+		} else {
+			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.iterator().next());
+		}
+		goBuilder.redirectErrorStream(true);
+		Process goProcess = goBuilder.start();
+		BufferedReader goReader = new BufferedReader(new InputStreamReader(goProcess.getInputStream()));
+		String goLine;
+		while (true) {
+			goLine = goReader.readLine();
+			if (goLine == null) {
+				break;
+			}
+			LOG.info(goLine);
+		}
 		
 		// start the TraceServer
 		if (os.equals("Linux")) {
