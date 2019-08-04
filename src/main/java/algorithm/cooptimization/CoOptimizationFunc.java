@@ -40,8 +40,8 @@ public class CoOptimizationFunc {
 	 * @param id2PrevMatchResult  The previous matching result set
 	 * @param roadMap             The current road map
 	 */
-	void influenceScoreGen(List<TrajectoryMatchResult> currMatchResultList,
-						   Map<String, TrajectoryMatchResult> id2PrevMatchResult, RoadNetworkGraph roadMap) {
+	void influenceScoreGen(List<MultipleTrajectoryMatchResult> currMatchResultList,
+						   Map<String, MultipleTrajectoryMatchResult> id2PrevMatchResult, RoadNetworkGraph roadMap) {
 		// save all new roads into the mapping for road lookup
 		for (RoadWay w : roadMap.getWays()) {
 			if (w.isNewRoad()) {
@@ -57,8 +57,8 @@ public class CoOptimizationFunc {
 		}
 		
 		int changedMatchingCount = 0;
-		for (TrajectoryMatchResult matchResult : currMatchResultList) {
-			TrajectoryMatchResult prevMatchResult = id2PrevMatchResult.get(matchResult.getTrajID());
+		for (MultipleTrajectoryMatchResult matchResult : currMatchResultList) {
+			MultipleTrajectoryMatchResult prevMatchResult = id2PrevMatchResult.get(matchResult.getTrajID());
 			if (probabilitySum(prevMatchResult) != probabilitySum(matchResult)) {     // the matching result changes due to new
 				// road insertion, start the certainty calculation
 				changedMatchingCount++;
@@ -238,7 +238,7 @@ public class CoOptimizationFunc {
 	 * @param currMatchResult The current matching result
 	 * @param certaintyDiff   The total influence to be assigned
 	 */
-	private void influenceScoreDistribution(TrajectoryMatchResult prevMatchResult, TrajectoryMatchResult currMatchResult, double certaintyDiff) {
+	private void influenceScoreDistribution(MultipleTrajectoryMatchResult prevMatchResult, MultipleTrajectoryMatchResult currMatchResult, double certaintyDiff) {
 		Set<String> prevMatchingWaySet = new HashSet<>();
 		for (int i = 0; i < prevMatchResult.getActualMatchCount(); i++)
 			prevMatchingWaySet.addAll(prevMatchResult.getCompleteMatchRouteAtRank(i).getRoadIDList());
@@ -280,7 +280,7 @@ public class CoOptimizationFunc {
 		}
 	}
 	
-	public Triplet<RoadNetworkGraph, List<Trajectory>, Double> percentageBasedCostCalc(Pair<List<TrajectoryMatchResult>,
+	public Triplet<RoadNetworkGraph, List<Trajectory>, Double> percentageBasedCostCalc(Pair<List<MultipleTrajectoryMatchResult>,
 			List<Triplet<Trajectory, String, String>>> matchResultTriplet, List<RoadWay> gtRemovedRoadWayList, RoadNetworkGraph currMap,
 																					   double scoreThreshold, double lastCost) {
 		DecimalFormat df = new DecimalFormat("0.000");
@@ -455,7 +455,7 @@ public class CoOptimizationFunc {
 		return new Triplet<>(currMap, rematchTrajectoryList, totalBenefit);
 	}
 	
-	Triplet<RoadNetworkGraph, List<Trajectory>, Double> combinedScoreCostCalc(Pair<List<TrajectoryMatchResult>,
+	Triplet<RoadNetworkGraph, List<Trajectory>, Double> combinedScoreCostCalc(Pair<List<MultipleTrajectoryMatchResult>,
 			List<Triplet<Trajectory, String, String>>> matchResultTriplet, List<RoadWay> gtRemovedRoadWayList, RoadNetworkGraph currMap
 			, double scoreThreshold, double lambda, double lastCost) {
 		DecimalFormat df = new DecimalFormat("0.000");
@@ -640,9 +640,9 @@ public class CoOptimizationFunc {
 		return new Triplet<>(currMap, removedRoadIDSet, totalBenefit);
 	}
 	
-	private void rematchCheck(Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchResultTriplet,
+	private void rematchCheck(Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchResultTriplet,
 							  Set<String> removedRoadIDSet, List<Trajectory> rematchTrajectoryList) {
-		for (TrajectoryMatchResult matchResult : matchResultTriplet._1()) {
+		for (MultipleTrajectoryMatchResult matchResult : matchResultTriplet._1()) {
 			boolean isRematchRequired = false;
 			for (int i = 0; i < matchResult.getActualMatchCount(); i++) {
 				for (String s : matchResult.getCompleteMatchRouteAtRank(i).getRoadIDList()) {
@@ -763,7 +763,7 @@ public class CoOptimizationFunc {
 	 * @param matchResult The top-k matching result of the given trajectory
 	 * @return The certainty value
 	 */
-	private double certaintyCalc(TrajectoryMatchResult matchResult) {
+	private double certaintyCalc(MultipleTrajectoryMatchResult matchResult) {
 		double probabilitySum = 0;
 		double firstNormalizedProbability = Math.pow(matchResult.getProbabilityAtRank(0), 1.0 / matchResult.getTrajSize());
 		for (int i = 1; i < matchResult.getActualMatchCount(); i++) {
@@ -779,7 +779,7 @@ public class CoOptimizationFunc {
 	 * @param matchResult The top-k matching result of the given trajectory
 	 * @return The summary of probabilities
 	 */
-	private double probabilitySum(TrajectoryMatchResult matchResult) {
+	private double probabilitySum(MultipleTrajectoryMatchResult matchResult) {
 		double probSum = 0;
 		for (int i = 0; i < matchResult.getActualMatchCount(); i++) {
 			probSum += matchResult.getProbabilityAtRank(i);

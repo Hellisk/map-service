@@ -1,4 +1,3 @@
-import inspect
 import json
 import pickle
 import random
@@ -22,10 +21,10 @@ isDebugOn = True
 
 def debug_print(*args):
     isDebugOn
-    if isDebugOn:
-        # print(*args)
+    # if isDebugOn:
+    #     print(*args)
 
-        print("DEBUG Line: " + str(inspect.currentframe().f_back.f_lineno) + " " + " ".join(map(str, args)))
+    # print("DEBUG Line: " + str(inspect.currentframe().f_back.f_lineno) + " " + " ".join(map(str, args)))
 
 
 def DirectionClustering(direction_list, tolerance=4, m=72):
@@ -819,7 +818,7 @@ class RoadTree:
             if counter > 10:
                 break
 
-        print("--- Gaussian Blur Iteration ", counter + 1, d_peak, peaks)
+        # print("--- Gaussian Blur Iteration ", counter + 1, d_peak, peaks)
 
     def addGaussianBlurNonCircular(self, nodeID, itemname='rawScore'):
         n = len(self.nodes[nodeID][itemname])

@@ -2,7 +2,7 @@ package util.io;
 
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
-import util.object.structure.TrajectoryMatchResult;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.settings.BaseProperty;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public interface MapMatchingReader {
 	
 	List<Trajectory> getTrajectoryList();
 	
-	List<TrajectoryMatchResult> getGroundTruthMatchResult();
+	List<MultipleTrajectoryMatchResult> getGroundTruthMatchResult();
 	
 	RoadNetworkGraph getMap();
 }

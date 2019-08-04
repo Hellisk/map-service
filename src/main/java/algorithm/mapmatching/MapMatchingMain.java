@@ -3,16 +3,15 @@ package algorithm.mapmatching;
 import algorithm.mapmatching.hmm.HMMMapMatching;
 import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
 import org.apache.log4j.Logger;
+import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
-import util.io.GlobalMapLoader;
-import util.io.GlobalTrajectoryLoader;
-import util.io.MatchResultReader;
-import util.io.MatchResultWriter;
+import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.object.structure.MatchResultWithUnmatchedTraj;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
-import util.object.structure.TrajectoryMatchResult;
 import util.settings.MapMatchingProperty;
 import util.settings.MapServiceLogger;
 
@@ -20,6 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Entry for running map-matching algorithms and evaluation.
@@ -29,7 +31,7 @@ import java.util.List;
  */
 public class MapMatchingMain {
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
 		
 		// initialize arguments
 		MapMatchingProperty property = new MapMatchingProperty();
@@ -39,19 +41,26 @@ public class MapMatchingMain {
 		// setup java log
 		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
-		String rawDataFolder = property.getPropertyString("path.RawDataFolder");
+		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
+		String inputMapFolder = property.getPropertyString("path.InputMapFolder");
 		String outputMatchResultFolder = property.getPropertyString("path.OutputMatchResultFolder");
+		String groundTruthRouteMatchResultFolder = property.getPropertyString("path.GroundTruthRouteMatchResultFolder");
+		String groundTruthPointMatchResultFolder = property.getPropertyString("path.GroundTruthPointMatchResultFolder");
+		String matchingMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
+		String dataSpec = property.getPropertyString("data.DataSpec");
+		DistanceFunction distFunc;
 		String logFileName = "";
-		if (dataSet.equals("Global")) {
-			// log file name
-			logFileName = dataSet + "_" + property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
-					+ property.getPropertyString("algorithm.mapmatching.hmm.Sigma") + "_"
-					+ property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_" + initTaskTime;
-		} else if (dataSet.equals("Beijing")) {
-			logFileName = dataSet + "_" + property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
-					+ property.getPropertyString("algorithm.mapmatching.hmm.Sigma") + "_"
-					+ property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_"
-					+ property.getPropertyString("algorithm.mapmatching.hmm.RankLength") + "_" + initTaskTime;
+		// log file name
+		switch (matchingMethod) {
+			case "HMM":
+				logFileName = "matching_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_"
+						+ property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
+						+ property.getPropertyString("algorithm.mapmatching.hmm.Sigma") + "_"
+						+ property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_" + initTaskTime;
+				break;
+			default:
+				logFileName = "matching_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" + initTaskTime;
+				break;
 		}
 		// initialize log file
 		MapServiceLogger.logInit(logFolder, logFileName);
@@ -62,9 +71,10 @@ public class MapMatchingMain {
 		
 		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 		// map-matching process
-		List<TrajectoryMatchResult> results = new ArrayList<>();
+		List<MultipleTrajectoryMatchResult> results = new ArrayList<>();
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = new ArrayList<>();
 		if (dataSet.equals("Global")) {
+			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
 			GlobalMapLoader mapReader = new GlobalMapLoader(rawDataFolder);
 			int trajPointCount = 0;
@@ -82,7 +92,7 @@ public class MapMatchingMain {
 				trajPointCount += currTraj.size();
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
 				HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
-				TrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
+				MultipleTrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
 				results.add(matchResult);
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");
@@ -98,8 +108,24 @@ public class MapMatchingMain {
 			// evaluation only
 			precisionRecallMatchingEvaluation.globalPrecisionRecallMapMatchingEval(results, gtRouteMatchResult, rawDataFolder);
 			System.out.println("Total number of trajectory points is " + trajPointCount);
-		} else if (dataSet.equals("Beijing")) {
-		
+		} else {
+			distFunc = new GreatCircleDistanceFunction();
+			RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
+			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
+			HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
+			Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
+			List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
+			List<Pair<Integer, List<String>>> routeMatchResult = new ArrayList<>();
+			for (MatchResultWithUnmatchedTraj currPair : currCombinedMatchResultList) {
+				results.add(currPair.getMatchResult());
+				routeMatchResult.add(new Pair<>(Integer.parseInt(currPair.getTrajID()),
+						currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList()));
+			}
+			MatchResultWriter.writeRouteMatchResults(routeMatchResult, outputMatchResultFolder);
+			LOG.info("Matching complete.");
+			
+			gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
+			precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(results, gtRouteMatchResult, roadMap, null);
 		}
 	}
 }

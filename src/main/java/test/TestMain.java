@@ -1,7 +1,9 @@
 package test;
 
 import util.dijkstra.MinPriorityQueue;
+import util.function.GreatCircleDistanceFunction;
 import util.function.SpatialUtils;
+import util.object.spatialobject.Point;
 import util.object.structure.InverselyComparableObject;
 import util.object.structure.Pair;
 
@@ -12,7 +14,8 @@ import java.util.Random;
 public class TestMain {
 	public static void main(String[] args) {
 //		minPriorityQueueTest();
-		converterTest();
+//		converterTest();
+		testProjection();
 	}
 	
 	private static void converterTest() {
@@ -82,5 +85,13 @@ public class TestMain {
 		System.out.println(minHeap.extractMin());
 		System.out.println(minHeap.extractMin());
 		System.out.println(minHeap.extractMin());
+	}
+	
+	private static void testProjection() {
+		GreatCircleDistanceFunction df = new GreatCircleDistanceFunction();
+		Point res1 = df.getProjection(116.411, 39.97, 116.4, 39.98, 116.433, 39.95);
+		Point res2 = df.getProjection2(116.411, 39.97, 116.4, 39.98, 116.433, 39.95);
+		System.out.println(res1.toString());
+		System.out.println(res2.toString());
 	}
 }

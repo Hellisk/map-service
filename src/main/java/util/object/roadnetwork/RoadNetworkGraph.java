@@ -22,9 +22,9 @@ public class RoadNetworkGraph implements Serializable {
 	 * OSM primitives
 	 */
 	private List<RoadNode> nodeList = new ArrayList<>();
-	private Set<String> nodeIDList = new HashSet<>();
+	private Map<String, RoadNode> id2NodeMap = new HashMap<>();
 	private List<RoadWay> wayList = new ArrayList<>();
-	private Set<String> wayIDList = new HashSet<>();
+	private Map<String, RoadWay> id2WayMap = new HashMap<>();
 	/**
 	 * Map boundaries
 	 */
@@ -72,7 +72,7 @@ public class RoadNetworkGraph implements Serializable {
 	 * @param newNodeList The road node list representing the intersections or road ends.
 	 */
 	public void setNodes(List<RoadNode> newNodeList) {
-		if (!this.wayList.isEmpty() || !this.wayIDList.isEmpty())
+		if (!this.wayList.isEmpty() || !this.id2WayMap.isEmpty())
 			throw new IllegalCallerException("The setNodes() should not be called when there were road ways in the map.");
 		this.clear();
 		this.addNodes(newNodeList);
@@ -83,9 +83,9 @@ public class RoadNetworkGraph implements Serializable {
 	 */
 	private void clear() {
 		this.nodeList.clear();
-		this.nodeIDList.clear();
+		this.id2NodeMap.clear();
 		this.wayList.clear();
-		this.wayIDList.clear();
+		this.id2WayMap.clear();
 		this.maxAbsWayID = 0;
 		this.maxRoadNodeID = 0;
 		this.maxMiniNodeID = 0;
@@ -104,10 +104,10 @@ public class RoadNetworkGraph implements Serializable {
 	 */
 	public void addNode(RoadNode node) {
 		if (node != null) {
-			if (!nodeIDList.contains(node.getID()) || node.getID().equals("")) {
+			if (!id2NodeMap.containsKey(node.getID()) || node.getID().equals("")) {
 				node.clearConnectedWays();
 				nodeList.add(node);
-				nodeIDList.add(node.getID());
+				id2NodeMap.put(node.getID(), node);
 				updateBoundary(node);
 				if (isUpdatable) {
 					if (Long.parseLong(node.getID()) > maxRoadNodeID)
@@ -118,13 +118,13 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	public void removeNode(RoadNode node) {
-		if (!this.nodeIDList.contains(node.getID()))
+		if (!this.id2NodeMap.containsKey(node.getID()))
 			throw new IllegalArgumentException("The node " + node.getID() + " is not an intersection in the map.");
 		if (node.getDegree() != 0)
 			throw new IllegalArgumentException("The node to be removed is connected by some edges.");
 		if (!this.nodeList.remove(node))
 			throw new IllegalArgumentException("The node " + node.getID() + " is in the dictionary but not in the item list.");
-		this.nodeIDList.remove(node.getID());
+		this.id2NodeMap.remove(node.getID());
 	}
 	
 	/**
@@ -137,10 +137,10 @@ public class RoadNetworkGraph implements Serializable {
 			throw new NullPointerException("List of road nodes to add must not be null.");
 		}
 		for (RoadNode node : nodes) {
-			if (!nodeIDList.contains(node.getID())) {
+			if (!id2NodeMap.containsKey(node.getID())) {
 				node.clearConnectedWays();
 				nodeList.add(node);
-				nodeIDList.add(node.getID());
+				id2NodeMap.put(node.getID(), node);
 				if (isUpdatable) {
 					if (Long.parseLong(node.getID()) > maxRoadNodeID)
 						maxRoadNodeID = Long.parseLong(node.getID());
@@ -188,7 +188,7 @@ public class RoadNetworkGraph implements Serializable {
 		List<RoadNode> pointList = new ArrayList<>(this.getNodes());
 		for (RoadWay w : this.getWays()) {
 			for (RoadNode n : w.getNodes())
-				if (!this.nodeIDList.contains(n.getID()))
+				if (!this.id2NodeMap.containsKey(n.getID()))
 					pointList.add(n);
 		}
 		return pointList;
@@ -234,13 +234,13 @@ public class RoadNetworkGraph implements Serializable {
 	 * @param way The road way to add.
 	 */
 	public void addWay(RoadWay way) {
-		if (way != null) {
-			if (!wayIDList.contains(way.getID())) {
-				if (!nodeIDList.contains(way.getFromNode().getID()) || !nodeIDList.contains(way.getToNode().getID()))
+		if (way != null && way.getNodes().size() > 1) {
+			if (!id2WayMap.containsKey(way.getID())) {
+				if (!id2NodeMap.containsKey(way.getFromNode().getID()) || !id2NodeMap.containsKey(way.getToNode().getID()))
 					throw new IllegalArgumentException("The endpoints of the inserted road way do not exist in the current map: "
 							+ way.getFromNode().getID() + "," + way.getToNode().getID());
 				wayList.add(way);
-				wayIDList.add(way.getID());
+				id2WayMap.put(way.getID(), way);
 				way.getFromNode().addOutGoingWay(way);
 				way.getToNode().addInComingWay(way);
 				if (!isDirectedMap) {    // for undirected map, the road should be both incoming and outgoing adjacent road.
@@ -253,11 +253,9 @@ public class RoadNetworkGraph implements Serializable {
 					updateBoundary(n);
 				if (isUpdatable) {
 					if (!way.getID().contains("temp_")) {
-						maxAbsWayID = Math.abs(Long.parseLong(way.getID())) > maxAbsWayID ? Math.abs(Long.parseLong(way.getID())) :
-								maxAbsWayID;
+						maxAbsWayID = Math.max(Math.abs(Long.parseLong(way.getID())), maxAbsWayID);
 						for (RoadNode n : way.getNodes()) {
-							maxMiniNodeID = Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) > maxMiniNodeID ?
-									Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
+							maxMiniNodeID = Math.max(Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)), maxMiniNodeID);
 						}
 					} else    // temporary road way
 						LOG.error("Temporary edges should not be included in the road map.");
@@ -386,8 +384,8 @@ public class RoadNetworkGraph implements Serializable {
 	public void removeRoadWayList(Collection<RoadWay> roadWayList) {
 		List<RoadWay> removedWayList = new ArrayList<>();
 		for (RoadWay way : roadWayList) {
-			if (wayIDList.contains(way.getID())) {
-				wayIDList.remove(way.getID());
+			if (id2WayMap.containsKey(way.getID())) {
+				id2WayMap.remove(way.getID());
 				way.getFromNode().removeInComingWayFromList(way);
 				way.getToNode().removeOutGoingWayFromList(way);
 				if (!isDirectedMap()) {
@@ -408,7 +406,7 @@ public class RoadNetworkGraph implements Serializable {
 			if (n.getDegree() == 0) {
 				LOG.debug("Removed node ID: " + n.getID());
 				iterator.remove();
-				this.nodeIDList.remove(n.getID());
+				this.id2NodeMap.remove(n.getID());
 			}
 		}
 		return nodeSize - this.nodeList.size();
@@ -423,11 +421,23 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	public boolean containsWay(String id) {
-		return this.wayIDList.contains(id);
+		return this.id2WayMap.containsKey(id);
+	}
+	
+	public RoadWay getWayByID(String id) {
+		if (!containsWay(id))
+			throw new IllegalArgumentException("The requested road way ID " + id + " is not in the map.");
+		return id2WayMap.get(id);
 	}
 	
 	public boolean containsNode(String id) {
-		return this.nodeIDList.contains(id);
+		return this.id2NodeMap.containsKey(id);
+	}
+	
+	public RoadNode getNodeByID(String id) {
+		if (!containsNode(id))
+			throw new IllegalArgumentException("The requested road node ID " + id + " is not in the map.");
+		return id2NodeMap.get(id);
 	}
 	
 	public void updateMaxVisitCount(int visitCount) {
@@ -454,10 +464,9 @@ public class RoadNetworkGraph implements Serializable {
 					maxRoadNodeID = Long.parseLong(n.getID());
 			}
 			for (RoadWay w : wayList) {
-				maxAbsWayID = Math.abs(Long.parseLong(w.getID())) > maxAbsWayID ? Math.abs(Long.parseLong(w.getID())) : maxAbsWayID;
+				maxAbsWayID = Math.max(Math.abs(Long.parseLong(w.getID())), maxAbsWayID);
 				for (RoadNode n : w.getNodes()) {
-					maxMiniNodeID = Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) > maxMiniNodeID ?
-							Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)) : maxMiniNodeID;
+					maxMiniNodeID = Math.max(Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)), maxMiniNodeID);
 				}
 			}
 		} else if (this.isUpdatable && !updatable) {    // disable the map update
@@ -519,7 +528,7 @@ public class RoadNetworkGraph implements Serializable {
 					LOG.error("Multiple roads have the same endpoints: " + endPointPosition);
 				} else {
 					wayEndPointPositionSet.add(endPointPosition);
-					maxVisitCount = maxVisitCount < w.getVisitCount() ? w.getVisitCount() : maxVisitCount;
+					maxVisitCount = Math.max(maxVisitCount, w.getVisitCount());
 					remainingWayList.add(w);
 				}
 			} else
@@ -534,7 +543,7 @@ public class RoadNetworkGraph implements Serializable {
 					w.getFromNode().lon() + "_" + w.getFromNode().lat() + "," + w.getToNode().lon() + "_" + w.getToNode().lat();
 			if (!wayEndPointPositionSet.contains(endPointPosition) && !wayEndPointPositionSet.contains(reverseEndPointPosition)) {
 				LOG.error("Reverse road of " + w.getID() + " does not appear in the map.");
-				if (tempMap.wayIDList.contains(w.getID().substring(1))) {
+				if (tempMap.id2WayMap.containsKey(w.getID().substring(1))) {
 					LOG.error("More interestingly, " + w.getID() + " has reverse road but is not included in the new map.");
 				} else {
 					w.setId(w.getID().substring(1));
@@ -759,7 +768,7 @@ public class RoadNetworkGraph implements Serializable {
 		for (RoadNode node : removeNodeList) {
 			cloneMap.removeNode(node);
 		}
-		LOG.info("Finish simple map coversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes().size() + " nodes.");
+		LOG.info("Finish simple map conversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes().size() + " nodes.");
 		return cloneMap;
 	}
 }

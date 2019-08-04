@@ -51,6 +51,9 @@ public class MapMatchingProperty extends BaseProperty {
 						case "ms":
 							super.setProperty("algorithm.mapmatching.hmm.Sigma", arg.substring(3));
 							break;
+						case "mm":
+							super.setProperty("algorithm.mapmatching.MatchingMethod", arg.substring(3));
+							break;
 						default:
 							throw new IllegalArgumentException("Invalid argument: " + arg);
 					}
@@ -66,16 +69,10 @@ public class MapMatchingProperty extends BaseProperty {
 		String rootPath = super.getPropertyString("data.RootPath");
 		switch (os) {
 			case "Win":     // performed on either school or home computer
-				if (dataset.contains("Global"))
-					rootPath += dataset + "/";
-				else
-					throw new IllegalArgumentException("Wrong property value: data.Dataset=" + dataset);
+				rootPath += dataset + "/";
 				break;
 			case "Linux":   // performed on server
-				if (dataset.contains("Global"))
-					rootPath = "/home/uqpchao/data/" + dataset + "/";
-				else
-					throw new IllegalArgumentException("Wrong property value: data.Dataset=" + dataset);
+				rootPath += dataset + "/";
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong property value: OS=" + os);
@@ -97,11 +94,16 @@ public class MapMatchingProperty extends BaseProperty {
 			dataSpec = "";
 		}
 		// different paths in Beijing dataset
-		super.setProperty("path.RawDataFolder", rootPath + "raw/");
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
+		if (dataset.contains("Beijing")) {
+			super.setProperty("path.RawDataFolder", super.getPropertyString("data.RootPath") + "Beijing/raw/");
+		} else
+			super.setProperty("path.RawDataFolder", rootPath + "raw/");        // apply to Global data only
+		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");    // doesn't work for Global,
+		// use raw data directly
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
 		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec + "/");
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
 		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
 		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
 		super.setProperty("data.DataSpec", dataSpec);

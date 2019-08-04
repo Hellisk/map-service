@@ -107,7 +107,7 @@ def train(td,
         for w, d in zip(*td.nonzero()):
             # E-step
             p_z_d_w = p_z_old * p_d_z_old[d, :] * p_w_z_old[w, :]
-            print p_z_d_w
+            # print p_z_d_w
             sys.stdout.flush()
             normalize(p_z_d_w, out=p_z_d_w)
 

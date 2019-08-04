@@ -82,7 +82,7 @@ public class CoOptimizationProperty extends BaseProperty {
 				break;
 			case "Linux":   // performed on server
 				if (dataset.contains("Beijing"))
-					rootPath = "/home/uqpchao/data/" + dataset + "/";
+					rootPath += dataset + "/";
 				else
 					throw new IllegalArgumentException("Wrong property value: data.Dataset=" + dataset);
 				break;
@@ -99,17 +99,19 @@ public class CoOptimizationProperty extends BaseProperty {
 		// folder name for different data specification
 		String dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
 				+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
-				+ "_N" + super.getPropertyString("data.NumberOfTrajectory") + "/";
+				+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
 		
 		// different paths in Beijing dataset
 		super.setProperty("path.RawDataFolder", rootPath + "raw/");
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec);
+		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
 		super.setProperty("path.OutputMapFolder", rootPath + "output/map/");
-		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec);
+		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec + "/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec);
-		super.setProperty("path.GroundTruthManualMatchResultFolder", rootPath + "groundTruth/matchResultM/" + dataSpec);
+		super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthManualRouteMatchResultFolder", rootPath + "groundTruth/matchResultM/route/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthManualMatchResultFolder", rootPath + "groundTruth/matchResultM/point/" + dataSpec + "/");
 		super.setProperty("algorithm.cooptimization.path.CacheFolder", rootPath + "update/cache/");
 		super.setProperty("algorithm.cooptimization.log.LogFolder", rootPath + "update/log/");
 	}

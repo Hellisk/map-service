@@ -6,7 +6,7 @@ import socket
 from multiprocessing.pool import Pool
 
 import bintrees
-import cv
+# import cv
 import geojson
 import math
 import numpy as np

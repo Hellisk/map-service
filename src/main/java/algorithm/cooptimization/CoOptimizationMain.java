@@ -11,8 +11,8 @@ import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Trajectory;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
-import util.object.structure.TrajectoryMatchResult;
 import util.settings.CoOptimizationProperty;
 import util.settings.MapServiceLogger;
 
@@ -50,12 +50,12 @@ public class CoOptimizationMain {
 		boolean isManualGTRequired = property.getPropertyBoolean("data.IsManualGTRequired");
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
 		String inputMapFolder = property.getPropertyString("path.InputMapFolder");
-		String gtMatchResultFolder;
+		String gtRouteMatchResultFolder;
 		
 		if (isManualGTRequired)
-			gtMatchResultFolder = property.getPropertyString("path.GroundTruthManualMatchResultFolder");
+			gtRouteMatchResultFolder = property.getPropertyString("path.GroundTruthManualRouteMatchResultFolder");
 		else
-			gtMatchResultFolder = property.getPropertyString("path.GroundTruthMatchResultFolder");
+			gtRouteMatchResultFolder = property.getPropertyString("path.GroundTruthRouteMatchResultFolder");
 		
 		// read input partial map
 		int percentage = property.getPropertyInteger("algorithm.cooptimization.data.RoadRemovalPercentage");
@@ -71,11 +71,11 @@ public class CoOptimizationMain {
 		Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distanceFunction);
 //		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distanceFunction);
 		
-		Pair<RoadNetworkGraph, List<TrajectoryMatchResult>> coOptimizationResult = CoOptimization.coOptimisationProcess(trajectoryStream,
+		Pair<RoadNetworkGraph, List<MultipleTrajectoryMatchResult>> coOptimizationResult = CoOptimization.coOptimisationProcess(trajectoryStream,
 				initialMap, removedWayList, property);
 		
 		// evaluation: map matching evaluation
-		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
+		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
 		precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(coOptimizationResult._2(), gtRouteMatchResult, initialMap, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");

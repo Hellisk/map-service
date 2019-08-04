@@ -60,7 +60,7 @@ public class PreprocessingProperty extends BaseProperty {
 				rootPath += dataset + "/";
 				break;
 			case "Linux":   // performed on server
-				rootPath = "/home/uqpchao/data/" + dataset + "/";
+				rootPath += dataset + "/";
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong property value: OS=" + os);
@@ -85,7 +85,8 @@ public class PreprocessingProperty extends BaseProperty {
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
 		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
-		super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
 		super.setProperty("algorithm.preprocessing.log.LogFolder", rootPath + "preprocessing/log/");
 		super.setProperty("data.DataSpec", dataSpec);
 	}

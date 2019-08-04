@@ -41,7 +41,7 @@ public class GraphSamplingMapEvaluation {
 	public static String precisionRecallGraphSamplingMapEval(RoadNetworkGraph outputMap, RoadNetworkGraph gtMap, double hopDist,
 															 double radius, double matchDist, int numOfRoots) {
 		
-		int maxRootDist = 5;    // the maximum allowable distance between the root points in ground-truth and output maps.
+		int maxRootDist = 100;    // the maximum allowable distance between the root points in ground-truth and output maps.
 		if (outputMap.getDistanceFunction().getClass() != gtMap.getDistanceFunction().getClass())
 			throw new IllegalArgumentException("Input map and ground-truth map has different coordinate system.");
 		
@@ -198,19 +198,25 @@ public class GraphSamplingMapEvaluation {
 				continue;
 			}
 			List<Point> currMarbleSampleList = mapTraverse(outputMap, currOutputRoot, outputRootWay, hopDist, radius);
+			Set<Point> currHoleSampleSet = new HashSet<>(currHoleSampleList);
 			totalOutputSampleCount += currMarbleSampleList.size();
 			totalGTSampleCount += currHoleSampleList.size();
 			// find the matched marbles
 			for (Point marble : currMarbleSampleList) {
 				boolean isMatched = false;
+				double distance = matchDist;
+				Point candidateHole = null;
 				for (Point hole : currHoleSampleList) {
-					if (distFunc.distance(marble, hole) < matchDist) {
+					if (distFunc.distance(marble, hole) < distance && currHoleSampleSet.contains(hole)) {
 						isMatched = true;
-						break;
+						candidateHole = hole;
+						distance = distFunc.distance(marble, hole);
 					}
 				}
-				if (isMatched)
+				if (isMatched) {
 					totalMatchedMarbleHoleCount++;
+					currHoleSampleSet.remove(candidateHole);
+				}
 			}
 			System.out.println(rootCount + " seeds processed. Total seed required: " + numOfRoots);
 		}

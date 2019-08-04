@@ -131,6 +131,20 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		return new Point(ppx, ppy, this);
 	}
 	
+	public Point getProjection2(double x, double y, double sx1, double sy1, double sx2, double sy2) {
+		
+		double dx = sx1 - sx2;
+		double dy = sy1 - sy2;
+		
+		double u = (x - sx1) * dx + (y - sy1) * dy;
+		u /= dx * dx + dy * dy;
+		
+		double ppx = sx1 + u * dx;
+		double ppy = sy1 + u * dy;
+		
+		return new Point(ppx, ppy, this);
+	}
+	
 	@Override
 	public Point getClosestPoint(double x, double y, double sx1, double sy1, double sx2, double sy2) {
 		

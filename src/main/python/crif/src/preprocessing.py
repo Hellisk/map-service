@@ -111,7 +111,7 @@ def trim(d, MAX_SPEED=60, MIN_SPEED=0.01, minutes=5):
     d.index = range(len(d))
     drop_idx = over_speed(d, MAX_SPEED) + under_speed(d, MIN_SPEED)
     while len(drop_idx) != 0 and len(d) > 2:
-        print '\tDrop:', len(drop_idx), 'D:', len(d)
+        # print '\tDrop:', len(drop_idx), 'D:', len(d)
         d = d.drop(drop_idx)
         d = split(d, minutes)
         d.index = range(len(d))

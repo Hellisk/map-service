@@ -9,9 +9,12 @@ import util.object.spatialobject.*;
 import util.object.structure.Pair;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static util.index.SpatialDataStructure.LOG;
 
 /**
  * Implementation of miscellaneous utilities functions.
@@ -78,7 +81,7 @@ public class SpatialUtils implements Serializable {
 				maxY = p.y();
 		}
 		if (minX == maxX && minY == maxY)
-			throw new IllegalArgumentException("The bounding box for point list: " + pointList.toString() + " is a point: " + minX + "," + maxY);
+			LOG.warn("The bounding box for point list: " + pointList.toString() + " is a point: " + minX + "," + maxY);
 		return new Rect(minX, minY, maxX, maxY, df);
 	}
 	
@@ -361,13 +364,14 @@ public class SpatialUtils implements Serializable {
 	 * @return The output longitude and latitude, Pair(lon,lat)
 	 */
 	public static Pair<Double, Double> convertGCJ2WGS(double lon, double lat) {
+		DecimalFormat decFor = new DecimalFormat(".00000");
 		// the GCJ-02 is only used in China region
 		if (outOfChina(lon, lat)) {
 			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
 			return new Pair<>(lon, lat);
 		}
 		double[] delta = delta(lon, lat);
-		return new Pair<>(lon - delta[0], lat - delta[1]);
+		return new Pair<>(Double.parseDouble(decFor.format(lon - delta[0])), Double.parseDouble(decFor.format(lat - delta[1])));
 	}
 	
 	/**
@@ -378,13 +382,14 @@ public class SpatialUtils implements Serializable {
 	 * @return The output longitude and latitude, Pair(lon,lat).
 	 */
 	public static Pair<Double, Double> convertWGS2GCJ(double lon, double lat) {
+		DecimalFormat decFor = new DecimalFormat(".00000");
 		// the GCJ-02 is only used in China region
 		if (outOfChina(lon, lat)) {
 			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
 			return new Pair<>(lon, lat);
 		}
 		double[] delta = delta(lon, lat);
-		return new Pair<>(lon + delta[0], lat + delta[1]);
+		return new Pair<>(Double.parseDouble(decFor.format(lon + delta[0])), Double.parseDouble(decFor.format(lat + delta[1])));
 	}
 	
 	/**
@@ -395,6 +400,7 @@ public class SpatialUtils implements Serializable {
 	 * @return The projected point, Pair(x,y).
 	 */
 	public static Pair<Double, Double> convertWGS2UTM(double lon, double lat) {
+		
 		Pair<Integer, Character> zoneInfo = findUTMZone(lon, lat);
 		return convertWGS2UTM(lon, lat, zoneInfo._1(), zoneInfo._2());
 	}
@@ -407,6 +413,7 @@ public class SpatialUtils implements Serializable {
 	 * @return The output longitude and latitude, Pair(lon,lat)
 	 */
 	public static Pair<Double, Double> convertGCJ2UTM(double lon, double lat) {
+		DecimalFormat decFor = new DecimalFormat(".00");
 		// the GCJ-02 is only used in China region
 		if (outOfChina(lon, lat)) {
 			System.out.println("The current point is not inside China: (" + lon + "," + lat + ")");
@@ -414,7 +421,7 @@ public class SpatialUtils implements Serializable {
 		}
 		Pair<Double, Double> wgsPoint = convertGCJ2WGS(lon, lat);
 		Pair<Double, Double> utmPoint = convertWGS2UTM(wgsPoint._1(), wgsPoint._2());
-		return new Pair<>(utmPoint._1(), utmPoint._2());
+		return new Pair<>(Double.parseDouble(decFor.format(utmPoint._1())), Double.parseDouble(decFor.format(utmPoint._2())));
 	}
 	
 	/**
@@ -482,6 +489,7 @@ public class SpatialUtils implements Serializable {
 	 * @return The Mercator coordinates.
 	 */
 	public static Pair<Double, Double> convertWGS2UTM(double lon, double lat, int zone, char letter) {
+		DecimalFormat decFor = new DecimalFormat(".00");
 		double x;
 		double y;
 		x = 0.5 * Math.log((1 + Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180 - (6 * zone - 183) * Math.PI / 180)) / (1 - Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180 - (6 * zone - 183) * Math.PI / 180))) * 0.9996 * 6399593.62 / Math.pow((1 + Math.pow(0.0820944379, 2) * Math.pow(Math.cos(lat * Math.PI / 180), 2)), 0.5) * (1 + Math.pow(0.0820944379, 2) / 2 * Math.pow((0.5 * Math.log((1 + Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180 - (6 * zone - 183) * Math.PI / 180)) / (1 - Math.cos(lat * Math.PI / 180) * Math.sin(lon * Math.PI / 180 - (6 * zone - 183) * Math.PI / 180)))), 2) * Math.pow(Math.cos(lat * Math.PI / 180), 2) / 3) + 500000;
@@ -490,7 +498,7 @@ public class SpatialUtils implements Serializable {
 		if (letter < 'M')
 			y = y + 10000000;
 		y = Math.round(y * 100) * 0.01;
-		return new Pair<>(x, y);
+		return new Pair<>(Double.parseDouble(decFor.format(x)), Double.parseDouble(decFor.format(y)));
 	}
 	
 	/**
@@ -503,6 +511,7 @@ public class SpatialUtils implements Serializable {
 	 * @return The WGS84 coordinates.
 	 */
 	public static Pair<Double, Double> convertUTM2WGS(double x, double y, int zone, char letter) {
+		DecimalFormat decFor = new DecimalFormat(".00000");
 		double lon;
 		double lat;
 		double Hem;
@@ -588,7 +597,7 @@ public class SpatialUtils implements Serializable {
 				/ 2 * Math.pow(Math.cos(north / 6366197.724 / 0.9996), 2)) + north / 6366197.724 / 0.9996)) - north / 6366197.724 / 0.9996)) * 180 / Math.PI;
 		lat = Math.round(lat * 10000000);
 		lat = lat / 10000000;
-		return new Pair<>(lon, lat);
+		return new Pair<>(Double.parseDouble(decFor.format(lon)), Double.parseDouble(decFor.format(lat)));
 	}
 	
 	/**

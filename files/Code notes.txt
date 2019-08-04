@@ -16,7 +16,7 @@ IO:
     output map: $DATASET/output/map/
     output matching result: $DATASET/output/matchResult/L?_I?_N?/
     ground-truth map: $DATASET/groundTruth/map/
-    ground-truth matching result: $DATASET/groundTruth/matchResult/L?_I?_N?/
+    ground-truth matching result: $DATASET/groundTruth/matchResult/(route/point)/L?_I?_N?/
     ground-truth manual matching result: $DATASET/groundTruth/matchResultM/L?_I?_N?/
     log: $DATASET/(matching/inference/update/preprocess)/log/
     intermediate result: $DATASET/(matching/inference/update/preprocess)/cache/

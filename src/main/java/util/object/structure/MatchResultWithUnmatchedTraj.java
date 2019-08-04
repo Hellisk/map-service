@@ -11,10 +11,10 @@ import java.util.List;
 
 public class MatchResultWithUnmatchedTraj implements Serializable {
 	
-	private TrajectoryMatchResult matchResult;
+	private MultipleTrajectoryMatchResult matchResult;
     private List<Triplet<Trajectory, String, String>> unmatchedTrajectoryList;
 	
-	public MatchResultWithUnmatchedTraj(TrajectoryMatchResult matchResult, List<Triplet<Trajectory, String, String>> unmatchedTrajectoryList) {
+	public MatchResultWithUnmatchedTraj(MultipleTrajectoryMatchResult matchResult, List<Triplet<Trajectory, String, String>> unmatchedTrajectoryList) {
 		this.matchResult = matchResult;
         this.unmatchedTrajectoryList = unmatchedTrajectoryList;
     }
@@ -23,7 +23,7 @@ public class MatchResultWithUnmatchedTraj implements Serializable {
 		return matchResult.getTrajID();
     }
 	
-	public TrajectoryMatchResult getMatchResult() {
+	public MultipleTrajectoryMatchResult getMatchResult() {
 		return matchResult;
     }
 

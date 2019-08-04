@@ -136,8 +136,16 @@ public class RoutingGraph implements Serializable {
 		LOG.info("Shortest path graph generated. Total vertices:" + noOfVertices + ", total edges:" + noOfEdges);
 	}
 	
+	/**
+	 * Given a source match point and a set of destination points, the function calculate the shortest path to each destination and their
+	 * distance.
+	 *
+	 * @param source      The source match point and its segment.
+	 * @param pointList   The destination match point list.
+	 * @param maxDistance The maximum acceptable distance, shortest distance terminates.
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	// Calculate all shortest distance from given node
 	public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
 		double[] distance = new double[pointList.size()];   // the distance to every destination
 		List<String>[] path = new ArrayList[pointList.size()];     // the path to every destination
@@ -147,8 +155,7 @@ public class RoutingGraph implements Serializable {
 		List<Pair<Double, List<String>>> result;
 		
 		Arrays.fill(distance, Double.POSITIVE_INFINITY);
-		for (int i = 0; i < path.length; i++)
-			path[i] = new ArrayList<>();
+		Arrays.fill(path, new ArrayList<>());
 		// the variables have been initialized during the last calculation. Start the process right away
 		HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet = new HashMap<>();        // (vertex index in graph, point index
 		// in pointList)

@@ -65,8 +65,8 @@ public class MapEvaluationMain {
 		LOG.info("Graph item matching finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
 		startTaskTime = System.currentTimeMillis();
 		
-		String graphSamplingResult = "GS: " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(outputMap, gtMap, 50, 2000, 20,
-				200);    // radius,seeds follows stanojevic2018
+		String graphSamplingResult = "GS: " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(outputMap, gtMap, 1, 100,
+				50, 1000);    // radius,seeds follows stanojevic2018
 		LOG.info("Graph sampling finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
 		startTaskTime = System.currentTimeMillis();
 

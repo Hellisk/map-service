@@ -2,9 +2,9 @@ package util.io;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
-import util.object.structure.TrajectoryMatchResult;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,16 +20,16 @@ public class MatchResultReader {
 	
 	private static final Logger LOG = Logger.getLogger(MatchResultReader.class);
 	
-	public static TrajectoryMatchResult readMatchResult(String filePath, DistanceFunction df) {
+	public static MultipleTrajectoryMatchResult readMatchResult(String filePath, DistanceFunction df) {
 		String line = IOService.readFileContent(filePath);
-		return TrajectoryMatchResult.parseTrajectoryMatchResult(line, df);
+		return MultipleTrajectoryMatchResult.parseTrajectoryMatchResult(line, df);
 	}
 	
-	public static List<TrajectoryMatchResult> readMatchResultsToList(String fileFolder, DistanceFunction df) {
+	public static List<MultipleTrajectoryMatchResult> readMatchResultsToList(String fileFolder, DistanceFunction df) {
 		File inputFolder = new File(fileFolder);
 		if (!inputFolder.exists())
 			throw new IllegalArgumentException("The input matching result path doesn't exist: " + fileFolder);
-		List<TrajectoryMatchResult> matchResultList = new ArrayList<>();
+		List<MultipleTrajectoryMatchResult> matchResultList = new ArrayList<>();
 		if (inputFolder.isDirectory()) {
 			File[] matchResultFiles = inputFolder.listFiles();
 			if (matchResultFiles != null) {

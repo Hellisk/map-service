@@ -86,7 +86,7 @@ public class MapInferenceProperty extends BaseProperty {
 				rootPath += dataset + "/";
 				break;
 			case "Linux":   // performed on server
-				rootPath = "/home/uqpchao/data/" + dataset + "/";
+				rootPath += dataset + "/";
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong property value: OS=" + os);
@@ -129,8 +129,9 @@ public class MapInferenceProperty extends BaseProperty {
 		if (dataset.contains("Beijing")) {
 			super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + rawSpec + "/");
 			super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
-			super.setProperty("path.GroundTruthMatchResultFolder", rootPath + "groundTruth/matchResult/" + dataSpec + "/");
-			super.setProperty("path.GroundTruthOriginalMatchResultFolder", rootPath + "groundTruth/matchResult/" + rawSpec + "/");
+//			super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
+//			super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
+//			super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + rawSpec + "/");
 		} else {
 			super.setProperty("path.InputTrajectoryFolder", rootPath + "raw/trajectory/");
 		}

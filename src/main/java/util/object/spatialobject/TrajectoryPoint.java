@@ -21,7 +21,6 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	private final long time;        // timestamps
 	private final double speed;        // the instantaneous speed of the object at the current time
 	private final double heading;    // the heading of trajectory point ranging between -179~180. Degree 0 = (1,0)
-	private DistanceFunction distFunc;
 	
 	/**
 	 * Create a new empty point with zero time stamp.
@@ -31,7 +30,6 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 		this.time = Long.MIN_VALUE;
 		this.speed = Double.NEGATIVE_INFINITY;
 		this.heading = Double.NEGATIVE_INFINITY;
-		this.distFunc = df;
 	}
 	
 	/**
@@ -45,7 +43,6 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 		this.time = Long.MIN_VALUE;
 		this.speed = Double.NEGATIVE_INFINITY;
 		this.heading = Double.NEGATIVE_INFINITY;
-		this.distFunc = df;
 	}
 	
 	/**
@@ -60,7 +57,6 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 		this.time = time;
 		this.speed = Double.NEGATIVE_INFINITY;
 		this.heading = Double.NEGATIVE_INFINITY;
-		this.distFunc = df;
 	}
 	
 	/**
@@ -75,7 +71,6 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 		this.time = time;
 		this.speed = speed;
 		this.heading = heading;
-		this.distFunc = df;
 	}
 	
 	public static TrajectoryPoint parseTrajectoryPoint(String s, DistanceFunction df) {
@@ -120,16 +115,12 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	@NonNull
 	@Override
 	public DistanceFunction getDistanceFunction() {
-		return this.distFunc;
-	}
-	
-	public void setDistFunc(DistanceFunction distFunc) {
-		this.distFunc = distFunc;
+		return super.getDistanceFunction();
 	}
 	
 	@Override
 	public TrajectoryPoint clone() {
-		TrajectoryPoint clone = new TrajectoryPoint(x(), y(), time, speed, heading, distFunc);
+		TrajectoryPoint clone = new TrajectoryPoint(x(), y(), time, speed, heading, super.getDistanceFunction());
 		super.cloneTo(clone);
 		return clone;
 	}
