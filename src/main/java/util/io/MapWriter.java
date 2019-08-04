@@ -36,6 +36,10 @@ public class MapWriter {
 		if (!file.exists()) {
 			if (!file.mkdirs()) throw new IOException("Failed to create folder for map write: " + file.getPath());
 		}
+		if (roadGraph.getNodes().size() == 0) {
+			LOG.warn("The map to be written is empty. Skip the writing step.");
+			return;
+		}
 		writeNodes(roadGraph.getNodes(), folderPath + "vertices_" + fileName);
 		writeWays(roadGraph.getWays(), folderPath + "edges_" + fileName);
 		LOG.info("Map written. Total number of intersections: " + roadGraph.getNodes().size()
@@ -59,6 +63,10 @@ public class MapWriter {
 		File file = new File(folderPath);
 		if (!file.exists()) {
 			if (!file.mkdirs()) throw new IOException("Failed to create folder for map write: " + file.getPath());
+		}
+		if (wayList.isEmpty()) {
+			LOG.warn("The road list to be written is empty. Skip the writing step.");
+			return;
 		}
 		// write road node file
 		List<String> fileLines = new ArrayList<>(wayList.size());
@@ -89,6 +97,10 @@ public class MapWriter {
 		File file = new File(folderPath);
 		if (!file.exists()) {
 			if (!file.mkdirs()) throw new IOException("Failed to create folder for map write: " + file.getPath());
+		}
+		if (nodeList.isEmpty()) {
+			LOG.warn("The node list to be written is empty. Skip the writing step.");
+			return;
 		}
 		// write road node file
 		List<String> fileLines = new ArrayList<>(nodeList.size());

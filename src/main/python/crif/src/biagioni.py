@@ -37,7 +37,7 @@ logger.addHandler(ch)
 
 ex = Experiment('Biagioni')
 ex.logger = logger
-ex.observers.append(MongoObserver.create(url='10.60.43.110:27017', db_name='Biagioni'))
+ex.observers.append(MongoObserver.create(url='localhost:27017', db_name='Biagioni'))
 
 
 @ex.config

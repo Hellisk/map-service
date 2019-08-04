@@ -1,9 +1,9 @@
 package util.io;
 
 import org.apache.log4j.Logger;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
-import util.object.structure.TrajectoryMatchResult;
 
 import java.io.File;
 import java.util.*;
@@ -21,12 +21,12 @@ public class MatchResultWriter {
 	private static final Logger LOG = Logger.getLogger(TrajectoryReader.class);
 	
 	/**
-	 * Writer for writing matching results. The format follows the <tt>TrajectoryMatchResult.toString()</tt> format.
+	 * Writer for writing matching results. The format follows the <tt>MultipleTrajectoryMatchResult.toString()</tt> format.
 	 *
 	 * @param matchingList The matching results.
 	 * @param fileFolder   The output folder path.
 	 */
-	public static void writeMatchResults(List<TrajectoryMatchResult> matchingList, String fileFolder) {
+	public static void writeMatchResults(List<MultipleTrajectoryMatchResult> matchingList, String fileFolder) {
 		if (matchingList == null)
 			throw new NullPointerException("The input matching result list is empty.");
 		
@@ -34,7 +34,7 @@ public class MatchResultWriter {
 		IOService.cleanFolder(fileFolder);
 		
 		File folder = new File(fileFolder);
-		Stream<TrajectoryMatchResult> trajectoryMatchingStream = matchingList.stream();
+		Stream<MultipleTrajectoryMatchResult> trajectoryMatchingStream = matchingList.stream();
 		
 		// parallel processing
 		ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
@@ -123,10 +123,10 @@ public class MatchResultWriter {
 	 * @param fileFolder      The output file folder.
 	 * @return The merged map-matching results.
 	 */
-	public static List<TrajectoryMatchResult> writeAndMergeMatchResults(List<TrajectoryMatchResult> oldMatchResults,
-																		List<TrajectoryMatchResult> newMatchResults, String fileFolder) {
+	public static List<MultipleTrajectoryMatchResult> writeAndMergeMatchResults(List<MultipleTrajectoryMatchResult> oldMatchResults,
+																				List<MultipleTrajectoryMatchResult> newMatchResults, String fileFolder) {
 		Set<String> newMatchResultIDList = new HashSet<>();
-		for (TrajectoryMatchResult mr : newMatchResults)
+		for (MultipleTrajectoryMatchResult mr : newMatchResults)
 			newMatchResultIDList.add(mr.getTrajID());
 		oldMatchResults.removeIf(next -> newMatchResultIDList.contains(next.getTrajID()));
 		oldMatchResults.addAll(newMatchResults);

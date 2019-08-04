@@ -103,7 +103,7 @@ func main() {
 			line := scanner.Text()
 			items := strings.Split(line, " ")
 
-			if len(items) < 4 {
+			if len(items) < 3 {
 				fmt.Println("Warning, incomplete line")
 				continue
 			}

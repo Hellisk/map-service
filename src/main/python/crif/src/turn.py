@@ -1,4 +1,3 @@
-import numpy as np
 import os
 from collections import defaultdict
 
@@ -379,7 +378,7 @@ def norm_distr(m, std=20.0):
 def get_gen_map_df():
     from pymongo import MongoClient
     client = MongoClient()
-    client = MongoClient("mongodb://10.60.43.110:27017")
+    client = MongoClient("mongodb://localhost:27017")
     db = client.Biagioni
     rec = list(db['default.runs'].find({'status': 'COMPLETED', 'config.data': 'minsh_4000'}))
     fmap = db['default.chunks'].find_one({'files_id': rec[-1]['artifacts'][-1]})['data']

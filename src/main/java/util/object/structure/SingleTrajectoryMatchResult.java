@@ -11,15 +11,15 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * The object for storing the map-matching result of a trajectory, which includes the matching node and edge of each point, the matching
- * route between two points, the probabilities and a list of breakpoints. The structure can store multiple matching results for the same
- * trajectory and sorted by their probabilities. However, in most cases, only the first matching result, which is the best result, is
- * retrieved.
+ * The object for storing single map-matching results of a trajectory, which includes the matching node and edge of each point, the matching
+ * route between two points, the probabilities and a list of breakpoints. The structure is used to store multiple matching results for the
+ * same trajectory and sorted by their probabilities. Please refer to <tt>SingleTrajectoryMatchResult</tt> if only the best matching
+ * result is stored.
  *
  * @author Hellisk
  * @since 30/03/2019
  */
-public class TrajectoryMatchResult {
+public class SingleTrajectoryMatchResult {
 	
 	private static final Logger LOG = Logger.getLogger(Point.class);
 	
@@ -35,7 +35,7 @@ public class TrajectoryMatchResult {
 	// equal to requiredNumOfRanks. The initial probability should be Double.NEGATIVE_INFINITY.
 	private List<BitSet> breakPointBSList;    // each position represents if the corresponding trajectory point is a break point
 	
-	public TrajectoryMatchResult(Trajectory traj, int requiredNumOfRanks) {
+	public SingleTrajectoryMatchResult(Trajectory traj, int requiredNumOfRanks) {
 		if (requiredNumOfRanks < 1) throw new IllegalArgumentException("Matching result size should be at least 1");
 		this.trajectory = traj;
 		this.requiredNumOfRanks = requiredNumOfRanks;
@@ -52,8 +52,8 @@ public class TrajectoryMatchResult {
 		}
 	}
 	
-	public TrajectoryMatchResult(Trajectory traj, int requiredNumOfRanks, int numOfRanks, List<List<PointMatch>> pointMatchResult,
-								 List<List<Route>> routeMatchResult, double[] probabilities, List<BitSet> breakPointBSList) {
+	public SingleTrajectoryMatchResult(Trajectory traj, int requiredNumOfRanks, int numOfRanks, List<List<PointMatch>> pointMatchResult,
+									   List<List<Route>> routeMatchResult, double[] probabilities, List<BitSet> breakPointBSList) {
 		if (requiredNumOfRanks < 1) throw new IllegalArgumentException("Matching result size should be at least 1");
 		if (numOfRanks > requiredNumOfRanks)
 			throw new IllegalArgumentException("The number of matching result should not be larger than the requirement: " + numOfRanks
@@ -81,8 +81,8 @@ public class TrajectoryMatchResult {
 	 * @param probability  The matching probability.
 	 * @param breakPointBS The breakpoint list.
 	 */
-	public TrajectoryMatchResult(Trajectory traj, List<PointMatch> pointMatches, List<Route> routeMatches,
-								 double probability, BitSet breakPointBS) {
+	public SingleTrajectoryMatchResult(Trajectory traj, List<PointMatch> pointMatches, List<Route> routeMatches,
+									   double probability, BitSet breakPointBS) {
 		if (traj.size() != pointMatches.size() || traj.size() != routeMatches.size() || traj.size() != breakPointBS.size())
 			throw new IllegalArgumentException("Inconsistent input size of point/route/breakpoint matching list.");
 		this.requiredNumOfRanks = 1;
@@ -103,14 +103,14 @@ public class TrajectoryMatchResult {
 	 *
 	 * @param matchResult Multiple matching results of the same trajectory.
 	 */
-	public TrajectoryMatchResult(List<TrajectoryMatchResult> matchResult, int requiredNumOfRanks) {
+	public SingleTrajectoryMatchResult(List<SingleTrajectoryMatchResult> matchResult, int requiredNumOfRanks) {
 		if (matchResult == null)
 			throw new NullPointerException("The matching result list is null.");
 		// check whether all the items are the matching results of the same trajectory
 		String trajID = matchResult.get(0).getTrajID();
 		this.requiredNumOfRanks = requiredNumOfRanks;
 		this.numOfRanks = 0;
-		for (TrajectoryMatchResult mr : matchResult) {
+		for (SingleTrajectoryMatchResult mr : matchResult) {
 			if (!mr.getTrajID().equals(trajID))
 				throw new IllegalArgumentException("Some of the matching results are from different trajectory: " + mr.getTrajID() +
 						"," + trajID);
@@ -127,7 +127,7 @@ public class TrajectoryMatchResult {
 		this.breakPointBSList = new ArrayList<>(requiredNumOfRanks);
 		this.probabilities = new double[requiredNumOfRanks];
 		int index = 0;    // the number of the currently stored matching result
-		for (TrajectoryMatchResult mr : matchResult) {
+		for (SingleTrajectoryMatchResult mr : matchResult) {
 			this.pointMatchResult.addAll(mr.pointMatchResult);
 			this.routeMatchResult.addAll(mr.routeMatchResult);
 			this.breakPointBSList.addAll(mr.breakPointBSList);
@@ -138,7 +138,7 @@ public class TrajectoryMatchResult {
 			this.probabilities[i] = Double.NEGATIVE_INFINITY;
 	}
 	
-	public static TrajectoryMatchResult parseTrajectoryMatchResult(String s, DistanceFunction df) {
+	public static SingleTrajectoryMatchResult parseTrajectoryMatchResult(String s, DistanceFunction df) {
 		while (s.lastIndexOf("\n") == s.length() - 1)
 			s = s.substring(0, s.length() - 1);        // remove the extra lines
 		String[] lines = s.split("\n");
@@ -146,7 +146,7 @@ public class TrajectoryMatchResult {
 		// start parsing the first line, which contains global attributes
 		String[] firstLine = lines[0].split("\\|");
 		if (firstLine.length != 6)
-			throw new IllegalArgumentException("The first line of the input text cannot be parsed into TrajectoryMatchResult attributes: "
+			throw new IllegalArgumentException("The first line of the input text cannot be parsed into MultipleTrajectoryMatchResult attributes: "
 					+ lines[0]);
 		int requiredNumOfRanks = Integer.parseInt(firstLine[0]);
 		int numOfMatches = Integer.parseInt(firstLine[1]);
@@ -196,7 +196,7 @@ public class TrajectoryMatchResult {
 			}
 		}
 		Trajectory currTraj = new Trajectory(trajectoryID, trajPointList);
-		return new TrajectoryMatchResult(currTraj, requiredNumOfRanks, numOfMatches, pointMatchList, routeMatchList, probabilities,
+		return new SingleTrajectoryMatchResult(currTraj, requiredNumOfRanks, numOfMatches, pointMatchList, routeMatchList, probabilities,
 				breakPointBSList);
 	}
 	
@@ -441,8 +441,8 @@ public class TrajectoryMatchResult {
 	 * @param rankIndex The specific rank index.
 	 * @return The complete map-matching result.
 	 */
-	public TrajectoryMatchResult getMatchResultAtRank(int rankIndex) {
-		return new TrajectoryMatchResult(trajectory, pointMatchResult.get(rankIndex), routeMatchResult.get(rankIndex),
+	public SingleTrajectoryMatchResult getMatchResultAtRank(int rankIndex) {
+		return new SingleTrajectoryMatchResult(trajectory, pointMatchResult.get(rankIndex), routeMatchResult.get(rankIndex),
 				probabilities[rankIndex], breakPointBSList.get(rankIndex));
 	}
 	

@@ -11,8 +11,8 @@ import util.io.MatchResultWriter;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
-import util.object.structure.TrajectoryMatchResult;
 import util.settings.MapMatchingProperty;
 import util.settings.MapServiceLogger;
 
@@ -62,7 +62,7 @@ public class MapMatchingMain {
 		
 		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 		// map-matching process
-		List<TrajectoryMatchResult> results = new ArrayList<>();
+		List<MultipleTrajectoryMatchResult> results = new ArrayList<>();
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = new ArrayList<>();
 		if (dataSet.equals("Global")) {
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
@@ -82,7 +82,7 @@ public class MapMatchingMain {
 				trajPointCount += currTraj.size();
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
 				HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
-				TrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
+				MultipleTrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
 				results.add(matchResult);
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");

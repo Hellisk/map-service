@@ -2,7 +2,6 @@ package evaluation.mapevaluation;
 
 import evaluation.mapevaluation.graphmatching.GraphMatchingMapEvaluation;
 import evaluation.mapevaluation.graphsampling.GraphSamplingMapEvaluation;
-import evaluation.mapevaluation.pathbaseddistance.benchmarkexperiments.PathBasedMapEvaluation;
 import org.apache.log4j.Logger;
 import preprocessing.MapGenerator;
 import util.function.DistanceFunction;
@@ -41,14 +40,14 @@ public class MeasureEvaluationMain {
 		
 		List<String> outputGraphMatchingResultList = new ArrayList<>();
 		List<String> outputGraphSamplingResultList = new ArrayList<>();
-		List<String> outputFrechetResultList = new ArrayList<>();
+//		List<String> outputFrechetResultList = new ArrayList<>();
 //		List<String> outputHausdorffResultList = new ArrayList<>();
 		
 		double gmMaxDist = 20;
-		double gsHopDist = 50;
-		double gsRadius = 2000;
-		double gsMatchDist = 20;
-		int gsNumOfRoots = 200;
+		double gsHopDist = 1;
+		double gsRadius = 100;
+		double gsMatchDist = 50;
+		int gsNumOfRoots = 1000;
 		
 		RoadNetworkGraph gtMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
 		SpatialUtils.convertMapGCJ2UTM(gtMap);
@@ -56,7 +55,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start topo with complete random.");
 		outputGraphSamplingResultList.add("Start topo with complete random.");
-		outputFrechetResultList.add("Start topo with complete random.");
+//		outputFrechetResultList.add("Start topo with complete random.");
 //		outputHausdorffResultList.add("Start topo with complete random.");
 		LOG.info("Start topo with complete random.");
 		for (percentage = 10; percentage <= 60; percentage += 10) {
@@ -67,15 +66,15 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(topoErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(topoErrorMap, gtMap, "LinkThree",
-					cacheFolder + "topo/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(topoErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "topo/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(topoErrorMap, gtMap, "LinkThree", cacheFolder + "topo/"));
 		}
 //		MapWriter.writeMap(topoErrorMap, inputMapFolder + "topo.txt");
 		
 		outputGraphMatchingResultList.add("Start topo with weighted random.");
 		outputGraphSamplingResultList.add("Start topo with weighted random.");
-		outputFrechetResultList.add("Start topo with weighted random.");
+//		outputFrechetResultList.add("Start topo with weighted random.");
 //		outputHausdorffResultList.add("Start topo with weighted random.");
 		LOG.info("Start topo with weighted random.");
 		for (percentage = 10; percentage <= 60; percentage += 10) {
@@ -86,15 +85,15 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(topoErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(topoErrorMap, gtMap, "LinkThree",
-					cacheFolder + "topo/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(topoErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "topo/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(topoErrorMap, gtMap, "LinkThree", cacheFolder + "topo/"));
 		}
 //		MapWriter.writeMap(topoErrorMap, inputMapFolder + "topo.txt");
 		
 		outputGraphMatchingResultList.add("Start road loss with complete random.");
 		outputGraphSamplingResultList.add("Start road loss with complete random.");
-		outputFrechetResultList.add("Start road loss with complete random.");
+//		outputFrechetResultList.add("Start road loss with complete random.");
 //		outputHausdorffResultList.add("Start road loss with complete random.");
 		LOG.info("Start road loss with complete random.");
 		for (percentage = 10; percentage <= 60; percentage += 10) {
@@ -105,8 +104,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(roadLossMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadLossMap, gtMap, "LinkThree",
-					cacheFolder + "roadLoss/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadLossMap, gtMap, "LinkThree",
+//					cacheFolder + "roadLoss/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(roadLossMap, gtMap,
 //					"LinkThree", cacheFolder + "roadLoss/"));
 		}
@@ -114,7 +113,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start road loss with weighted random.");
 		outputGraphSamplingResultList.add("Start road loss with weighted random.");
-		outputFrechetResultList.add("Start road loss with weighted random.");
+//		outputFrechetResultList.add("Start road loss with weighted random.");
 //		outputHausdorffResultList.add("Start road loss with weighted random.");
 		LOG.info("Start road loss with weighted random.");
 		for (percentage = 10; percentage <= 60; percentage += 10) {
@@ -125,8 +124,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(roadLossMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadLossMap, gtMap, "LinkThree",
-					cacheFolder + "roadLoss/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadLossMap, gtMap, "LinkThree",
+//					cacheFolder + "roadLoss/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(roadLossMap, gtMap,
 //					"LinkThree", cacheFolder + "roadLoss/"));
 		}
@@ -134,7 +133,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start geo.");
 		outputGraphSamplingResultList.add("Start geo.");
-		outputFrechetResultList.add("Start geo.");
+//		outputFrechetResultList.add("Start geo.");
 //		outputHausdorffResultList.add("Start geo.");
 		LOG.info("Start geo.");
 		for (radius = 5; radius <= 40; radius += 5) {
@@ -145,8 +144,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(radius + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(geoErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(radius + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(geoErrorMap, gtMap, "LinkThree",
-					cacheFolder + "geo/"));
+//			outputFrechetResultList.add(radius + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(geoErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "geo/"));
 //			outputHausdorffResultList.add(radius + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(geoErrorMap, gtMap, "LinkThree", cacheFolder
 //					+ "geo/"));
 		}
@@ -154,7 +153,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start road shape.");
 		outputGraphSamplingResultList.add("Start road shape.");
-		outputFrechetResultList.add("Start road shape.");
+//		outputFrechetResultList.add("Start road shape.");
 //		outputHausdorffResultList.add("Start road shape.");
 		LOG.info("Start road shape.");
 		for (noiseBound = 2; noiseBound <= 12; noiseBound += 2) {
@@ -165,8 +164,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(noiseBound + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(roadShapeErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(noiseBound + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadShapeErrorMap, gtMap, "LinkThree",
-					cacheFolder + "roadShape/"));
+//			outputFrechetResultList.add(noiseBound + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(roadShapeErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "roadShape/"));
 //			outputHausdorffResultList.add(noiseBound + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(roadShapeErrorMap, gtMap,
 //					"LinkThree", cacheFolder + "roadShape/"));
 		}
@@ -174,7 +173,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start intersection error.");
 		outputGraphSamplingResultList.add("Start intersection error.");
-		outputFrechetResultList.add("start intersection error.");
+//		outputFrechetResultList.add("start intersection error.");
 //		outputHausdorffResultList.add("start intersection error.");
 		LOG.info("Start intersection error.");
 		for (percentage = 5; percentage <= 30; percentage += 5) {
@@ -185,8 +184,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(intersectionErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(intersectionErrorMap, gtMap, "LinkThree",
-					cacheFolder + "intersection/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(intersectionErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "intersection/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(intersectionErrorMap, gtMap,
 //					"LinkThree", cacheFolder + "intersection/"));
 		}
@@ -194,7 +193,7 @@ public class MeasureEvaluationMain {
 		
 		outputGraphMatchingResultList.add("Start spurious road.");
 		outputGraphSamplingResultList.add("Start spurious road.");
-		outputFrechetResultList.add("Start spurious road.");
+//		outputFrechetResultList.add("Start spurious road.");
 //		outputHausdorffResultList.add("Start spurious road.");
 		LOG.info("Start spurious road.");
 		for (percentage = 5; percentage <= 30; percentage += 5) {
@@ -205,8 +204,8 @@ public class MeasureEvaluationMain {
 					gtMap, gmMaxDist));
 			outputGraphSamplingResultList.add(percentage + ", " + GraphSamplingMapEvaluation.precisionRecallGraphSamplingMapEval(spuriousRoadErrorMap,
 					gtMap, gsHopDist, gsRadius, gsMatchDist, gsNumOfRoots));
-			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(spuriousRoadErrorMap, gtMap, "LinkThree",
-					cacheFolder + "spuriousRoad/"));
+//			outputFrechetResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedFrechetMapEval(spuriousRoadErrorMap, gtMap, "LinkThree",
+//					cacheFolder + "spuriousRoad/"));
 //			outputHausdorffResultList.add(percentage + ", " + PathBasedMapEvaluation.pathBasedHausdorffMapEval(spuriousRoadErrorMap, gtMap,
 //					"LinkThree", cacheFolder + "spuriousRoad/"));
 		}
@@ -220,9 +219,9 @@ public class MeasureEvaluationMain {
 		for (String s : outputGraphSamplingResultList) {
 			LOG.info(s + "\n");
 		}
-		for (String s : outputFrechetResultList) {
-			LOG.info(s + "\n");
-		}
+//		for (String s : outputFrechetResultList) {
+//			LOG.info(s + "\n");
+//		}
 //		for (String s : outputHausdorffResultList) {
 //			LOG.info(s +"\n");
 //		}

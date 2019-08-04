@@ -736,7 +736,7 @@ def get_answer(traj_num, max_nodes, dtype, version='old', max_depth=1024):
 
     f = open(folder_name + file_name, 'w')
     s = json.dump(ans, f, indent=True)
-    print s
+    # print s
     f.close()
 
 

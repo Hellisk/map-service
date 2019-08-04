@@ -43,10 +43,14 @@ public final class IOService implements Serializable {
 		File fileFolder = new File(folderPath);
 		if (fileFolder.exists() && fileFolder.listFiles() != null)
 			for (File f : Objects.requireNonNull(fileFolder.listFiles())) {
-				if (!f.delete()) try {
-					throw new IOException("ERROR! Failed to delete file.");
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (f.isDirectory()) {
+					IOService.cleanFolder(f.getAbsolutePath());
+				} else {
+					if (!f.delete()) try {
+						throw new IOException("ERROR! Failed to delete file.");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		

@@ -41,7 +41,7 @@ public class TrajectoryGenerator {
 		String dataSet = property.getPropertyString("data.Dataset");
 		String inputTrajFolder = property.getPropertyString("path.InputOriginalTrajectoryFolder");
 		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
-		String gtMatchResultFolder = property.getPropertyString("path.GroundTruthOriginalMatchResultFolder");
+		String gtMatchResultFolder = property.getPropertyString("path.GroundTruthOriginalRouteMatchResultFolder");
 		String dataSpec = property.getPropertyString("data.DataSpec");
 		
 		
@@ -65,9 +65,10 @@ public class TrajectoryGenerator {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		samplingInterval = 5;
 		coverage = -1;
-		for (sigma = 0; sigma < 40; sigma += 5) {
-			LOG.info("Start the generation on sigma=" + sigma);
-			syntheticSpec = "_S" + sigma + "_R" + samplingInterval + "_C" + coverage;
+		int[] sigmaValues = {0, 5, 10, 20, 35};
+		for (int sigmaValue : sigmaValues) {
+			LOG.info("Start the generation on sigma=" + sigmaValue);
+			syntheticSpec = "_S" + sigmaValue + "_R" + samplingInterval + "_C" + coverage;
 			outputTrajFolderName = inputTrajFolder.substring(0, inputTrajFolder.length() - 1) + syntheticSpec + "/";        // remove the
 			// last "/"
 			outputTrajFolder = new File(outputTrajFolderName);
@@ -83,9 +84,9 @@ public class TrajectoryGenerator {
 					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
 					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap, gtMap, sigma, samplingInterval);
+				List<Trajectory> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap, gtMap, sigmaValue, samplingInterval);
 				TrajectoryWriter.writeTrajectories(resultTraj, outputTrajFolderName);
-				LOG.info("Trajectory written for sigma=" + sigma + " is done");
+				LOG.info("Trajectory written for sigma=" + sigmaValue + " is done");
 			}
 		}
 		int[] samplingValues = {1, 10, 20, 30, 45, 60, 90, 120, 180};

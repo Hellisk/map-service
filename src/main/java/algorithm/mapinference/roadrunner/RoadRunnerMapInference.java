@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.io.IOService;
-import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
@@ -42,22 +41,22 @@ public class RoadRunnerMapInference {
 	}
 	
 	// use scripts to run map inference Python and Golang code
-	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
+	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder, List<Trajectory> inputTrajList) throws IOException {
 		
 		// remove the previous cache directory
 		IOService.createFolder(cacheFolder);
-		IOService.cleanFolder(cacheFolder);
 		IOService.createFolder(cacheFolder + "index_folder/");
 		IOService.cleanFolder(cacheFolder + "index_folder/");
+		IOService.cleanFolder(cacheFolder);
 		
-		writeConfigureFile(cacheFolder, this.mapBoundary, inputTrajFolder);
+		writeConfigureFile(cacheFolder, this.mapBoundary, inputTrajList);
 		List<String> goCmd = new ArrayList<>();
 		List<String> pythonCmd = new ArrayList<>();
 		
 		// setup each command manually
 		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/create_index.go " + inputTrajFolder + " " + cacheFolder +
 				"index_folder/");
-		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/trace_server.go " + cacheFolder + "index_folder/ " + inputTrajFolder + " " + 50000);
+		goCmd.add("go run " + codeRootFolder + "/GPSTraceServer/trace_server.go " + cacheFolder + "index_folder/ " + inputTrajFolder + " " + 100000);
 		pythonCmd.add("python " + codeRootFolder + "RoadRunner.py " + cacheFolder + "configure.json" + " test_");
 		pythonCmd.add("python " + codeRootFolder + "RoadForest2RoadGraph.py " + cacheFolder + "output_file_last" + " " + cacheFolder);
 		
@@ -73,11 +72,11 @@ public class RoadRunnerMapInference {
 	/**
 	 * Write the configure file for the following road runner process.
 	 *
-	 * @param cacheFolder     The cache folder used to store configure file.
-	 * @param mapBoundary     The boundary of the map area.
-	 * @param inputTrajFolder The trajectory folder.
+	 * @param cacheFolder   The cache folder used to store configure file.
+	 * @param mapBoundary   The boundary of the map area.
+	 * @param inputTrajList The trajectory folder.
 	 */
-	private void writeConfigureFile(String cacheFolder, Rect mapBoundary, String inputTrajFolder) throws IOException {
+	private void writeConfigureFile(String cacheFolder, Rect mapBoundary, List<Trajectory> inputTrajList) throws IOException {
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		File confFile = new File(cacheFolder + "configure.json");
 		if (confFile.exists()) {
@@ -87,9 +86,11 @@ public class RoadRunnerMapInference {
 		int historyLength = property.getPropertyInteger("algorithm.mapinference.roadrunner.HistoryLength");
 		int numOfDeferredBranch = property.getPropertyInteger("algorithm.mapinference.roadrunner.NumberOfDeferredBranch");
 		int minTrajCount = property.getPropertyInteger("algorithm.mapinference.roadrunner.MinNumberOfTrajectory");
-		List<Trajectory> inputTrajList = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			inputTrajList.add(TrajectoryReader.readTrajectory(inputTrajFolder + "trip_" + i + ".txt", i + "", distFunc));
+		
+		List<Trajectory> candidateList = new ArrayList<>();
+		for (int i = 0; i < (inputTrajList.size() < 5 ? inputTrajList.size() : 5); i++) {
+			Trajectory traj = inputTrajList.get(i);
+			candidateList.add(traj);
 		}
 		if (confFile.exists())
 			if (!confFile.delete())
@@ -117,12 +118,12 @@ public class RoadRunnerMapInference {
 		confFileWriter.write("      \"Lon\": " + mapBoundary.maxX() + ",\n");
 		confFileWriter.write("	\"ID\": 4\n");
 		// add some trajectory start node as start point to ensure correctness
-		for (int i = 0; i < inputTrajList.size(); i++) {
-			Trajectory traj = inputTrajList.get(i);
+		for (int i = 0; i < candidateList.size(); i++) {
+			Trajectory traj = candidateList.get(i);
 			confFileWriter.write("    },\n");
 			confFileWriter.write("    {\n");
-			confFileWriter.write("      \"Lat\": " + traj.get(0).y() + ",\n");
-			confFileWriter.write("      \"Lon\": " + traj.get(0).x() + ",\n");
+			confFileWriter.write("      \"Lat\": " + traj.get(1).y() + ",\n");
+			confFileWriter.write("      \"Lon\": " + traj.get(1).x() + ",\n");
 			confFileWriter.write("	\"ID\": " + (5 + i) + "\n");
 		}
 		confFileWriter.write("    }\n");
@@ -204,9 +205,9 @@ public class RoadRunnerMapInference {
 			throw new IllegalArgumentException("The Go command for RoadRunner is incorrect.");
 		ProcessBuilder goBuilder;
 		if (os.equals("Linux")) {
-			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.iterator().next());
+			goBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.get(0));
 		} else {
-			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.iterator().next());
+			goBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.get(0));
 		}
 		goBuilder.redirectErrorStream(true);
 		Process goProcess = goBuilder.start();
@@ -219,13 +220,39 @@ public class RoadRunnerMapInference {
 			}
 			LOG.info(goLine);
 		}
+
+//		// start the TraceServer in background
+//		if (os.equals("Linux")) {
+//			Runtime.getRuntime().exec("/bin/sh -c " + goCmd.get(1));
+//		} else {
+//			Runtime.getRuntime().exec("cmd.exe /c " + goCmd.get(1));
+//		}
 		
-		// start the TraceServer
-		if (os.equals("Linux")) {
-			Runtime.getRuntime().exec("/bin/sh -c " + goCmd.iterator().next());
-		} else {
-			Runtime.getRuntime().exec("cmd.exe /c " + goCmd.iterator().next());
-		}
+		Thread t1 = new Thread(() -> {
+			ProcessBuilder goServerBuilder;
+			if (os.equals("Linux")) {
+				LOG.info(goCmd.get(1));
+				goServerBuilder = new ProcessBuilder("/bin/sh", "-c", goCmd.get(1));
+			} else {
+				goServerBuilder = new ProcessBuilder("cmd.exe", "/c", goCmd.get(1));
+			}
+			goServerBuilder.redirectErrorStream(true);
+			Process goServerProcess = null;
+			try {
+				goServerProcess = goServerBuilder.start();
+				BufferedReader goServerReader = new BufferedReader(new InputStreamReader(goServerProcess.getInputStream()));
+				String goServerLine;
+				do {
+					goServerLine = goServerReader.readLine();
+					LOG.info(goServerLine);
+				} while (goServerLine != null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		t1.setDaemon(true);
+		t1.start();
+		
 		Thread.sleep(15000);    // wait for the server to start
 		LOG.info("The server is started. Start the inference process.");
 		

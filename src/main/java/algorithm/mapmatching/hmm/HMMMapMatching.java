@@ -194,7 +194,7 @@ public class HMMMapMatching implements Serializable {
 	 * @param inputTrajectory Input trajectory in Global dataset
 	 * @return Map-matching result
 	 */
-	public TrajectoryMatchResult trajectorySingleMatchingProcess(Trajectory inputTrajectory) {
+	public MultipleTrajectoryMatchResult trajectorySingleMatchingProcess(Trajectory inputTrajectory) {
 		
 		// sequential test
 		MatchResultWithUnmatchedTraj matchResult = doMatching(inputTrajectory);
@@ -688,7 +688,7 @@ public class HMMMapMatching implements Serializable {
 	 * @param matchResultList The Viterbi algorithm result list.
 	 * @return The map-matching result for trajectory.
 	 */
-	private TrajectoryMatchResult getResult(Trajectory traj, List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>>
+	private MultipleTrajectoryMatchResult getResult(Trajectory traj, List<Pair<List<SequenceState<PointMatch, TrajectoryPoint, RoadPath>>, Double>>
 			matchResultList) {
 		double[] probabilities = new double[rankLength];
 		List<List<PointMatch>> pointMatchList = new ArrayList<>(rankLength);
@@ -764,7 +764,7 @@ public class HMMMapMatching implements Serializable {
 				LOG.info("TEST");
 			probabilities[i] = roadPosition._2() == 0 ? 0 : Math.exp(roadPosition._2() / traj.size());
 		}
-		return new TrajectoryMatchResult(traj, rankLength, matchResultList.size(), pointMatchList, routeMatchList, probabilities,
+		return new MultipleTrajectoryMatchResult(traj, rankLength, matchResultList.size(), pointMatchList, routeMatchList, probabilities,
 				breakPointBSList);
 	}
 	

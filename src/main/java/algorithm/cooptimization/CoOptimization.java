@@ -29,8 +29,8 @@ class CoOptimization {
 	
 	private static final Logger LOG = Logger.getLogger(CoOptimization.class);
 	
-	static Pair<RoadNetworkGraph, List<TrajectoryMatchResult>> coOptimisationProcess(Stream<Trajectory> trajectoryStream, RoadNetworkGraph prevMap,
-																					 List<RoadWay> removedWayList, BaseProperty prop) throws InterruptedException, ExecutionException, IOException {
+	static Pair<RoadNetworkGraph, List<MultipleTrajectoryMatchResult>> coOptimisationProcess(Stream<Trajectory> trajectoryStream, RoadNetworkGraph prevMap,
+																							 List<RoadWay> removedWayList, BaseProperty prop) throws InterruptedException, ExecutionException, IOException {
 		long startTaskTime = System.currentTimeMillis();
 		long prevTime = System.currentTimeMillis();
 		
@@ -43,7 +43,7 @@ class CoOptimization {
 		CoOptimizationFunc initialOptimizationFunc = new CoOptimizationFunc();  // not useful, only for filling the arguments
 		List<Trajectory> inputTrajList = trajectoryStream.collect(Collectors.toList());
 		
-		Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> initialMatchResultPair =
+		Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> initialMatchResultPair =
 				parallelMapMatchingBeijing(inputTrajList.stream(), prevMap, 0, "normal", initialOptimizationFunc, prop);
 		LOG.info("Initial map matching finished, time elapsed:" + (System.currentTimeMillis() - prevTime) / 1000 + " seconds");
 		prevTime = System.currentTimeMillis();
@@ -60,7 +60,7 @@ class CoOptimization {
 		int refineMatchingTime = 0;
 		int refinementTime = 0;
 		
-		Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> prevMatchResultPair = initialMatchResultPair;
+		Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> prevMatchResultPair = initialMatchResultPair;
 		long totalIterationStartTime = System.currentTimeMillis();
 		int iteration = 1;  // start the iteration
 		double costFunc = 0;
@@ -130,7 +130,7 @@ class CoOptimization {
 				// map update evaluation
 				
 				// step 3: map-matching process on updated map
-				Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchResultPair;
+				Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchResultPair;
 				if (indexFilterType == 1) {
 					HashSet<String> trajIDSet = TrajectoryIndex.trajectoryIDSearch(newWayList, trajectoryPointIndex, prop);
 					List<Trajectory> filteredTrajList = new ArrayList<>();
@@ -158,7 +158,7 @@ class CoOptimization {
 				Triplet<RoadNetworkGraph, List<Trajectory>, Double> refinementResult = coOptimizationFunc.combinedScoreCostCalc
 						(matchResultPair, removedWayList, prevMap, correctRoadPercentage, scoreLambda, costFunc);
 				Stream<Trajectory> refinedTrajectory = refinementResult._2().stream();
-				Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> refinedMatchResult = parallelMapMatchingBeijing
+				Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> refinedMatchResult = parallelMapMatchingBeijing
 						(refinedTrajectory, refinementResult._1(), iteration, "refinement", coOptimizationFunc, prop);
 				
 				// step 5: write refinement result
@@ -166,7 +166,7 @@ class CoOptimization {
 				refinementTime += (System.currentTimeMillis() - prevTime) / 1000;
 				prevTime = System.currentTimeMillis();
 				
-				List<TrajectoryMatchResult> iterationFinalMatchResult = MatchResultWriter.writeAndMergeMatchResults(matchResultPair._1(),
+				List<MultipleTrajectoryMatchResult> iterationFinalMatchResult = MatchResultWriter.writeAndMergeMatchResults(matchResultPair._1(),
 						refinedMatchResult._1(), cacheFolder + "matchResult/" + iteration + "/");
 				
 				// TODO unmatched trajectory merge improvement
@@ -203,8 +203,8 @@ class CoOptimization {
 				// read the previous map-matching result
 				HashMap<String, List<Pair<String, MatchResultWithUnmatchedTraj>>> trajID2MatchResultUpdate = new LinkedHashMap<>();
 //                        TrajectoryReader csvMatchedTrajectoryReader = new TrajectoryReader(0);
-//                        List<TrajectoryMatchResult> prevMatchResultList = csvMatchedTrajectoryReader.readMatchedResult(CACHE_FOLDER, iteration - 1);
-				for (TrajectoryMatchResult mr : prevMatchResultPair._1()) {
+//                        List<MultipleTrajectoryMatchResult> prevMatchResultList = csvMatchedTrajectoryReader.readMatchedResult(CACHE_FOLDER, iteration - 1);
+				for (MultipleTrajectoryMatchResult mr : prevMatchResultPair._1()) {
 					if (!trajID2MatchResultUpdate.containsKey(mr.getTrajID())) {
 						List<Pair<String, MatchResultWithUnmatchedTraj>> matchResultList = new ArrayList<>();
 						MatchResultWithUnmatchedTraj prevMatchResultWithUnmatchedTraj = new MatchResultWithUnmatchedTraj(mr, new ArrayList<>());
@@ -269,7 +269,7 @@ class CoOptimization {
 				
 				Triplet<RoadNetworkGraph, Set<String>, Double> refinementResult = coOptimizationFunc.indexedCombinedScoreCostCalc
 						(trajID2MatchResultUpdate, removedWayList, prevMap, correctRoadPercentage, scoreLambda, costFunc);
-				Triplet<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>, Integer> refinedMatchResult =
+				Triplet<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>, Integer> refinedMatchResult =
 						refineMatchResult(trajID2MatchResultUpdate, refinementResult._2());
 				
 				LOG.info("Map refinement finished, total road removed: " + refinementResult._2().size() + ", trajectory affected: " +
@@ -316,11 +316,11 @@ class CoOptimization {
 		return new Pair<>(prevMap, prevMatchResultPair._1());
 	}
 	
-	private static Triplet<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>, Integer> refineMatchResult(HashMap<String,
+	private static Triplet<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>, Integer> refineMatchResult(HashMap<String,
 			List<Pair<String, MatchResultWithUnmatchedTraj>>> trajID2MatchResultUpdate, Set<String> removedRoadIDSet) {
 		int affectedTrajCount = 0;
 		int multipleMatchTraj = 0;  // number of trajectories that affected by multiple new roads
-		List<TrajectoryMatchResult> matchResultList = new ArrayList<>();
+		List<MultipleTrajectoryMatchResult> matchResultList = new ArrayList<>();
 		List<Triplet<Trajectory, String, String>> unmatchedTrajList = new ArrayList<>();
 		for (Map.Entry<String, List<Pair<String, MatchResultWithUnmatchedTraj>>> entry : trajID2MatchResultUpdate.entrySet()) {
 			List<Pair<String, MatchResultWithUnmatchedTraj>> matchResult = entry.getValue();
@@ -396,7 +396,7 @@ class CoOptimization {
 	 *
 	 * @return map-matched trajectory result
 	 */
-	private static Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> parallelMapMatchingBeijing
+	private static Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> parallelMapMatchingBeijing
 	(Stream<Trajectory> rawTrajectoryList, RoadNetworkGraph roadMap, int iteration, String matchType,
 	 CoOptimizationFunc coOptimizationFunc, BaseProperty prop) throws ExecutionException, InterruptedException {
 		
@@ -404,7 +404,7 @@ class CoOptimization {
 		HMMMapMatching mapMatching = new HMMMapMatching(roadMap, prop);
 		Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(rawTrajectoryList);
 		List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
-		List<TrajectoryMatchResult> currMatchResultList = new ArrayList<>();
+		List<MultipleTrajectoryMatchResult> currMatchResultList = new ArrayList<>();
 		List<Triplet<Trajectory, String, String>> unmatchedTrajInfo = new ArrayList<>();
 		int brokenTrajCount = 0;
 		for (MatchResultWithUnmatchedTraj currPair : currCombinedMatchResultList) {
@@ -418,8 +418,8 @@ class CoOptimization {
 		return matchedResultPostProcess(roadMap, iteration, matchType, currMatchResultList, unmatchedTrajInfo, coOptimizationFunc, prop);
 	}
 	
-	private static Pair<List<TrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchedResultPostProcess
-			(RoadNetworkGraph roadMap, int iteration, String matchType, List<TrajectoryMatchResult> currMatchResultList,
+	private static Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchedResultPostProcess
+			(RoadNetworkGraph roadMap, int iteration, String matchType, List<MultipleTrajectoryMatchResult> currMatchResultList,
 			 List<Triplet<Trajectory, String, String>> unmatchedTrajInfo, CoOptimizationFunc coOptimizationFunc, BaseProperty prop) {
 		String cacheMatchResultFolder = prop.getPropertyString("algorithm.cooptimization.path.CacheFolder") + "matchResult/";
 		String cacheUnmatchedTrajFolder = prop.getPropertyString("algorithm.cooptimization.path.CacheFolder") + "unmatchedTrajectory/";
@@ -429,11 +429,11 @@ class CoOptimization {
 		switch (matchType) {
 			case "normal":  // traditional iterative map-matching
 				if (iteration != 0) {     // start processing the co-optimization model
-					List<TrajectoryMatchResult> prevMatchResult =
+					List<MultipleTrajectoryMatchResult> prevMatchResult =
 							MatchResultReader.readMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
 									roadMap.getDistanceFunction());
-					Map<String, TrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
-					for (TrajectoryMatchResult mr : prevMatchResult) {
+					Map<String, MultipleTrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
+					for (MultipleTrajectoryMatchResult mr : prevMatchResult) {
 						if (!id2PrevMatchResult.containsKey(mr.getTrajID()))
 							id2PrevMatchResult.put(mr.getTrajID(), mr);
 						else
@@ -455,18 +455,18 @@ class CoOptimization {
 			case "partial": // index-based iterative map-matching
 				if (iteration != 0) {     // start processing the co-optimization model
 					Set<String> currMatchingIDSet = new HashSet<>();
-					List<TrajectoryMatchResult> unchangedResultList = new ArrayList<>();
-					for (TrajectoryMatchResult mr : currMatchResultList) {
+					List<MultipleTrajectoryMatchResult> unchangedResultList = new ArrayList<>();
+					for (MultipleTrajectoryMatchResult mr : currMatchResultList) {
 						if (!currMatchingIDSet.contains(mr.getTrajID()))
 							currMatchingIDSet.add(mr.getTrajID());
 						else
 							LOG.error("The current trajectory is matched twice: " + mr.getTrajID());
 					}
-					List<TrajectoryMatchResult> prevMatchResult =
+					List<MultipleTrajectoryMatchResult> prevMatchResult =
 							MatchResultReader.readMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
 									roadMap.getDistanceFunction());
-					Map<String, TrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
-					for (TrajectoryMatchResult mr : prevMatchResult) {
+					Map<String, MultipleTrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
+					for (MultipleTrajectoryMatchResult mr : prevMatchResult) {
 						if (currMatchingIDSet.contains(mr.getTrajID())) {
 							if (!id2PrevMatchResult.containsKey(mr.getTrajID()))
 								id2PrevMatchResult.put(mr.getTrajID(), mr);

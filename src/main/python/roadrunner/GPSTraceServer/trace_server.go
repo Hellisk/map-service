@@ -518,7 +518,7 @@ func (TD *TraceDataset) QuerySamples(lat float64, lon float64, radius float64) [
 					runtime.GC()
 				}
 
-				fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:", TD.cache_total_size/1024/1024, " MB", "Heap Alloc ", m.Alloc/1024/1024, " MB   Unused", (m.HeapIdle-m.HeapReleased)/1024/1024, " MB")
+				//fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:", TD.cache_total_size/1024/1024, " MB", "Heap Alloc ", m.Alloc/1024/1024, " MB   Unused", (m.HeapIdle-m.HeapReleased)/1024/1024, " MB")
 
 				//fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:",  TD.cache_total_size / 1024 / 1024 , " MB")
 
@@ -674,7 +674,7 @@ func (TD *TraceDataset) QuerySamplesRect(lat_min float64, lon_min float64, lat_m
 
 				//fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:",  TD.cache_total_size / 1024 / 1024 , " MB", "Heap Alloc ", m.Alloc / 1024 / 1024, " MB")
 				//fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:",  TD.cache_total_size / 1024 / 1024 , " MB")
-				fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:", TD.cache_total_size/1024/1024, " MB", "Heap Alloc ", m.Alloc/1024/1024, " MB  Unused", (m.HeapIdle-m.HeapReleased)/1024/1024, " MB")
+				//fmt.Println("Cache Miss ", sign, " Size: ", TD.cache_size[sign], " bytes  Total Cache Size:", TD.cache_total_size/1024/1024, " MB", "Heap Alloc ", m.Alloc/1024/1024, " MB  Unused", (m.HeapIdle-m.HeapReleased)/1024/1024, " MB")
 
 				// if m.Alloc / 1024 / 1024 > uint64(TD.cache_max_size) * 3 {
 				// 	runtime.GC()
@@ -713,7 +713,7 @@ func Query(lat1 float64, lon1 float64, lat2 float64, lon2 float64, radius float6
 	gps_list1 := dataset.QuerySamples(g1.lat, g1.lon, radius)
 	gps_list2 := dataset.QuerySamples(g2.lat, g2.lon, radius)
 
-	fmt.Println(len(gps_list1), len(gps_list2))
+	//fmt.Println(len(gps_list1), len(gps_list2))
 
 	gpsPairs1 := make(map[int]gpsPair)
 	gpsPairs2 := make(map[int]gpsPair)
@@ -1134,7 +1134,7 @@ func handleConnectionP2P(conn net.Conn, dataset *TraceDataset) {
 
 	n, err := conn.Read(buf)
 	data := string(buf[:n])
-	fmt.Println(data)
+	//fmt.Println(data)
 
 	if err == nil {
 		var g1 gps
@@ -1175,7 +1175,7 @@ func handleConnectionP2P(conn net.Conn, dataset *TraceDataset) {
 			answer = answer + answermap[i]
 		}
 
-		fmt.Println("Return Size ", len(answer))
+		//fmt.Println("Return Size ", len(answer))
 		fmt.Println("Time ", makeTimestamp()-ts1, "ms")
 
 		conn.Write([]byte(answer))
@@ -1557,7 +1557,7 @@ func renderSamples(trip_id string, lat float64, lon float64, clat1 float64, clon
 		//canvas := svg.New(f)
 		//canvas.Start(sizex, sizey)
 
-		fmt.Println(step, K1, K2, len(all_trips[step]))
+		//fmt.Println(step, K1, K2, len(all_trips[step]))
 
 		if len(all_trips[step]) == 0 {
 			break
@@ -1808,7 +1808,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 
 		items := strings.Split(data, ",")
 
-		fmt.Println(n, len(items))
+		//fmt.Println(n, len(items))
 
 		g1.lat, _ = strconv.ParseFloat(items[1], 64)
 		g1.lon, _ = strconv.ParseFloat(items[2], 64)
@@ -1830,7 +1830,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 		go Query2Interpolation(g1.lat, g1.lon, g2.lat, g2.lon, g3.lat, g3.lon, radius1, radius2, radius3, dist1, dist2, 0, replies, dataset)
 		r := <-replies
 
-		fmt.Println(r.result)
+		//fmt.Println(r.result)
 
 		SendLargeData(conn, r.result)
 
@@ -1842,7 +1842,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 	if data[0] == 'S' {
 		fmt.Println("New Protocal for speed")
 		items := strings.Split(data, ",")
-		fmt.Println(n, len(items))
+		//fmt.Println(n, len(items))
 
 		var g1 gps
 		var radius1 float64
@@ -1884,7 +1884,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 
 	if data[0] == 'G' {
 		items := strings.Split(data, ",")
-		fmt.Println(n, len(items))
+		//fmt.Println(n, len(items))
 
 		lat2, _ := strconv.ParseFloat(items[1], 64)
 		lon2, _ := strconv.ParseFloat(items[2], 64)
@@ -1909,7 +1909,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 
 	if data[0] == 'B' {
 		items := strings.Split(data, ",")
-		fmt.Println(n, len(items))
+		//fmt.Println(n, len(items))
 
 		lat0, _ := strconv.ParseFloat(items[1], 64)
 		lon0, _ := strconv.ParseFloat(items[2], 64)
@@ -1935,10 +1935,10 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 		ts1 := makeTimestamp()
 
 		items := strings.Split(data, ",")
-		fmt.Println(n, len(items))
+		//fmt.Println(n, len(items))
 		path_len := (len(items) - 2) / 4
 
-		fmt.Println("Received", data)
+		//fmt.Println("Received", data)
 
 		path_info := make([]float64, path_len*4)
 
@@ -1967,7 +1967,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 					}
 				}
 
-				fmt.Println("Counter round1 ", counter)
+				//fmt.Println("Counter round1 ", counter)
 			}
 		}
 
@@ -1983,12 +1983,12 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 				}
 			}
 
-			fmt.Println("Counter round2 ", counter)
+			//fmt.Println("Counter round2 ", counter)
 
 		}
 
 		// in debug mode, dump the id of trips
-		fmt.Println(data[2])
+		//fmt.Println(data[2])
 		if debugMode == 1 && data[2] != 'M' {
 			f, _ := os.Create("debug_query_trips_info" + string(data[3]) + ".txt")
 			defer f.Close()
@@ -2038,7 +2038,7 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 				start_index := v.i1 + 2
 				end_index := v.i2
 
-				fmt.Println(start_index, end_index)
+				//fmt.Println(start_index, end_index)
 				if end_index <= start_index {
 					numOfTrips = numOfTrips - 1
 					continue
@@ -2245,8 +2245,8 @@ func handleConnection3P(conn net.Conn, dataset *TraceDataset, detail bool) {
 
 		ts2 := makeTimestamp()
 
-		fmt.Println("Result ", answer)
-		fmt.Println("Return Size ", len(answer))
+		//fmt.Println("Result ", answer)
+		//fmt.Println("Return Size ", len(answer))
 		fmt.Println("Time ", ts2-ts1, "ms")
 
 		if detail == true {
@@ -2295,8 +2295,8 @@ func handleConnectionTrip(conn net.Conn, folder string) {
 		}
 		file.Close()
 
-		fmt.Println("Result ", result)
-		fmt.Println("Return Size ", len(result))
+		//fmt.Println("Result ", result)
+		//fmt.Println("Return Size ", len(result))
 		fmt.Println("Time ", makeTimestamp()-ts1, "ms")
 
 		SendLargeData(conn, result)
@@ -2497,7 +2497,7 @@ func getGPSHistogram(lat2 float64, lon2 float64, lat1 float64, lon1 float64, lat
 
 	gpslist := dataset.QuerySamplesRect(latmin-0.00002, lonmin-0.00002, latmax+0.00002, lonmax+0.00002)
 
-	fmt.Println(len(gpslist))
+	//fmt.Println(len(gpslist))
 
 	gpstrips := make(map[int][]gps)
 
@@ -2517,7 +2517,7 @@ func getGPSHistogram(lat2 float64, lon2 float64, lat1 float64, lon1 float64, lat
 	lonres := size
 	latres := size
 
-	fmt.Println(len(gpstrips))
+	//fmt.Println(len(gpstrips))
 
 	for k := range gpstrips {
 		var gtmp GPSList = gpstrips[k]
@@ -2599,7 +2599,7 @@ func getGPSHistogram(lat2 float64, lon2 float64, lat1 float64, lon1 float64, lat
 	buf2 := new(bytes.Buffer)
 	_ = png.Encode(buf2, img)
 
-	fmt.Println("Return Size ", len(buf2.Bytes()))
+	//fmt.Println("Return Size ", len(buf2.Bytes()))
 	fmt.Println("Time ", makeTimestamp()-ts1, "ms")
 
 	return buf2.Bytes()
@@ -2628,7 +2628,7 @@ func handleConnectionGPSImage(conn net.Conn, dataset *TraceDataset) {
 		latres, _ := strconv.Atoi(items[5])
 		lonres, _ := strconv.Atoi(items[6])
 
-		fmt.Println("Get ", data)
+		//fmt.Println("Get ", data)
 		fmt.Println("Query ", cmd, latmin, lonmin, latmax, lonmax, latres, lonres)
 
 		img := image.NewGray16(image.Rect(0, 0, lonres, latres))
@@ -2637,7 +2637,7 @@ func handleConnectionGPSImage(conn net.Conn, dataset *TraceDataset) {
 
 		gpslist := dataset.QuerySamplesRect(latmin-0.00002, lonmin+0.00002, latmax-0.00002, lonmax+0.00002)
 
-		fmt.Println(len(gpslist))
+		//fmt.Println(len(gpslist))
 
 		gpstrips := make(map[int][]gps)
 
@@ -2651,7 +2651,7 @@ func handleConnectionGPSImage(conn net.Conn, dataset *TraceDataset) {
 			}
 		}
 
-		fmt.Println(len(gpstrips))
+		//fmt.Println(len(gpstrips))
 
 		//dump_str := ""
 		f, _ := os.Create("debug_trips_in_region.txt")
@@ -2761,7 +2761,7 @@ func handleConnectionGPSImage(conn net.Conn, dataset *TraceDataset) {
 		fout.Close()
 
 		//fmt.Println("Result ", result)
-		fmt.Println("Return Size ", len(buf2.Bytes()))
+		//fmt.Println("Return Size ", len(buf2.Bytes()))
 		fmt.Println("Time ", makeTimestamp()-ts1, "ms")
 
 	}

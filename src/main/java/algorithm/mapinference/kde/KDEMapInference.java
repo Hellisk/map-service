@@ -1,5 +1,6 @@
 package algorithm.mapinference.kde;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -10,6 +11,7 @@ import util.object.roadnetwork.RoadWay;
 import util.settings.BaseProperty;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -42,18 +44,18 @@ public class KDEMapInference {
 	// use python script to run map inference python code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) throws IOException {
 		List<String> pythonCmd = new ArrayList<>();
-
-//		// remove the map inference directory
-//		IOService.createFolder(cacheFolder);
-//		FileUtils.cleanDirectory(new File(cacheFolder));
-//		FileUtils.deleteDirectory(new File(cacheFolder));
-
+		
+		// remove the map inference directory
+		IOService.createFolder(cacheFolder);
+		FileUtils.cleanDirectory(new File(cacheFolder));
+		FileUtils.deleteDirectory(new File(cacheFolder));
+		
 		// setup each command manually
-//		pythonCmd.add("python " + codeRootFolder + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -i " + inputTrajFolder + " -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "skeleton.py -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "graph_extract.py -f " + cacheFolder);
-//		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -f " + cacheFolder + " -t " + inputTrajFolder);
-//		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "kde.py -c " + this.cellSize + " -b " + this.gaussianBlur + " -i " + inputTrajFolder + " -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "skeleton.py -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "graph_extract.py -f " + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -f " + cacheFolder + " -t " + inputTrajFolder);
+		pythonCmd.add("python " + codeRootFolder + "process_map_matches.py -f " + cacheFolder);
 		pythonCmd.add("python " + codeRootFolder + "refine_topology.py -f " + cacheFolder);
 		pythonCmd.add("python " + codeRootFolder + "graphdb_matcher_run.py -d skeleton_maps/skeleton_map_1m_mm1_tr.db -o " +
 				"matched_trips_1m_mm1_tr/ -t " + inputTrajFolder + " -f " + cacheFolder);

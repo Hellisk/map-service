@@ -46,7 +46,7 @@ def init():
     global ex
     ex = Experiment('TrajMap')
     ex.logger = logger
-    ex.observers.append(MongoObserver.create(url='10.60.43.110:27017', db_name='TurnHMM'))
+    ex.observers.append(MongoObserver.create(url='localhost:27017', db_name='TurnHMM'))
     # ex.observers.append(MongoObserver.create(url='127.0.0.1:27017', db_name='nTrajMap'))
     return ex, logger
 

@@ -31,7 +31,7 @@ import java.util.Map;
 public class UnfoldingBeijingMapDisplay extends PApplet {
 	
 	private UnfoldingMap currMapDisplay;
-	private String inputMapFolder = "F:/data/Beijing-S/input/map/";
+	private String inputMapFolder = "F:/data/Beijing-S/update/cache/map/1/";
 	//	private String inputTrajPath = "F:/data/Beijing-S/input/trajectory/L180_I-1_N5000S/";
 //	private String gtMatchResultPath = "F:/data/Beijing-S/groundTruth/matchResult/L180_I-1_N5000/";
 	private DistanceFunction distFunc = new EuclideanDistanceFunction();

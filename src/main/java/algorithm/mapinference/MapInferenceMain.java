@@ -2,6 +2,7 @@ package algorithm.mapinference;
 
 import algorithm.mapinference.kde.KDEMapInference;
 import algorithm.mapinference.lineclustering.LineClusteringMapInference;
+import algorithm.mapinference.pointclustering.KharitaMapInference;
 import algorithm.mapinference.roadrunner.RoadRunnerMapInference;
 import algorithm.mapinference.topicmodel.CRIFMapInference;
 import algorithm.mapinference.tracemerge.TraceMergeMapInference;
@@ -83,6 +84,12 @@ public class MapInferenceMain {
 				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.crif.CellWidth") + "_" + initTaskTime;
 				break;
+			case "KHA":
+				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
+						+ property.getPropertyString("algorithm.mapinference.pointclustering.Radius") + "_"
+						+ property.getPropertyString("algorithm.mapinference.pointclustering.DensifyDistance") + "_"
+						+ property.getPropertyString("algorithm.mapinference.pointclustering.AngleTolerance") + "_" + initTaskTime;
+				break;
 			default:
 				logFileName = "Failure";
 				break;
@@ -99,8 +106,8 @@ public class MapInferenceMain {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 		
-		// KDE, RoadRunner and CRIF uses great circle (Haversine) distance
-		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR")) {
+		// KDE, RoadRunner and Kharita uses great circle (Haversine) distance
+		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR") || inferenceMethod.equals("KHA")) {
 			if (dataSet.contains("Chicago")) {
 				LOG.info("Convert the input trajectory into WGS84.");
 				for (Trajectory traj : inputTrajList) {    // convert the coordinate to UTM
@@ -149,51 +156,70 @@ public class MapInferenceMain {
 				Rect crifBoundary;
 				if (dataSet.contains("Beijing")) {
 					crifBoundary = gtMap.getBoundary();
-					Pair<Double, Double> minLonLat = SpatialUtils.convertGCJ2WGS(crifBoundary.minX(), crifBoundary.minY());
-					Pair<Double, Double> maxLonLat = SpatialUtils.convertUTM2WGS(crifBoundary.maxX(), crifBoundary.maxY(), 16, 'T');
-					crifBoundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new GreatCircleDistanceFunction());
-					LOG.info("Convert the Chicago map bounding box from UTM to WGS: " + minLonLat._1() + "," + maxLonLat._1()
+					Pair<Double, Double> minLonLat = SpatialUtils.convertGCJ2UTM(crifBoundary.minX(), crifBoundary.minY());
+					Pair<Double, Double> maxLonLat = SpatialUtils.convertGCJ2UTM(crifBoundary.maxX(), crifBoundary.maxY());
+					crifBoundary = new Rect(minLonLat._1(), minLonLat._2(), maxLonLat._1(), maxLonLat._2(), new EuclideanDistanceFunction());
+					LOG.info("Convert the " + dataSet + "map bounding box from WGS84 to UTM: " + minLonLat._1() + "," + maxLonLat._1()
 							+ "," + minLonLat._2() + "," + maxLonLat._2());
-					inputTrajFolder = cacheFolder + "roadRunnerTraj/";
-					// convert to a pickle file
-					IOService.createFolder(inputTrajFolder);
-					IOService.cleanFolder(inputTrajFolder);
-					BufferedWriter bw = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".pickle")));
-					for (Trajectory traj : inputTrajList) {
-						StringBuilder currTrajString = new StringBuilder();
-						for (int i = 0; i < traj.size(); i++) {
-							TrajectoryPoint trajPoint = traj.get(i);
-							currTrajString.append(i).append(',').append(trajPoint.x()).append(',').append(trajPoint.y())
-									.append(',').append(trajPoint.time()).append(',').append(traj.getID());
-						}
-						bw.write(currTrajString.toString() + "\n");
-					}
-					bw.flush();
-					bw.close();
 				} else {
 					crifBoundary = gtMap.getBoundary();
 				}
-				CRIFMapInference crifMapInference = new CRIFMapInference(property, crifBoundary);
-				if (dataSet.equals("Berlin") || dataSet.equals("Chicago")) {
-					inputTrajFolder = cacheFolder + "crifTraj/";
-					IOService.createFolder(inputTrajFolder);
-					IOService.cleanFolder(inputTrajFolder);
-					BufferedWriter bw = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".pickle")));
-					for (Trajectory traj : inputTrajList) {
-						StringBuilder currTrajString = new StringBuilder();
-						for (int i = 0; i < traj.size(); i++) {
-							TrajectoryPoint trajPoint = traj.get(i);
-							currTrajString.append(i).append(',').append(trajPoint.x()).append(',').append(trajPoint.y())
-									.append(',').append(trajPoint.time()).append(',').append(traj.getID());
-						}
-						bw.write(currTrajString.toString() + "\n");
+				inputTrajFolder = cacheFolder + "crifTraj/";
+				// convert to a pickle file
+				IOService.createFolder(inputTrajFolder);
+				IOService.cleanFolder(inputTrajFolder);
+				BufferedWriter crifBW = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".pickle")));
+				for (int index = 0; index < inputTrajList.size(); index++) {
+					Trajectory traj = inputTrajList.get(index);
+					StringBuilder currTrajString = new StringBuilder();
+					for (int i = 0; i < traj.size(); i++) {
+						TrajectoryPoint trajPoint = traj.get(i);
+						currTrajString.append(i).append(",").append(trajPoint.x()).append(",").append(trajPoint.y())
+								.append(",").append(trajPoint.time()).append(",").append(traj.getID()).append("\n");
 					}
-					bw.flush();
-					bw.close();
+					if (index == inputTrajList.size() - 1) {    // last line should remove "\n"
+						crifBW.write(currTrajString.toString().substring(0, currTrajString.length() - 1));
+					} else {
+						crifBW.write(currTrajString.toString());
+					}
 				}
+				crifBW.flush();
+				crifBW.close();
+				CRIFMapInference crifMapInference = new CRIFMapInference(property, crifBoundary);
 				outputMap = crifMapInference.mapInferenceProcess(pythonRootFolder + "crif/", inputTrajFolder, cacheFolder + "crif/");
-				SpatialUtils.convertMapWGS2UTM(outputMap);
 				MapWriter.writeMap(outputMap, outputMapFolder + "CRIF_" + dataSpec + ".txt");
+				break;
+			case "KHA":
+				inputTrajFolder = cacheFolder + "khaTraj/";
+				// convert to a csv file
+				IOService.createFolder(inputTrajFolder);
+				IOService.cleanFolder(inputTrajFolder);
+//				DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss+03");
+				BufferedWriter bw = new BufferedWriter(new FileWriter(new File(inputTrajFolder + dataSet + ".txt")));
+				for (int index = 0; index < inputTrajList.size(); index++) {
+					Trajectory traj = inputTrajList.get(index);
+					StringBuilder currTrajString = new StringBuilder();
+					for (int i = 0; i < traj.size(); i++) {
+						TrajectoryPoint trajPoint = traj.get(i);
+//						Date date = new Date(trajPoint.time());
+//						String time = dateFormat.format(date);
+						currTrajString.append(traj.getID()).append(",").append(trajPoint.time()).append(",").append(trajPoint.y())
+								.append(",").append(trajPoint.x()).append(",").append(trajPoint.speed()).append(",")
+								.append(trajPoint.heading()).append("\n");
+					}
+					if (index == inputTrajList.size() - 1) {    // last line should remove "\n"
+						bw.write(currTrajString.toString().substring(0, currTrajString.length() - 1));
+					} else {
+						bw.write(currTrajString.toString());
+					}
+				}
+				bw.flush();
+				bw.close();
+				KharitaMapInference kharitaMapInference = new KharitaMapInference(property);
+				outputMap = kharitaMapInference.mapInferenceProcess(pythonRootFolder + "kharita/", inputTrajFolder,
+						cacheFolder + "kharita/");
+				SpatialUtils.convertMapGCJ2UTM(outputMap);
+				MapWriter.writeMap(outputMap, outputMapFolder + "KHA_" + dataSpec + ".txt");
 				break;
 			case "TM":
 				TraceMergeMapInference traceMergeMapInference = new TraceMergeMapInference();
@@ -202,6 +228,7 @@ public class MapInferenceMain {
 				MapWriter.writeMap(outputMap, outputMapFolder + "TM_" + dataSpec + ".txt");
 				break;
 			case "RR":
+				Thread.sleep(30000);    // wait to close the last daemon thread.
 				Rect rrBoundary;
 				if (dataSet.equals("Chicago") || dataSet.equals("Berlin")) {
 					rrBoundary = gtMap.getBoundary();
@@ -225,7 +252,7 @@ public class MapInferenceMain {
 				}
 				RoadRunnerMapInference roadRunnerMapInference = new RoadRunnerMapInference(property, rrBoundary);
 				outputMap = roadRunnerMapInference.mapInferenceProcess(pythonRootFolder + "roadrunner/", inputTrajFolder,
-						cacheFolder + "roadRunner/");
+						cacheFolder + "roadRunner/", inputTrajList);
 				SpatialUtils.convertMapWGS2UTM(outputMap);
 				MapWriter.writeMap(outputMap, outputMapFolder + "RR_" + dataSpec + ".txt");
 				break;

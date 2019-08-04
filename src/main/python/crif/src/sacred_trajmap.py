@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 from sacred import Experiment
 from sacred.observers import MongoObserver
 import trajmap
-import plot
 import gis
 from PIL import Image
 import StringIO
@@ -44,7 +43,7 @@ def init():
     global ex
     ex = Experiment('DNLP')
     ex.logger = logger
-    ex.observers.append(MongoObserver.create(url='10.60.43.110:27017', db_name='DNLP'))
+    ex.observers.append(MongoObserver.create(url='localhost:27017', db_name='DNLP'))
     # ex.observers.append(MongoObserver.create(url='127.0.0.1:27017', db_name='nTrajMap'))
     return ex, logger
 
@@ -93,7 +92,7 @@ def cfg():
     percent = 0.02
     width = 4
     alpha = None
-    beta = None
+    beta = 0
     fig_width = 5
     max_value = 0.2
     combine_dist = 1.5
@@ -105,8 +104,9 @@ def cfg():
 
 
 @ex.automain
-def main(ex_name, data_file, minx, maxx, miny, maxy, side, k, ratio, topic_model, percent, width, alpha, beta, sel_cand_method, maxiter,
-         cands_num, fig_width, max_value, combine_dist, _log, _run, inc=0, true_pass=False, cut_length=0):
+def main(ex_name, data_file, map_min_x, map_max_x, map_min_y, map_max_y, side, k, ratio, topic_model, percent, width, alpha,
+         sel_cand_method, maxiter, cands_num, fig_width, max_value, output_folder, combine_dist, _log, _run, beta, inc=0,
+         true_pass=False, cut_length=0):
     # if data == 'chicago':
     #     data_file = "../Data/Chicago/chicago.pickle"
     #     axis = gis.chc_utm_axis
@@ -168,7 +168,7 @@ def main(ex_name, data_file, minx, maxx, miny, maxy, side, k, ratio, topic_model
     #     axis = gis.maxsh_utm_axis
     #     # map_file = "../Data/Shanghai/sh_map_df.csv"
     #     map_file = "../Data/Shanghai/matched_sh_map_df.csv"
-    axis = (minx, maxx, miny, maxy)
+    axis = (map_min_x, map_max_x, map_min_y, map_max_y)
 
     global ex
     # ex.add_artifact('origin_gen_map.png')
@@ -178,10 +178,11 @@ def main(ex_name, data_file, minx, maxx, miny, maxy, side, k, ratio, topic_model
     # map_df.index = map_df.rid
 
     _run.info['ex_name'] = ex_name
+    print (topic_model, data_file, side, k, percent, width, alpha, beta)
     _log.info('topic_model: %s \tdata_file: %s \tside: %d\tk: %d\tpercent: %.4f\twidth: %d\talpha: %.2f\tbeta: %.2f' % (
         topic_model, data_file, side, k, percent, width, alpha, beta))
 
-    trajs = pd.read_pickle(data_file)
+    trajs = pd.read_csv(data_file, sep=',', names=['id', 'x', 'y', 't', 'tid'])
     result = {}
 
     _run.info['time'] = {}
@@ -243,43 +244,44 @@ def main(ex_name, data_file, minx, maxx, miny, maxy, side, k, ratio, topic_model
     gen_map_df = gis.convert_nx2map_df(mat, _M, {})
 
     result['origin'] = {}
-    if axis[0] == gis.maxsh_utm_axis[0]:
-        result['origin'] = gis.evaluate_map(gen_map_df, map_df, gis.minsh_utm_axis)
-    else:
-        result['origin'] = gis.evaluate_map(gen_map_df, map_df, axis)
+    # if axis[0] == gis.maxsh_utm_axis[0]:
+    #     result['origin'] = gis.evaluate_map(gen_map_df, map_df, gis.minsh_utm_axis)
+    # else:
+    #     result['origin'] = gis.evaluate_map(gen_map_df, map_df, axis)
     result['origin']['length'] = gis.map_length(gen_map_df)
     result['time'] = total_time
 
-    plt.figure(figsize=(fig_width, fig_width * (axis[3] - axis[2]) / (axis[1] - axis[0])))
-    ca = plt.gca()
-    plot.map_df(map_df, ca=ca, axis=axis, color='b')
-    plot.map_df(gen_map_df, ca=ca, axis=axis, color='r', linewidth=1.5)
-    plot.dots(mat, mat.candidates, ca=ca, gps=True, color='r')
-    plt.axis(axis)
-    plt.savefig('origin_gen_map.png')
+    # plt.figure(figsize=(fig_width, fig_width * (axis[3] - axis[2]) / (axis[1] - axis[0])))
+    # ca = plt.gca()
+    # plot.map_df(map_df, ca=ca, axis=axis, color='b')
+    # plot.map_df(gen_map_df, ca=ca, axis=axis, color='r', linewidth=1.5)
+    # plot.dots(mat, mat.candidates, ca=ca, gps=True, color='r')
+    # plt.axis(axis)
+    # plt.savefig('origin_gen_map.png')
+    #
+    # ex.add_artifact('origin_gen_map.png')
 
-    ex.add_artifact('origin_gen_map.png')
-
-    csv_name = '../Data/csv/%s_%s_%d_%d_%d_%f_%d_%f.csv' % (data, topic_model, side, k, width, max_value, maxiter, percent)
-    gen_map_df.to_csv(csv_name)
-    ex.add_artifact(csv_name)
+    gen_map_name = output_folder + "inferred_map_CRIF.txt"
+    # csv_name = '../Data/csv/%s_%s_%d_%d_%d_%f_%d_%f.csv' % (data, topic_model, side, k, width, max_value, maxiter, percent)
+    gen_map_df.to_csv(gen_map_name)
+    ex.add_artifact(gen_map_name)
 
     M = mat.G.copy()
     # if data == 'minsh_6000' and ex_name == 'visualization':
-    if ex_name == 'visualization':
-        result['smoothed'] = {}
-        for _dist in [1.5, 2, 3]:
-            _M, gps = trajmap.smooth_M(mat, M.to_directed(), {}, _dist)
-            gen_map_df = gis.convert_nx2map_df(mat, _M, gps)
-            result['smoothed'][_dist] = gis.evaluate_map(gen_map_df, map_df, axis)
-            # result['smoothed']['length'] = gis.map_length(gen_map_df)
-
-            plt.figure(figsize=(fig_width, fig_width * (axis[3] - axis[2]) / (axis[1] - axis[0])))
-            ca = plt.gca()
-            plot.map_df(map_df, ca=ca, axis=axis, color='b')
-            plot.map_df(gen_map_df, ca=ca, axis=axis, color='r', linewidth=2)
-            plt.axis(axis)
-            plt.savefig('gen_map.png')
-            ex.add_artifact('gen_map.png')
+    # if ex_name == 'visualization':
+    #     result['smoothed'] = {}
+    #     for _dist in [1.5, 2, 3]:
+    #         _M, gps = trajmap.smooth_M(mat, M.to_directed(), {}, _dist)
+    #         gen_map_df = gis.convert_nx2map_df(mat, _M, gps)
+    #         result['smoothed'][_dist] = gis.evaluate_map(gen_map_df, map_df, axis)
+    #         # result['smoothed']['length'] = gis.map_length(gen_map_df)
+    #
+    #         plt.figure(figsize=(fig_width, fig_width * (axis[3] - axis[2]) / (axis[1] - axis[0])))
+    #         ca = plt.gca()
+    #         plot.map_df(map_df, ca=ca, axis=axis, color='b')
+    #         plot.map_df(gen_map_df, ca=ca, axis=axis, color='r', linewidth=2)
+    #         plt.axis(axis)
+    #         plt.savefig('gen_map.png')
+    #         ex.add_artifact('gen_map.png')
 
     return result

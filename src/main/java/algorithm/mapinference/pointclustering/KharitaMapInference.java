@@ -1,13 +1,12 @@
-package algorithm.mapinference.topicmodel;
+package algorithm.mapinference.pointclustering;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
-import util.function.EuclideanDistanceFunction;
+import util.function.GreatCircleDistanceFunction;
 import util.io.IOService;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
-import util.object.spatialobject.Rect;
 import util.settings.BaseProperty;
 
 import java.io.BufferedReader;
@@ -18,68 +17,49 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Command line entrance for Zheng topic model map inference algorithm. The original code is written in Python and we run the Python code
- * through this class.
+ * Command line entrance for Stanojevic's Kharita map inference algorithm. The original code is written in Python and Golang, we prepare
+ * the
+ * command line code and run the algorithms through console. We read the output map and convert into our format after all processes are
+ * done.
  * <p>
  * Reference:
  * <p>
- * Zheng, Renjie, et al. "Topic model-based road network inference from massive trajectories." 18th IEEE International Conference on
- * Mobile Data Management (MDM). IEEE, 2017.
+ * He, Songtao, et al. "RoadRunner: improving the precision of road network inference from GPS trajectories." Proceedings of the 26th ACM
+ * SIGSPATIAL International Conference on Advances in Geographic Information Systems. ACM, 2018.
  *
  * @author Hellisk
- * @since 15/06/2019
+ * Created 7/06/2019
  */
-
-public class CRIFMapInference {
+public class KharitaMapInference {
 	
-	private static final Logger LOG = Logger.getLogger(CRIFMapInference.class);
-	private int k;    // number of roads
-	private int cellWidth;
-	private int side = 10;    // h in paper, usually h*cellWidth should be roughly 50
-	private double ratio = 0.9;
-	private double percent = 0.02;
-	private double alpha = 0.9;
-	private double maxValue = 0.2;
-	private String topicModel = "pLSA";
+	private static final Logger LOG = Logger.getLogger(KharitaMapInference.class);
 	private String os;
-	private String dataset;
-	private Rect boundary;
+	private double radius;
+	private double densifyDistance;
+	private double angleTolerance;
+	private BaseProperty property;
 	
-	public CRIFMapInference(BaseProperty prop, Rect crifBoundary) {
-		this.dataset = prop.getPropertyString("data.Dataset");
-		switch (dataset) {
-			case "Chicago":
-				this.k = 50;
-				break;
-			case "Berlin":
-			case "Beijing-S":
-				this.k = 400;
-				break;
-			case "Beijing-M":
-				this.k = 800;
-				break;
-			case "Beijing-L":
-				this.k = 1600;
-				break;
-		}
-		this.cellWidth = prop.getPropertyInteger("algorithm.mapinference.crif.CellWidth");
-		this.boundary = crifBoundary;
+	public KharitaMapInference(BaseProperty prop) {
 		this.os = prop.getPropertyString("OS");
+		this.radius = prop.getPropertyDouble("algorithm.mapinference.pointclustering.Radius");
+		this.densifyDistance = prop.getPropertyDouble("algorithm.mapinference.pointclustering.DensifyDistance");
+		this.angleTolerance = prop.getPropertyDouble("algorithm.mapinference.pointclustering.AngleTolerance");
+		this.property = prop;
 	}
 	
-	// use python script to run map inference python code
+	// use scripts to run map inference Python and Golang code
 	public RoadNetworkGraph mapInferenceProcess(String codeRootFolder, String inputTrajFolder, String cacheFolder) {
-		List<String> pythonCmd = new ArrayList<>();
-		// remove the map inference directory
+		
+		// remove the previous cache directory
 		IOService.createFolder(cacheFolder);
 		IOService.cleanFolder(cacheFolder);
-		String inputTrajFile = inputTrajFolder + dataset + ".pickle";
+		String dataset = property.getPropertyString("data.Dataset");
+		
+		List<String> pythonCmd = new ArrayList<>();
 		
 		// setup each command manually
-		pythonCmd.add("python " + codeRootFolder + "src/sacred_trajmap.py with ex_name=trajmap_k data_file=" + inputTrajFile +
-				" map_min_x=" + boundary.minX() + " map_max_x=" + boundary.maxX() + " map_min_y=" + boundary.minY() + " map_max_y=" + boundary.maxY() +
-				" side=" + side + " k=" + k + " ratio=" + ratio + " percent=" + percent + " width=" + cellWidth + " alpha=" + alpha
-				+ " max_value=" + maxValue + " topic_model=" + topicModel + " output_folder=" + cacheFolder);
+		pythonCmd.add("python " + codeRootFolder + "kharita.py -f " + inputTrajFolder + dataset + ".txt" + " -r " + radius + " -s "
+				+ densifyDistance + " -a " + angleTolerance + " -p " + cacheFolder + "inferred_edges.txt");
 		
 		try {
 			runCode(pythonCmd);
@@ -87,8 +67,9 @@ public class CRIFMapInference {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String inputMapPath = cacheFolder + "inferred_map_CRIF.txt";
-		return readCRIFOutputMap(inputMapPath);
+		
+		String inputMapPath = cacheFolder + "inferred_edges.txt";
+		return readKharitaOutputMap(inputMapPath);
 	}
 	
 	/**
@@ -97,34 +78,35 @@ public class CRIFMapInference {
 	 * @param inputEdgeListPath The generated road list
 	 * @return The output map
 	 */
-	private RoadNetworkGraph readCRIFOutputMap(String inputEdgeListPath) {
-		DistanceFunction distFunc = new EuclideanDistanceFunction();
+	private RoadNetworkGraph readKharitaOutputMap(String inputEdgeListPath) {
+		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		List<RoadNode> nodeList = new ArrayList<>();
 		List<RoadWay> wayList = new ArrayList<>();
 		// read road ways
 		Map<String, RoadNode> location2NodeMap = new LinkedHashMap<>();
 		List<String> lines = IOService.readFile(inputEdgeListPath);
 		int nodeCount = 0;
+		int wayCount = 0;
 		// the first line is title, skip it
-		for (int i = 1; i < lines.size(); i += 2) {
-			if (!lines.get(i).contains(","))    // reach the file end
+		for (int i = 0; i < lines.size(); i += 3) {
+			if (!lines.get(i).contains(","))
 				break;
-			if (i + 1 == lines.size())
+			if (i + 2 >= lines.size())
 				throw new IllegalArgumentException("The output map does not have even number of records.");
 			String[] startPointInfo = lines.get(i).split(",");
 			String[] endPointInfo = lines.get(i + 1).split(",");
-			if (startPointInfo.length != 4 || endPointInfo.length != 4) {
+			if (startPointInfo.length != 2 || endPointInfo.length != 2) {
 				LOG.warn("The current road way info is incomplete: " + lines.get(i) + "," + lines.get(i + 1));
 				continue;
 			}
 			List<RoadNode> currWayNodeList = new ArrayList<>();
-			String startLocation = startPointInfo[2] + "_" + startPointInfo[3];
-			String endLocation = endPointInfo[2] + "_" + endPointInfo[3];
+			String startLocation = startPointInfo[1] + "_" + startPointInfo[0];
+			String endLocation = endPointInfo[1] + "_" + endPointInfo[0];
 			if (location2NodeMap.containsKey(startLocation)) {    // the intersection already exists
 				currWayNodeList.add(location2NodeMap.get(startLocation));
 			} else {
-				RoadNode startNode = new RoadNode(nodeCount + "", Double.parseDouble(startPointInfo[2]),
-						Double.parseDouble(startPointInfo[3]), distFunc);
+				RoadNode startNode = new RoadNode(nodeCount + "", Double.parseDouble(startPointInfo[1]),
+						Double.parseDouble(startPointInfo[0]), distFunc);
 				currWayNodeList.add(startNode);
 				nodeList.add(startNode);
 				nodeCount++;
@@ -134,16 +116,16 @@ public class CRIFMapInference {
 			if (location2NodeMap.containsKey(endLocation)) {    // the intersection already exists
 				currWayNodeList.add(location2NodeMap.get(endLocation));
 			} else {
-				RoadNode endNode = new RoadNode(nodeCount + "", Double.parseDouble(endPointInfo[2]),
-						Double.parseDouble(endPointInfo[3]), distFunc);
+				RoadNode endNode = new RoadNode(nodeCount + "", Double.parseDouble(endPointInfo[1]),
+						Double.parseDouble(endPointInfo[0]), distFunc);
 				currWayNodeList.add(endNode);
 				nodeList.add(endNode);
 				nodeCount++;
 				location2NodeMap.put(endLocation, endNode);
 			}
-			String wayID = startPointInfo[1];
-			RoadWay currWay = new RoadWay(wayID, currWayNodeList, distFunc);
+			RoadWay currWay = new RoadWay(wayCount + "", currWayNodeList, distFunc);
 			wayList.add(currWay);
+			wayCount++;
 		}
 		RoadNetworkGraph resultMap = new RoadNetworkGraph(false, distFunc);
 		resultMap.addNodes(nodeList);
