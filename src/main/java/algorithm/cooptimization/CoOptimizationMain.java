@@ -17,6 +17,7 @@ import util.settings.CoOptimizationProperty;
 import util.settings.MapServiceLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -74,9 +75,14 @@ public class CoOptimizationMain {
 		Pair<RoadNetworkGraph, List<MultipleTrajectoryMatchResult>> coOptimizationResult = CoOptimization.coOptimisationProcess(trajectoryStream,
 				initialMap, removedWayList, property);
 		
+		List<Pair<Integer, List<String>>> routeMatchResults = new ArrayList<>();
+		for (MultipleTrajectoryMatchResult trajectoryMatchResult : coOptimizationResult._2()) {
+			routeMatchResults.add(new Pair<>(Integer.parseInt(trajectoryMatchResult.getTrajID()),
+					trajectoryMatchResult.getCompleteMatchRouteAtRank(0).getRoadIDList()));
+		}
 		// evaluation: map matching evaluation
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
-		precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(coOptimizationResult._2(), gtRouteMatchResult, initialMap, removedWayList);
+		precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

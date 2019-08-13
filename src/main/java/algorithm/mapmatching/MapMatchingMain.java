@@ -125,7 +125,7 @@ public class MapMatchingMain {
 			LOG.info("Matching complete.");
 			
 			gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
-			precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(results, gtRouteMatchResult, roadMap, null);
+			precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(routeMatchResult, gtRouteMatchResult, roadMap, null);
 		}
 	}
 }

@@ -57,7 +57,6 @@ public class MatchResultReader {
 			if (fileList != null) {
 				for (File file : fileList) {
 					List<String> matchResult = IOService.readFile(file.getAbsolutePath());
-					// TODO check whether "\n"(empty line) is included in the results
 					int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
 					gtResult.add(new Pair<>(fileNum, matchResult));
 				}

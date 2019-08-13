@@ -633,9 +633,7 @@ public class HMMMapMatching implements Serializable {
 	 */
 	private void computeEmissionProbabilities(TimeStep<PointMatch, TrajectoryPoint, RoadPath> timeStep) {
 		for (PointMatch candidate : timeStep.candidates) {
-			double distance = getDistance(
-					timeStep.observation.x(), timeStep.observation.y(),
-					candidate.lon(), candidate.lat());
+			double distance = getDistance(timeStep.observation.x(), timeStep.observation.y(), candidate.lon(), candidate.lat());
 			timeStep.addEmissionLogProbability(candidate,
 					hmmProbabilities.emissionLogProbability(distance));
 		}

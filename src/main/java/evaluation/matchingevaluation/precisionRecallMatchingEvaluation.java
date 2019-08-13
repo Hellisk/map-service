@@ -25,22 +25,22 @@ public class precisionRecallMatchingEvaluation {
 	/**
 	 * Evaluate the precision, recall and F-score of the Beijing map-matching
 	 *
-	 * @param matchedResult     The matching results of map-matching algorithm
-	 * @param groundTruthResult The ground-truth matching results
+	 * @param matchedResultList     The matching results of map-matching algorithm
+	 * @param gtResultList The ground-truth matching results
 	 * @param currentMap        The underlying map used in map-matching
 	 * @param removedEdges      The removed edges. They may appear in the ground-truth results if it is used to evaluate the map update
 	 *                          result. Leave empty if evaluation normal map-matching.
 	 */
-	public static String precisionRecallMapMatchingEval(List<MultipleTrajectoryMatchResult> matchedResult,
-														List<Pair<Integer, List<String>>> groundTruthResult,
+	public static String precisionRecallMapMatchingEval(List<Pair<Integer, List<String>>> matchedResultList,
+														List<Pair<Integer, List<String>>> gtResultList,
 														RoadNetworkGraph currentMap, List<RoadWay> removedEdges) {
 		
 		DecimalFormat df = new DecimalFormat("0.000");
-		// insert all ground truth road match into gtResultList
-		Map<Integer, HashSet<String>> gtResultList = new HashMap<>();
-		for (Pair<Integer, List<String>> gtResult : groundTruthResult) {
-			HashSet<String> gtRoadIDList = new HashSet<>(gtResult._2());
-			gtResultList.put(gtResult._1(), gtRoadIDList);
+		// insert all ground truth road match into id2GTResultMapping
+		Map<Integer, HashSet<String>> id2GTResultMapping = new HashMap<>();
+		for (Pair<Integer, List<String>> gtResult : gtResultList) {
+			HashSet<String> gtRoadIDList = new LinkedHashSet<>(gtResult._2());
+			id2GTResultMapping.put(gtResult._1(), gtRoadIDList);
 		}
 		
 		// prepare the mapping of road id to road way length
@@ -62,11 +62,11 @@ public class precisionRecallMatchingEvaluation {
 		double totalMatchedLength = 0;    // total length of the road ways that are matched incorrectly
 		double totalGroundTruthLength = 0;    // total length of the ground-truth road ways
 		
-		for (MultipleTrajectoryMatchResult r : matchedResult) {
+		for (Pair<Integer, List<String>> r : matchedResultList) {
 			double currMatchedLength = 0;
 			double currGroundTruthLength = 0;
 			double currCorrectlyMatchedLength = 0;
-			Set<String> matchRoadIDSet = new LinkedHashSet<>(r.getCompleteMatchRouteAtRank(0).getRoadIDList());
+			Set<String> matchRoadIDSet = new LinkedHashSet<>(r._2());
 			// summarize all matched road length
 			for (String s : matchRoadIDSet) {
 				if (id2RoadLength.containsKey(s)) {
@@ -76,9 +76,9 @@ public class precisionRecallMatchingEvaluation {
 					LOG.warn("Road " + s + " is missing from the map.");
 			}
 			// check the coverage of the roads found in our match
-			HashSet<String> groundTruthIDList = gtResultList.get(Integer.parseInt(r.getTrajID()));
+			HashSet<String> groundTruthIDList = id2GTResultMapping.get(r._1());
 			if (groundTruthIDList == null)
-				throw new NullPointerException("ERROR! Ground-truth of " + r.getTrajID() + " is not found.");
+				throw new NullPointerException("ERROR! Ground-truth of " + r._1() + " is not found.");
 			for (String s : groundTruthIDList) {
 				if (id2RoadLength.containsKey(s)) {
 					double currLength = id2RoadLength.get(s);
