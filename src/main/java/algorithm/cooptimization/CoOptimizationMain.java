@@ -1,6 +1,6 @@
 package algorithm.cooptimization;
 
-import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
+import evaluation.matchingevaluation.RouteMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
@@ -82,7 +82,7 @@ public class CoOptimizationMain {
 		}
 		// evaluation: map matching evaluation
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
-		precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
+		RouteMatchingEvaluation.precisionRecallEvaluation(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

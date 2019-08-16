@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
+import util.object.structure.SimpleTrajectoryMatchResult;
 
 import java.io.File;
 import java.util.*;
@@ -26,7 +27,7 @@ public class MatchResultWriter {
 	 * @param matchingList The matching results.
 	 * @param fileFolder   The output folder path.
 	 */
-	public static void writeMatchResults(List<MultipleTrajectoryMatchResult> matchingList, String fileFolder) {
+	public static void writeMultipleMatchResults(List<MultipleTrajectoryMatchResult> matchingList, String fileFolder) {
 		if (matchingList == null)
 			throw new NullPointerException("The input matching result list is empty.");
 		
@@ -35,6 +36,36 @@ public class MatchResultWriter {
 		
 		File folder = new File(fileFolder);
 		Stream<MultipleTrajectoryMatchResult> trajectoryMatchingStream = matchingList.stream();
+		
+		// parallel processing
+		ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+		forkJoinPool.submit(() -> trajectoryMatchingStream.parallel().forEach(x -> IOService.writeFile(x.toString(), fileFolder
+				, "matchresult_" + x.getTrajID() + ".txt")));
+		while (Objects.requireNonNull(folder.list()).length != matchingList.size()) {
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		LOG.debug("Matching results written, total file count: " + matchingList.size());
+	}
+	
+	/**
+	 * Writer for writing matching results. The format follows the <tt>SimpleTrajectoryMatchResult.toString()</tt> format.
+	 *
+	 * @param matchingList The matching results.
+	 * @param fileFolder   The output folder path.
+	 */
+	public static void writeMatchResults(List<SimpleTrajectoryMatchResult> matchingList, String fileFolder) {
+		if (matchingList == null)
+			throw new NullPointerException("The input matching result list is empty.");
+		
+		IOService.createFolder(fileFolder);
+		IOService.cleanFolder(fileFolder);
+		
+		File folder = new File(fileFolder);
+		Stream<SimpleTrajectoryMatchResult> trajectoryMatchingStream = matchingList.stream();
 		
 		// parallel processing
 		ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
@@ -116,7 +147,8 @@ public class MatchResultWriter {
 	}
 	
 	/**
-	 * Merge the matching results generated before and after the result update and write new map-matching results to the file.
+	 * Merge the matching results generated before and after the result update and write new map-matching results to the file. Only used
+	 * in map update.
 	 *
 	 * @param oldMatchResults The original map-matching result before result update.
 	 * @param newMatchResults The map-matching results affected by the result update.
@@ -130,7 +162,7 @@ public class MatchResultWriter {
 			newMatchResultIDList.add(mr.getTrajID());
 		oldMatchResults.removeIf(next -> newMatchResultIDList.contains(next.getTrajID()));
 		oldMatchResults.addAll(newMatchResults);
-		writeMatchResults(oldMatchResults, fileFolder);
+		writeMultipleMatchResults(oldMatchResults, fileFolder);
 		return oldMatchResults;
 	}
 }

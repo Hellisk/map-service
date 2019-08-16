@@ -2,7 +2,6 @@ package util.object.structure;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
-import util.object.spatialobject.Point;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 
@@ -13,15 +12,15 @@ import java.util.List;
 /**
  * The object for storing top-k map-matching results of a trajectory, which includes the matching node and edge of each point, the matching
  * route between two points, the probabilities and a list of breakpoints. The structure is used to store multiple matching results for the
- * same trajectory and sorted by their probabilities. Please refer to <tt>SingleTrajectoryMatchResult</tt> if only the best matching
- * result is stored.
+ * same trajectory and sorted by their probabilities. Please refer to <tt>SimpleMatchResult</tt> if only the best (point and route)
+ * matching result is stored.
  *
  * @author Hellisk
  * @since 30/03/2019
  */
 public class MultipleTrajectoryMatchResult {
 	
-	private static final Logger LOG = Logger.getLogger(Point.class);
+	private static final Logger LOG = Logger.getLogger(MultipleTrajectoryMatchResult.class);
 	
 	private final int requiredNumOfRanks;    // The number of map-matching results required by the system. The actual number of matching
 	// results should be no more than it.
@@ -321,7 +320,7 @@ public class MultipleTrajectoryMatchResult {
 	/**
 	 * Set all the route matching result for the trajectory. The route list must of the same size as the trajectory.
 	 *
-	 * @param routeMatchLists The new point matching result.
+	 * @param routeMatchLists All the route matching results.
 	 */
 	public void setAllRouteMatchResult(List<List<Route>> routeMatchLists) {
 		if (routeMatchLists.size() > requiredNumOfRanks) throw new IndexOutOfBoundsException("Input route matching results " +

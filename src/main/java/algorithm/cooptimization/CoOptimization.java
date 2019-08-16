@@ -280,7 +280,7 @@ class CoOptimization {
 				refinementTime += (System.currentTimeMillis() - prevTime) / 1000;
 				prevTime = System.currentTimeMillis();
 				
-				MatchResultWriter.writeMatchResults(refinedMatchResult._1(), cacheFolder + "matchResult/" + iteration + "/");
+				MatchResultWriter.writeMultipleMatchResults(refinedMatchResult._1(), cacheFolder + "matchResult/" + iteration + "/");
 				List<Trajectory> unmatchedTrajList = new ArrayList<>();
 				for (Triplet<Trajectory, String, String> triplet : refinedMatchResult._2()) {
 					unmatchedTrajList.add(triplet._1());
@@ -307,7 +307,7 @@ class CoOptimization {
 		String outputMapFolder = prop.getPropertyString("path.OutputMapFolder");
 		String outputMatchResultFolder = prop.getPropertyString("path.OutputMatchResultFolder");
 		MapWriter.writeMap(prevMap, outputMapFolder + percentage + ".txt");
-		MatchResultWriter.writeMatchResults(prevMatchResultPair._1(), outputMatchResultFolder);
+		MatchResultWriter.writeMultipleMatchResults(prevMatchResultPair._1(), outputMatchResultFolder);
 		LOG.info("Co-optimization finish. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 +
 				" seconds, matching time: " + matchingTime + ", update time: " + updateTime + ", refinement time: " +
 				refinementTime + ", refinement matching time: " + refineMatchingTime + ", average time per " +
@@ -430,7 +430,7 @@ class CoOptimization {
 			case "normal":  // traditional iterative map-matching
 				if (iteration != 0) {     // start processing the co-optimization model
 					List<MultipleTrajectoryMatchResult> prevMatchResult =
-							MatchResultReader.readMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
+							MatchResultReader.readComplexMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
 									roadMap.getDistanceFunction());
 					Map<String, MultipleTrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
 					for (MultipleTrajectoryMatchResult mr : prevMatchResult) {
@@ -447,7 +447,7 @@ class CoOptimization {
 						unmatchedTrajList.add(trajectoryStringStringTriplet._1());
 					}
 					// initial map-matching step, write output matching result
-					MatchResultWriter.writeMatchResults(currMatchResultList, cacheMatchResultFolder + iteration + "/");
+					MatchResultWriter.writeMultipleMatchResults(currMatchResultList, cacheMatchResultFolder + iteration + "/");
 					TrajectoryWriter.writeUnmatchedTrajectories(unmatchedTrajList, cacheUnmatchedTrajFolder + iteration + "/",
 							cacheUnmatchedTrajNextInputFolder + iteration + "/");
 					return new Pair<>(currMatchResultList, unmatchedTrajInfo);
@@ -463,7 +463,7 @@ class CoOptimization {
 							LOG.error("The current trajectory is matched twice: " + mr.getTrajID());
 					}
 					List<MultipleTrajectoryMatchResult> prevMatchResult =
-							MatchResultReader.readMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
+							MatchResultReader.readComplexMatchResultsToList(cacheMatchResultFolder + (iteration - 1) + "/",
 									roadMap.getDistanceFunction());
 					Map<String, MultipleTrajectoryMatchResult> id2PrevMatchResult = new HashMap<>();
 					for (MultipleTrajectoryMatchResult mr : prevMatchResult) {

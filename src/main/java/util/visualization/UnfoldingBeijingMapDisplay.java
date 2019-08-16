@@ -4,18 +4,20 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
-import de.fhpotsdam.unfolding.providers.Microsoft;
+import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import processing.core.PApplet;
 import util.function.DistanceFunction;
-import util.function.EuclideanDistanceFunction;
-import util.function.SpatialUtils;
+import util.function.GreatCircleDistanceFunction;
 import util.io.MapReader;
+import util.io.MatchResultReader;
+import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.object.structure.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +33,11 @@ import java.util.Map;
 public class UnfoldingBeijingMapDisplay extends PApplet {
 	
 	private UnfoldingMap currMapDisplay;
-	private String inputMapFolder = "F:/data/Beijing-S/update/cache/map/1/";
-	//	private String inputTrajPath = "F:/data/Beijing-S/input/trajectory/L180_I-1_N5000S/";
-//	private String gtMatchResultPath = "F:/data/Beijing-S/groundTruth/matchResult/L180_I-1_N5000/";
-	private DistanceFunction distFunc = new EuclideanDistanceFunction();
+	private String inputMapFolder = "C:/data/Beijing-S/input/map/";
+	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
+	private String outputRouteMatchResultPath = "C:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
+	private String gtRouteMatchResultPath = "C:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
+	private DistanceFunction distFunc = new GreatCircleDistanceFunction();
 	private UnfoldingMap fullMapDisplay;    // full map visualization
 //	private UnfoldingMap compareMapDisplay;    // map for comparison
 	
@@ -42,7 +45,8 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		size(1440, 990);
 //		this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OpenStreetMapProvider());
 //		this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
-		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
+//		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
+		this.fullMapDisplay = new UnfoldingMap(this, new Google.GoogleMapProvider());
 //		this.compareMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
 		MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
 //		MapUtils.createMouseEventDispatcher(this, compareMapDisplay);
@@ -53,10 +57,11 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		int[] lightPurple = {255, 0, 255};
 		int[] pink = {255, 153, 153};
 		int[] black = {0, 0, 0};
+		int[] grey = {220, 220, 220};
 		
 		// read the complete map, fill into fullMapDisplay
-		RoadNetworkGraph rawMap = MapReader.readMap(inputMapFolder + "roadShape.txt", false, distFunc);
-		SpatialUtils.convertMapGCJ2WGS(rawMap);
+		RoadNetworkGraph rawMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
+//		SpatialUtils.convertMapGCJ2WGS(rawMap);
 //		SpatialUtils.convertMapUTM2WGS(rawMap, 50, 'S');
 		Map<String, RoadWay> id2WayMap = new HashMap<>();
 		for (RoadWay way : rawMap.getWays()) {
@@ -65,7 +70,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			} else
 				throw new IllegalArgumentException("Two roads has the same id:" + way.getID());
 		}
-		List<Marker> mapMarker = roadWayMarkerBeijingGen(rawMap.getWays(), lightPurple, 2);
+		List<Marker> mapMarker = roadWayMarkerBeijingGen(rawMap.getWays(), grey, 2);
 		fullMapDisplay.addMarkers(mapMarker);
 
 //		RoadNetworkGraph planarRawMap = rawMap.toPlanarMap();
@@ -77,34 +82,30 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 				.getMaxLon() + rawMap.getMinLon()) / 2);
 		fullMapDisplay.zoomAndPanTo(14, mapCenter);
 //		compareMapDisplay.zoomAndPanTo(14, mapCenter);
-
-//		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajPath, distFunc);
-//		List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultPath);
-//		Map<Integer, List<String>> id2GTRouteMap = new HashMap<>();
-//		for (Pair<Integer, List<String>> routePair : gtMatchResultList) {
-//			if (!id2GTRouteMap.containsKey(routePair._1())) {
-//				id2GTRouteMap.put(routePair._1(), routePair._2());
-//			} else
-//				throw new IllegalArgumentException("Two match results have the same id:" + routePair._1());
-//		}
-//		int count = 0;
-//		for (Trajectory traj : trajectoryList) {
-//			if (count >= 10)
-//				break;
-//			List<Marker> trajMarker = trajMarkerBeijingGen(traj, red, 2);
-//			if(!id2GTRouteMap.containsKey(Integer.parseInt(traj.getID())))
-//				throw new IllegalArgumentException("The trajectory id does not appear in the ground-truth:" + traj.getID());
-//			List<RoadWay> gtWayList = new ArrayList<>();
-//			for (String wayID : id2GTRouteMap.get(Integer.parseInt(traj.getID()))) {
-//				if(id2WayMap.containsKey(wayID)) {
-//					gtWayList.add(id2WayMap.get(wayID));
-//				}
-//			}
-//			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList,green,2);
-//			fullMapDisplay.addMarkers(trajMarker);
-//			fullMapDisplay.addMarkers(gtWayMarker);
-//			count++;
-//		}
+		
+		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajPath, distFunc);
+		List<Pair<Integer, List<String>>> gtRouteMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchResultPath);
+		List<Pair<Integer, List<String>>> routeMatchResultList = MatchResultReader.readRouteMatchResults(outputRouteMatchResultPath);
+		int[] idList = {10, 20};
+		for (int index : idList) {
+			Trajectory currTraj = trajectoryList.get(index);
+			List<Marker> trajMarker = trajMarkerBeijingGen(currTraj, red, 2);
+			Pair<Integer, List<String>> currOutputRouteMatchResult = routeMatchResultList.get(index);
+			Pair<Integer, List<String>> currGTRouteMatchResult = gtRouteMatchResultList.get(index);
+			if (currGTRouteMatchResult._1().equals(index) || !currOutputRouteMatchResult._1().equals(currGTRouteMatchResult._1()))
+				throw new IllegalArgumentException("The trajectory and the ground-truth matching results are in different order:" + index + "," + currGTRouteMatchResult._1());
+			List<RoadWay> gtWayList = new ArrayList<>();
+			for (String wayID : currGTRouteMatchResult._2()) {
+				if (id2WayMap.containsKey(wayID)) {
+					gtWayList.add(id2WayMap.get(wayID));
+				}
+			}
+			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(gtWayList, lightPurple, 2);
+			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2);
+			fullMapDisplay.addMarkers(trajMarker);
+			fullMapDisplay.addMarkers(outputWayMarker);
+			fullMapDisplay.addMarkers(gtWayMarker);
+		}
 		currMapDisplay = fullMapDisplay;
 	}
 	

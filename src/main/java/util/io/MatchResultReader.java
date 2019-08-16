@@ -5,6 +5,7 @@ import util.function.DistanceFunction;
 import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
+import util.object.structure.SimpleTrajectoryMatchResult;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,12 +21,24 @@ public class MatchResultReader {
 	
 	private static final Logger LOG = Logger.getLogger(MatchResultReader.class);
 	
-	public static MultipleTrajectoryMatchResult readMatchResult(String filePath, DistanceFunction df) {
+	private static MultipleTrajectoryMatchResult readComplexMatchResult(String filePath, DistanceFunction df) {
 		String line = IOService.readFileContent(filePath);
 		return MultipleTrajectoryMatchResult.parseTrajectoryMatchResult(line, df);
 	}
 	
-	public static List<MultipleTrajectoryMatchResult> readMatchResultsToList(String fileFolder, DistanceFunction df) {
+	private static SimpleTrajectoryMatchResult readSimpleMatchResult(String filePath, String trajID, DistanceFunction df) {
+		String line = IOService.readFileContent(filePath);
+		return SimpleTrajectoryMatchResult.parseSimpleTrajMatchResult(line, trajID, df);
+	}
+	
+	/**
+	 * Read the match results into <tt>MultipleTrajectoryMatchResult</tt> from given folder.
+	 *
+	 * @param fileFolder Input folder
+	 * @param df         Distance Function
+	 * @return A list of complex trajectory matching results.
+	 */
+	public static List<MultipleTrajectoryMatchResult> readComplexMatchResultsToList(String fileFolder, DistanceFunction df) {
 		File inputFolder = new File(fileFolder);
 		if (!inputFolder.exists())
 			throw new IllegalArgumentException("The input matching result path doesn't exist: " + fileFolder);
@@ -34,12 +47,53 @@ public class MatchResultReader {
 			File[] matchResultFiles = inputFolder.listFiles();
 			if (matchResultFiles != null) {
 				for (File matchResultFile : matchResultFiles) {
-					matchResultList.add(readMatchResult(matchResultFile.getAbsolutePath(), df));
+					if (matchResultFile.toString().contains("matchresult_"))
+						matchResultList.add(readComplexMatchResult(matchResultFile.getAbsolutePath(), df));
 				}
 			} else
 				LOG.error("The input matching result dictionary is empty: " + fileFolder);
-		} else
-			matchResultList.add(readMatchResult(inputFolder.getAbsolutePath(), df));
+		} else {
+			if (inputFolder.toString().contains("matchresult_"))
+				matchResultList.add(readComplexMatchResult(inputFolder.getAbsolutePath(), df));
+		}
+		if (matchResultList.isEmpty())
+			throw new IllegalArgumentException("No match result is found in the folder: " + fileFolder);
+		return matchResultList;
+	}
+	
+	/**
+	 * Read the match results into <tt>SimpleTrajectoryMatchResult</tt> from given folder.
+	 *
+	 * @param fileFolder Input folder
+	 * @param df         Distance Function
+	 * @return A list of simple trajectory matching results.
+	 */
+	public static List<SimpleTrajectoryMatchResult> readSimpleMatchResultsToList(String fileFolder, DistanceFunction df) {
+		File inputFolder = new File(fileFolder);
+		if (!inputFolder.exists())
+			throw new IllegalArgumentException("The input matching result path doesn't exist: " + fileFolder);
+		List<SimpleTrajectoryMatchResult> matchResultList = new ArrayList<>();
+		if (inputFolder.isDirectory()) {
+			File[] matchResultFiles = inputFolder.listFiles();
+			if (matchResultFiles != null) {
+				for (File matchResultFile : matchResultFiles) {
+					if (matchResultFile.toString().contains("matchresult_")) {
+						String trajID = matchResultFile.toString().substring(matchResultFile.toString().lastIndexOf("_") + 1,
+								matchResultFile.toString().lastIndexOf("."));
+						matchResultList.add(readSimpleMatchResult(matchResultFile.getAbsolutePath(), trajID, df));
+					}
+				}
+			} else
+				LOG.error("The input matching result dictionary is empty: " + fileFolder);
+		} else {
+			if (inputFolder.toString().contains("matchresult_")) {
+				String trajID = inputFolder.toString().substring(inputFolder.toString().lastIndexOf("_") + 1,
+						inputFolder.toString().lastIndexOf("."));
+				matchResultList.add(readSimpleMatchResult(inputFolder.getAbsolutePath(), trajID, df));
+			}
+		}
+		if (matchResultList.isEmpty())
+			throw new IllegalArgumentException("No match result is found in the folder: " + fileFolder);
 		return matchResultList;
 	}
 	
@@ -51,18 +105,22 @@ public class MatchResultReader {
 	 */
 	public static List<Pair<Integer, List<String>>> readRouteMatchResults(String fileFolder) {
 		File f = new File(fileFolder);
-		List<Pair<Integer, List<String>>> gtResult = new ArrayList<>();
+		List<Pair<Integer, List<String>>> routeMatchResult = new ArrayList<>();
 		if (f.isDirectory()) {
 			File[] fileList = f.listFiles();
 			if (fileList != null) {
 				for (File file : fileList) {
-					List<String> matchResult = IOService.readFile(file.getAbsolutePath());
-					int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
-					gtResult.add(new Pair<>(fileNum, matchResult));
+					if (file.toString().contains("routematch_")) {
+						List<String> matchResult = IOService.readFile(file.getAbsolutePath());
+						int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
+						routeMatchResult.add(new Pair<>(fileNum, matchResult));
+					}
 				}
 			}
 		}
-		return gtResult;
+		if (routeMatchResult.isEmpty())
+			throw new IllegalArgumentException("No route match result is found in the folder: " + fileFolder);
+		return routeMatchResult;
 	}
 	
 	/**
@@ -73,29 +131,35 @@ public class MatchResultReader {
 	 */
 	public static List<Pair<Integer, List<PointMatch>>> readPointMatchResults(String fileFolder, DistanceFunction df) {
 		File inputFolder = new File(fileFolder);
-		List<Pair<Integer, List<PointMatch>>> matchResultList = new ArrayList<>();
+		List<Pair<Integer, List<PointMatch>>> pointMatchResult = new ArrayList<>();
 		if (inputFolder.isDirectory()) {
 			File[] fileList = inputFolder.listFiles();
 			if (fileList != null) {
 				for (File file : fileList) {
-					List<String> lines = IOService.readFile(file.getAbsolutePath());
-					List<PointMatch> matchResult = new ArrayList<>();
-					for (String line : lines) {
-						matchResult.add(PointMatch.parsePointMatch(line, df));
+					if (file.toString().contains("pointmatch_")) {
+						List<String> lines = IOService.readFile(file.getAbsolutePath());
+						List<PointMatch> matchResult = new ArrayList<>();
+						for (String line : lines) {
+							matchResult.add(PointMatch.parsePointMatch(line, df));
+						}
+						int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
+						pointMatchResult.add(new Pair<>(fileNum, matchResult));
 					}
-					int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
-					matchResultList.add(new Pair<>(fileNum, matchResult));
 				}
 			}
 		} else {
-			List<String> lines = IOService.readFile(inputFolder.getAbsolutePath());
-			List<PointMatch> matchResult = new ArrayList<>();
-			for (String line : lines) {
-				matchResult.add(PointMatch.parsePointMatch(line, df));
+			if (inputFolder.toString().contains("pointmatch_")) {
+				List<String> lines = IOService.readFile(inputFolder.getAbsolutePath());
+				List<PointMatch> matchResult = new ArrayList<>();
+				for (String line : lines) {
+					matchResult.add(PointMatch.parsePointMatch(line, df));
+				}
+				int fileNum = Integer.parseInt(inputFolder.getName().substring(inputFolder.getName().indexOf('_') + 1, inputFolder.getName().indexOf('.')));
+				pointMatchResult.add(new Pair<>(fileNum, matchResult));
 			}
-			int fileNum = Integer.parseInt(inputFolder.getName().substring(inputFolder.getName().indexOf('_') + 1, inputFolder.getName().indexOf('.')));
-			matchResultList.add(new Pair<>(fileNum, matchResult));
 		}
-		return matchResultList;
+		if (pointMatchResult.isEmpty())
+			throw new IllegalArgumentException("No route match result is found in the folder: " + fileFolder);
+		return pointMatchResult;
 	}
 }

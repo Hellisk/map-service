@@ -209,3 +209,7 @@
 2019-06-09 04:07:20 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
 2019-06-11 00:57:26 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
 2019-06-11 01:16:29 INFO  [MapReader]: roadShape.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-16 11:22:08 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-16 11:31:43 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-16 11:33:09 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-16 12:37:45 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484

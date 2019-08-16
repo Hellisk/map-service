@@ -1,7 +1,6 @@
 package algorithm.mapmatching;
 
 import algorithm.mapmatching.hmm.HMMMapMatching;
-import evaluation.matchingevaluation.precisionRecallMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -12,6 +11,7 @@ import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.MatchResultWithUnmatchedTraj;
 import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
+import util.object.structure.PointMatch;
 import util.settings.MapMatchingProperty;
 import util.settings.MapServiceLogger;
 
@@ -71,8 +71,8 @@ public class MapMatchingMain {
 		
 		long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 		// map-matching process
-		List<MultipleTrajectoryMatchResult> results = new ArrayList<>();
-		List<Pair<Integer, List<String>>> gtRouteMatchResult = new ArrayList<>();
+		List<Pair<Integer, List<PointMatch>>> pointMatchResult = new ArrayList<>();
+		List<Pair<Integer, List<String>>> routeMatchResult = new ArrayList<>();
 		if (dataSet.equals("Global")) {
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
@@ -93,20 +93,11 @@ public class MapMatchingMain {
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
 				HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
 				MultipleTrajectoryMatchResult matchResult = mapMatching.trajectorySingleMatchingProcess(currTraj);
-				results.add(matchResult);
+				routeMatchResult.add(new Pair<>(i, matchResult.getCompleteMatchRouteAtRank(0).getRoadIDList()));
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");
-			for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
-				List<String> matchResult = reader.readGTRouteMatchResult(i);
-				Pair<Integer, List<String>> currGroundTruthMatchResult = new Pair<>(i, matchResult);
-				gtRouteMatchResult.add(currGroundTruthMatchResult);
-			}
-			MatchResultWriter.writeMatchResults(results, outputMatchResultFolder);
+			MatchResultWriter.writeRouteMatchResults(routeMatchResult, outputMatchResultFolder);
 			
-			// evaluation: map matching evaluation
-			results = MatchResultReader.readMatchResultsToList(outputMatchResultFolder, new GreatCircleDistanceFunction());    // used for
-			// evaluation only
-			precisionRecallMatchingEvaluation.globalPrecisionRecallMapMatchingEval(results, gtRouteMatchResult, rawDataFolder);
 			System.out.println("Total number of trajectory points is " + trajPointCount);
 		} else {
 			distFunc = new GreatCircleDistanceFunction();
@@ -115,17 +106,16 @@ public class MapMatchingMain {
 			HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
 			Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
 			List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
-			List<Pair<Integer, List<String>>> routeMatchResult = new ArrayList<>();
 			for (MatchResultWithUnmatchedTraj currPair : currCombinedMatchResultList) {
-				results.add(currPair.getMatchResult());
 				routeMatchResult.add(new Pair<>(Integer.parseInt(currPair.getTrajID()),
 						currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList()));
 			}
 			MatchResultWriter.writeRouteMatchResults(routeMatchResult, outputMatchResultFolder);
-			LOG.info("Matching complete.");
+			LOG.info("Matching complete, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds.");
 			
-			gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
-			precisionRecallMatchingEvaluation.precisionRecallMapMatchingEval(routeMatchResult, gtRouteMatchResult, roadMap, null);
+			// evaluation test
+//			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
+//			precisionRecallMatchingEvaluation.precisionRecallRouteMatchEvaluation(routeMatchResult, gtRouteMatchResult, roadMap, null);
 		}
 	}
 }
