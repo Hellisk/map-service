@@ -10,7 +10,7 @@ import util.io.MapReader;
 import util.io.MatchResultReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.structure.Pair;
-import util.settings.MapInferenceProperty;
+import util.settings.MapMatchingProperty;
 import util.settings.MapServiceLogger;
 
 import java.io.IOException;
@@ -26,13 +26,12 @@ public class MatchingEvaluationMain {
 	public static void main(String[] args) throws IOException {
 		
 		// initialize arguments
-		MapInferenceProperty property = new MapInferenceProperty();
+		MapMatchingProperty property = new MapMatchingProperty();
 		property.loadPropertiesFromResourceFile("mapmatching.properties", args);
 		long initTaskTime = System.currentTimeMillis();
 		
 		// setup java log
 		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
-		String cacheFolder = property.getPropertyString("algorithm.mapmatching.path.CacheFolder");    // used to store temporary files
 		String dataSet = property.getPropertyString("data.Dataset");
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
 		String inputMapFolder = property.getPropertyString("path.InputMapFolder");
@@ -74,7 +73,7 @@ public class MatchingEvaluationMain {
 			
 			String precisionRecall = "Precision recall: " + RouteMatchingEvaluation.globalPrecisionRecallEvaluation(outputRouteMatchResult,
 					gtRouteMatchResult, mapList);
-			LOG.info("Graph item matching finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
+			LOG.info("Precision-recall map-matching finished, total time cost: " + (System.currentTimeMillis() - startTaskTime));
 			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet + "_" + dataSpec);
 			LOG.info(precisionRecall);
 		} else {
@@ -86,11 +85,11 @@ public class MatchingEvaluationMain {
 			
 			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
 			
-			String precisionRecall = "Precision recall: " + RouteMatchingEvaluation.precisionRecallEvaluation(routeMatchResult,
+			String precisionRecallFScoreAcc = "Precision recall: " + RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResult,
 					gtRouteMatchResult, inputMap, null);
-			LOG.info("Graph item matching finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
+			LOG.info("Precision-recall map-matching finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
 			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet + "_" + dataSpec);
-			LOG.info(precisionRecall);
+			LOG.info(precisionRecallFScoreAcc);
 		}
 	}
 }

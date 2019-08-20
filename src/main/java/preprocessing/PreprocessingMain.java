@@ -93,12 +93,15 @@ public class PreprocessingMain {
 					inputTrajFolder, gtRouteMatchResultFolder, gtPointMatchResultFolder);
 //			// pre-processing step 3: road map removal, remove road ways from ground truth map to generate an outdated map
 //			int percentage = property.getPropertyInteger("algorithm.cooptimization.data.RoadRemovalPercentage");
-//			int candidateRange = property.getPropertyInteger("algorithm.mapmatching.hmm.CandidateRange");
+//			int candidateRange = property.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 //			int minRoadLength = property.getPropertyInteger("algorithm.mapmerge.MinimumRoadLength");
 //			LOG.info("Start manipulating the map according to the given road removal percentage: " + percentage);
 //			if (percentage == 0)
-			MapWriter.writeMap(roadNetworkGraph, inputMapFolder + "0.txt");        // no removal happens, directly copy the map to input
-//				// folder
+			MapWriter.writeMap(roadNetworkGraph, inputMapFolder + "0.txt");    // no removal happens, directly copy the map to input folder
+			
+			// test only
+			RoadNetworkGraph testGraph = roadNetworkGraph.toLooseMap();
+			testGraph = testGraph.toCompactMap();
 //			else
 //				MapPreprocessing.popularityBasedRoadRemoval(roadNetworkGraph, percentage, candidateRange / 2, minRoadLength, inputMapFolder);
 		} else if (dataSet.contains("Chicago") || dataSet.contains("Berlin") || dataSet.contains("Athens")) {

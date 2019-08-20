@@ -70,7 +70,7 @@ public class HMMMapMatching implements Serializable {
 		// TODO add this flag to other cases
 		boolean isNewRoadIncluded = prop.contains("algorithm.cooptimization.isNewRoadIncluded") && prop.getPropertyBoolean("algorithm.cooptimization" +
 				".isNewRoadIncluded");
-		this.candidateRange = prop.getPropertyInteger("algorithm.mapmatching.hmm.CandidateRange");
+		this.candidateRange = prop.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 		this.gapExtensionDist = prop.contains("algorithm.cooptimization.GapExtensionDistance") ? prop.getPropertyInteger("algorithm.cooptimization" +
 				".GapExtensionDistance") : 15;
 		this.rankLength = prop.getPropertyInteger("algorithm.mapmatching.hmm.RankLength");

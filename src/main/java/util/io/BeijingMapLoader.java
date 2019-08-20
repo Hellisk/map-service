@@ -157,10 +157,12 @@ public class BeijingMapLoader {
 				MultiPoint point = (MultiPoint) feature.getAttribute(0);
 				// check whether the road node is inside the given bounding box
 				if (roadGraph.getBoundary().contains(point.getCoordinate().x, point.getCoordinate().y)) {
+					Map<String, Object> attributes = new HashMap<>();
 					String pointID = feature.getAttribute(2).toString();
 					short nodeType = Short.parseShort(feature.getAttribute(5).toString());
+					attributes.put("nodeType", nodeType);
 					pointID = pointIDConverter(pointID, id2ConnectionNode);
-					RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y, nodeType, distFunc);
+					RoadNode newRoadNode = new RoadNode(pointID, point.getCoordinate().x, point.getCoordinate().y, attributes, distFunc);
 					insertNode(roadNodeList, id2Node, pointID, newRoadNode);
 				} else
 					LOG.error("The given boundary of the raw map cannot enclose all nodes.");
@@ -215,6 +217,10 @@ public class BeijingMapLoader {
 						continue;
 				} else
 					LOG.error("Incorrect number of road types.");
+				
+				int speedLevel = Integer.parseInt(feature.getAttribute(25).toString());       // speed level
+				int speedLimit = speedLimitConverter(speedLevel);
+				newRoadWay.setSpeedLimit(speedLimit);
 				
 				List<RoadNode> miniNode = new ArrayList<>();
 				Coordinate[] coordinates = edges.getCoordinates();
@@ -316,6 +322,12 @@ public class BeijingMapLoader {
 		}
 	}
 	
+	/**
+	 * Convert some non-integer code to integer.
+	 *
+	 * @param newRoadWay The newly parsed road way.
+	 * @param roadLevel  The road level.
+	 */
 	private void roadLevelConverter(RoadWay newRoadWay, String roadLevel) {
 		switch (roadLevel) {
 			case "0a":
@@ -327,6 +339,36 @@ public class BeijingMapLoader {
 			default:
 				newRoadWay.setWayLevel(Short.parseShort(roadLevel));
 				break;
+		}
+	}
+	
+	/**
+	 * Convert the speed level code to the actual speed limit. We only output the upper bound of the speed. The lower bound is ignored.
+	 *
+	 * @param speedLevel The speed level code, should only contains 1~8.
+	 * @return The actual speed limit, measured in km/h.
+	 */
+	private int speedLimitConverter(int speedLevel) {
+		switch (speedLevel) {
+			case 1:
+				return -1;
+			case 2:
+				return 130;
+			case 3:
+				return 100;
+			case 4:
+				return 90;
+			case 5:
+				return 70;
+			case 6:
+				return 50;
+			case 7:
+				return 30;
+			case 8:
+				return 11;
+			default:
+				throw new IllegalArgumentException("Input speed level is not found: " + speedLevel);
+			
 		}
 	}
 	

@@ -5,7 +5,9 @@ import util.function.DistanceFunction;
 import util.object.spatialobject.Point;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,16 +61,18 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	/**
 	 * Create a road node.
 	 *
-	 * @param id       Vertex ID
-	 * @param lon      Longitude coordinate (x)
-	 * @param lat      Latitude coordinate (y)
-	 * @param nodeType Type of the node (intersection/non-intersection)
+	 * @param id   Vertex ID
+	 * @param lon  Longitude coordinate (x)
+	 * @param lat  Latitude coordinate (y)
+	 * @param tags Additional attributes, e.g.: nodeType.
 	 */
-	public RoadNode(String id, double lon, double lat, short nodeType, DistanceFunction df) {
+	public RoadNode(String id, double lon, double lat, Map<String, Object> tags, DistanceFunction df) {
 		super(id, df);
 		this.lon = lon;
 		this.lat = lat;
-		this.setNodeType(nodeType);
+		for (Map.Entry<String, Object> entry : tags.entrySet()) {
+			this.addTag(entry.getKey(), entry.getValue());
+		}
 	}
 	
 	/**
@@ -79,22 +83,39 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	 * @param lat             Latitude coordinate (y).
 	 * @param inComingWayList List of incoming road ways.
 	 * @param outGoingWayList List of outgoing road ways.
+	 * @param tags            Additional attributes stored in a <tt>Map</tt>.
+	 * @param df              Distance function.
 	 */
-	public RoadNode(String id, double lon, double lat, Set<RoadWay> inComingWayList, Set<RoadWay> outGoingWayList, short nodeType,
+	public RoadNode(String id, double lon, double lat, Set<RoadWay> inComingWayList, Set<RoadWay> outGoingWayList, Map<String, Object> tags,
 					DistanceFunction df) {
 		super(id, df);
 		this.lon = lon;
 		this.lat = lat;
 		this.inComingWayList.addAll(inComingWayList);
 		this.outGoingWayList.addAll(outGoingWayList);
-		this.setNodeType(nodeType);
+		for (Map.Entry<String, Object> entry : tags.entrySet()) {
+			this.addTag(entry.getKey(), entry.getValue());
+		}
 	}
 	
 	public static RoadNode parseRoadNode(String s, DistanceFunction df) {
-		String[] nodeInfo = s.split(",");
-		if (nodeInfo.length != 4) throw new IndexOutOfBoundsException("Failed to read road node: input data format is wrong. " + s);
-		return new RoadNode(nodeInfo[0], Double.parseDouble(nodeInfo[1]), Double.parseDouble(nodeInfo[2]), Short.parseShort(nodeInfo[3]),
-				df);
+		String[] nodeInfo = s.split(" ");
+		if (nodeInfo.length < 3)
+			throw new IndexOutOfBoundsException("Failed to read road node: input data format is wrong: " + s);
+		RoadNode newNode;
+		if (nodeInfo.length != 3) {
+			Map<String, Object> attributeList = new HashMap<>();
+			// register all additional attributes
+			for (int i = 3; i < nodeInfo.length; i++) {
+				String[] attribute = nodeInfo[i].split(":");
+				if (attribute.length != 2)
+					throw new IllegalArgumentException("The current attribute is not readable: " + nodeInfo[i]);
+				attributeList.put(attribute[0], attribute[1]);
+			}
+			newNode = new RoadNode(nodeInfo[0], Double.parseDouble(nodeInfo[1]), Double.parseDouble(nodeInfo[2]), attributeList, df);
+		} else
+			newNode = new RoadNode(nodeInfo[0], Double.parseDouble(nodeInfo[1]), Double.parseDouble(nodeInfo[2]), df);
+		return newNode;
 	}
 	
 	/**
@@ -137,7 +158,13 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	@Override
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("0.00000");
-		return getID() + "," + df.format(lon()) + "," + df.format(lat()) + "," + getNodeType();
+		StringBuilder output = new StringBuilder(getID() + " " + df.format(lon()) + " " + df.format(lat()));
+		if (!getTags().isEmpty()) {
+			for (Map.Entry<String, Object> entry : getTags().entrySet()) {
+				output.append(" ").append(entry.getKey()).append(":").append(entry.getValue());
+			}
+		}
+		return output.toString();
 	}
 	
 	/**
@@ -145,7 +172,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	 */
 	@Override
 	public RoadNode clone() {
-		return new RoadNode(getID(), lon, lat, inComingWayList, outGoingWayList, getNodeType(), getDistanceFunction());
+		return new RoadNode(getID(), lon, lat, inComingWayList, outGoingWayList, getTags(), getDistanceFunction());
 	}
 	
 	@Override
@@ -218,9 +245,6 @@ public final class RoadNode extends RoadNetworkPrimitive {
 		return outGoingWayList.size();
 	}
 	
-	
-	// TODO -2 should be changed.
-	
 	/**
 	 * Road node type, 0 = non-intersection node, 1 = sub-node of the intersection, 2 = single-node intersection, 3 = main node of the
 	 * intersection, 4 = mini node, -1 = unknown, -2 = null value
@@ -228,7 +252,7 @@ public final class RoadNode extends RoadNetworkPrimitive {
 	public short getNodeType() {
 		if (getTags().get("nodeType") == null)
 			return -2;
-		return (short) getTags().get("nodeType");
+		return Short.parseShort(getTags().get("nodeType").toString());
 	}
 	
 	public void setNodeType(short nodeType) {

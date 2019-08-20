@@ -51,7 +51,7 @@ public class MapMerge {
 					.lat(), w);
 		}
 		this.prop = prop;
-		int mergeCandidateDistance = prop.getPropertyInteger("algorithm.mapmatching.hmm.CandidateRange");
+		int mergeCandidateDistance = prop.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 		if (mergeCandidateDistance > 0)
 			this.mergeCandidateDist = mergeCandidateDistance;
 		else
@@ -292,7 +292,7 @@ public class MapMerge {
 			if (!newRoadID2AnchorPoints.isEmpty() && newRoadID2AnchorPoints.containsKey(w.getID())) {
 				HashSet<String> startRoadWayList = newRoadID2AnchorPoints.get(w.getID())._1();
 				HashSet<String> endRoadWayList = newRoadID2AnchorPoints.get(w.getID())._2();
-				int candidateRange = prop.getPropertyInteger("algorithm.mapmatching.hmm.CandidateRange");
+				int candidateRange = prop.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 				for (String s : startRoadWayList) {
 					if (!id2RoadWayMapping.containsKey(s))
 						LOG.error("ERROR! Road doesn't exist:" + s);

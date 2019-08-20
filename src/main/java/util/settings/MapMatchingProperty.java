@@ -43,7 +43,7 @@ public class MapMatchingProperty extends BaseProperty {
 							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
 						case "mc":
-							super.setProperty("algorithm.mapmatching.hmm.CandidateRange", arg.substring(3));
+							super.setProperty("algorithm.mapmatching.CandidateRange", arg.substring(3));
 							break;
 						case "mb":
 							super.setProperty("algorithm.mapmatching.hmm.Beta", arg.substring(3));

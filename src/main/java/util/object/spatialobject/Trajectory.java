@@ -384,12 +384,12 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 	
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder(this.getID() + " ( ");
+		StringBuilder s = new StringBuilder(this.getID() + "|");
 		for (TrajectoryPoint p : this) {
-			s.append(", ").append(p.toString());
+			s.append(",").append(p.toString());
 		}
 		s = new StringBuilder(s.toString().replaceFirst(",", ""));
-		return s + " )";
+		return s.toString();
 	}
 	
 	@Override

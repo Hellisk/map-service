@@ -38,7 +38,7 @@ public class CoOptimizationMain {
 		String dataSet = property.getPropertyString("data.Dataset");
 		// log file name
 		String logFileName = dataSet + "_" + property.getPropertyString("algorithm.cooptimization.data.RoadRemovalPercentage") + "_"
-				+ property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
+				+ property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
 				+ property.getPropertyString("algorithm.cooptimization.GapExtensionDistance") + "_"
 				+ property.getPropertyString("algorithm.mapmatching.hmm.RankLength") + "_"
 				+ property.getPropertyString("algorithm.cooptimization.CorrectRoadPercentage") + "_" + initTaskTime;
@@ -82,7 +82,7 @@ public class CoOptimizationMain {
 		}
 		// evaluation: map matching evaluation
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
-		RouteMatchingEvaluation.precisionRecallEvaluation(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
+		RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

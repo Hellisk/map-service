@@ -36,8 +36,11 @@ public class RoadNetworkGraph implements Serializable {
 	
 	private int maxVisitCount = 0;
 	
+	private boolean isCompactMap = false;    // A compact map does not have intersection whose degree is 2 (intermediate point in a road).
+	// Otherwise it is a loose map whose road ways are all straight line (no intermediate point on the road).
+	
 	/**
-	 * The current map will be used for map update. The below variables are only useful for an updatable map.
+	 * The current map will be used for map update if <tt>isUpdatable==true</tt>. The below variables are only useful for an updatable map.
 	 */
 	private boolean isUpdatable;
 	
@@ -117,7 +120,7 @@ public class RoadNetworkGraph implements Serializable {
 		}
 	}
 	
-	public void removeNode(RoadNode node) {
+	private void removeNode(RoadNode node) {
 		if (!this.id2NodeMap.containsKey(node.getID()))
 			throw new IllegalArgumentException("The node " + node.getID() + " is not an intersection in the map.");
 		if (node.getDegree() != 0)
@@ -185,6 +188,8 @@ public class RoadNetworkGraph implements Serializable {
 	 * @return both intersections and mini nodes
 	 */
 	public List<RoadNode> getAllTypeOfNodes() {
+		if (!isCompactMap)
+			return this.nodeList;    // no intermediate point in a loose map, return the node list directly.
 		List<RoadNode> pointList = new ArrayList<>(this.getNodes());
 		for (RoadWay w : this.getWays()) {
 			for (RoadNode n : w.getNodes())
@@ -194,7 +199,7 @@ public class RoadNetworkGraph implements Serializable {
 		return pointList;
 	}
 	
-	public void setDirectedMap(boolean directedMap) {
+	private void setDirectedMap(boolean directedMap) {
 		isDirectedMap = directedMap;
 	}
 	
@@ -234,6 +239,10 @@ public class RoadNetworkGraph implements Serializable {
 	 * @param way The road way to add.
 	 */
 	public void addWay(RoadWay way) {
+		if (!isCompactMap && way.getNodes().size() != 2) {
+			LOG.info("A polyline road added to the current map, set as a compact map.");
+			isCompactMap = true;
+		}
 		if (way != null && way.getNodes().size() > 1) {
 			if (!id2WayMap.containsKey(way.getID())) {
 				if (!id2NodeMap.containsKey(way.getFromNode().getID()) || !id2NodeMap.containsKey(way.getToNode().getID()))
@@ -738,19 +747,44 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	/**
-	 * Convert a map to its simple form. A simple map does not have intersections whose degree is two.
+	 * Convert a map to its compact form. A compact map does not have intersections whose degree is two. The roads whose degree is two are
+	 * merged to one new road, the new road ID is the concatenation of previous roads with "," as separator, i.e.: id1,id2,id3
 	 *
-	 * @return The output simple map.
+	 * @return The output compact map.
 	 */
-	public RoadNetworkGraph toSimpleMap() {
+	public RoadNetworkGraph toCompactMap() {
+		if (isCompactMap) {
+			LOG.info("The current map is already a compact map, skip the toCompactMap() step.");
+			return this;
+		}
+		boolean wasCompactMap = false;    // the original map was a compact map and we try to merge them back.
 		int degree2NodeCount = 0;
 		RoadNetworkGraph cloneMap = this.clone();
 		List<RoadNode> removeNodeList = new ArrayList<>();
+		for (RoadWay way : cloneMap.getWays()) {
+			if (way.getID().contains("_S")) {    // check if the previous map was converted from a compact map
+				wasCompactMap = true;
+				break;
+			}
+		}
 		for (RoadNode node : cloneMap.getAllTypeOfNodes()) {
 			if (node.getDegree() == 2 && node.getInComingDegree() == node.getOutGoingDegree()) {
 				degree2NodeCount++;
 				RoadWay inComingWay = node.getInComingWayList().iterator().next();
 				RoadWay outGoingWay = node.getOutGoingWayList().iterator().next();
+				String mergedWayID;
+				if (wasCompactMap) {
+					// Merge the split roads back and try to recover their road ID.
+					String inComingID = inComingWay.getID().split("_S")[0];
+					String outGoingID = outGoingWay.getID().split("_S")[0];
+					if (inComingID.equals(outGoingID)) {
+						mergedWayID = inComingID;
+					} else
+						throw new IllegalArgumentException("Fail to merge two previously separated roads when compacting, ID conflict: "
+								+ inComingWay + "," + outGoingWay);
+				} else {
+					mergedWayID = inComingWay.getID() + "," + outGoingWay.getID();
+				}
 				List<RoadNode> mergedNodeList = new ArrayList<>();
 				List<RoadWay> removeWayList = new ArrayList<>();
 				mergedNodeList.addAll(inComingWay.getNodes());
@@ -761,14 +795,104 @@ public class RoadNetworkGraph implements Serializable {
 				removeWayList.add(outGoingWay);
 				cloneMap.removeRoadWayList(removeWayList);
 				removeNodeList.add(node);
-				RoadWay mergeWay = new RoadWay(inComingWay.getID() + "_" + outGoingWay.getID(), mergedNodeList, cloneMap.getDistanceFunction());
+				RoadWay mergeWay = new RoadWay(mergedWayID, mergedNodeList, cloneMap.getDistanceFunction());
 				cloneMap.addWay(mergeWay);
+			} else if (node.getDegree() == 2) {
+				LOG.warn("Current end point only contains incoming or outgoing roads: " + node.getInComingDegree() + "," + node.getOutGoingDegree());
 			}
 		}
 		for (RoadNode node : removeNodeList) {
 			cloneMap.removeNode(node);
 		}
-		LOG.info("Finish simple map conversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes().size() + " nodes.");
+		
+		// evaluate conversion result
+		for (RoadWay way : cloneMap.getWays()) {
+			if (way.getID().contains("_S"))
+				throw new IllegalArgumentException("The current map still contains unmerged road after compact map conversion: " + way.getID());
+		}
+		for (RoadNode node : cloneMap.getNodes()) {
+			if (node.getDegree() == 2 && node.getInComingDegree() == node.getOutGoingDegree())
+				throw new IllegalArgumentException("The current map is still not compact after the compact conversion.");
+		}
+		cloneMap.isCompactMap = true;
+		
+		LOG.info("Finish compact map conversion, total number of node removed: " + degree2NodeCount + ". New map contains " + cloneMap.getNodes().size() + " nodes.");
+		return cloneMap;
+	}
+	
+	/**
+	 * Convert a compact map to its loose form. The roads in a loose map are all straight lines, no polyline appears. New road ID is the
+	 * combination
+	 *
+	 * @return The output simple map.
+	 */
+	public RoadNetworkGraph toLooseMap() {
+		if (!isCompactMap) {
+			LOG.info("The current map is already a loose map, skip the toLooseMap() step.");
+			return this;
+		}
+		
+		boolean wasLooseMap = false;    // the current map was a loose map and we try to separate it back with its original road ID
+		
+		RoadNetworkGraph cloneMap = this.clone();
+		
+		// check if it is a loose map
+		for (RoadWay currWay : cloneMap.wayList) {
+			if (currWay.getID().contains(",")) {
+				wasLooseMap = true;    // the original map was a loose map
+				break;
+			}
+		}
+		List<RoadWay> removedWayList = new ArrayList<>();
+		List<RoadWay> insertWayList = new ArrayList<>();
+		for (RoadWay currWay : cloneMap.getWays()) {
+			if (currWay.getNodes().size() > 2) {
+				// the current road is a polyline, separate it
+				String[] idList = currWay.getID().split(",");
+				removedWayList.add(currWay);
+				if (wasLooseMap) {
+					// retrieve the previous road IDs
+					if (idList.length != currWay.getNodes().size() - 1)
+						throw new IllegalArgumentException("The current road to be separated during loose map conversion contains " +
+								"inconsistent number of previous ids: " + (currWay.getNodes().size() - 1) + "," + idList.length);
+				} else {
+					if (idList.length != 1)
+						throw new IllegalArgumentException("The current road to be separated during loose map conversion contains " +
+								"complex road ID: " + currWay.getID());
+				}
+				for (int i = 1; i < currWay.getNodes().size(); i++) {
+					List<RoadNode> insertWayEndNodeList = new ArrayList<>();
+					RoadNode startNode = currWay.getNode(i - 1);
+					RoadNode endNode = currWay.getNode(i);
+					insertWayEndNodeList.add(startNode);
+					insertWayEndNodeList.add(endNode);    // the last point already in the intersection list, do not add twice
+					if (i != currWay.getNodes().size() - 1)
+						cloneMap.addNode(endNode);
+					RoadWay insertWay;
+					if (wasLooseMap)
+						insertWay = new RoadWay(idList[i - 1], insertWayEndNodeList, cloneMap.getDistanceFunction());
+					else
+						insertWay = new RoadWay(idList[0] + "_S" + (i - 1), insertWayEndNodeList, cloneMap.getDistanceFunction());
+					insertWayList.add(insertWay);
+				}
+			}
+		}
+		cloneMap.removeRoadWayList(removedWayList);
+		cloneMap.addWays(insertWayList);
+		
+		// evaluate conversion result
+		for (RoadWay currWay : cloneMap.getWays()) {
+			if (currWay.getNodes().size() != 2)
+				throw new IllegalArgumentException("Some roads are still non-straight after the loose map conversion.");
+			if (currWay.getID().contains(","))
+				throw new IllegalArgumentException("Incorrect road ID after loose map conversion: " + currWay.getID());
+		}
+		if (this.getAllTypeOfNodes().size() != cloneMap.getNodes().size())
+			throw new IllegalArgumentException("The number of nodes changes during the loose map conversion: "
+					+ this.getAllTypeOfNodes().size() + "," + cloneMap.getNodes().size());
+		isCompactMap = false;
+		LOG.info("Finish loose map conversion, total number of roads affected: " + removedWayList.size() + ". Number of new way created: "
+				+ insertWayList.size() + ".");
 		return cloneMap;
 	}
 }

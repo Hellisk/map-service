@@ -58,7 +58,7 @@ public class CoOptimizationProperty extends BaseProperty {
 							super.setProperty("algorithm.mapmatching.hmm.RankLength", arg.substring(3));
 							break;
 						case "mc":
-							super.setProperty("algorithm.mapmatching.hmm.CandidateRange", arg.substring(3));
+							super.setProperty("algorithm.mapmatching.CandidateRange", arg.substring(3));
 							break;
 						default:
 							throw new IllegalArgumentException("Invalid argument: " + arg);

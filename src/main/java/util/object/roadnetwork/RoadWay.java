@@ -8,7 +8,6 @@ import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
 
 import javax.annotation.Nullable;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -95,77 +94,72 @@ public class RoadWay extends RoadNetworkPrimitive {
 	/**
 	 * Parse the given string into a road way instance
 	 *
-	 * @param s          The input string
+	 * @param s          The input string.
 	 * @param index2Node The road node list that used to find the pointer to the end points of the road way. Leave empty if nodes and
 	 *                   ways are not required to be linked.
-	 * @return The generated road way instance
+	 * @param df         Distance function.
+	 * @return The generated road way instance.
 	 */
 	public static RoadWay parseRoadWay(String s, Map<String, RoadNode> index2Node, DistanceFunction df) {
 		String[] edgeInfo = s.split("\\|");
-		if (edgeInfo[6].contains(",") || !edgeInfo[7].contains(","))
+		if (edgeInfo.length < 3 || edgeInfo.length > 4)
 			throw new IndexOutOfBoundsException("Failed to read road way: input data format is wrong. " + s);
-		RoadWay newWay;
+		RoadWay newWay = new RoadWay(edgeInfo[0], df);
 		List<RoadNode> miniNode = new ArrayList<>();
-		newWay = new RoadWay(edgeInfo[0], df);
-		newWay.setVisitCount(Integer.parseInt(edgeInfo[6]));
-		newWay.setNewRoad(edgeInfo[5].equals("true"));
+		newWay.setNewRoad(edgeInfo[2].equals("true"));
 		if (edgeInfo[0].equals("null")) {
-			// the current edge is fresh(not yet processed by map merge), the endpoints are not able to be matched to existing nodes
-			for (int i = 7; i < edgeInfo.length; i++) {
-				String[] roadWayPoint = edgeInfo[i].split(",");
-				if (roadWayPoint.length == 3) {
-					RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]), Double.parseDouble
-							(roadWayPoint[2]), df);
-					miniNode.add(newNode);
-				} else
-					throw new IllegalArgumentException("Failed reading mini node for new road: input data format is wrong. " + edgeInfo[i]);
+			String[] nodeInfo = edgeInfo[1].split(",");
+			// the current edge is fresh (not yet processed by map merge), the endpoints are not able to be matched to existing nodes
+			for (String info : nodeInfo) {
+				miniNode.add(RoadNode.parseRoadNode(info, df));
 			}
 		} else {
 			if (index2Node == null || index2Node.isEmpty()) {
 				// the read only happens in map road
-				for (int i = 7; i < edgeInfo.length; i++) {
-					String[] roadWayPoint = edgeInfo[i].split(",");
-					if (roadWayPoint.length == 3) {
-						RoadNode newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]),
-								Double.parseDouble(roadWayPoint[2]), df);
-						miniNode.add(newNode);
-					} else
-						throw new IllegalArgumentException("Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
-				}
-			} else if (index2Node.containsKey(edgeInfo[7].split(",")[0]) && index2Node.containsKey(edgeInfo[edgeInfo.length - 1].split(",")[0])) {
-				// the road way record is complete and the endpoints exist
-				for (int i = 7; i < edgeInfo.length; i++) {
-					String[] roadWayPoint = edgeInfo[i].split(",");
-					if (roadWayPoint.length == 3) {
-						RoadNode newNode;
-						if (i == 7) {
-							newNode = index2Node.get(roadWayPoint[0]);
-						} else if (i == edgeInfo.length - 1) {
-							newNode = index2Node.get(roadWayPoint[0]);
-						} else {
-							newNode = new RoadNode(roadWayPoint[0], Double.parseDouble(roadWayPoint[1]),
-									Double.parseDouble(roadWayPoint[2]), df);
-						}
-						miniNode.add(newNode);
-					} else
-						throw new IllegalArgumentException("Failed reading mini node: input data format is wrong. " + edgeInfo[i]);
+				String[] nodeInfo = edgeInfo[1].split(",");
+				for (String info : nodeInfo) {
+					miniNode.add(RoadNode.parseRoadNode(info, df));
 				}
 			} else {
-				// it happens during the extraction of map with boundary. Otherwise, it should be a mistake.
-//				LOG.warn("The endpoints of the road way cannot be found in node list: " + newWay.getID());
-				return new RoadWay(df);
+				// the end nodes are able to be found in node mapping
+				String[] nodeInfo = edgeInfo[1].split(",");
+				String firstNodeID = nodeInfo[0].split(" ")[0];
+				String lastNodeID = nodeInfo[nodeInfo.length - 1].split(" ")[0];
+				if (index2Node.containsKey(firstNodeID) && index2Node.containsKey(lastNodeID)) {
+					// the road way record is complete and the endpoints exist
+					miniNode.add(index2Node.get(firstNodeID));
+					for (int i = 1; i < nodeInfo.length - 1; i++) {
+						miniNode.add(RoadNode.parseRoadNode(nodeInfo[i], df));
+					}
+					miniNode.add(index2Node.get(lastNodeID));
+				} else {
+					// it happens during the extraction of map with boundary. Otherwise, it should be a mistake.
+//					LOG.warn("The endpoints of the road way cannot be found in node list: " + newWay.getID());
+					return new RoadWay(df);
+				}
 			}
 		}
-		
-		newWay.setWayLevel(Short.parseShort(edgeInfo[1]));
-		if (!edgeInfo[2].equals("{}") && !edgeInfo[2].equals("null")) {
-			String[] wayTypeList = edgeInfo[2].substring(1, edgeInfo[2].length() - 1).split(", ");
-			for (String type : wayTypeList) {
-				newWay.setWayTypeBit(Integer.parseInt(type));
+		if (edgeInfo.length == 4) {
+			// attributes exists
+			String[] attributeList = edgeInfo[3].split("_");
+			for (String attribute : attributeList) {
+				String[] values = attribute.split(":");
+				if (values.length != 2)
+					throw new IllegalArgumentException("The attribute format is wrong: " + attribute);
+				if (values[0].equals("wayType")) {    // way type is a BitSet, which has to be parsed carefully
+					if (!values[1].equals("{}") && !values[1].equals("null")) {
+						String[] wayTypeList = values[1].substring(1, values[1].length() - 1).split(", ");
+						for (String type : wayTypeList) {
+//							if (type.equals(""))
+//								System.out.println("TEST");
+							newWay.setWayTypeBit(Integer.parseInt(type));
+						}
+					}
+				} else {
+					newWay.addTag(values[0], values[1]);
+				}
 			}
 		}
-		newWay.setInfluenceScore(Double.parseDouble(edgeInfo[3]));
-		newWay.setConfidenceScore(Double.parseDouble(edgeInfo[4]));
 		newWay.setNodes(miniNode);
 		return newWay;
 	}
@@ -302,22 +296,25 @@ public class RoadWay extends RoadNetworkPrimitive {
 	
 	/**
 	 * Convert the road way into string, for write purpose. The format is as follows:
-	 * ID|RoadLevel|RoadType|InfScore|ConScore|isNewRoad|visitCount|RoadNode1,RoadNode2...
+	 * ID|RoadNode1,RoadNode2...|isNewRoad|attribute1:value1_attribute2:value2
 	 *
 	 * @return String that contains all road way information
 	 */
 	@Override
 	public String toString() {
-		DecimalFormat decFor = new DecimalFormat("0.00000");
 		StringBuilder s = new StringBuilder(this.getID() + "|");
-		s.append(this.getWayLevel()).append("|").append(this.getWayType() == null ? "null" : this.getWayType().toString()).append("|");
-		s.append(this.getInfluenceScore()).append("|").append(this.getConfidenceScore()).append("|");
-		s.append(this.isNewRoad ? "true" : "false").append("|");
-		s.append(this.getVisitCount());
 		for (RoadNode n : this.getNodes()) {
-			s.append("|").append(n.getID()).append(",").append(decFor.format(n.lon())).append(",").append(decFor.format(n.lat()));
+			s.append(",").append(n.toString());
 		}
-		return s.toString();
+		s.append("|").append(this.isNewRoad ? "true" : "false");
+		if (!getTags().isEmpty()) {
+			s.append("|");
+			for (Map.Entry<String, Object> entry : getTags().entrySet()) {
+				s.append(entry.getKey()).append(":").append(entry.getValue()).append("_");
+			}
+		}
+		
+		return s.toString().replaceFirst(",", "").substring(0, s.length() - 1);
 	}
 	
 	@Override
@@ -367,11 +364,11 @@ public class RoadWay extends RoadNetworkPrimitive {
 	public double getConfidenceScore() {
 		if (getTags().get("confidenceScore") == null)
 			return -1;
-		return (double) getTags().get("confidenceScore");
+		return Double.parseDouble(getTags().get("confidenceScore").toString());
 	}
 	
 	public void setConfidenceScore(double confidenceScore) {
-		getTags().put("confidenceScore", confidenceScore);
+		this.addTag("confidenceScore", confidenceScore);
 	}
 	
 	/**
@@ -383,11 +380,11 @@ public class RoadWay extends RoadNetworkPrimitive {
 	public double getInfluenceScore() {
 		if (getTags().get("influenceScore") == null)
 			return -1;
-		return (double) getTags().get("influenceScore");
+		return Double.parseDouble(getTags().get("influenceScore").toString());
 	}
 	
 	public void setInfluenceScore(double influenceScore) {
-		getTags().put("influenceScore", influenceScore);
+		this.addTag("influenceScore", influenceScore);
 	}
 	
 	public boolean isNewRoad() {
@@ -405,11 +402,11 @@ public class RoadWay extends RoadNetworkPrimitive {
 	public int getVisitCount() {
 		if (getTags().get("visitCount") == null)
 			return -1;
-		return (int) getTags().get("visitCount");
+		return Integer.parseInt(getTags().get("visitCount").toString());
 	}
 	
 	public void setVisitCount(int count) {
-		this.getTags().put("visitCount", count);
+		this.addTag("visitCount", count);
 	}
 	
 	/**
@@ -428,14 +425,14 @@ public class RoadWay extends RoadNetworkPrimitive {
 	}
 	
 	public void setWayType(BitSet wayType) {
-		getTags().put("wayType", wayType);
+		this.addTag("wayType", wayType);
 	}
 	
 	public void setWayTypeBit(int roadWayType) {
 		if (getTags().get("wayType") == null) {
 			BitSet currSet = new BitSet(25);
 			currSet.set(roadWayType);
-			getTags().put("wayType", currSet);
+			this.addTag("wayType", currSet);
 		}
 		((BitSet) getTags().get("wayType")).set(roadWayType);
 	}
@@ -448,17 +445,32 @@ public class RoadWay extends RoadNetworkPrimitive {
 	public short getWayLevel() {
 		if (getTags().get("wayLevel") == null)
 			return -1;
-		return (Short) getTags().get("wayLevel");
+		return Short.parseShort(getTags().get("wayLevel").toString());
 	}
 	
 	public void setWayLevel(short roadWayLevel) {
-		this.getTags().put("wayLevel", roadWayLevel);
+		this.addTag("wayLevel", roadWayLevel);
 	}
 	
+	/**
+	 * The speed limit for each road, measured by km/h.
+	 *
+	 * @return The speed limit.
+	 */
+	public int getSpeedLimit() {
+		if (getTags().get("speedLimit") == null)
+			return -1;
+		return Integer.parseInt(getTags().get("speedLimit").toString());
+	}
+	
+	public void setSpeedLimit(int speedLimit) {
+		this.addTag("speedLimit", speedLimit);
+	}
 	
 	public List<RoadWay> splitAtNode(RoadNode intersectionNode) {
 		return splitAtNode(intersectionNode, null);
 	}
+	
 	
 	/**
 	 * Split the current road into two roads based on the given intersection node which is on one of its road segment. The ID of the

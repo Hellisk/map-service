@@ -54,7 +54,7 @@ public class MapMatchingMain {
 		switch (matchingMethod) {
 			case "HMM":
 				logFileName = "matching_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_"
-						+ property.getPropertyString("algorithm.mapmatching.hmm.CandidateRange") + "_"
+						+ property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.hmm.Sigma") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_" + initTaskTime;
 				break;

@@ -31,16 +31,16 @@ public class GraphMatchingMapEvaluation {
 		if (outputMap.getDistanceFunction().getClass() != gtMap.getDistanceFunction().getClass())
 			throw new IllegalArgumentException("Input map and ground-truth map has different coordinate system.");
 		
-		RoadNetworkGraph outputSimpleMap = outputMap.toSimpleMap();
-		RoadNetworkGraph gtSimpleMap = gtMap.toSimpleMap();
+		RoadNetworkGraph outputSimpleMap = outputMap.toCompactMap();
+		RoadNetworkGraph gtSimpleMap = gtMap.toCompactMap();
 		
 		DistanceFunction distFunc = outputMap.getDistanceFunction();
 		
 		// two maps share the same region
-		double maxLon = outputSimpleMap.getMaxLon() > gtSimpleMap.getMaxLon() ? outputSimpleMap.getMaxLon() : gtSimpleMap.getMaxLon();
-		double maxLat = outputSimpleMap.getMaxLat() > gtSimpleMap.getMaxLat() ? outputSimpleMap.getMaxLat() : gtSimpleMap.getMaxLat();
-		double minLon = outputSimpleMap.getMinLon() < gtSimpleMap.getMinLon() ? outputSimpleMap.getMinLon() : gtSimpleMap.getMinLon();
-		double minLat = outputSimpleMap.getMinLat() < gtSimpleMap.getMinLat() ? outputSimpleMap.getMinLat() : gtSimpleMap.getMinLat();
+		double maxLon = Math.max(outputSimpleMap.getMaxLon(), gtSimpleMap.getMaxLon());
+		double maxLat = Math.max(outputSimpleMap.getMaxLat(), gtSimpleMap.getMaxLat());
+		double minLon = Math.min(outputSimpleMap.getMinLon(), gtSimpleMap.getMinLon());
+		double minLat = Math.min(outputSimpleMap.getMinLat(), gtSimpleMap.getMinLat());
 		// build index for both output map and ground-truth map
 		double lonDistance = distFunc.pointToPointDistance(maxLon, (maxLat + minLat) / 2, minLon, (maxLat + minLat) / 2);
 		double latDistance = distFunc.pointToPointDistance((maxLon + minLon) / 2, maxLat, (maxLon + minLon) / 2, minLat);

@@ -48,7 +48,7 @@ public class TrajectoryIndex {
 	static LinkedHashSet<String> trajectoryIDSearch(List<RoadWay> newWayList, STRTree<Point> trajectoryPointIndex,
 													BaseProperty prop) {
 		LinkedHashSet<String> trajIDSet = new LinkedHashSet<>();
-		double range = prop.getPropertyDouble("algorithm.mapmatching.hmm.CandidateRange");
+		double range = prop.getPropertyDouble("algorithm.mapmatching.CandidateRange");
 		double bbFactor = prop.getPropertyDouble("algorithm.cooptimization.IndexBBFactor");
 		for (RoadWay w : newWayList) {
 			Rect boundingBox = findBoundingBox(w, range, bbFactor);

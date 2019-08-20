@@ -190,7 +190,7 @@ public class RoutingGraph implements Serializable {
 			} else {
 				int destEdgeIndex = endPointLoc2EdgeIndex.get(destLocID);
 				String destRoadID = index2RoadIDAndSN.get(destEdgeIndex).split(",")[0];
-				double candidateRange = prop.getPropertyDouble("algorithm.mapmatching.hmm.CandidateRange");
+				double candidateRange = prop.getPropertyDouble("algorithm.mapmatching.CandidateRange");
 				double backwardsFactor = prop.getPropertyDouble("algorithm.mapmatching.hmm.BackwardsFactor");
 				if (destRoadID.equals(startRoadID)) {   // two segments refer to the same road
 					if (distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint()) == 0) { // located in the same road
