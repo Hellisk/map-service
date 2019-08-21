@@ -184,7 +184,7 @@ public class LineClusteringMapInference {
 		List<Cluster> initialClusterList = basicUnmatchedClustering(filteredTrajList, distFunc, maxClusteringDist);
 		
 		List<RoadWay> outputRoadWay = new ArrayList<>();
-		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(dpEpsilon);
+		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(dpEpsilon, distFunc);
 		PrincipalCurveGenerator principalCurveGen = new PrincipalCurveGenerator(distFunc);
 		for (Cluster cluster : initialClusterList) {
 			if (cluster.size() == 1) {
@@ -241,7 +241,7 @@ public class LineClusteringMapInference {
 		}
 		List<Cluster> initialClusterList = basicClustering(trajList, distFunc, maxClusteringDist);
 		List<RoadWay> outputRoadWay = new ArrayList<>();
-		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(dpEpsilon);
+		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(dpEpsilon, distFunc);
 		PrincipalCurveGenerator principalCurveGen = new PrincipalCurveGenerator(distFunc);
 		for (Cluster cluster : initialClusterList) {
 			if (cluster.size() == 1) {

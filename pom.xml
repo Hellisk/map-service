@@ -49,9 +49,6 @@
                 </executions>
                 <configuration>
                     <archive>
-                        <!--                        <manifest>-->
-                        <!--                            <mainClass>algorithm.cooptimization.CoOptimizationMain</mainClass>-->
-                        <!--                        </manifest>-->
                         <manifest>
                             <mainClass>preprocessing.PreprocessingMain</mainClass>
                         </manifest>
@@ -177,6 +174,19 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.davidmoten/grumpy-core -->
+        <dependency>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>grumpy-ogc</artifactId>
+            <version>0.2.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.davidmoten/rtree -->
+        <dependency>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>rtree</artifactId>
+            <version>0.8.7</version>
+        </dependency>
+
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>

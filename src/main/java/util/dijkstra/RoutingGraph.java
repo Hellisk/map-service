@@ -40,7 +40,7 @@ public class RoutingGraph implements Serializable {
 	 * Create routing graph for map-matching.
 	 *
 	 * @param roadNetwork       The map used to build routing graph.
-	 * @param isNewRoadIncluded Is new roads to be added together into the shortest path, only used when in map update process.
+	 * @param isNewRoadIncluded Is new roads to be added together into the shortest path, only = true when in map update process.
 	 */
 	public RoutingGraph(RoadNetworkGraph roadNetwork, boolean isNewRoadIncluded, BaseProperty prop) {
 		this.prop = prop;
