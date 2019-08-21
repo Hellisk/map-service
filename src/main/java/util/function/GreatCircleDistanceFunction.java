@@ -189,9 +189,10 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	public double pointToSegmentProjectionDistance(double x, double y, double sx1, double sy1, double sx2, double sy2) {
 		double xDelta = sx2 - sx1;
 		double yDelta = sy2 - sy1;
-		
-		if ((xDelta == 0) && (yDelta == 0))
+
+		if ((xDelta == 0) && (yDelta == 0)) {
 			throw new IllegalArgumentException("Segment start equals segment end");
+		}
 		
 		Point ppPoint = getProjection(x, y, sx1, sy1, sx2, sy2);
 		

@@ -1,6 +1,8 @@
 package algorithm.mapmatching;
 
 import algorithm.mapmatching.hmm.HMMMapMatching;
+import algorithm.mapmatching.weightBased.WeightBasedMM;
+import evaluation.matchingevaluation.RouteMatchingEvaluation;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -8,7 +10,6 @@ import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
-import util.object.structure.MatchResultWithUnmatchedTraj;
 import util.object.structure.MultipleTrajectoryMatchResult;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Entry for running map-matching algorithms and evaluation.
@@ -102,20 +101,36 @@ public class MapMatchingMain {
 		} else {
 			distFunc = new GreatCircleDistanceFunction();
 			RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
-			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
-			HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
-			Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
-			List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
-			for (MatchResultWithUnmatchedTraj currPair : currCombinedMatchResultList) {
-				routeMatchResult.add(new Pair<>(Integer.parseInt(currPair.getTrajID()),
-						currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList()));
+//			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
+//			HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
+//			Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream = mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
+//			List<MatchResultWithUnmatchedTraj> currCombinedMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
+//			for (MatchResultWithUnmatchedTraj currPair : currCombinedMatchResultList) {
+//				routeMatchResult.add(new Pair<>(Integer.parseInt(currPair.getTrajID()),
+//						currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList()));
+//			}
+//			MatchResultWriter.writeRouteMatchResults(routeMatchResult, outputMatchResultFolder);
+//			LOG.info("Matching complete, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds.");
+
+			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+			WeightBasedMM weightBasedMM = new WeightBasedMM(roadMap, property, 1000, 12, 21, 32, 35);
+
+			for (Trajectory trajectory : inputTrajList) {
+				weightBasedMM.doMatching(trajectory);
 			}
-			MatchResultWriter.writeRouteMatchResults(routeMatchResult, outputMatchResultFolder);
-			LOG.info("Matching complete, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds.");
-			
+
+			List<Pair<Integer, List<PointMatch>>> matchedPointSequence = weightBasedMM.getOutputPointMatchResult();
+			List<Pair<Integer, List<String>>> matchedWaySequence = weightBasedMM.getOutputRouteMatchResult();
+
+			MatchResultWriter.writeRouteMatchResults(matchedWaySequence, outputMatchResultFolder + "/route");
+			MatchResultWriter.writePointMatchResults(matchedPointSequence, outputMatchResultFolder + "/point");
 			// evaluation test
-//			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
-//			precisionRecallMatchingEvaluation.precisionRecallRouteMatchEvaluation(routeMatchResult, gtRouteMatchResult, roadMap, null);
+			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
+			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(groundTruthPointMatchResultFolder, distFunc);
+
+			RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(matchedWaySequence, gtRouteMatchResult, roadMap, null);
+//			PointMatchingEvaluation.rootMeanSquareErrorEvaluation(pointMatchResult, gtPointMatchResult);
+//			PointMatchingEvaluation.accuracyEvaluation(pointMatchResult, gtPointMatchResult);
 		}
 	}
 }

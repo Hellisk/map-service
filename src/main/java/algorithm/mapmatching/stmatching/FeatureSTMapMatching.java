@@ -4,6 +4,7 @@ import algorithm.mapinference.lineclustering.DouglasPeuckerFilter;
 import org.apache.log4j.Logger;
 import util.dijkstra.RoutingGraph;
 import util.function.DistanceFunction;
+import util.index.rtree.RTreeIndexing;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;

@@ -1,82 +1,19 @@
 package algorithm.mapmatching.weightBased;
 
-import com.github.davidmoten.rtree.Entry;
-import com.github.davidmoten.rtree.geometry.Line;
 import util.dijkstra.RoutingGraph;
-import util.function.DistanceFunction;
-import util.function.GreatCircleDistanceFunction;
-import util.io.MapReader;
-import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
 import util.object.structure.Triplet;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+//import util.function.DistanceFunction;
+
 public class Utilities {
 
-    /**
-     * search road segments in vicinity of search points
-     *
-     * @param radiusM searching radius around gps point
-     * @return lists of candidate matches
-     * @throws IOException when file not found
-     */
-    public static List<PointMatch> searchNeighbours(Point from, double radiusM) throws IOException {
-        RoadNetworkIndexing.initialize();
-        List<Entry<String, Line>> results = RoadNetworkIndexing.search(from.x(), from.y(), radiusM);
-        List<PointMatch> neighbours = new ArrayList<>();
-
-        for (Entry<String, Line> pair : results) {
-            String wayId = Arrays.asList(pair.value().split("\\|")).get(0);
-
-            double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
-            double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
-
-            DistanceFunction df = new GreatCircleDistanceFunction();
-            Point closestPoint = df.getClosestPoint(from.x(), from.y(), startNode[0], startNode[1], endNode[0], endNode[1]);
-
-            Segment sg = new Segment(startNode[0], startNode[1], endNode[0], endNode[1], df);
-
-            neighbours.add(new PointMatch(closestPoint, sg, wayId));
-        }
-        return neighbours;
-    }
-
-    /**
-     * Find the closest projection from a coord towards a set of segments
-     *
-     * @param point    GPS point
-     * @param segments segments
-     * @return the closest projection of coord on one of the segment
-     * @throws IOException file not found
-     */
-    public static PointMatch closesProjection(
-            Point point, List<Segment> segments) throws IOException {
-        RoadNetworkIndexing.initialize();
-
-        DistanceFunction df = new GreatCircleDistanceFunction();
-        Point firstP = new Point(point.x(), point.y(), df);
-        double minDist = 1000000;
-
-        Point closestP = new Point(0, 0, df);
-        Segment closestSeg = new Segment(0, 0, 0, 0, df);
-        String wayId = "";
-        for (Segment segment : segments) {
-            double dist = df.pointToSegmentProjectionDistance(firstP, segment);
-            if (dist < minDist) {
-                closestSeg = segment;
-                closestP = df.getProjection(firstP, closestSeg);
-                wayId = segment.getID();
-                minDist = dist;
-            }
-        }
-        return new PointMatch(closestP, closestSeg, wayId);
-    }
 
     /**
      * Find the shortest path from a source node to each destination node
@@ -106,27 +43,10 @@ public class Utilities {
     /**
      * Round 14 decimal places to 5 decimal places
      *
-     * @param coord 14 decimal_places coords
-     * @return 5 decimal_places coords
-     */
-    public static double[] formatDoubles(double[] coord) {
-        DecimalFormat df = new DecimalFormat("#.00000");
-        double x = Double.parseDouble(df.format(coord[0]));
-        double y = Double.parseDouble(df.format(coord[1]));
-        return new double[]{x, y};
-    }
-
-    public static RoadNetworkGraph getRoadNetworkGraph(String getMapFolder) {
-        return MapReader.readMap(getMapFolder + "0.txt", false, new GreatCircleDistanceFunction());
-    }
-
-    /**
-     * Round 14 decimal places to 5 decimal places
-     *
      * @param number 14 decimal_places number
      * @return 5 decimal_places number
      */
-    public static double formatDoubles(double number) {
+    private static double formatDoubles(double number) {
         DecimalFormat df = new DecimalFormat("#.00000");
         return Double.parseDouble(df.format(number));
     }
@@ -141,8 +61,7 @@ public class Utilities {
      * @return shortest path weight
      */
     public static double shortestPathWeight(Point prevPoint, Point curPoint, double pathDist, double threshold) {
-        DistanceFunction df = new GreatCircleDistanceFunction();
-        double trjtryDist = df.pointToPointDistance(prevPoint.x(), prevPoint.y(), curPoint.x(), curPoint.y());
+        double trjtryDist = prevPoint.getDistanceFunction().pointToPointDistance(prevPoint.x(), prevPoint.y(), curPoint.x(), curPoint.y());
         double diff = Math.abs(trjtryDist - pathDist);
 
         if (diff <= threshold) {
@@ -190,9 +109,8 @@ public class Utilities {
      * @return weighting score of perpendicular distance
      */
     public static double penDistanceWeight(Point curPoint, Segment candiSegment) {
-        DistanceFunction df = new GreatCircleDistanceFunction();
 
-        double dist = df.pointToSegmentProjectionDistance(
+        double dist = curPoint.getDistanceFunction().pointToSegmentProjectionDistance(
                 curPoint.x(), curPoint.y(),
                 candiSegment.x1(), candiSegment.y1(), candiSegment.x2(), candiSegment.y2());
 
@@ -310,46 +228,5 @@ public class Utilities {
             candiScores.add(new Pair<>(candiPath.getKey(), new Pair<>(tws, candiPath.getValue()._2())));
         }
         return candiScores;
-    }
-
-
-    /**
-     * Get the top ranked PointMatch of current GPS point
-     *
-     * @param rankedCandiPaths Queue<Pair < SourcePM, DestPM>, Pair<totalWeightScore,waySequence>> Ranking of candidate paths
-     * @return
-     */
-    public static PointMatch bestCandi(
-            Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> rankedCandiPaths) {
-        return rankedCandiPaths.peek()._1()._2();
-    }
-
-    /**
-     * @param matchedWays
-     * @param rankedCandiPaths
-     * @return
-     */
-    public static void updateMatchedWays(
-            List<String> matchedWays,
-            Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> rankedCandiPaths) {
-        List<String> pathWays = rankedCandiPaths.peek()._2()._2();
-        matchedWays.addAll(pathWays);
-    }
-
-    public static void main(String[] args) {
-        DistanceFunction df = new GreatCircleDistanceFunction();
-        Point p1 = new Point(116.42743, 39.95933, df);
-        Point p2 = new Point(116.42804, 39.95936, df);
-
-        Point preCandi = new Point(116.42743, 39.95949, df);
-        Point curCandi = new Point(116.42696, 39.95948, df);
-
-        Segment segment = new Segment(116.42755, 39.95949, 116.42696, 39.95948, df);
-
-
-        System.out.println(headingDiffWeight(p1, p2, preCandi, curCandi));
-        System.out.println(bearingDiffWeight(86.0, segment));
-        System.out.println(penDistanceWeight(p2, segment));
-        System.out.println(shortestPathWeight(p1, p2, 1, 1000));
     }
 }

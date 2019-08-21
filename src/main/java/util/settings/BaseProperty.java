@@ -22,8 +22,9 @@ public abstract class BaseProperty {
 	 * @return Corresponding String value.
 	 */
 	public String getPropertyString(String key) {
-		if (pro.getProperty(key) == null)
-			throw new IllegalArgumentException("Missing property: " + key);
+        if (pro.getProperty(key) == null) {
+            throw new IllegalArgumentException("Missing property: " + key);
+        }
 		return pro.getProperty(key);
 	}
 	

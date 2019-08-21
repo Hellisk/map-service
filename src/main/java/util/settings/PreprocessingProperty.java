@@ -80,6 +80,7 @@ public class PreprocessingProperty extends BaseProperty {
 		// different paths in Beijing dataset
 		if (dataset.contains("Beijing")) {
 			super.setProperty("path.RawDataFolder", super.getPropertyString("data.RootPath") + "Beijing/raw/");
+//			super.setProperty("path.RawDataFolder", super.getPropertyString("data.RootPath") + "Beijing-S/raw/");
 		} else
 			super.setProperty("path.RawDataFolder", rootPath + "raw/");
 		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");

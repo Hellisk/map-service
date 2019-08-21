@@ -47,6 +47,9 @@ public class TrajectoryReader {
 			File[] trajectoryFiles = inputFile.listFiles();
 			if (trajectoryFiles != null) {
 				for (File trajectoryFile : trajectoryFiles) {
+                    if (!trajectoryFile.getName().substring(trajectoryFile.getName().indexOf(".")).matches(".txt")) {
+                        continue;
+                    }
 					String trajID = trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1,
 							trajectoryFile.getName().indexOf('.'));
 					Trajectory newTrajectory = readTrajectory(trajectoryFile.getAbsolutePath(), trajID, df);

@@ -99,7 +99,9 @@ public class BeijingTrajectoryLoader {
 		initializeMapping(roadGraph, id2VisitCountMapping, id2RoadWayMapping);
 		
 		DecimalFormat df = new DecimalFormat("0.00000");    // the format of the input trajectory points
-		
+
+        System.out.println("rawTrajFilePath: " + rawTrajFilePath);
+        rawTrajFilePath = "/Users/macbookpro/Desktop/capstone/Beijing/raw/trajectory/beijingTrajectory";
 		BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajFilePath));
 		List<Trajectory> resultTrajList = new ArrayList<>();
 		List<Pair<Integer, List<String>>> gtRouteMatchList = new ArrayList<>();

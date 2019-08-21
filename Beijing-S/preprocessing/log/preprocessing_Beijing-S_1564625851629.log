@@ -1,0 +1,42 @@
+2019-08-01 12:17:31 INFO  [PreprocessingMain]: Map-Trajectory Co-Optimization with arguments: util.settings.PreprocessingProperty@69ec4766
+2019-08-01 12:17:31 INFO  [PreprocessingMain]: Start the data preprocessing step, including map resizing, trajectory filtering and map manipulation...
+2019-08-01 12:17:31 INFO  [PreprocessingMain]: Start extracting the original map and resizing it by the bounding box.
+2019-08-01 12:17:31 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: /Users/macbookpro/map-service-Aug-2019/Beijing-S/groundTruth/map/vertices_raw.txt (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:160)
+	at util.io.IOService.readFile(IOService.java:147)
+	at util.io.IOService.readFile(IOService.java:137)
+	at util.io.MapReader.readNodes(MapReader.java:109)
+	at util.io.MapReader.extractMapWithBoundary(MapReader.java:77)
+	at preprocessing.PreprocessingMain.main(PreprocessingMain.java:72)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-08-01 12:17:31 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: /Users/macbookpro/map-service-Aug-2019/Beijing-S/groundTruth/map/edges_raw.txt (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:160)
+	at util.io.IOService.readFile(IOService.java:147)
+	at util.io.IOService.readFile(IOService.java:137)
+	at util.io.MapReader.readWays(MapReader.java:131)
+	at util.io.MapReader.extractMapWithBoundary(MapReader.java:85)
+	at preprocessing.PreprocessingMain.main(PreprocessingMain.java:72)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:282)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-08-01 12:17:31 INFO  [MapReader]: raw.txt road map with boundary read done. isolate nodes: 0, total nodes:0, total road ways: 0
+2019-08-01 12:17:31 INFO  [MapWriter]: Map written. Total number of intersections: 0, total number of ways: 0, total number of mini nodes: 0
+2019-08-01 12:17:31 INFO  [PreprocessingMain]: Start the trajectory filtering.

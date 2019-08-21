@@ -228,5 +228,4 @@ public class Point extends SimpleSpatialObject {
 		}
 		return comparator.compare(this, p);
 	}
-	
 }

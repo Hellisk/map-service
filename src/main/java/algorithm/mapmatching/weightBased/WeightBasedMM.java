@@ -3,15 +3,15 @@ package algorithm.mapmatching.weightBased;
 
 import util.dijkstra.RoutingGraph;
 import util.function.DistanceFunction;
-import util.function.GreatCircleDistanceFunction;
-import util.io.MatchResultWriter;
-import util.io.TrajectoryReader;
+import util.index.rtree.RTreeIndexing;
+import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
+import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
 import util.object.structure.Triplet;
-import util.settings.MapMatchingProperty;
+import util.settings.BaseProperty;
 
 import java.io.IOException;
 import java.util.*;
@@ -22,52 +22,50 @@ import java.util.*;
  */
 public class WeightBasedMM {
 
+    private double candidateRange = 0d;
+    private DistanceFunction distFunc;
+    private BaseProperty property;
+    private RTreeIndexing rtree;
+    private RoutingGraph routingGraph;
+
+    private double djkstraThreshold = 0d;
+    private double headingWC = 0d;
+    private double bearingWC = 0d;
+    private double pdWC = 0d;
+    private double shortestPathWC = 0d;
+
     private List<String> matchedWaySequence = new ArrayList<>();
     private List<PointMatch> matchedPointSequence = new ArrayList<>();
-    private MapMatchingProperty property = new MapMatchingProperty();
-    private RoutingGraph routingGraph;
-    private double djkstraThreshold;
-    private double headingWC;
-    private double bearingWC;
-    private double pdWC;
-    private double shortestPathWC;
-    private double radiusM;
-    private DistanceFunction distFunc = new GreatCircleDistanceFunction();
     private List<Pair<Integer, List<String>>> outputRouteMatchResult = new ArrayList<>();
     private List<Pair<Integer, List<PointMatch>>> outputPointMatchResult = new ArrayList<>();
-    private String routeMatchResultFolder;
-    private String pointMatchingResultFolder;
-    private String traFolder;
+    private String routeMatchResultFolder = null;
+    private String pointMatchingResultFolder = null;
+    private String traFolder = null;
 
     /**
-     * @param mapFolder                 road network folder
+     * @param roadMap
+     * @param property
      * @param djkstraThreshold
-     * @param candidateRadius
      * @param headingWC
      * @param bearingWC
      * @param pdWC
      * @param shortestPathWC
-     * @param routeMatchResultFolder
-     * @param pointMatchingResultFolder
-     * @param traFolder
      */
     public WeightBasedMM(
-            String mapFolder,
-            double djkstraThreshold, double candidateRadius,
-            double headingWC, double bearingWC, double pdWC, double shortestPathWC,
-            String routeMatchResultFolder, String pointMatchingResultFolder, String traFolder) {
-        routingGraph = new RoutingGraph(Utilities.getRoadNetworkGraph(mapFolder), false, property);
-        djkstraThreshold = 1000;
-        candidateRadius = 50;
-        headingWC = 12;
-        bearingWC = 21;
-        pdWC = 32;
-        shortestPathWC = 35;
-        routeMatchResultFolder = "/Users/macbookpro/Desktop/capstone/Beijing-S/outputRouteResult";
-        pointMatchingResultFolder = "/Users/macbookpro/Desktop/capstone/Beijing-S/outputPointResult";
-        traFolder = "/Users/macbookpro/Desktop/capstone/Beijing-S/TrajFolder";
-        ;
+            RoadNetworkGraph roadMap, BaseProperty property,
+            double djkstraThreshold,
+            double headingWC, double bearingWC, double pdWC, double shortestPathWC) {
+        this.property = property;
+        this.distFunc = roadMap.getDistanceFunction();
+        this.candidateRange = property.getPropertyInteger("algorithm.mapmatching.CandidateRange");
+        this.rtree = new RTreeIndexing(roadMap);
+        this.routingGraph = new RoutingGraph(roadMap, false, this.property);
 
+        this.djkstraThreshold = djkstraThreshold;
+        this.headingWC = headingWC;
+        this.bearingWC = bearingWC;
+        this.pdWC = pdWC;
+        this.shortestPathWC = shortestPathWC;
     }
 
     /**
@@ -101,37 +99,42 @@ public class WeightBasedMM {
     /**
      * Initial map-matching
      *
-     * @param firstPoint     first GPS point
-     * @param secondPoint    second GPS point
-     * @param vehicleHeading heading of the second GPS point
-     * @return point match of the second GPS point
-     * @throws IOException file not found
      */
-    private PointMatch initialMM(
-            Point firstPoint, Point secondPoint, double vehicleHeading) throws IOException {
-        List<PointMatch> firstCandiPMs = Utilities.searchNeighbours(firstPoint, radiusM);
-        List<PointMatch> secCandiPMs = Utilities.searchNeighbours(secondPoint, radiusM);
+    private Pair<PointMatch, Integer> initialMM(Trajectory trajectory, int timestamp) {
 
-        // double is shortest path length
-        Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> candiPaths =
-                getAllShortestPaths(firstCandiPMs, secCandiPMs, djkstraThreshold);
+        Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> candiPaths = new HashMap<>();
+
+        while (candiPaths.size() == 0 && timestamp < trajectory.size() - 1) {
+            List<PointMatch> firstCandiPMs = rtree.searchNeighbours(trajectory.get(timestamp), candidateRange);
+            List<PointMatch> secCandiPMs = rtree.searchNeighbours(trajectory.get(timestamp + 1), candidateRange);
+
+            // double is shortest path length
+            candiPaths = getAllShortestPaths(firstCandiPMs, secCandiPMs, djkstraThreshold);
+
+            timestamp += 1;
+        }
+
+        if (candiPaths.size() == 0) {
+            return new Pair<>(new PointMatch(new Point(trajectory.getDistanceFunction()),
+                    new Segment(trajectory.getDistanceFunction()), "***"), timestamp + 1);
+        }
 
         // double is tws
         Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> scoredCandiPaths =
                 Utilities.rankCandiMatches(
-                        candiPaths, firstPoint, secondPoint, djkstraThreshold, vehicleHeading,
+                        candiPaths, trajectory.get(timestamp), trajectory.get(timestamp + 1),
+                        djkstraThreshold, trajectory.get(timestamp + 1).heading(),
                         headingWC, bearingWC, pdWC, shortestPathWC);
 
-        Utilities.updateMatchedWays(matchedWaySequence, scoredCandiPaths);
-//        System.out.println("initialMM finds "+scoredCandiPaths.size()+" paths");
-//        System.out.println("initial mm");
-        matchedPointSequence.add(Utilities.bestCandi(scoredCandiPaths));
-        return Utilities.bestCandi(scoredCandiPaths);
+        matchedWaySequence.addAll(scoredCandiPaths.peek()._2()._2());
+        matchedPointSequence.add(scoredCandiPaths.peek()._1()._1());
+        matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
+        return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
     }
 
-    private PointMatch subsqtMM(
-            Point prePoint, Point curPoint, PointMatch prevMatchedPM, double vehicleHeading) throws IOException {
-        List<PointMatch> secCandiPMs = Utilities.searchNeighbours(curPoint, radiusM);
+    private Pair<PointMatch, Integer> subsqtMM(
+            PointMatch prevMatchedPM, Trajectory trajectory, int timestamp) throws IOException {
+        List<PointMatch> secCandiPMs = rtree.searchNeighbours(trajectory.get(timestamp), candidateRange);
 
         // List<DestinationPM, shortestPathLength, Path>
         List<Triplet<PointMatch, Double, List<String>>> candiPaths =
@@ -149,7 +152,8 @@ public class WeightBasedMM {
         // double is tws
         Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> scoredCandiPaths =
                 Utilities.rankCandiMatches(
-                        shortestPaths, prePoint, curPoint, djkstraThreshold, vehicleHeading,
+                        shortestPaths, trajectory.get(timestamp - 1), trajectory.get(timestamp),
+                        djkstraThreshold, trajectory.get(timestamp).heading(),
                         headingWC, bearingWC, pdWC, shortestPathWC);
 
         if (scoredCandiPaths.size() == 0) {
@@ -160,121 +164,34 @@ public class WeightBasedMM {
 //            System.out.println("Number of candidate points of curPoint: " + secCandiPMs.size());
 //            System.out.println("Number of candidate paths: "+ candiPaths.size());
 //            System.out.println("Number of shortest paths: "+shortestPaths.size());
-            return handleBreakingPoint(prePoint, curPoint, vehicleHeading);
+
+            return initialMM(trajectory, timestamp - 1);
         }
-
-        Utilities.updateMatchedWays(matchedWaySequence, scoredCandiPaths);
-        matchedPointSequence.add(Utilities.bestCandi(scoredCandiPaths));
-        return Utilities.bestCandi(scoredCandiPaths);
+        matchedWaySequence.addAll(scoredCandiPaths.peek()._2()._2());
+        matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
+        return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
     }
 
-    private void resetMatchedResult() {
-        matchedWaySequence = new ArrayList<>();
-        matchedPointSequence = new ArrayList<>();
-    }
-
-
-    private PointMatch handleBreakingPoint(
-            Point firstPoint, Point secondPoint, double vehicleHeading) throws IOException {
-        // handle breaking point
-        return initialMM(firstPoint, secondPoint, vehicleHeading);
-    }
-
-    private void doMatching(final Trajectory trajectory) throws IOException {
+    public void doMatching(final Trajectory trajectory) throws IOException {
         // initialMM
-        PointMatch secdPM = initialMM(trajectory.get(0), trajectory.get(1), trajectory.get(1).heading());
 
-        Point prePoint = trajectory.get(1);
-        PointMatch prePM = secdPM;
-
-        for (int i = 2; i < trajectory.getSTPoints().size(); i++) {
-            // subsqtMM
-            prePM = subsqtMM(prePoint, trajectory.get(i), prePM, trajectory.get(i).heading());
-            prePoint = trajectory.get(i);
+        Pair<PointMatch, Integer> result = initialMM(trajectory, 0);
+        while (result._2() < trajectory.size() - 1) {
+            result = subsqtMM(result._1(), trajectory, result._2());
         }
         // Store map-matching result
         outputRouteMatchResult.add(new Pair<>(Integer.parseInt(trajectory.getID()), matchedWaySequence));
-        MatchResultWriter.writeRouteMatchResults(outputRouteMatchResult, routeMatchResultFolder);
-
         outputPointMatchResult.add(new Pair<>(Integer.parseInt(trajectory.getID()), matchedPointSequence));
-        MatchResultWriter.writePointMatchResults(outputPointMatchResult, pointMatchingResultFolder);
 
-
-        // Map matching finish. Now evaluate!
-//        String gtFolderPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/RouteMatchFolder";
-//        File gtFolder = new File(gtFolderPath);
-//        List<String> gtWays = new ArrayList<>();
-//
-//        for (File fileEntry_ : Objects.requireNonNull(gtFolder.listFiles())) {
-//            String trjGtIndex = fileEntry_.getName().split("[^a-zA-Z0-9']+")[1];
-//            if (trajectory.getID().equals(trjGtIndex)) {
-//                BufferedReader br_ = new BufferedReader(new FileReader(gtFolderPath + "/" + fileEntry_.getName()));
-//
-//                String gtWay = br_.readLine();
-//                while (gtWay != null) {
-//                    gtWays.add(gtWay.strip());
-//                    gtWay = br_.readLine();
-//                }
-//            }
-//        }
-//
-//        float correctMatchedWays = 0; // a correct matched way is a way in both estimated set and ground truth
-//        for (String gtWay : gtWays) {
-//            for (String way : matchedWaySequence) {
-//                if (way.equals(gtWay)) {
-//                    correctMatchedWays += 1;
-//                    break; // avoid a road way been matched twice
-//                }
-//            }
-//        }
-//
-//        float precision = correctMatchedWays / matchedWaySequence.size();
-//        float recall = correctMatchedWays / gtWays.size();
-//        float f = 2 * precision * recall / (precision + recall);
-//
-//        System.out.println("precision: " + precision + ", recall: " + recall + ", f-score: " + f);
-//        System.out.println(matchedWaySequence);
-        resetMatchedResult();
-//        System.out.println("\n");
+        matchedPointSequence = new ArrayList<>();
+        matchedWaySequence = new ArrayList<>();
     }
 
-    public void voidWeightBasedMatching() throws IOException {
-        List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(traFolder, distFunc);
-        System.out.println("inputTrajList size: " + inputTrajList.size());
-
-        for (Trajectory curTraj : inputTrajList) {
-            doMatching(curTraj);
-            System.out.println(curTraj.getID());
-        }
-
+    public List<Pair<Integer, List<String>>> getOutputRouteMatchResult() {
+        return outputRouteMatchResult;
     }
 
-    public static void main(String[] args) throws IOException {
-        /* load beijing trajectories */
-//        BeijingTrajectoryLoader bjTrjLoader =
-//                new BeijingTrajectoryLoader(500, 500, 120);
-////
-//        bjTrjLoader.readTrajWithGTRouteMatchResult(
-//                Utilities.getRoadNetworkGraph(),
-//                "/Users/macbookpro/Desktop/capstone/Beijing-S/raw/trajectory/beijingTrajectory.csv",
-//                "/Users/macbookpro/Desktop/capstone/Beijing-S/TrajFolder",
-//                "/Users/macbookpro/Desktop/capstone/Beijing-S/RouteMatchFolder");
-
-        /* Map-matching*/
-//        List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(traFolder, distFunc);
-//        System.out.println("inputTrajList size: " + inputTrajList.size());
-//
-//        for(Trajectory curTraj:inputTrajList){
-//            doMatching(curTraj);
-//            System.out.println(curTraj.getID());
-//        }
-//        float precisions = 0;
-//        float recalls = 0;
-//        float fs = 0;
-//
-//        System.out.println("~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("average precision: " + precisions / 95);
-//        System.out.println("average recall: " + recalls / 95);
-//        System.out.println("average fs: " + fs / 95);
+    public List<Pair<Integer, List<PointMatch>>> getOutputPointMatchResult() {
+        return outputPointMatchResult;
     }
 }
