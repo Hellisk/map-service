@@ -4,7 +4,6 @@ import util.exceptions.DistanceFunctionException;
 import util.object.spatialobject.Point;
 import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
-import util.object.spatialobject.Vector2D;
 
 import java.text.DecimalFormat;
 
@@ -190,7 +189,9 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 		if (len2 == 0)
 			throw new IllegalArgumentException("Segment start equals segment end");
 		// the projection falls where d = [(p - p1) . (p2 - p1)] / |p2 - p1|^2
-		double d = Vector2D.dotProduct(v2x, v2y, v1x, v1y) / len2;
+		double[] v1 = {v1x, v1y};
+		double[] v2 = {v2x, v2y};
+		double d = SpatialUtils.dotProduct(v1, v2) / len2;
 		
 		// projection is "in between" s.p1 and s.p2 get projection coordinates
 		double px = sx1 + d * (sx2 - sx1);

@@ -5,8 +5,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.apache.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.function.DistanceFunction;
 
 import java.awt.geom.Point2D;
@@ -193,13 +191,6 @@ public class Point extends SimpleSpatialObject {
 	@Override
 	public void print() {
 		LOG.info("POINT (" + toString() + ")");
-	}
-	
-	@Override
-	public void display() {
-		Graph graph = new SingleGraph("Point");
-		graph.display(false);
-		graph.addNode("N0").setAttribute("xyz", x, y, 0);
 	}
 	
 	@Override

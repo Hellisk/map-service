@@ -3,11 +3,8 @@ package util.object.spatialobject;
 import com.vividsolutions.jts.geom.Geometry;
 import org.apache.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.function.DistanceFunction;
 
-import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -463,18 +460,6 @@ public class Circle extends SimpleSpatialObject {
 	@Override
 	public void print() {
 		LOG.info("CIRCLE " + toString());
-	}
-	
-	@Override
-	public void display() {
-		Graph graph = new SingleGraph("Point");
-		graph.display(false);
-		graph.addNode("N0").setAttribute("xy", centerX, centerY);
-		Graphics2D g = (Graphics2D) graph;
-		int x = (int) (centerX - (radius / 2));
-		int y = (int) (centerY - (radius / 2));
-		int r = (int) radius;
-		g.fillOval(x, y, r, r);
 	}
 	
 	/**

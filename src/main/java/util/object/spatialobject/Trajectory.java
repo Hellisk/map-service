@@ -5,8 +5,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.apache.log4j.Logger;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 
@@ -390,27 +388,6 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 		}
 		s = new StringBuilder(s.toString().replaceFirst(",", ""));
 		return s.toString();
-	}
-	
-	@Override
-	public void display() {
-		if (this.isEmpty()) return;
-		
-		Graph graph = new SingleGraph("Trajectory");
-		graph.display(false);
-		// create one node per trajectory point
-		graph.addNode("N0");
-		for (int i = 1; i < this.size(); i++) {
-			graph.addNode("N" + i);
-			graph.addEdge("E" + (i - 1) + "-" + i, "N" + (i - 1), "N" + i);
-		}
-		for (int i = 0; i < this.size(); i++) {
-			Point p = this.get(i);
-			graph.getNode("N" + i).setAttribute("xyz", p.x(), p.y(), 0);
-		}
-		graph.addNode("A0");
-		graph.addNode("A1");
-		graph.addNode("A2");
 	}
 	
 	@Override

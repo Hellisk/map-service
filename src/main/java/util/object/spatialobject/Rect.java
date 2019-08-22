@@ -7,8 +7,6 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.apache.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.function.DistanceFunction;
 
 import java.awt.geom.Rectangle2D;
@@ -302,23 +300,6 @@ public class Rect extends SimpleSpatialObject {
 	@Override
 	public void print() {
 		LOG.info("RECTANGLE " + toString());
-	}
-	
-	@Override
-	public void display() {
-		Graph graph = new SingleGraph("Rectangle");
-		graph.display(false);
-		// create one node per polygon vertex
-		List<Point> coords = this.getCoordinates();
-		Point p = coords.get(0);
-		graph.addNode("N0").setAttribute("xyz", p.x(), p.y(), 0);
-		for (int i = 1; i < 4; i++) {
-			p = coords.get(i);
-			graph.addNode("N" + i).setAttribute("xyz", p.x(), p.y(), 0);
-			graph.addEdge("E" + (i - 1) + "-" + i, "N" + (i - 1), "N" + i);
-		}
-		// close the rectangle
-		graph.addEdge("E" + 4 + "-" + 0, "N" + (3), "N0");
 	}
 	
 	@Override

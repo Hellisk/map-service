@@ -6,8 +6,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import org.apache.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.function.DistanceFunction;
 
 import java.util.ArrayList;
@@ -347,15 +345,6 @@ public class Segment extends SimpleSpatialObject {
 	@Override
 	public void print() {
 		LOG.info("SEGMENT " + toString());
-	}
-	
-	@Override
-	public void display() {
-		Graph graph = new SingleGraph("Line Segment");
-		graph.display(false);
-		graph.addNode("N1").setAttribute("xy", x1, y1);
-		graph.addNode("N2").setAttribute("xy", x2, y2);
-		graph.addEdge("E12", "N1", "N2");
 	}
 	
 	@Override

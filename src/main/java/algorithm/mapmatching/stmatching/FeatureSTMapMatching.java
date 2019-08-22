@@ -14,7 +14,9 @@ import util.settings.BaseProperty;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Offline ST-matching map-matching algorithm implemented according to the paper:
@@ -57,6 +59,7 @@ public class FeatureSTMapMatching implements Serializable {
 		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, distFunc);
 		List<Integer> keyTrajPointList = dpFilter.dpSimplifier(traj);    // the indices of the key trajectory points for segmentation
 		
+		Map<Integer, List<PointMatch>> candidateMap = new HashMap<>();
 		for (int i = 0; i < keyTrajPointList.size() - 1; i++) {
 			List<TrajectoryPoint> currSubTrajPointList = traj.subList(keyTrajPointList.get(i), keyTrajPointList.get(i) + 1);
 //			Trajectory currTraj =

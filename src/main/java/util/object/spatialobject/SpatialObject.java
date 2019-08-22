@@ -101,11 +101,6 @@ public interface SpatialObject extends Cloneable {
 	 */
 	void print();
 	
-	/***
-	 * Displays this spatial object in a GUI window.
-	 */
-	void display();
-	
 	/**
 	 * Check whether these two spatial objects are of the same kind, and whether they have the same 2D spatial coordinates.
 	 * <p>

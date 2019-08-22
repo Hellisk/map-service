@@ -199,10 +199,6 @@ public class SegmentWithIndex extends SimpleSpatialObject {
 	}
 	
 	@Override
-	public void display() {
-	}
-	
-	@Override
 	public Geometry toJTSGeometry() {
 		if (JTSPoint == null) {
 			PackedCoordinateSequence.Double coord =

@@ -1,11 +1,12 @@
 package util.function;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
-import util.object.spatialobject.*;
+import util.object.spatialobject.Point;
+import util.object.spatialobject.Rect;
+import util.object.spatialobject.Trajectory;
+import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
 
 import java.io.Serializable;
@@ -40,24 +41,6 @@ public class SpatialUtils implements Serializable {
 	public static final int EARTH_RADIUS_POLES = 6356752;
 	
 	/**
-	 * Displays a list of spatial points in a GUI window.
-	 *
-	 * @param list List of points to display.
-	 */
-	public static void display(List<Point> list) {
-		if (list.isEmpty()) return;
-		
-		Graph graph = new SingleGraph("MultiPoint");
-		graph.display(false);
-		// create one node per point
-		Point p;
-		for (int i = 1; i < list.size(); i++) {
-			p = list.get(i);
-			graph.addNode("N" + i).setAttribute("xy", p.x(), p.y());
-		}
-	}
-	
-	/**
 	 * Find the bounding box of a given set of point.
 	 *
 	 * @param pointList The point set.
@@ -83,17 +66,6 @@ public class SpatialUtils implements Serializable {
 		if (minX == maxX && minY == maxY)
 			LOG.warn("The bounding box for point list: " + pointList.toString() + " is a point: " + minX + "," + maxY);
 		return new Rect(minX, minY, maxX, maxY, df);
-	}
-	
-	/**
-	 * Display a list of spatial objects in a GUI window.
-	 *
-	 * @param spatialObjList List of spatial objects to display.
-	 */
-	public static void displayMany(List<SpatialObject> spatialObjList) {
-		for (SpatialObject obj : spatialObjList) {
-			obj.display();
-		}
 	}
 	
 	/**

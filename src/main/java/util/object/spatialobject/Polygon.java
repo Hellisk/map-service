@@ -6,8 +6,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.impl.PackedCoordinateSequence;
 import org.apache.log4j.Logger;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 import util.exceptions.SpatialObjectConstructionException;
 import util.function.DistanceFunction;
 import util.function.SpatialUtils;
@@ -279,25 +277,6 @@ public class Polygon extends ComplexSpatialObject<Point> {
 		}
 		String res = s.toString().replaceFirst(", ", "");
 		return res + ")";
-	}
-	
-	@Override
-	public void display() {
-		if (this.isEmpty()) return;
-		
-		Graph graph = new SingleGraph("Polygon");
-		graph.display(false);
-		// create one node per polygon vertex
-		Point p = this.get(0);
-		int size = this.size();
-		graph.addNode("N0").setAttribute("xyz", p.x(), p.y(), 0);
-		for (int i = 1; i < size; i++) {
-			p = this.get(i);
-			graph.addNode("N" + i).setAttribute("xyz", p.x(), p.y(), 0);
-			graph.addEdge("E" + (i - 1) + "-" + i, "N" + (i - 1), "N" + i);
-		}
-		// close the polygon
-		graph.addEdge("E" + size + "-" + 0, "N" + (size - 1), "N0");
 	}
 	
 	@Override

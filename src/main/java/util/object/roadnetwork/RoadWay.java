@@ -314,7 +314,8 @@ public class RoadWay extends RoadNetworkPrimitive {
 			}
 		}
 		
-		return s.toString().replaceFirst(",", "").substring(0, s.length() - 1);
+		String result = s.toString().replaceFirst(",", "");
+		return result.substring(0, s.length() - 1);
 	}
 	
 	@Override
