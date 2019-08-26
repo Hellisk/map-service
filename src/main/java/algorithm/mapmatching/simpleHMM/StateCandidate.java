@@ -2,19 +2,23 @@ package algorithm.mapmatching.simpleHMM;
 
 import util.object.structure.PointMatch;
 
+import java.util.Objects;
+
 public class StateCandidate {
 
     private StateSample stateSample;
     private StateCandidate predecessor = null;
     private double filtProb = 0d;
     private double seqProb = 0d;
-    private PointMatch self;
+    private PointMatch pointMatch;
     private StateTransition transition = new StateTransition();
     private double emiProb = 0d;
+    private String id;
 
     public StateCandidate(PointMatch self, StateSample stateSample) {
-        this.self = self;
+        this.pointMatch = self;
         this.stateSample = stateSample;
+        this.id = self.getRoadID() + "_" + stateSample.getTime();
     }
 
     public StateCandidate getPredecessor() {
@@ -45,8 +49,8 @@ public class StateCandidate {
         return stateSample;
     }
 
-    public PointMatch getGeometry() {
-        return self;
+    public PointMatch getPointMatch() {
+        return pointMatch;
     }
 
     public StateTransition getTransition() {
@@ -66,10 +70,34 @@ public class StateCandidate {
     }
 
     public double lon() {
-        return self.lon();
+        return pointMatch.lon();
     }
 
     public double lat() {
-        return self.lat();
+        return pointMatch.lat();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StateCandidate that = (StateCandidate) o;
+        return pointMatch.equals(that.getPointMatch())
+                && stateSample.equals(that.getStateSample())
+                && predecessor.equals(that.getPredecessor())
+                && transition.equals(that.getTransition())
+                && filtProb == that.getFiltProb()
+                && seqProb == that.getSeqProb()
+                && emiProb == that.getEmiProb()
+                && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pointMatch, stateSample, predecessor, transition, filtProb, seqProb, emiProb, id);
     }
 }

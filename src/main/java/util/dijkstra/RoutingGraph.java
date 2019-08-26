@@ -157,8 +157,8 @@ public class RoutingGraph implements Serializable {
 		Arrays.fill(distance, Double.POSITIVE_INFINITY);
 		Arrays.fill(path, new ArrayList<>());
 		// the variables have been initialized during the last calculation. Start the process right away
-		HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet = new HashMap<>();        // (vertex index in graph, point index
-		// in pointList)
+		HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet = new HashMap<>();
+		// (vertex index in graph, point index in pointList)
 
 
         // if source point doesn't exist, return infinity to all distances
@@ -212,14 +212,16 @@ public class RoutingGraph implements Serializable {
 							.getMatchPoint(), pointList.get(i).getMatchedSegment().p2())) {   // two segments refer to the same mini edge
 						// and they are in the right sequence
 						distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-						path[i].add(pointList.get(i).getRoadID());
+//						path[i].add(pointList.get(i).getRoadID());
+						path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 						destPointCount--;
 					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
 							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
 						// and the sampling
 						// point may be located backward
 						distance[i] = 1.1 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-						path[i].add(pointList.get(i).getRoadID());
+//						path[i].add(pointList.get(i).getRoadID());
+						path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 						destPointCount--;
 					} else {    // they are in different mini edges or too distant inside one mini edge
 						int destRoadSN = Integer.parseInt(index2RoadIDAndSN.get(destEdgeIndex).split(",")[1]);
@@ -229,7 +231,8 @@ public class RoutingGraph implements Serializable {
 							distance[i] += sourceDistance;
 							distance[i] += distanceWithinEdge(startNodeIndex, startEdgeIndex, destNodeIndex);
 							distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList.get(i).getMatchPoint());
-							path[i].add(pointList.get(i).getRoadID());
+//							path[i].add(pointList.get(i).getRoadID());
+							path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 							destPointCount--;
 						} else if (destRoadSN < startRoadSN) {
 							int startIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._2();
@@ -240,7 +243,8 @@ public class RoutingGraph implements Serializable {
 							if (dist < candidateRange * backwardsFactor) {   // although in different mini edge, they are very close so
 								// that it can be just noise
 								distance[i] = 1.2 * dist;
-								path[i].add(pointList.get(i).getRoadID());
+//								path[i].add(pointList.get(i).getRoadID());
+								path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 								destPointCount--;
 							} else {
 								insertDestPoint(nodeIndex2DestPointSet, i, destEdgeIndex);
@@ -310,19 +314,24 @@ public class RoutingGraph implements Serializable {
 								.get(resultIndex._1()).getMatchPoint());
 						path[resultIndex._1()] = findPath(currIndex, parent);
 						if (distFunc.distance(source.getMatchPoint(), source.getMatchedSegment().p2()) == 0) {
-							path[resultIndex._1()].remove(source.getRoadID());
+//							path[resultIndex._1()].remove(source.getRoadID());
+							path[resultIndex._1()].remove(source.getRoadID().split("\\|")[0]);
 						} else {
 							List<String> refinedPath = new ArrayList<>();
-							refinedPath.add(source.getRoadID());
+//							refinedPath.add(source.getRoadID());
+							refinedPath.add(source.getRoadID().split("\\|")[0]);
 							refinedPath.addAll(path[resultIndex._1()]);
 							path[resultIndex._1()] = refinedPath;
 						}
 						if (distFunc.distance(pointList.get(resultIndex._1()).getMatchedSegment().p1(),
 								pointList.get(resultIndex._1()).getMatchPoint()) == 0 && resultIndex._2() == 0) {
-							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID());
+//							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID());
+							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID().split("\\|")[0]);
 						} else {
-							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID());
-							path[resultIndex._1()].add(pointList.get(resultIndex._1()).getRoadID());
+//							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID());
+							path[resultIndex._1()].remove(pointList.get(resultIndex._1()).getRoadID().split("\\|")[0]);
+//							path[resultIndex._1()].add(pointList.get(resultIndex._1()).getRoadID());
+							path[resultIndex._1()].add(pointList.get(resultIndex._1()).getRoadID().split("\\|")[0]);
 						}
 					}
 				}

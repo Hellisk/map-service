@@ -5,6 +5,8 @@ import util.function.DistanceFunction;
 import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 
+import java.util.Objects;
+
 /**
  * The matching result of a trajectory point.
  */
@@ -82,5 +84,20 @@ public class PointMatch extends LengthObject {
 	public String toString() {
 		return matchPoint.x() + " " + matchPoint.y() + " " + matchedSegment.x1() + " " + matchedSegment.y1() + " " + matchedSegment.x2()
 				+ " " + matchedSegment.y2() + " " + (super.getID().equals("") ? "null" : super.getID());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		PointMatch that = (PointMatch) o;
+		return matchPoint.equals(that.matchPoint) &&
+				matchedSegment.equals(that.matchedSegment) &&
+				super.getID().equals(that.getRoadID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(matchPoint, matchedSegment);
 	}
 }

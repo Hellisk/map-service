@@ -3,6 +3,7 @@ package algorithm.mapmatching.simpleHMM;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * State transition between matching candidates in Hidden Markov Model (HMM) map matching and
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class StateTransition {
 
-    List<String> route = new ArrayList<>();
+    private List<String> route = new ArrayList<>();
 
     public StateTransition() {
     }
@@ -23,7 +24,20 @@ public class StateTransition {
         return route;
     }
 
-    public void setRoute(List<String> route) {
-        this.route = route;
+//    public void setRoute(List<String> route) {
+//        this.route = route;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StateTransition that = (StateTransition) o;
+        return route.equals(that.getRoute());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(route);
     }
 }

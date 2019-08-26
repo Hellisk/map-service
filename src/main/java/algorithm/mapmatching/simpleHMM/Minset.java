@@ -95,17 +95,17 @@ public abstract class Minset {
             // for each successor of this candidate
             for (PointMatch successor : successors) {
                 // this successor has not been flagged
-                if (!candiPMset.containsKey(successor.getID())) {
+                if (!candiPMset.containsKey(successor.getRoadID())) {
                     misses.put(id, misses.get(id) + 1);
                 }
 
                 // this successor has been flagged as candidate, but it is near to segment source node, remove it
-                if (candiPMset.containsKey(successor.getID())
+                if (candiPMset.containsKey(successor.getRoadID())
                         && round(fraction(distFunc,
                         candidate.getMatchedSegment().x1(), candidate.getMatchedSegment().y1(),
                         candidate.getMatchedSegment().x2(), candidate.getMatchedSegment().y2(),
                         candidate.lon(), candidate.lat())) == 0) {
-                    removes.add(successor.getID());
+                    removes.add(successor.getRoadID());
                     misses.put(id, misses.get(id) + 1);
                 }
             }

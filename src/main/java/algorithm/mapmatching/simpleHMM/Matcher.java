@@ -25,6 +25,7 @@ public class Matcher {
     private HMMProbabilities hmmProbabilities;
     private double candidateRange;
     private double dijkstraDist;
+    private List<Pair<Integer, List<String>>> outputRouteMatchResult = new LinkedList<>();
 
 
     public Matcher(RoadNetworkGraph roadMap, BaseProperty prop,
@@ -47,7 +48,7 @@ public class Matcher {
      * @return Maps each predecessor state candidate at t-1 to all state candidates at t.
      * All transitions from t-1 to t and its transition probability, or null if there no transition.
      */
-    public Map<StateCandidate, Map<StateCandidate, Pair<StateTransition, Double>>> transitions(
+    public Map<String, Map<String, Pair<StateTransition, Double>>> transitions(
             StateMemory prevMemory, Pair<StateSample, Set<StateCandidate>> candidates) {
 
         StateSample sample = candidates._1();
@@ -56,17 +57,17 @@ public class Matcher {
 
         final List<PointMatch> targets = new LinkedList<>();
         for (StateCandidate candidate : candidates._2()) {
-            targets.add(candidate.getGeometry());
+            targets.add(candidate.getPointMatch());
         }
 
-        final Map<StateCandidate, Map<StateCandidate, Pair<StateTransition, Double>>> transitions =
+        final Map<String, Map<String, Pair<StateTransition, Double>>> transitions =
                 new ConcurrentHashMap<>();
 
         for (StateCandidate predecessor : prevMemory.getStateCandidates()) {
-            Map<StateCandidate, Pair<StateTransition, Double>> result = new HashMap<>();
+            Map<String, Pair<StateTransition, Double>> result = new HashMap<>();
 
             List<Triplet<PointMatch, Double, List<String>>> shortestPath = Utilities.getShortestPaths(
-                    routingGraph, targets, predecessor.getGeometry(), dijkstraDist);
+                    routingGraph, targets, predecessor.getPointMatch(), dijkstraDist);
 
             Map<PointMatch, Pair<Double, List<String>>> map = new HashMap<>();
             for (Triplet<PointMatch, Double, List<String>> triplet : shortestPath) {
@@ -74,18 +75,19 @@ public class Matcher {
             }
 
             for (StateCandidate candidate : candidates._2()) {
-                if (map.containsKey(candidate.getGeometry())) {
-                    double distance = map.get(candidate.getGeometry())._1();
+                if (map.containsKey(candidate.getPointMatch())) {
+                    // the predecessor is able to reach the candidate
+                    double distance = map.get(candidate.getPointMatch())._1();
                     double timeDiff = sample.getTime() - previous.getTime();
-                    double transition = hmmProbabilities.transitionLogProbability(distance, linearDist, timeDiff);
-                    result.put(candidate, new Pair<>(new StateTransition(map.get(candidate.getGeometry())._2()), transition));
+                    double transition = hmmProbabilities.transitionProbability(distance, linearDist, timeDiff);
+                    result.put(candidate.getId(), new Pair<>(new StateTransition(map.get(candidate.getPointMatch())._2()), transition));
                 }
             }
-            transitions.put(predecessor, result);
+            transitions.put(predecessor.getId(), result);
         }
-
         return transitions;
     }
+
 
     /**
      * Gets state vector, which is a StateMemory objects and with its emission
@@ -97,8 +99,8 @@ public class Matcher {
      */
     private Set<StateCandidate> candidates(StateMemory prevStateMemory, StateSample sample) {
 
-        List<PointMatch> neighbourPms_ = this.rtree.searchNeighbours(sample.getSampleMeasurement(), candidateRange);
-        Set<PointMatch> neighbourPms = Minset.minimize(neighbourPms_, this.roadMap, this.distFunc);
+        List<PointMatch> neighbourPms = this.rtree.searchNeighbours(sample.getSampleMeasurement(), candidateRange);
+//        Set<PointMatch> neighbourPms = Minset.minimize(neighbourPms_, this.roadMap, this.distFunc);
 
         Map<String, PointMatch> map = new HashMap<>();
         for (PointMatch neighbourPm : neighbourPms) {
@@ -109,14 +111,14 @@ public class Matcher {
             Set<StateCandidate> predecessors = prevStateMemory.getStateCandidates();
 
             for (StateCandidate predecessor : predecessors) {
-                PointMatch curPM = map.get(predecessor.getGeometry().getRoadID());
+                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
                 if (curPM != null && curPM.getMatchedSegment() != null) {
                     // the cur pm and the predecessor pm is on a same roadway
                     Segment matchedSeg = curPM.getMatchedSegment();
 
                     if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
                             distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
-                                    predecessor.getGeometry().lat(), predecessor.getGeometry().lon())
+                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
                                     < hmmProbabilities.getSigma())
 
                         if (
@@ -133,7 +135,7 @@ public class Matcher {
                                         < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
 
                             neighbourPms.remove(curPM);
-                            neighbourPms.add(predecessor.getGeometry());
+                            neighbourPms.add(predecessor.getPointMatch());
                         }
                 }
             }
@@ -143,7 +145,7 @@ public class Matcher {
         for (PointMatch neighbourPm : neighbourPms) {
             StateCandidate candidate = new StateCandidate(neighbourPm, sample);
             double dz = distFunc.pointToPointDistance(neighbourPm.lon(), neighbourPm.lat(), sample.x(), sample.y());
-            candidate.setEmiProb(hmmProbabilities.emissionLogProbability(dz));
+            candidate.setEmiProb(hmmProbabilities.emissionProbability(dz));
             candidates.add(candidate);
         }
         return candidates;
@@ -160,16 +162,14 @@ public class Matcher {
      * the measurement sample could be found.
      *
      * @param prevStateMemory prevStateMemory, may be empty
-     * @param previous        previous sample
      * @param sample          current sample
      * @return StateMemory    which may be empty if an HMM break occurred.
      */
-    public StateMemory execute(StateMemory prevStateMemory, StateSample previous, StateSample sample) {
+    public StateMemory execute(StateMemory prevStateMemory, StateSample sample) {
         Set<StateCandidate> predecessors = new HashSet<>();
         if (prevStateMemory != null) {
             predecessors = prevStateMemory.getStateCandidates();
         }
-//        StateSample sample = new StateSample(trajectory.get(timestamp), trajectory.get(timestamp).heading());
 
 
         Set<StateCandidate> result = new HashSet<>();
@@ -179,14 +179,16 @@ public class Matcher {
 
         if (!predecessors.isEmpty()) {
 
-            Map<StateCandidate, Map<StateCandidate, Pair<StateTransition, Double>>> transitions =
+            Map<String, Map<String, Pair<StateTransition, Double>>> transitions =
                     transitions(prevStateMemory, new Pair<>(sample, candidates));
 
             for (StateCandidate candidate : candidates) {
                 candidate.setSeqProb(Double.NEGATIVE_INFINITY);
 
                 for (StateCandidate predecessor : predecessors) {
-                    Pair<StateTransition, Double> transition = transitions.get(predecessor).get(candidate);
+                    Set<String> preds_ = transitions.keySet();
+                    String id = predecessor.getId();
+                    Pair<StateTransition, Double> transition = transitions.get(predecessor.getId()).get(candidate.getId());
 
                     if (transition == null || transition._2() == 0) {
                         continue;
@@ -246,7 +248,7 @@ public class Matcher {
      * @param trajectory Sequence of samples, StateSample objects.
      * @return State representation of the full matching which is a SequenceMemory object.
      */
-    public SequenceMemory mmatch(Trajectory trajectory) {
+    public List<StateCandidate> mmatch(Trajectory trajectory) {
         List<StateSample> samples = new LinkedList<>();
 
         for (int i = 0; i < trajectory.getPoints().size(); i++) {
@@ -260,15 +262,52 @@ public class Matcher {
             }
         });
 
-        SequenceMemory state = new SequenceMemory();
+        SequenceMemory sequence = new SequenceMemory();
 
 
         for (StateSample sample : samples) {
-            StateMemory vector = execute(state.lastStateMemory(), state.lastSample(), sample);
-            state.update(vector, sample);
+            StateMemory vector = execute(sequence.lastStateMemory(), sample);
+            sequence.update(vector, sample);
         }
-        return state;
+
+        return reverse(sequence);
     }
 
 
+    /**
+     * Gets the most likely sequence of state candidates
+     *
+     * @return List of the most likely sequence of state candidates.
+     */
+    private List<StateCandidate> reverse(SequenceMemory sequence) {
+        if (sequence.getStateMemoryVector().isEmpty()) {
+            return null;
+        }
+
+        StateCandidate kestimate = sequence.optimalPredecessor();
+        LinkedList<StateCandidate> ksequence = new LinkedList<>();
+
+        for (int i = sequence.getStateMemoryVector().size() - 1; i >= 0; --i) {
+            if (kestimate != null) {
+                ksequence.push(kestimate);
+                kestimate = kestimate.getPredecessor();
+            }
+        }
+
+        return ksequence;
+    }
+
+
+    public void pullResult(List<StateCandidate> sequence, int trajectoryID) {
+        List<String> matchRoute = new LinkedList<>();
+
+        for (StateCandidate candidate : sequence) {
+            matchRoute.addAll(candidate.getTransition().getRoute());
+        }
+        this.outputRouteMatchResult.add(new Pair<>(trajectoryID, matchRoute));
+    }
+
+    public List<Pair<Integer, List<String>>> getOutputRouteMatchResult() {
+        return this.outputRouteMatchResult;
+    }
 }

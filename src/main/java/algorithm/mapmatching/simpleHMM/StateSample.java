@@ -2,6 +2,8 @@ package algorithm.mapmatching.simpleHMM;
 
 import util.object.spatialobject.Point;
 
+import java.util.Objects;
+
 public class StateSample {
 
     private Point sampleMeasurement;
@@ -33,5 +35,21 @@ public class StateSample {
 
     public double getHeading() {
         return heading;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StateSample that = (StateSample) o;
+
+        return sampleTime == that.getTime()
+                && heading == that.getHeading()
+                && sampleMeasurement.equals(that.getSampleMeasurement());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sampleMeasurement, sampleTime, heading);
     }
 }

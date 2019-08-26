@@ -47,6 +47,10 @@ public class HMMProbabilities implements Serializable {
         return Distributions.logNormalDistribution(sigma, distance);
     }
 
+    public double emissionProbability(double distance) {
+        return Distributions.normalDistribution(sigma, distance);
+    }
+
     /**
      * Returns the logarithmic transition probability density for the given transition
      * parameters.
@@ -60,6 +64,12 @@ public class HMMProbabilities implements Serializable {
         double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
         return Distributions.logExponentialDistribution(beta, transitionMetric);
     }
+
+    public double transitionProbability(double routeLength, double linearDistance, double timeDiff) {
+        double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
+        return Distributions.normalDistribution(beta, transitionMetric);
+    }
+
 
     /**
      * Returns the maximum transition probability so as to fill the breaking gap.
