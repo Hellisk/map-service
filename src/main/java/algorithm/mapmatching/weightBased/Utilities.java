@@ -33,8 +33,10 @@ public class Utilities {
         List<Triplet<PointMatch, Double, List<String>>> shortestPathToDestPM = new ArrayList<>();
 
         for (int i = 0; i < destinations.size(); i++) {
-            shortestPathToDestPM.add(
-                    new Triplet<>(destinations.get(i), shortestPaths.get(i)._1(), shortestPaths.get(i)._2()));
+            if (shortestPaths.get(i)._1() != Double.POSITIVE_INFINITY) {
+                shortestPathToDestPM.add(
+                        new Triplet<>(destinations.get(i), shortestPaths.get(i)._1(), shortestPaths.get(i)._2()));
+            }
         }
 
         return shortestPathToDestPM;

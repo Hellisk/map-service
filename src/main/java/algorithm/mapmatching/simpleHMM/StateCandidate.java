@@ -4,11 +4,11 @@ import util.object.structure.PointMatch;
 
 public class StateCandidate {
 
-    private StateSample stateSample = null;
+    private StateSample stateSample;
     private StateCandidate predecessor = null;
     private double filtProb = 0d;
     private double seqProb = 0d;
-    private PointMatch self = null;
+    private PointMatch self;
     private StateTransition transition = new StateTransition();
     private double emiProb = 0d;
 
@@ -45,7 +45,7 @@ public class StateCandidate {
         return stateSample;
     }
 
-    public PointMatch getMatch() {
+    public PointMatch getGeometry() {
         return self;
     }
 
@@ -63,5 +63,13 @@ public class StateCandidate {
 
     public void setEmiProb(double emiProb) {
         this.emiProb = emiProb;
+    }
+
+    public double lon() {
+        return self.lon();
+    }
+
+    public double lat() {
+        return self.lat();
     }
 }

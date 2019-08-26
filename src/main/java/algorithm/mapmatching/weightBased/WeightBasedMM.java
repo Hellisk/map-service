@@ -87,10 +87,7 @@ public class WeightBasedMM {
                     = Utilities.getShortestPaths(routingGraph, destinations, source, maxDistance);
 
             for (Triplet<PointMatch, Double, List<String>> triplet : shortestPathToDestPm) {
-                if (triplet._2() != Double.POSITIVE_INFINITY) {
-                    /* valid path */
-                    shortestPaths.put(new Pair<>(source, triplet._1()), new Pair<>(triplet._2(), triplet._3()));
-                }
+                shortestPaths.put(new Pair<>(source, triplet._1()), new Pair<>(triplet._2(), triplet._3()));
             }
         }
         return shortestPaths;
@@ -98,7 +95,6 @@ public class WeightBasedMM {
 
     /**
      * Initial map-matching
-     *
      */
     private Pair<PointMatch, Integer> initialMM(Trajectory trajectory, int timestamp) {
 
@@ -109,7 +105,7 @@ public class WeightBasedMM {
             List<PointMatch> secCandiPMs = rtree.searchNeighbours(trajectory.get(timestamp + 1), candidateRange);
 
             // double is shortest path length
-            candiPaths = getAllShortestPaths(firstCandiPMs, secCandiPMs, djkstraThreshold);
+            candiPaths = getAllShortestPaths(secCandiPMs, firstCandiPMs, djkstraThreshold);
 
             timestamp += 1;
         }
@@ -126,7 +122,10 @@ public class WeightBasedMM {
                         djkstraThreshold, trajectory.get(timestamp + 1).heading(),
                         headingWC, bearingWC, pdWC, shortestPathWC);
 
-        matchedWaySequence.addAll(scoredCandiPaths.peek()._2()._2());
+        List<String> pmIds = scoredCandiPaths.peek()._2()._2();
+        for (String pmId : pmIds) {
+            matchedWaySequence.add(pmId.split("\\|")[0]);
+        }
         matchedPointSequence.add(scoredCandiPaths.peek()._1()._1());
         matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
         return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
@@ -143,10 +142,7 @@ public class WeightBasedMM {
         // double is shortest path length
         Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> shortestPaths = new HashMap<>();
         for (Triplet<PointMatch, Double, List<String>> triplet : candiPaths) {
-            if (triplet._2() != Double.POSITIVE_INFINITY) {
-                /* valid path */
-                shortestPaths.put(new Pair<>(prevMatchedPM, triplet._1()), new Pair<>(triplet._2(), triplet._3()));
-            }
+            shortestPaths.put(new Pair<>(prevMatchedPM, triplet._1()), new Pair<>(triplet._2(), triplet._3()));
         }
 
         // double is tws
@@ -157,17 +153,14 @@ public class WeightBasedMM {
                         headingWC, bearingWC, pdWC, shortestPathWC);
 
         if (scoredCandiPaths.size() == 0) {
-            // subsequent map matcing for this candidate pair failed
-            // invoke handleBreakingPoint method
-//            System.out.println("No candidate path between" +
-//                    prePoint.x() + " " + prePoint.y() + " and " + curPoint.x() + " " + curPoint.y());
-//            System.out.println("Number of candidate points of curPoint: " + secCandiPMs.size());
-//            System.out.println("Number of candidate paths: "+ candiPaths.size());
-//            System.out.println("Number of shortest paths: "+shortestPaths.size());
-
             return initialMM(trajectory, timestamp - 1);
         }
-        matchedWaySequence.addAll(scoredCandiPaths.peek()._2()._2());
+
+        List<String> pmIds = scoredCandiPaths.peek()._2()._2();
+        for (String pmId : pmIds) {
+            matchedWaySequence.add(pmId.split("\\|")[0]);
+        }
+
         matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
         return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
     }

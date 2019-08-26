@@ -11,9 +11,12 @@ import java.util.List;
 public class StateTransition {
 
     List<String> route = new ArrayList<>();
-    double transporb = 0d;
 
     public StateTransition() {
+    }
+
+    public StateTransition(List<String> route) {
+        this.route = route;
     }
 
     public List<String> getRoute() {
@@ -22,13 +25,5 @@ public class StateTransition {
 
     public void setRoute(List<String> route) {
         this.route = route;
-    }
-
-    public double getTransporb() {
-        return transporb;
-    }
-
-    public void setTransporb(double transporb) {
-        this.transporb = transporb;
     }
 }

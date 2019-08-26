@@ -1,42 +1,35 @@
 package algorithm.mapmatching.simpleHMM;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Manages StateCandidates at a same timestamp
  */
 public class StateMemory {
-    private Map<StateCandidate, Integer> stateCandidateVotes = new HashMap<>();
+    private Set<StateCandidate> stateCandidates = new HashSet<>();
+    private StateSample sample;
 
-    public int getCandidateVote(StateCandidate candidate) {
-        return stateCandidateVotes.get(candidate);
+    public StateMemory(StateSample sample) {
+        this.sample = sample;
     }
 
-    public void modifyCandidateVote(StateCandidate candidate) {
-        stateCandidateVotes.put(candidate, 0);
-    }
-
-    public void modifyCandidateVote(StateCandidate candidate, int newVote) {
-        stateCandidateVotes.put(candidate, newVote);
+    public StateMemory(Set<StateCandidate> stateCandidates, StateSample sample) {
+        this.stateCandidates = stateCandidates;
+        this.sample = sample;
     }
 
     public Set<StateCandidate> getStateCandidates() {
-        return stateCandidateVotes.keySet();
+        return this.stateCandidates;
     }
 
-    public void addStateCandidate(StateCandidate candidate, int vote) {
-        stateCandidateVotes.put(candidate, vote);
+    public StateSample getSample() {
+        return this.sample;
     }
 
-    public void removeStateCandidate(StateCandidate candidate) {
-        stateCandidateVotes.remove(candidate);
-    }
-
-    public int size() {
-        return stateCandidateVotes.size();
+    public void addCandidate(StateCandidate candidate) {
+        this.stateCandidates.add(candidate);
     }
 
 }

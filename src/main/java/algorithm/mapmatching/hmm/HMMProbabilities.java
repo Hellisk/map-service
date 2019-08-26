@@ -23,7 +23,7 @@ import java.io.Serializable;
  * Proceedings of the 17th ACM SIGSPATIAL International Conference on Advances in Geographic
  * Information Systems. ACM, 2009.
  */
-class HMMProbabilities implements Serializable {
+public class HMMProbabilities implements Serializable {
     private final double sigma;
     private final double beta;
 
@@ -72,6 +72,10 @@ class HMMProbabilities implements Serializable {
 //        double maxRouteLength = 50 * timeDiff;
         double transitionMetric = normalizedTransitionMetric(maxRouteLength, linearDistance, timeDiff);
         return Distributions.logExponentialDistribution(beta, transitionMetric);
+    }
+
+    public double getSigma() {
+        return sigma;
     }
 
     /**

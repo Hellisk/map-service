@@ -5,32 +5,33 @@ import util.object.spatialobject.Point;
 public class StateSample {
 
     private Point sampleMeasurement;
-    private long sampleTime;
     private double heading;
+    private double sampleTime = -1;
 
 
-    public StateSample(Point point, long time) {
-        sampleMeasurement = point;
-        sampleTime = time;
+    public StateSample(Point point, double heading, double time) {
+        this.sampleMeasurement = point;
+        this.heading = heading;
+        this.sampleTime = time;
     }
 
-    public double[] geometry() {
-        return new double[]{sampleMeasurement.x(), sampleMeasurement.y()};
+    public double x() {
+        return this.sampleMeasurement.x();
+    }
+
+    public double y() {
+        return this.sampleMeasurement.y();
     }
 
     public Point getSampleMeasurement() {
         return sampleMeasurement;
     }
 
-    public long getSampleTime() {
+    public double getTime() {
         return sampleTime;
     }
 
     public double getHeading() {
         return heading;
-    }
-
-    public void setHeading(double heading) {
-        this.heading = heading;
     }
 }

@@ -159,10 +159,16 @@ public class RoutingGraph implements Serializable {
 		// the variables have been initialized during the last calculation. Start the process right away
 		HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet = new HashMap<>();        // (vertex index in graph, point index
 		// in pointList)
-		
-		// if source point doesn't exist, return infinity to all distances
-		String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() + "," + source.getMatchedSegment()
-				.x2() + "_" + source.getMatchedSegment().y2() + "," + source.getRoadID();
+
+
+        // if source point doesn't exist, return infinity to all distances
+//		String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() + "," + source.getMatchedSegment()
+//				.x2() + "_" + source.getMatchedSegment().y2() + "," + source.getRoadID();
+
+        String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() +
+                "," + source.getMatchedSegment().x2() + "_" +
+                source.getMatchedSegment().y2() + "," + source.getRoadID().strip().split("\\|")[0];
+
 		if (!this.endPointLoc2EdgeIndex.containsKey(sourceLocID)) {
 			LOG.error("Shortest distance calculation failed: Source node is not found.");
 			result = new ArrayList<>(resultOutput(distance, path));
@@ -179,9 +185,14 @@ public class RoutingGraph implements Serializable {
 		// attach all destination points to the graph
 		int destPointCount = pointList.size();
 		for (int i = 0; i < pointList.size(); i++) {
-			String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1() + "," +
-					pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2() + "," + pointList.get(i)
-					.getRoadID();
+
+//			String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1() + "," +
+//					pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2() + "," + pointList.get(i)
+//					.getRoadID();
+            String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1()
+                    + "," + pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2()
+                    + "," + pointList.get(i).getRoadID().strip().split("\\|")[0];
+
 			if (!endPointLoc2EdgeIndex.containsKey(destLocID)) {
 				LOG.error("ERROR! Destination node is not found.");
 				destPointCount--;

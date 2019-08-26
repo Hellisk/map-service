@@ -16,10 +16,8 @@ import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 import util.object.structure.PointMatch;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,7 +41,7 @@ public class RTreeIndexing {
      */
     private void buildTree() {
         for (RoadWay way : currMap.getWays()) {
-            String polylineID = way.getID();
+            String wayID = way.getID();
             for (int i = 0; i < way.getNodes().size() - 1; i++) {
                 RoadNode startNode = way.getNode(i);
                 double[] curCoord = new double[]{startNode.lon(), startNode.lat()};
@@ -51,7 +49,8 @@ public class RTreeIndexing {
                 RoadNode endNode = way.getNode(i + 1);
                 double[] nextCoord = new double[]{endNode.lon(), endNode.lat()};
 
-                String lineID = polylineID + "|" + startNode.getID() + "|" + endNode.getID();
+//                String lineID = wayID + "|" + startNode.getID() + "|" + endNode.getID();
+                String lineID = wayID + "|" + i;
                 rTree = rTree.add(lineID, Geometries.line(curCoord[0], curCoord[1], nextCoord[0], nextCoord[1]));
             }
         }
@@ -133,14 +132,13 @@ public class RTreeIndexing {
      *
      * @param radiusM searching radius around gps point
      * @return lists of candidate matches
-     * @throws IOException when file not found
      */
     public List<PointMatch> searchNeighbours(Point from, double radiusM) {
         List<Entry<String, Line>> results = search(from.x(), from.y(), radiusM);
         List<PointMatch> neighbours = new ArrayList<>();
 
         for (Entry<String, Line> pair : results) {
-            String wayId = Arrays.asList(pair.value().split("\\|")).get(0);
+//            String wayId = Arrays.asList(pair.value().split("\\|")).get(0);
 
             double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
             double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
@@ -149,7 +147,8 @@ public class RTreeIndexing {
 
             Segment sg = new Segment(startNode[0], startNode[1], endNode[0], endNode[1], from.getDistanceFunction());
 
-            neighbours.add(new PointMatch(closestPoint, sg, wayId));
+//            neighbours.add(new PointMatch(closestPoint, sg, wayId));
+            neighbours.add(new PointMatch(closestPoint, sg, pair.value()));
         }
         return neighbours;
     }

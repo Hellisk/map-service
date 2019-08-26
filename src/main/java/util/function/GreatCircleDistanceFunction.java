@@ -39,18 +39,18 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	/**
 	 * distance calculator between points. Method adopted from GraphHopper
 	 *
-	 * @param x1 longitude of the start point
-	 * @param y1 latitude of the start point
-	 * @param x2 longitude of the end point
-	 * @param y2 latitude of the end point
+     * @param lon1 longitude of the start point
+     * @param lat1 latitude of the start point
+     * @param lon2 longitude of the end point
+     * @param lat2 latitude of the end point
 	 * @return distance at metres
 	 */
 	@Override
-	public double pointToPointDistance(double x1, double y1, double x2, double y2) {
-		double dLat = Math.toRadians(y2 - y1);
-		double dLon = Math.toRadians(x2 - x1);
+    public double pointToPointDistance(double lon1, double lat1, double lon2, double lat2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
 		// use mean latitude as reference point for delta_lon
-		double tmp = Math.cos(Math.toRadians((y1 + y2) / 2)) * dLon;
+        double tmp = Math.cos(Math.toRadians((lat1 + lat2) / 2)) * dLon;
 		double normedDist = dLat * dLat + tmp * tmp;
 		return SpatialUtils.EARTH_RADIUS * Math.sqrt(normedDist);
 	}

@@ -1,8 +1,8 @@
 package algorithm.mapmatching;
 
 import algorithm.mapmatching.hmm.HMMMapMatching;
-import algorithm.mapmatching.weightBased.WeightBasedMM;
-import evaluation.matchingevaluation.RouteMatchingEvaluation;
+import algorithm.mapmatching.hmm.HMMProbabilities;
+import algorithm.mapmatching.simpleHMM.Matcher;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -113,24 +113,36 @@ public class MapMatchingMain {
 //			LOG.info("Matching complete, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds.");
 
 			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
-			WeightBasedMM weightBasedMM = new WeightBasedMM(roadMap, property, 1000, 12, 21, 32, 35);
-
-			for (Trajectory trajectory : inputTrajList) {
-				weightBasedMM.doMatching(trajectory);
-			}
-
-			List<Pair<Integer, List<PointMatch>>> matchedPointSequence = weightBasedMM.getOutputPointMatchResult();
-			List<Pair<Integer, List<String>>> matchedWaySequence = weightBasedMM.getOutputRouteMatchResult();
-
-			MatchResultWriter.writeRouteMatchResults(matchedWaySequence, outputMatchResultFolder + "/route");
-			MatchResultWriter.writePointMatchResults(matchedPointSequence, outputMatchResultFolder + "/point");
+//			WeightBasedMM weightBasedMM = new WeightBasedMM(roadMap, property, 1000, 12, 21, 32, 35);
+//
+//			for (Trajectory trajectory : inputTrajList) {
+//				weightBasedMM.doMatching(trajectory);
+//			}
+//
+//			List<Pair<Integer, List<PointMatch>>> matchedPointSequence = weightBasedMM.getOutputPointMatchResult();
+//			List<Pair<Integer, List<String>>> matchedWaySequence = weightBasedMM.getOutputRouteMatchResult();
+//
+//			MatchResultWriter.writeRouteMatchResults(matchedWaySequence, outputMatchResultFolder + "/route");
+//			MatchResultWriter.writePointMatchResults(matchedPointSequence, outputMatchResultFolder + "/point");
 			// evaluation test
-			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
-			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(groundTruthPointMatchResultFolder, distFunc);
+//			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
+//			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(groundTruthPointMatchResultFolder, distFunc);
 
-			RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(matchedWaySequence, gtRouteMatchResult, roadMap, null);
+//			RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(matchedWaySequence, gtRouteMatchResult, roadMap, null);
 //			PointMatchingEvaluation.rootMeanSquareErrorEvaluation(pointMatchResult, gtPointMatchResult);
 //			PointMatchingEvaluation.accuracyEvaluation(pointMatchResult, gtPointMatchResult);
+
+
+            /* Simple HMM test*/
+            double sigma = property.getPropertyDouble("algorithm.mapmatching.hmm.Sigma");
+            double beta = property.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
+            HMMProbabilities hmmProbabilities = new HMMProbabilities(sigma, beta);
+
+            Matcher simpleHMM = new Matcher(roadMap, property, hmmProbabilities, 200, 1000);
+            for (Trajectory trajectory : inputTrajList) {
+                simpleHMM.mmatch(trajectory);
+            }
+
 		}
 	}
 }
