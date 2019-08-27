@@ -24,84 +24,83 @@ import java.io.Serializable;
  * Information Systems. ACM, 2009.
  */
 public class HMMProbabilities implements Serializable {
-    private final double sigma;
-    private final double beta;
-
-    /**
-     * @param sigma standard deviation of the normal distribution [m] used for modeling the
-     *              GPS error
-     * @param beta  beta parameter of the exponential distribution for 1 s sampling interval, used
-     *              for modeling transition probabilities
-     */
-    public HMMProbabilities(double sigma, double beta) {
-        this.sigma = sigma;
-        this.beta = beta;
-    }
-
-    /**
-     * Returns the logarithmic emission probability density.
-     *
-     * @param distance Absolute distance [m] between GPS measurement and map matching candidate.
-     */
-    public double emissionLogProbability(double distance) {
-        return Distributions.logNormalDistribution(sigma, distance);
-    }
-
-    public double emissionProbability(double distance) {
-        return Distributions.normalDistribution(sigma, distance);
-    }
-
-    /**
-     * Returns the logarithmic transition probability density for the given transition
-     * parameters.
-     *
-     * @param routeLength    Length of the shortest route [m] between two consecutive map matching
-     *                       candidates.
-     * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
-     * @param timeDiff       time difference [s] between two consecutive GPS measurements.
-     */
-    public double transitionLogProbability(double routeLength, double linearDistance, double timeDiff) {
-        double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
-        return Distributions.logExponentialDistribution(beta, transitionMetric);
-    }
-
-    public double transitionProbability(double routeLength, double linearDistance, double timeDiff) {
-        double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
-        return Distributions.normalDistribution(beta, transitionMetric);
-    }
-
-
-    /**
-     * Returns the maximum transition probability so as to fill the breaking gap.
-     *
-     * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
-     * @param timeDiff       time difference [s] between two consecutive GPS measurements.
-     */
-    public double maxTransitionLogProbability(double linearDistance, double timeDiff) {
-        double maxRouteLength = 50 * timeDiff < linearDistance * 8 ? 50 * timeDiff : linearDistance * 8;    // limit the maximum speed to
+	private final double sigma;
+	private final double beta;
+	
+	/**
+	 * @param sigma standard deviation of the normal distribution [m] used for modeling the
+	 *              GPS error
+	 * @param beta  beta parameter of the exponential distribution for 1 s sampling interval, used
+	 *              for modeling transition probabilities
+	 */
+	public HMMProbabilities(double sigma, double beta) {
+		this.sigma = sigma;
+		this.beta = beta;
+	}
+	
+	/**
+	 * Returns the logarithmic emission probability density.
+	 *
+	 * @param distance Absolute distance [m] between GPS measurement and map matching candidate.
+	 */
+	public double emissionLogProbability(double distance) {
+		return Distributions.logNormalDistribution(sigma, distance);
+	}
+	
+	public double emissionProbability(double distance) {
+		return Distributions.normalDistribution(sigma, distance);
+	}
+	
+	/**
+	 * Returns the logarithmic transition probability density for the given transition
+	 * parameters.
+	 *
+	 * @param routeLength    Length of the shortest route [m] between two consecutive map matching
+	 *                       candidates.
+	 * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
+	 * @param timeDiff       time difference [s] between two consecutive GPS measurements.
+	 */
+	public double transitionLogProbability(double routeLength, double linearDistance, double timeDiff) {
+		double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
+		return Distributions.logExponentialDistribution(beta, transitionMetric);
+	}
+	
+	public double transitionProbability(double routeLength, double linearDistance, double timeDiff) {
+		double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
+		return Distributions.normalDistribution(beta, transitionMetric);
+	}
+	
+	/**
+	 * Returns the maximum transition probability so as to fill the breaking gap.
+	 *
+	 * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
+	 * @param timeDiff       time difference [s] between two consecutive GPS measurements.
+	 */
+	public double maxTransitionLogProbability(double linearDistance, double timeDiff) {
+		double maxRouteLength = Math.min(50 * timeDiff, linearDistance * 8);    // limit the maximum speed to
 //        double maxRouteLength = 50 * timeDiff;
-        double transitionMetric = normalizedTransitionMetric(maxRouteLength, linearDistance, timeDiff);
-        return Distributions.logExponentialDistribution(beta, transitionMetric);
-    }
-
-    public double getSigma() {
-        return sigma;
-    }
-
-    /**
-     * Returns a transition metric for the transition between two consecutive map matching
-     * candidates.
-     * <p>
-     * In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
-     * time difference to make the beta parameter of the exponential distribution independent of the
-     * sampling interval.
-     */
-    private double normalizedTransitionMetric(double routeLength, double linearDistance, double timeDiff) {
-        if (timeDiff <= 0.0) {
-            throw new IllegalStateException("Time difference between subsequent location measurements must be >= 0:" + timeDiff);
-        }
-//        return Math.abs(linearDistance - routeLength) / (timeDiff* timeDiff);
-        return Math.abs(linearDistance - routeLength) / timeDiff;
+		double transitionMetric = normalizedTransitionMetric(maxRouteLength, linearDistance, timeDiff);
+		return Distributions.logExponentialDistribution(beta, transitionMetric);
+	}
+	
+	public double getSigma() {
+		return sigma;
+	}
+	
+	/**
+	 * Returns a transition metric for the transition between two consecutive map matching
+	 * candidates.
+	 * <p>
+	 * In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
+	 * time difference to make the beta parameter of the exponential distribution independent of the
+	 * sampling interval.
+	 */
+	private double normalizedTransitionMetric(double routeLength, double linearDistance, double timeDiff) {
+		if (timeDiff <= 0.0) {
+			throw new IllegalStateException("Time difference between subsequent location measurements must be >= 0:" + timeDiff);
+		}
+		return Math.abs(linearDistance - routeLength) / (timeDiff * timeDiff);
+//        return Math.abs(linearDistance - routeLength) / timeDiff;
 //        return Math.abs(linearDistance - routeLength);
     }
 }

@@ -57,7 +57,7 @@ public class OSMTrajectoryLoader {
 		
 		// apply map-matching with default settings
 		property.setPropertyIfAbsence("algorithm.mapmatching.hmm.Beta", "0.08");
-		property.setPropertyIfAbsence("algorithm.mapmatching.hmm.Sigma", "4");
+		property.setPropertyIfAbsence("algorithm.mapmatching.Sigma", "4");
 		property.setPropertyIfAbsence("algorithm.mapmatching.CandidateRange", "50");
 		property.setPropertyIfAbsence("algorithm.mapmatching.hmm.UTurnPenalty", "50");
 		property.setPropertyIfAbsence("algorithm.mapmatching.hmm.RankLength", "1");

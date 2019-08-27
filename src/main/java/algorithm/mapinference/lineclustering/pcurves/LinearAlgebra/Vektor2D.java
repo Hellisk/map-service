@@ -40,8 +40,8 @@ public class Vektor2D extends VektorObject {
 	}
 	
 	Vektor2D(StringTokenizer t) throws NoSuchElementException, NumberFormatException {
-		coordX = new Double(t.nextToken());
-		coordY = new Double(t.nextToken());
+		coordX = Double.parseDouble(t.nextToken());
+		coordY = Double.parseDouble(t.nextToken());
 	}
 	
 	final public void SetCoords(double in_coordX, double in_coordY) {

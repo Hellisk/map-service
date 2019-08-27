@@ -23,7 +23,7 @@ import static java.lang.Math.*;
 /**
  * Implements various probability distributions.
  */
-class Distributions implements Serializable {
+public class Distributions implements Serializable {
 
     /**
      * Normal/Gaussian distribution

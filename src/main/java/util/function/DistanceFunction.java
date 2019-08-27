@@ -141,4 +141,32 @@ public interface DistanceFunction {
 	 * @return The heading represented by a degree number.
 	 */
 	double getHeading(double x1, double y1, double x2, double y2);
+	
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param p1 End point of first segment.
+	 * @param p2 Intersect point.
+	 * @param p3 End point of second segment.
+	 */
+	double getAngle(Point p1, Point p2, Point p3);
+	
+	/**
+	 * Calculate the angle between two segments (P1,P2) and (P3,P4)
+	 *
+	 * @param p1 Start point of first segment.
+	 * @param p2 End point of first segment.
+	 * @param p3 Start point of second segment.
+	 * @param p4 End point of second segment.
+	 */
+	double getAngle(Point p1, Point p2, Point p3, Point p4);
+	
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param s1 First segment.
+	 * @param s2 Second segment.
+	 * @return Angle value that lies between [0,360) degree
+	 */
+	double getAngle(Segment s1, Segment s2);
 }

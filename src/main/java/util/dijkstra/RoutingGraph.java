@@ -143,7 +143,8 @@ public class RoutingGraph implements Serializable {
 	 * @param source      The source match point and its segment.
 	 * @param pointList   The destination match point list.
 	 * @param maxDistance The maximum acceptable distance, shortest distance terminates.
-	 * @return
+	 * @return List of results which contain distance and shortest path. distance = Double.POSITIVE_INFINITY and path is empty if not
+	 * reachable within maxDistance.
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
@@ -194,15 +195,15 @@ public class RoutingGraph implements Serializable {
                     + "," + pointList.get(i).getRoadID().strip().split("\\|")[0];
 
 			if (!endPointLoc2EdgeIndex.containsKey(destLocID)) {
-				LOG.error("ERROR! Destination node is not found.");
+				LOG.error("Destination node is not found.");
 				destPointCount--;
 //            } else if (pointList.get(i).getMatchPoint().equals2D(pointList.get(i).getMatchedSegment().p1())) {
 //                destPointCount--;
 			} else {
 				int destEdgeIndex = endPointLoc2EdgeIndex.get(destLocID);
 				String destRoadID = index2RoadIDAndSN.get(destEdgeIndex).split(",")[0];
-				double candidateRange = prop.getPropertyDouble("algorithm.mapmatching.CandidateRange");
-				double backwardsFactor = prop.getPropertyDouble("algorithm.mapmatching.hmm.BackwardsFactor");
+//				double candidateRange = prop.getPropertyDouble("algorithm.mapmatching.CandidateRange");
+//				double backwardsFactor = prop.getPropertyDouble("algorithm.mapmatching.hmm.BackwardsFactor");
 				if (destRoadID.equals(startRoadID)) {   // two segments refer to the same road
 					if (distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint()) == 0) { // located in the same road
 						// and do not move
@@ -215,15 +216,13 @@ public class RoutingGraph implements Serializable {
 //						path[i].add(pointList.get(i).getRoadID());
 						path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 						destPointCount--;
-					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
-							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
-						// and the sampling
-						// point may be located backward
-						distance[i] = 1.1 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
+//					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
+//							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
+//						// and the sampling point may be located backward, it is not initially inside the algorithm
+//						distance[i] = 1.1 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
 //						path[i].add(pointList.get(i).getRoadID());
-						path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
-						destPointCount--;
-					} else {    // they are in different mini edges or too distant inside one mini edge
+//						destPointCount--;
+					} else {    // they are in different mini edges or wrong sequence inside one mini edge
 						int destRoadSN = Integer.parseInt(index2RoadIDAndSN.get(destEdgeIndex).split(",")[1]);
 						int destNodeIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._1();
 						if (startRoadSN < destRoadSN) { // the start node is located at the upstream of the destination node within the same
@@ -234,22 +233,21 @@ public class RoutingGraph implements Serializable {
 //							path[i].add(pointList.get(i).getRoadID());
 							path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
 							destPointCount--;
-						} else if (destRoadSN < startRoadSN) {
-							int startIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._2();
-							int destIndex = edgeIndex2EndpointsIndex.get(startEdgeIndex)._1();
-							double dist = distFunc.distance(pointList.get(i).getMatchPoint(), pointList.get(i).getMatchedSegment().p2());
-							dist += distFunc.distance(source.getMatchedSegment().p1(), source.getMatchPoint());
-							dist += distanceWithinEdge(startIndex, destEdgeIndex, destIndex);
-							if (dist < candidateRange * backwardsFactor) {   // although in different mini edge, they are very close so
-								// that it can be just noise
-								distance[i] = 1.2 * dist;
+//						} else if (destRoadSN < startRoadSN) {
+//							int startIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._2();
+//							int destIndex = edgeIndex2EndpointsIndex.get(startEdgeIndex)._1();
+//							double dist = distFunc.distance(pointList.get(i).getMatchPoint(), pointList.get(i).getMatchedSegment().p2());
+//							dist += distFunc.distance(source.getMatchedSegment().p1(), source.getMatchPoint());
+//							dist += distanceWithinEdge(startIndex, destEdgeIndex, destIndex);
+//							if (dist < candidateRange * backwardsFactor) {   // although in different mini edge, they are very close so
+//								// that it can be just noise
+//								distance[i] = 1.2 * dist;
 //								path[i].add(pointList.get(i).getRoadID());
-								path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
-								destPointCount--;
-							} else {
-								insertDestPoint(nodeIndex2DestPointSet, i, destEdgeIndex);
-							}
-						} else {    // inside the same mini edge but too far away
+//								destPointCount--;
+//							} else {
+//								insertDestPoint(nodeIndex2DestPointSet, i, destEdgeIndex);
+//							}
+						} else {    // start node is located at the downstream of the destination node.
 							insertDestPoint(nodeIndex2DestPointSet, i, destEdgeIndex);
 						}
 					}

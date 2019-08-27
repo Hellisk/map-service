@@ -125,7 +125,7 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 		Point s2p = getClosestPoint(sx2, sy2, rx1, ry1, rx2, ry2);
 		double s1d = pointToPointDistance(sx1, sy1, s1p.x(), s1p.y());
 		double s2d = pointToPointDistance(sx2, sy2, s2p.x(), s2p.y());
-		return s1d < s2d ? s1d : s2d;
+		return Math.min(s1d, s2d);
 	}
 	
 	@Override
@@ -218,7 +218,42 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 		return (rectangle.maxY() - rectangle.minY()) * (rectangle.maxX() - rectangle.minX());
 	}
 	
-	// TODO: Check the correctness of the algorithm
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param p1 Endpoint of first segment.
+	 * @param p2 Intersect point.
+	 * @param p3 Endpoint of second segment.
+	 */
+	@Override
+	public double getAngle(Point p1, Point p2, Point p3) {
+		return getAngle(p2, p1, p2, p3);
+	}
+	
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param p1 Start point of first segment.
+	 * @param p2 End point of first segment.
+	 * @param p3 Start point of second segment.
+	 * @param p4 End point of second segment.
+	 */
+	@Override
+	public double getAngle(Point p1, Point p2, Point p3, Point p4) {
+		return getAngle(new Segment(p1.x(), p1.y(), p2.x(), p2.y(), this), new Segment(p3.x(), p3.y(), p4.x(), p4.y(), this));
+	}
+	
+	@Override
+	public double getAngle(Segment s1, Segment s2) {
+		double bearing1 = getHeading(s1.x1(), s1.y1(), s1.x2(), s1.y2());
+		double bearing2 = getHeading(s2.x1(), s2.y1(), s2.x2(), s2.y2());
+		var angle = bearing1 - bearing2;
+		if (angle < 0) {
+			angle += 360;
+		}
+		return angle;
+	}
+	
 	@Override
 	public double getHeading(double x1, double y1, double x2, double y2) {
 		double diffX = x2 - x1;

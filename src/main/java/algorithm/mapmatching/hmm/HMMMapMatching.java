@@ -74,7 +74,7 @@ public class HMMMapMatching implements Serializable {
 		this.gapExtensionDist = prop.contains("algorithm.cooptimization.GapExtensionDistance") ? prop.getPropertyInteger("algorithm.cooptimization" +
 				".GapExtensionDistance") : 15;
 		this.rankLength = prop.getPropertyInteger("algorithm.mapmatching.hmm.RankLength");
-		double sigma = prop.getPropertyDouble("algorithm.mapmatching.hmm.Sigma");
+		double sigma = prop.getPropertyDouble("algorithm.mapmatching.Sigma");
 		double beta = prop.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
 		this.hmmProbabilities = new HMMProbabilities(sigma, beta);
 		this.intervalLength = (4 * Math.sqrt(2) - 2) * candidateRange;   // given such length limit, none of the candidate segment can escape

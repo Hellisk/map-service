@@ -23,7 +23,8 @@ public class PointMatchingEvaluation {
 	private static final Logger LOG = Logger.getLogger(PointMatchingEvaluation.class);
 	
 	/**
-	 * Evaluate the precision, recall and F-score of the point matching results.
+	 * Evaluate the accuracy of the point matching results. Make sure each trajectory point has one and only one
+	 * point match result (it is ok to have empty/null match point and/or match road for unmatchable trajectory points).
 	 *
 	 * @param matchedResultList The output point match result list.
 	 * @param gtResultList      The ground-truth point match result list.
@@ -60,7 +61,8 @@ public class PointMatchingEvaluation {
 			for (int i = 0; i < r._2().size(); i++) {
 				PointMatch currOutputMatch = r._2().get(i);
 				PointMatch currGTMatch = gtPointMatchList.get(i);
-				if (distFunc.distance(currOutputMatch.getMatchPoint(), currGTMatch.getMatchPoint()) == 0) {
+				if (currOutputMatch != null && currOutputMatch.getMatchPoint() != null && distFunc.distance(currOutputMatch.getMatchPoint(),
+						currGTMatch.getMatchPoint()) == 0) {
 					totalCorrectlyMatchedCount++;
 					currCorrectlyMatchedCount++;
 				}
@@ -85,6 +87,9 @@ public class PointMatchingEvaluation {
 	 * <p>
 	 * Singh, J., Singh, S., Singh, S., Singh, H.: Evaluating the performance of map matching algorithms for navigation systems: an
 	 * empirical study. Spatial Information Research pp. 1{12 (2018)
+	 * <p>
+	 * Make sure each trajectory point has one and only one point match result (it is ok to have empty/null match point and/or match road
+	 * for unmatchable trajectory points).
 	 *
 	 * @param matchedResultList Output point match result list.
 	 * @param gtResultList      Ground-truth point match result list.
@@ -116,7 +121,9 @@ public class PointMatchingEvaluation {
 			for (int i = 0; i < r._2().size(); i++) {
 				PointMatch currOutputMatch = r._2().get(i);
 				PointMatch currGTMatch = gtPointMatchList.get(i);
-				currRMSE += Math.pow(distFunc.distance(currOutputMatch.getMatchPoint(), currGTMatch.getMatchPoint()), 2);
+				if (currOutputMatch != null && currOutputMatch.getMatchPoint() != null) {
+					currRMSE += Math.pow(distFunc.distance(currOutputMatch.getMatchPoint(), currGTMatch.getMatchPoint()), 2);
+				}
 			}
 			currRMSE = Math.sqrt(currRMSE / r._2().size());
 			totalRMSE += currRMSE;

@@ -189,7 +189,7 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	public double pointToSegmentProjectionDistance(double x, double y, double sx1, double sy1, double sx2, double sy2) {
 		double xDelta = sx2 - sx1;
 		double yDelta = sy2 - sy1;
-
+		
 		if ((xDelta == 0) && (yDelta == 0)) {
 			throw new IllegalArgumentException("Segment start equals segment end");
 		}
@@ -219,10 +219,10 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		Point s2p = getClosestPoint(sx2, sy2, rx1, ry1, rx2, ry2);
 		double s1d = pointToPointDistance(sx1, sy1, s1p.x(), s1p.y());
 		double s2d = pointToPointDistance(sx2, sy2, s2p.x(), s2p.y());
-		return s1d < s2d ? s1d : s2d;
+		return Math.min(s1d, s2d);
 	}
 	
-	// TODO test the correctness. Seems wrong currently.
+	// TODO test the correctness.
 	@Override
 	public double area(Rect rectangle) {
 		double totalAngle = 0;
@@ -252,10 +252,29 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	 * @param p2 Intersect point.
 	 * @param p3 Endpoint of second segment.
 	 */
+	@Override
 	public double getAngle(Point p1, Point p2, Point p3) {
-		double bearing21 = getHeading(p2.x(), p2.y(), p1.x(), p1.y());
-		double bearing23 = getHeading(p2.x(), p2.y(), p3.x(), p3.y());
-		var angle = bearing21 - bearing23;
+		return getAngle(p2, p1, p2, p3);
+	}
+	
+	/**
+	 * Calculate the angle between two segments (P2,P1) and (P2,P3)
+	 *
+	 * @param p1 Start point of first segment.
+	 * @param p2 End point of first segment.
+	 * @param p3 Start point of second segment.
+	 * @param p4 End point of second segment.
+	 */
+	@Override
+	public double getAngle(Point p1, Point p2, Point p3, Point p4) {
+		return getAngle(new Segment(p1.x(), p1.y(), p2.x(), p2.y(), this), new Segment(p3.x(), p3.y(), p4.x(), p4.y(), this));
+	}
+	
+	@Override
+	public double getAngle(Segment s1, Segment s2) {
+		double bearing1 = getHeading(s1.x1(), s1.y1(), s1.x2(), s1.y2());
+		double bearing2 = getHeading(s2.x1(), s2.y1(), s2.x2(), s2.y2());
+		var angle = bearing1 - bearing2;
 		if (angle < 0) {
 			angle += 360;
 		}

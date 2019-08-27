@@ -49,7 +49,7 @@ public class MapMatchingProperty extends BaseProperty {
 							super.setProperty("algorithm.mapmatching.hmm.Beta", arg.substring(3));
 							break;
 						case "ms":
-							super.setProperty("algorithm.mapmatching.hmm.Sigma", arg.substring(3));
+							super.setProperty("algorithm.mapmatching.Sigma", arg.substring(3));
 							break;
 						case "mm":
 							super.setProperty("algorithm.mapmatching.MatchingMethod", arg.substring(3));
