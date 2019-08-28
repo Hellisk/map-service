@@ -141,29 +141,22 @@ public class SequenceMemory {
      * The window shrinks from behind when
      * 1) a convergence point is found anywhere in the Markov chain covered by the window;
      * 2) or reaches the maximum number of states
-     *
+     * <p>
      * Note: when program calls this method, the sequence has already expanded.
      * i.e. stateMemoryVector.peekLast()._1() returns current state
      */
     private List<StateCandidate> manageWindSize(StateSample latestSample) {
-        if (maxStateNum < 0 && maxWaitingTime < 0) return null;
+        if (maxStateNum < 0 && maxWaitingTime < 0) return new LinkedList<>();
+        if (getStateMemoryVector().size() == 1) return new LinkedList<>(); // just finished initial mm
 
         StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2)._1();
-        int cnt = 0;
-        for (StateCandidate stateCandidate : last.getStateCandidates().values()) {
-            if (sequenceCandidateVotes.containsKey(stateCandidate.getId())) {
-                cnt += 1;
-                break;
-            }
-        }
-
         List<StateMemory> deletes = new LinkedList<>();
         LinkedList<StateCandidate> routeMatchResult = new LinkedList<>();
 
-        if (cnt == 0) {
+        if (last.getStateCandidates().size() == 0) {
             throw new RuntimeException("matching break");
 
-        } else if (cnt == 1) {
+        } else if (last.getStateCandidates().size() == 1) {
             // if only one candidate in last state is stored in the chain, this candidate match is known as convergence point
 
             // pull local path result
@@ -175,12 +168,12 @@ public class SequenceMemory {
                 }
             }
 
-            // it then become first state in the sequence
+            // converging state then becomes first state in the sequence
             while (getStateMemoryVector().size() > 1) {
                 deletes.add(stateMemoryVector.removeFirst()._1());
             }
 
-        } else if (maxStateNum + 1 < stateMemoryVector.size() || (maxWaitingTime >= 0 &&
+        } else if (maxStateNum < stateMemoryVector.size() || (maxWaitingTime >= 0 &&
                 latestSample.getTime() - stateMemoryVector.peekFirst()._2().getTime() > maxWaitingTime)) {
 
             StateCandidate estimate = null;
@@ -197,12 +190,14 @@ public class SequenceMemory {
             for (StateCandidate stateCandidate : delete.getStateCandidates().values()) {
                 sequenceCandidateVotes.remove(stateCandidate.getId());
             }
-
-            StateMemory newFirst = stateMemoryVector.peekFirst()._1();
-            for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
-                stateCandidate.setPredecessor(null);
-            }
         }
+
+        // set predecessors of candidates in the first state of new sequence to null
+        StateMemory newFirst = stateMemoryVector.peekFirst()._1();
+        for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
+            stateCandidate.setPredecessor(null);
+        }
+
         assert (maxStateNum < 0 || maxStateNum + 1 < stateMemoryVector.size());
         return routeMatchResult;
     }
@@ -216,31 +211,7 @@ public class SequenceMemory {
 
         return manageWindSize(lastSample);
     }
-
-//    /**
-//     * Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
-//     * s<sub>t</sub></i>.
-//     *
-//     * @return List of the most likely sequence of state candidates.
-//     */
-//    public List<StateCandidate> sequence() {
-//        if (stateMemoryVector.isEmpty()) {
-//            return null;
-//        }
-//
-//        StateCandidate kestimate = optimalPredecessor();
-//        LinkedList<StateCandidate> ksequence = new LinkedList<>();
-//
-//        for (int i = stateMemoryVector.size() - 1; i >= 0; --i) {
-//            if (kestimate != null) {
-//                ksequence.push(kestimate);
-//                kestimate = kestimate.getPredecessor();
-//            }
-//        }
-//
-//        return ksequence;
-//    }
-
+    
     public StateMemory lastStateMemory() {
         if (stateMemoryVector.isEmpty()) return null;
         return stateMemoryVector.peekLast()._1();
