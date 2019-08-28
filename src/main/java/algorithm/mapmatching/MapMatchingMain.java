@@ -1,6 +1,6 @@
 package algorithm.mapmatching;
 
-import algorithm.mapmatching.simpleHMM.SimpleHMMMapMatching;
+import algorithm.mapmatching.simpleHMM.SimpleHMMMatching;
 import algorithm.mapmatching.stmatching.FeatureSTMapMatching;
 import algorithm.mapmatching.weightBased.WeightBasedMM;
 import org.apache.log4j.Logger;
@@ -142,7 +142,7 @@ public class MapMatchingMain {
 	private static MapMatchingMethod chooseMatchMethod(String matchingMethod, RoadNetworkGraph roadMap, BaseProperty property) {
 		switch (matchingMethod.substring(3)) {
 			case "HMM":
-				return new SimpleHMMMapMatching(roadMap, property);
+                return new SimpleHMMMatching(roadMap, property);
 			case "FST":
 				return new FeatureSTMapMatching(roadMap, property);
 			case "WGT":
