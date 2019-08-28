@@ -146,7 +146,6 @@ public class SequenceMemory {
      * i.e. stateMemoryVector.peekLast()._1() returns current state
      */
     private List<StateCandidate> manageWindSize(StateSample latestSample) {
-        if (maxStateNum < 0 && maxWaitingTime < 0) return new LinkedList<>();
         if (getStateMemoryVector().size() == 1) return new LinkedList<>(); // just finished initial mm
 
         StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2)._1();
@@ -156,7 +155,12 @@ public class SequenceMemory {
         if (last.getStateCandidates().size() == 0) {
             throw new RuntimeException("matching break");
 
-        } else if (last.getStateCandidates().size() == 1) {
+        }
+        
+        if (maxStateNum < 0 && maxWaitingTime < 0)
+            return new LinkedList<>(); // offline mm doesn't need variable window size
+
+        if (last.getStateCandidates().size() == 1) {
             // if only one candidate in last state is stored in the chain, this candidate match is known as convergence point
 
             // pull local path result
@@ -211,7 +215,7 @@ public class SequenceMemory {
 
         return manageWindSize(lastSample);
     }
-    
+
     public StateMemory lastStateMemory() {
         if (stateMemoryVector.isEmpty()) return null;
         return stateMemoryVector.peekLast()._1();
