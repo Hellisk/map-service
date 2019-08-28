@@ -153,6 +153,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 				}
 				if (maxProb != 0) {
 					isConnected = true;
+					currCandidateProb[j] = maxProb;
 				}
 			}
 			
@@ -255,9 +256,12 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 		Collections.reverse(backTrackIndexList);
 		currStepIndex += 2;    // start index of the route traversal TODO check the correctness
 		for (int i = 0; i < backTrackIndexList.size() - 1; i++) {
-			List<String> candidateRoute =
-					transitionPathMap.get(currStepIndex + "_" + backTrackIndexList.get(i) + "_" + backTrackIndexList.get(i + 1));
-			resultPath.addAll(candidateRoute);
+			if (transitionPathMap.containsKey(currStepIndex + "_" + backTrackIndexList.get(i) + "_" + backTrackIndexList.get(i + 1))) {
+				List<String> candidateRoute =
+						transitionPathMap.get(currStepIndex + "_" + backTrackIndexList.get(i) + "_" + backTrackIndexList.get(i + 1));
+				resultPath.addAll(candidateRoute);
+			} else
+				throw new IllegalArgumentException("TEST");
 		}
 	}
 	

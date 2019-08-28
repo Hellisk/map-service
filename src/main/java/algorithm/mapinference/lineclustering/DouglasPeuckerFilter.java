@@ -93,7 +93,7 @@ public class DouglasPeuckerFilter {
 			// find index of point with maximum square distance from first and last point
 			for (int i = range.first + 1; i < range.last; ++i) {
 				double currDist = distFunc.pointToSegmentProjectionDistance(polyline.get(i).x(), polyline.get(i).y(),
-						polyline.get(range.first).x(), polyline.get(range.first).x(), polyline.get(range.last).x(),
+						polyline.get(range.first).x(), polyline.get(range.first).y(), polyline.get(range.last).x(),
 						polyline.get(range.last).y());
 				
 				if (currDist > maxDist) {

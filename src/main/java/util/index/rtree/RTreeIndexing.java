@@ -197,14 +197,13 @@ public class RTreeIndexing {
 	 * @param candidateCount Number of candidate required for the point
 	 * @param radiusM        Maximum distance used to search the index
 	 * @return Observations of lines
-	 * TODO make sure how radiusM is measured (m or km)
 	 */
 	private List<Entry<String, Line>> knnSearch(Point searchPoint, final int candidateCount, final double radiusM) {
 		
 		final PointDouble from = PointDouble.create(searchPoint.x(), searchPoint.y());
 		DistanceFunction df = searchPoint.getDistanceFunction();
 		if (searchPoint.getDistanceFunction() instanceof GreatCircleDistanceFunction) {
-			Observable<Entry<String, Line>> roughRes = rTree.nearest(from, (radiusM * 1.5) / 1000, (int) (candidateCount * 1.5));  // obtain
+			Observable<Entry<String, Line>> roughRes = rTree.nearest(from, radiusM * 4, (int) (candidateCount * 1.5));  // obtain
 			// more candidate than required since they use different distance function.
 			List<Entry<String, Line>> candidateList = roughRes.filter(entry -> {
 				Line line = entry.geometry();
