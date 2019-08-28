@@ -187,8 +187,6 @@ public class SimpleHMMMatching extends MapMatchingMethod {
                 candidate.setSeqProb(Double.NEGATIVE_INFINITY);
 
                 for (StateCandidate predecessor : predecessors) {
-//                    Set<String> preds_ = transitions.keySet();
-//                    String id = predecessor.getId();
                     Pair<StateTransition, Double> transition = transitions.get(predecessor.getId()).get(candidate.getId());
 
                     if (transition == null || transition._2() == 0) {

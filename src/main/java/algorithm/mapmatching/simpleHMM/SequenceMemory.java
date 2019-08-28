@@ -141,14 +141,20 @@ public class SequenceMemory {
      * The window shrinks from behind when
      * 1) a convergence point is found anywhere in the Markov chain covered by the window;
      * 2) or reaches the maximum number of states
+     *
+     * Note: when program calls this method, the sequence has already expanded.
+     * i.e. stateMemoryVector.peekLast()._1() returns current state
      */
     private List<StateCandidate> manageWindSize(StateSample latestSample) {
         if (maxStateNum < 0 && maxWaitingTime < 0) return null;
 
-        StateMemory last = stateMemoryVector.peekLast()._1();
+        StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2)._1();
         int cnt = 0;
         for (StateCandidate stateCandidate : last.getStateCandidates().values()) {
-            if (sequenceCandidateVotes.containsKey(stateCandidate.getId())) cnt += 1;
+            if (sequenceCandidateVotes.containsKey(stateCandidate.getId())) {
+                cnt += 1;
+                break;
+            }
         }
 
         List<StateMemory> deletes = new LinkedList<>();
@@ -211,29 +217,29 @@ public class SequenceMemory {
         return manageWindSize(lastSample);
     }
 
-    /**
-     * Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
-     * s<sub>t</sub></i>.
-     *
-     * @return List of the most likely sequence of state candidates.
-     */
-    public List<StateCandidate> sequence() {
-        if (stateMemoryVector.isEmpty()) {
-            return null;
-        }
-
-        StateCandidate kestimate = optimalPredecessor();
-        LinkedList<StateCandidate> ksequence = new LinkedList<>();
-
-        for (int i = stateMemoryVector.size() - 1; i >= 0; --i) {
-            if (kestimate != null) {
-                ksequence.push(kestimate);
-                kestimate = kestimate.getPredecessor();
-            }
-        }
-
-        return ksequence;
-    }
+//    /**
+//     * Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
+//     * s<sub>t</sub></i>.
+//     *
+//     * @return List of the most likely sequence of state candidates.
+//     */
+//    public List<StateCandidate> sequence() {
+//        if (stateMemoryVector.isEmpty()) {
+//            return null;
+//        }
+//
+//        StateCandidate kestimate = optimalPredecessor();
+//        LinkedList<StateCandidate> ksequence = new LinkedList<>();
+//
+//        for (int i = stateMemoryVector.size() - 1; i >= 0; --i) {
+//            if (kestimate != null) {
+//                ksequence.push(kestimate);
+//                kestimate = kestimate.getPredecessor();
+//            }
+//        }
+//
+//        return ksequence;
+//    }
 
     public StateMemory lastStateMemory() {
         if (stateMemoryVector.isEmpty()) return null;
