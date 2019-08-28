@@ -88,7 +88,7 @@ public abstract class MapMatchingMethod {
 			throw new IllegalArgumentException("Trajectory list for map-matching must not be null.");
 		}
 		int trajSize = inputTrajectory.size();
-		
+		double currPercentage = 0;
 		List<SimpleTrajectoryMatchResult> resultList = new ArrayList<>();
 		int completeCount = 0;
 		for (Trajectory currTraj : inputTrajectory) {
@@ -97,8 +97,10 @@ public abstract class MapMatchingMethod {
 			else
 				resultList.add(offlineMatching(currTraj));
 			completeCount++;
-			if (completeCount % (trajSize / 100) == 0)
-				LOG.info(completeCount / (trajSize / 100) + "% of trajectories are map-matched.");
+			if (currPercentage != Math.floor(completeCount / ((double) trajSize / 100))) {
+				currPercentage = Math.floor(completeCount / ((double) trajSize / 100));
+				LOG.info(currPercentage + "% of trajectories are map-matched.");
+			}
 		}
 		return resultList;
 	}

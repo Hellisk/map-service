@@ -68,7 +68,6 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 		// find the key GPS points through Douglas-Peucker algorithm
 		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, distFunc);
 		List<Integer> keyTrajPointList = dpFilter.dpSimplifier(traj);    // the indices of the key trajectory points for segmentation
-		
 		Map<Integer, List<PointMatch>> candidateMap = new HashMap<>();    // the key point index to the candidate set
 		Map<Integer, double[]> emissionProbMap = new HashMap<>();    // the key point index to the candidate emission probability
 		Map<Integer, double[][]> actionCostMap = new HashMap<>();    // the key point index to the candidate emission probability
@@ -129,7 +128,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 		
 		Set<String> resultPath = new LinkedHashSet<>();
 		double[] prevCandidateProb = emissionProbMap.get(0);    // store the candidate probability of preceding candidates
-		double[] currCandidateProb = new double[candidateSize];    // store the candidate probability of the current step candidates
+		double[] currCandidateProb;    // store the candidate probability of the current step candidates
 		int[][] prevCandidateIndexMat = new int[candidateSize][keyTrajPointList.size()];    // pre[j][i]=k means when the preceding
 		// point of the candidate j is pre[k][i-1], the probability is maximum. Used in path backtracking.
 		for (int[] doubleLines : prevCandidateIndexMat) {
@@ -141,6 +140,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 			List<PointMatch> prevCandidateList = candidateMap.get(i - 1);
 			double[] emissionProbList = emissionProbMap.get(i);
 			double[][] actionCostMat = actionCostMap.get(i);
+			currCandidateProb = new double[candidateSize];
 			boolean isConnected = false;        // check if there is at least one connection remains
 			for (int j = 0; j < currCandidateList.size(); j++) {
 				double maxProb = 0;
@@ -162,11 +162,31 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 				// the current step is completely disconnected with the last step, extract the previous path and start an initial matching
 				currCandidateProb = emissionProbMap.get(i);
 			}
-			prevCandidateProb = currCandidateProb;
+			prevCandidateProb = currCandidateProb.clone();
 		}
 		
 		addBestPath(keyTrajPointList.size() - 1, prevCandidateProb, prevCandidateIndexMat, transitionPathMap, resultPath);    // backtrace
 		// the path from the last steps
+		if (resultPath.isEmpty()) {
+			LOG.debug("Trajectory " + traj.getID() + " has no complete matching result, use point match instead.");
+			for (int i = 0; i < keyTrajPointList.size(); i++) {
+				if (candidateMap.get(i) != null && !candidateMap.get(i).isEmpty()) {
+					double[] emissionProbList = emissionProbMap.get(i);
+					double maxProb = 0;
+					int maxIndex = -1;
+					for (int j = 0; j < emissionProbList.length; j++) {
+						if (emissionProbList[j] > maxProb) {
+							maxProb = emissionProbList[j];
+							maxIndex = j;
+						}
+					}
+					if (maxProb != 0) {
+						resultPath.add(candidateMap.get(i).get(maxIndex).getRoadID().split("\\|")[0]);
+					} else
+						throw new IllegalArgumentException("Emission probability should not be zero.");
+				}
+			}
+		}
 		List<String> routeMatchList = compactRoadID(resultPath);
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		return new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList);
@@ -247,19 +267,20 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 			}
 		}
 		if (maxProb == 0)
-			throw new IllegalArgumentException("The addBestPath fails due to no possible result.");
-		while (currStepIndex >= 0 && bestCandidateIndex != -1) {
+			LOG.debug("The addBestPath fails due to no possible result, current index: " + currStepIndex + ", size of result path: " + resultPath.size());
+		while (bestCandidateIndex != -1) {
 			backTrackIndexList.add(bestCandidateIndex);
 			bestCandidateIndex = prevCandidateIndexMat[bestCandidateIndex][currStepIndex];
 			currStepIndex--;
 		}
 		Collections.reverse(backTrackIndexList);
-		currStepIndex += 2;    // start index of the route traversal TODO check the correctness
+		currStepIndex += 2;    // start index of the route traversal
 		for (int i = 0; i < backTrackIndexList.size() - 1; i++) {
 			if (transitionPathMap.containsKey(currStepIndex + "_" + backTrackIndexList.get(i) + "_" + backTrackIndexList.get(i + 1))) {
 				List<String> candidateRoute =
 						transitionPathMap.get(currStepIndex + "_" + backTrackIndexList.get(i) + "_" + backTrackIndexList.get(i + 1));
 				resultPath.addAll(candidateRoute);
+				currStepIndex++;
 			} else
 				throw new IllegalArgumentException("TEST");
 		}

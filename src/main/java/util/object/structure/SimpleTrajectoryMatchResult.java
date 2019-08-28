@@ -43,13 +43,19 @@ public class SimpleTrajectoryMatchResult {
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		// start parsing the first line, which contains point matches
 		String[] firstLine = lines[0].split(",");
-		
-		for (String value : firstLine) {    // initialise all match sequences
-			pointMatchList.add(PointMatch.parsePointMatch(value, df));
+		if (firstLine.length != 1 || !firstLine[0].equals("")) {
+			for (String value : firstLine) {    // initialise all match sequences
+				pointMatchList.add(PointMatch.parsePointMatch(value, df));
+			}
 		}
 		
 		String[] secondLine = lines[1].split(",");
-		List<String> routeMatchList = new ArrayList<>(Arrays.asList(secondLine));
+		List<String> routeMatchList;
+		if (secondLine.length != 1 || !secondLine[0].equals("")) {
+			routeMatchList = new ArrayList<>(Arrays.asList(secondLine));
+		} else {
+			routeMatchList = new ArrayList<>();
+		}
 		return new SimpleTrajectoryMatchResult(trajID, pointMatchList, routeMatchList);
 	}
 	

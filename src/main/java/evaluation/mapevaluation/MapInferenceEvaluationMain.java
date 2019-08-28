@@ -16,7 +16,7 @@ import util.settings.MapServiceLogger;
  * @author uqpchao
  * Created 11/06/2019
  */
-public class MapEvaluationMain {
+public class MapInferenceEvaluationMain {
 	
 	public static void main(String[] args) {
 		
@@ -47,7 +47,7 @@ public class MapEvaluationMain {
 		MapServiceLogger.logInit(logFolder, logFileName);
 		
 		// use global dataset to evaluate the map-matching accuracy
-		final Logger LOG = Logger.getLogger(MapEvaluationMain.class);
+		final Logger LOG = Logger.getLogger(MapInferenceEvaluationMain.class);
 		
 		// evaluation step, read the output and ground-truth dataset
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
