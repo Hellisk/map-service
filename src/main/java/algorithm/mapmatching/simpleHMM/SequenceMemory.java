@@ -156,7 +156,7 @@ public class SequenceMemory {
             throw new RuntimeException("matching break");
 
         }
-        
+
         if (maxStateNum < 0 && maxWaitingTime < 0)
             return new LinkedList<>(); // offline mm doesn't need variable window size
 
