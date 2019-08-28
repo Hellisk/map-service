@@ -272,10 +272,9 @@ public class SimpleHMMMatching extends MapMatchingMethod {
         return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(), matchRoute);
     }
 
-
-    public SimpleTrajectoryMatchResult onlineMatch(Trajectory trajectory) {
+    @Override
+    public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
         List<StateSample> samples = new LinkedList<>();
-
         for (int i = 0; i < trajectory.getPoints().size(); i++) {
             samples.add(new StateSample(trajectory.get(i), trajectory.get(i).heading(), trajectory.get(i).time()));
         }
