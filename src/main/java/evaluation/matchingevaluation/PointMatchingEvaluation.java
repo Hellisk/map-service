@@ -18,7 +18,7 @@ import java.util.Map;
  * @author Hellisk
  * @since 10/07/2017
  */
-public class PointMatchingEvaluation {
+class PointMatchingEvaluation {
 	
 	private static final Logger LOG = Logger.getLogger(PointMatchingEvaluation.class);
 	
@@ -30,7 +30,7 @@ public class PointMatchingEvaluation {
 	 * @param gtResultList      The ground-truth point match result list.
 	 * @return Accuracy.
 	 */
-	public static String accuracyEvaluation(List<Pair<Integer, List<PointMatch>>> matchedResultList, List<Pair<Integer,
+	static String accuracyEvaluation(List<Pair<Integer, List<PointMatch>>> matchedResultList, List<Pair<Integer,
 			List<PointMatch>>> gtResultList) {
 		DecimalFormat df = new DecimalFormat("0.000");
 		if (matchedResultList.size() != gtResultList.size())
@@ -50,12 +50,16 @@ public class PointMatchingEvaluation {
 		double totalPointCount = 0;    // total count of the trajectory points.
 		double totalCorrectlyMatchedCount = 0;      // total count of perfectly matched points.
 		for (Pair<Integer, List<PointMatch>> r : matchedResultList) {
-			if (r._2().size() == 0)
-				throw new IllegalArgumentException("The current point match result is empty: " + r._1());
+			if (r._2().size() == 0) {
+				LOG.error("The current point match result is empty: " + r._1());
+				continue;
+			}
 			List<PointMatch> gtPointMatchList = trajID2GTResultMapping.get(r._1());
-			if (r._2().size() != gtPointMatchList.size())
-				throw new IllegalArgumentException("The output point match result has different size as the ground-truth: " + r._2().size() +
+			if (r._2().size() != gtPointMatchList.size()) {
+				LOG.error("The output point match result has different size as the ground-truth: " + r._2().size() +
 						"," + gtPointMatchList.size() + ".");
+				continue;
+			}
 			double currCorrectlyMatchedCount = 0;
 			
 			for (int i = 0; i < r._2().size(); i++) {
@@ -95,8 +99,8 @@ public class PointMatchingEvaluation {
 	 * @param gtResultList      Ground-truth point match result list.
 	 * @return Evaluation result.
 	 */
-	public static String rootMeanSquareErrorEvaluation(List<Pair<Integer, List<PointMatch>>> matchedResultList,
-													   List<Pair<Integer, List<PointMatch>>> gtResultList) {
+	static String rootMeanSquareErrorEvaluation(List<Pair<Integer, List<PointMatch>>> matchedResultList,
+												List<Pair<Integer, List<PointMatch>>> gtResultList) {
 		if (matchedResultList.size() != gtResultList.size())
 			throw new IllegalArgumentException("The size of the output point match list is different from the ground-truth: "
 					+ matchedResultList.size() + "," + gtResultList.size() + ".");

@@ -8,7 +8,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import util.function.DistanceFunction;
 
 import java.awt.geom.Point2D;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -164,12 +163,11 @@ public class Point extends SimpleSpatialObject {
 	
 	@Override
 	public boolean equals2D(SpatialObject obj) {
-		DecimalFormat decFor = new DecimalFormat("0.00000");
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (obj instanceof Point) {
 			Point p = (Point) obj;
-			return decFor.format(p.x).equals(decFor.format(x)) && decFor.format(p.y).equals(decFor.format(y));
+			return p.x == x && p.y == y;
 		}
 		return false;
 	}

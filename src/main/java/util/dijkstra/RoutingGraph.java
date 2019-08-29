@@ -19,10 +19,10 @@ import java.util.*;
 public class RoutingGraph implements Serializable {
 	
 	private static final Logger LOG = Logger.getLogger(RoutingGraph.class);
-	private final BaseProperty prop;
 	private HashMap<Integer, String> index2RoadIDAndSN = new HashMap<>();    // the mapping between the mini edge index and its corresponding
 	// roadway id and serial number, format: (index,roadID,serialNum)
-	private HashMap<String, Integer> endPointLoc2EdgeIndex = new HashMap<>();  // find the mini edge index using the coordinates and road
+	private HashMap<String, Integer> endPointLoc2EdgeIndex = new LinkedHashMap<>();  // find the mini edge index using the coordinates and
+	// road
 	// way id, format: (x1_x2,y1_y2,id)
 	private HashMap<Integer, Pair<Integer, Integer>> edgeIndex2EndpointsIndex = new HashMap<>();  // find the end point indices given the mini edge index
 	private HashMap<Pair<Integer, Integer>, Integer> endPointsIndex2EdgeIndex = new HashMap<>();  // find the mini edge index given the end point indices
@@ -43,7 +43,6 @@ public class RoutingGraph implements Serializable {
 	 * @param isNewRoadIncluded Is new roads to be added together into the shortest path, only = true when in map update process.
 	 */
 	public RoutingGraph(RoadNetworkGraph roadNetwork, boolean isNewRoadIncluded, BaseProperty prop) {
-		this.prop = prop;
 		// insert the road node into node list
 		HashMap<String, Integer> nodeID2Index = new HashMap<>();
 		HashSet<Integer> outGoingNodeSet = new HashSet<>();
@@ -51,7 +50,7 @@ public class RoutingGraph implements Serializable {
 		int noOfVertices = 0;
 		for (RoadNode node : roadNetwork.getNodes()) {
 			if (nodeID2Index.containsKey(node.getID()))
-				LOG.error("ERROR! Road node ID already exists: " + node.getID());
+				throw new IllegalArgumentException("Road node ID already exists: " + node.getID());
 			nodeID2Index.put(node.getID(), noOfVertices);
 			noOfVertices++;
 		}
@@ -68,7 +67,7 @@ public class RoutingGraph implements Serializable {
 				// insert all mini vertices into the nodeID index
 				RoadNode startNode = way.getNode(i);
 				if (nodeID2Index.containsKey(startNode.getID()))
-					LOG.error("ERROR! Road node ID for mini node already exists: " + startNode.getID());
+					throw new IllegalArgumentException("ERROR! Road node ID for mini node already exists: " + startNode.getID());
 				nodeID2Index.put(startNode.getID(), noOfVertices);
 				if (isNewRoadIncluded && way.isNewRoad()) {
 					newNodeSet.add(noOfVertices);
@@ -84,10 +83,15 @@ public class RoutingGraph implements Serializable {
 				RoadNode startNode = way.getNode(i);
 				RoadNode endNode = way.getNode(i + 1);
 				index2RoadIDAndSN.put(noOfEdges, way.getID() + "," + (i + 1));
+				if (endPointLoc2EdgeIndex.containsKey(startNode.lon() + "_" + startNode.lat() + "," + endNode.lon() + "_" + endNode.lat() + "," + way.getID())) {
+					throw new IllegalArgumentException("The same start and end nodes generate multiple roads: " + noOfEdges);
+				}
 				endPointLoc2EdgeIndex.put(startNode.lon() + "_" + startNode.lat() + "," + endNode.lon() + "_" + endNode.lat() + "," + way.getID(), noOfEdges);
 				int startID = nodeID2Index.get(startNode.getID());
 				int endID = nodeID2Index.get(endNode.getID());
 				Pair<Integer, Integer> endPointIndices = new Pair<>(startID, endID);
+				if (endPointsIndex2EdgeIndex.containsKey(endPointIndices))
+					throw new IllegalArgumentException("The same start and end node id refer to multiple roads: " + noOfEdges);
 				edgeIndex2EndpointsIndex.put(noOfEdges, endPointIndices);
 				endPointsIndex2EdgeIndex.put(endPointIndices, noOfEdges);
 				if (i == 0) {
@@ -160,18 +164,18 @@ public class RoutingGraph implements Serializable {
 		// the variables have been initialized during the last calculation. Start the process right away
 		HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet = new HashMap<>();
 		// (vertex index in graph, point index in pointList)
-
-
-        // if source point doesn't exist, return infinity to all distances
+		
+		
+		// if source point doesn't exist, return infinity to all distances
 //		String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() + "," + source.getMatchedSegment()
 //				.x2() + "_" + source.getMatchedSegment().y2() + "," + source.getRoadID();
-
-        String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() +
-                "," + source.getMatchedSegment().x2() + "_" +
-                source.getMatchedSegment().y2() + "," + source.getRoadID().strip().split("\\|")[0];
-
+		
+		String sourceLocID = source.getMatchedSegment().x1() + "_" + source.getMatchedSegment().y1() +
+				"," + source.getMatchedSegment().x2() + "_" +
+				source.getMatchedSegment().y2() + "," + source.getRoadID().strip().split("\\|")[0];
+		
 		if (!this.endPointLoc2EdgeIndex.containsKey(sourceLocID)) {
-			LOG.error("Shortest distance calculation failed: Source node is not found.");
+			LOG.error("Shortest distance calculation failed: Source node is not found: " + sourceLocID);
 			result = new ArrayList<>(resultOutput(distance, path));
 			return result;
 		}
@@ -190,12 +194,12 @@ public class RoutingGraph implements Serializable {
 //			String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1() + "," +
 //					pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2() + "," + pointList.get(i)
 //					.getRoadID();
-            String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1()
-                    + "," + pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2()
-                    + "," + pointList.get(i).getRoadID().strip().split("\\|")[0];
-
+			String destLocID = pointList.get(i).getMatchedSegment().x1() + "_" + pointList.get(i).getMatchedSegment().y1()
+					+ "," + pointList.get(i).getMatchedSegment().x2() + "_" + pointList.get(i).getMatchedSegment().y2()
+					+ "," + pointList.get(i).getRoadID().strip().split("\\|")[0];
+			
 			if (!endPointLoc2EdgeIndex.containsKey(destLocID)) {
-				LOG.error("Destination node is not found.");
+				LOG.error("Destination node is not found: " + destLocID);
 				destPointCount--;
 //            } else if (pointList.get(i).getMatchPoint().equals2D(pointList.get(i).getMatchedSegment().p1())) {
 //                destPointCount--;

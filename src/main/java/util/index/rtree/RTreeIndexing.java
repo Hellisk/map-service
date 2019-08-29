@@ -18,7 +18,6 @@ import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 import util.object.structure.PointMatch;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -92,7 +91,8 @@ public class RTreeIndexing {
 		// First we need to calculate an enclosing lat long rectangle for this
 		// distance then we refine on the exact distance
 		final Position from = Position.create(lat, lon);
-		Rectangle bounds = createBounds(from, distanceM * 1.5 / 1000);
+//		Rectangle bounds = createBounds(from, distanceM * 1.5 / 1000);
+		Rectangle bounds = createBounds(from, distanceM / 1000);
 		
 		return rTree
 				// do the first search using the bounds (using L2 distance)
@@ -139,8 +139,10 @@ public class RTreeIndexing {
 		List<PointMatch> neighbours = new ArrayList<>();
 		
 		for (Entry<String, Line> pair : results) {
-			double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
-			double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
+//			double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
+//			double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
+			double[] startNode = new double[]{pair.geometry().x1(), pair.geometry().y1()};
+			double[] endNode = new double[]{pair.geometry().x2(), pair.geometry().y2()};
 			
 			Point closestPoint = from.getDistanceFunction().getClosestPoint(from.x(), from.y(), startNode[0], startNode[1], endNode[0], endNode[1]);
 			
@@ -165,8 +167,10 @@ public class RTreeIndexing {
 		List<PointMatch> neighbourList = new ArrayList<>();
 		
 		for (Entry<String, Line> pair : results) {
-			double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
-			double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
+//			double[] startNode = formatDoubles(new double[]{pair.geometry().x1(), pair.geometry().y1()});
+//			double[] endNode = formatDoubles(new double[]{pair.geometry().x2(), pair.geometry().y2()});
+			double[] startNode = new double[]{pair.geometry().x1(), pair.geometry().y1()};
+			double[] endNode = new double[]{pair.geometry().x2(), pair.geometry().y2()};
 			
 			Point closestPoint = from.getDistanceFunction().getClosestPoint(from.x(), from.y(), startNode[0], startNode[1], endNode[0], endNode[1]);
 			
@@ -176,19 +180,19 @@ public class RTreeIndexing {
 		}
 		return neighbourList;
 	}
-	
-	/**
-	 * Round 14 decimal places to 5 decimal places
-	 *
-	 * @param coord 14 decimal_places coords
-	 * @return 5 decimal_places coords
-	 */
-	private static double[] formatDoubles(double[] coord) {
-		DecimalFormat df = new DecimalFormat("#.00000");
-		double x = Double.parseDouble(df.format(coord[0]));
-		double y = Double.parseDouble(df.format(coord[1]));
-		return new double[]{x, y};
-	}
+
+//	/**
+//	 * Round 14 decimal places to 5 decimal places
+//	 *
+//	 * @param coord 14 decimal_places coords
+//	 * @return 5 decimal_places coords
+//	 */
+//	private static double[] formatDoubles(double[] coord) {
+//		DecimalFormat df = new DecimalFormat("#.00000");
+//		double x = Double.parseDouble(df.format(coord[0]));
+//		double y = Double.parseDouble(df.format(coord[1]));
+//		return new double[]{x, y};
+//	}
 	
 	/**
 	 * K-nearest neighbour search for point query.

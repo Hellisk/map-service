@@ -38,8 +38,6 @@ public class SimpleTrajectoryMatchResult {
 	
 	public static SimpleTrajectoryMatchResult parseSimpleTrajMatchResult(String s, String trajID, DistanceFunction df) {
 		String[] lines = s.split("\n");
-		if (lines.length != 2)
-			throw new IllegalArgumentException("The input trajectory string has line count other than 2: " + lines.length);
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		// start parsing the first line, which contains point matches
 		String[] firstLine = lines[0].split(",");
@@ -48,13 +46,20 @@ public class SimpleTrajectoryMatchResult {
 				pointMatchList.add(PointMatch.parsePointMatch(value, df));
 			}
 		}
-		
-		String[] secondLine = lines[1].split(",");
 		List<String> routeMatchList;
-		if (secondLine.length != 1 || !secondLine[0].equals("")) {
-			routeMatchList = new ArrayList<>(Arrays.asList(secondLine));
+		if (lines.length != 2) {
+			if (s.endsWith("\n")) {
+				// no route match result, return empty list
+				routeMatchList = new ArrayList<>();
+			} else
+				throw new IllegalArgumentException("The input trajectory string has line count other than 2: " + lines.length);
 		} else {
-			routeMatchList = new ArrayList<>();
+			String[] secondLine = lines[1].split(",");
+			if (secondLine.length != 1 || !secondLine[0].equals("")) {
+				routeMatchList = new ArrayList<>(Arrays.asList(secondLine));
+			} else {
+				routeMatchList = new ArrayList<>();
+			}
 		}
 		return new SimpleTrajectoryMatchResult(trajID, pointMatchList, routeMatchList);
 	}
@@ -133,6 +138,7 @@ public class SimpleTrajectoryMatchResult {
 			for (int i = 0; i < pointMatchResult.size(); i++) {
 				line.append(this.getPointMatch(i).toString()).append(",");
 			}
+			line.deleteCharAt(line.length() - 1);
 		}
 		line.append("\n");
 		
@@ -141,6 +147,7 @@ public class SimpleTrajectoryMatchResult {
 			for (int i = 0; i < routeMatchResult.size(); i++) {
 				line.append(this.getRouteMatchResultList().get(i)).append(",");
 			}
+			line.deleteCharAt(line.length() - 1);
 		}
 		return line.toString();
 	}

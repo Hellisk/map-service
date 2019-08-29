@@ -183,7 +183,7 @@ public class SegmentWithIndex extends SimpleSpatialObject {
 		if (obj == null) return false;
 		if (obj instanceof SegmentWithIndex) {
 			SegmentWithIndex p = (SegmentWithIndex) obj;
-			return p.segment == this.segment && p.selectPosition == this.selectPosition && p.roadID.equals(this.roadID);
+			return p.segment.equals2D(this.segment) && p.selectPosition == this.selectPosition && p.roadID.equals(this.roadID);
 		}
 		return true;
 	}

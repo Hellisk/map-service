@@ -4,7 +4,9 @@ import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
 import util.function.GreatCircleDistanceFunction;
-import util.io.*;
+import util.io.MapReader;
+import util.io.MatchResultReader;
+import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
 import util.object.structure.Pair;
@@ -15,7 +17,9 @@ import util.settings.MapServiceLogger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author uqpchao
@@ -56,23 +60,20 @@ public class MapMatchingEvaluationMain {
 		final Logger LOG = Logger.getLogger(MapMatchingEvaluationMain.class);
 		
 		if (dataSet.equals("Global")) {
-			List<RoadNetworkGraph> mapList = new ArrayList<>();
-			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
-			GlobalTrajectoryLoader trajReader = new GlobalTrajectoryLoader(rawDataFolder);
-			GlobalMapLoader mapReader = new GlobalMapLoader(rawDataFolder);
-			List<Pair<Integer, List<String>>> outputRouteMatchResult = MatchResultReader.readRouteMatchResults(outputMatchResultFolder);
-			List<Pair<Integer, List<String>>> gtRouteMatchResult = new ArrayList<>();
-			for (int i = 0; i < trajReader.getNumOfTrajectory(); i++) {
-				List<String> matchResult = trajReader.readGTRouteMatchResult(i);
-				Pair<Integer, List<String>> currGroundTruthMatchResult = new Pair<>(i, matchResult);
-				gtRouteMatchResult.add(currGroundTruthMatchResult);
-				mapList.add(mapReader.readRawMap(i));
-			}
 			long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
+			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
+			List<SimpleTrajectoryMatchResult> outputMatchResult =
+					MatchResultReader.readSimpleMatchResultsToList(outputMatchResultFolder.substring(0,
+							outputMatchResultFolder.length() - 1), distFunc);
+			Map<Integer, List<String>> id2OutputRouteMatchMapping = new HashMap<>();
+			for (SimpleTrajectoryMatchResult matchResult : outputMatchResult) {
+				id2OutputRouteMatchMapping.put(Integer.parseInt(matchResult.getTrajID()), matchResult.getRouteMatchResultList());
+			}
+			String precisionRecall =
+					"Precision/recall/f-score/acc: " + RouteMatchingEvaluation.globalPrecisionRecallEvaluation(id2OutputRouteMatchMapping,
+							rawDataFolder);
 			
-			String precisionRecall = "Precision recall: " + RouteMatchingEvaluation.globalPrecisionRecallEvaluation(outputRouteMatchResult,
-					gtRouteMatchResult, mapList);
 			LOG.info("Precision-recall map-matching finished, total time cost: " + (System.currentTimeMillis() - startTaskTime));
 			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet + "_" + dataSpec);
 			LOG.info(precisionRecall);
@@ -102,20 +103,21 @@ public class MapMatchingEvaluationMain {
 				String precisionRecallFScoreAcc =
 						"Precision/recall/f-score/acc: " + RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResult,
 								gtRouteMatchResult, inputMap, null);
-				LOG.info("Precision/recall/f-score/acc evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime));
+				LOG.info("Precision/recall/f-score/acc evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(precisionRecallFScoreAcc);
 				evaluationTime = System.currentTimeMillis();
-				String rmf = "RMF: " + RouteMatchingEvaluation.rmfEvaluation(routeMatchResult,
-						gtRouteMatchResult, inputMap);
-				LOG.info("Route Match Fraction (RMF) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime));
+				String rmf = "RMF: " + RouteMatchingEvaluation.rmfEvaluation(routeMatchResult, gtRouteMatchResult, inputMap);
+				LOG.info("Route Match Fraction (RMF) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(rmf);
 				evaluationTime = System.currentTimeMillis();
 				
 				String nonGT = "Measure without GT: " + RouteMatchingEvaluation.nonGTEvaluation(routeMatchResult, inputTraj, inputMap);
-				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime));
+				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(nonGT);
 				
-			} else if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty()) {
+			}
+			
+			if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty()) {
 				List<Pair<Integer, List<PointMatch>>> pointMatchResult = new ArrayList<>();
 				LOG.info("Start point match result evaluation for " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
 				
@@ -127,18 +129,17 @@ public class MapMatchingEvaluationMain {
 				
 				String accuracy =
 						"Accuracy: " + PointMatchingEvaluation.accuracyEvaluation(pointMatchResult, gtPointMatchResult);
-				LOG.info("Accuracy evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime));
+				LOG.info("Accuracy evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(accuracy);
 				
 				evaluationTime = System.currentTimeMillis();
 				String rmse = "Root Mean Square Error: " + PointMatchingEvaluation.rootMeanSquareErrorEvaluation(pointMatchResult,
 						gtPointMatchResult);
-				LOG.info("Root Mean Square Error (RMSE) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime));
+				LOG.info("Root Mean Square Error (RMSE) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(rmse);
-				
 			}
 			
-			LOG.info("Evaluation finish, total time cost: " + (System.currentTimeMillis() - startTaskTime));
+			LOG.info("Evaluation finish, total time cost: " + (System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
 			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet + "_" + dataSpec);
 			for (String s : evaluationResultList) {
 				LOG.info(s);

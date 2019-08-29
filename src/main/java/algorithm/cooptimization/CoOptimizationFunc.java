@@ -573,8 +573,8 @@ public class CoOptimizationFunc {
 		double maxConfidenceScore = Double.NEGATIVE_INFINITY;
 		
 		for (Map.Entry<String, RoadWay> entry : id2NewRoadWay.entrySet()) {
-			maxInfluenceScore = maxInfluenceScore < entry.getValue().getInfluenceScore() ? entry.getValue().getInfluenceScore() : maxInfluenceScore;
-			maxConfidenceScore = maxConfidenceScore < entry.getValue().getConfidenceScore() ? entry.getValue().getConfidenceScore() : maxConfidenceScore;
+			maxInfluenceScore = Math.max(maxInfluenceScore, entry.getValue().getInfluenceScore());
+			maxConfidenceScore = Math.max(maxConfidenceScore, entry.getValue().getConfidenceScore());
 		}
 		for (Map.Entry<String, RoadWay> entry : id2NewRoadWay.entrySet()) {
 			newRoadCount++;

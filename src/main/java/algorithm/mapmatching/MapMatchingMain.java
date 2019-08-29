@@ -50,7 +50,7 @@ public class MapMatchingMain {
 		String logFileName;
 		String parameters = "";
 		// log file name
-		switch (matchingMethod) {
+		switch (matchingMethod.substring(2)) {
 			case "HMM":
 				parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Sigma") + "_"
@@ -117,32 +117,25 @@ public class MapMatchingMain {
 			distFunc = new GreatCircleDistanceFunction();
 			RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
 //			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
-//			matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
 			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 			MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, roadMap, property);
+			long loadingTime = System.currentTimeMillis();
+			LOG.info("Loading complete, loading time: " + (loadingTime - startTaskTime) / 1000.0 + "s.");
 			matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
+//			matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
 			MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
-			LOG.info("Matching complete, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + " seconds.");
-//			/* Simple HMM test*/
-//			double sigma = property.getPropertyDouble("algorithm.mapmatching.hmm.Sigma");
-//			double beta = property.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
-//			HMMProbabilities hmmProbabilities = new HMMProbabilities(sigma, beta);
-//
-//			Matcher simpleHMM = new Matcher(roadMap, property, hmmProbabilities, 50, 1000);
-//			for (Trajectory trajectory : inputTrajList) {
-//				List<StateCandidate> sequence = simpleHMM.mmatch(trajectory);
-//				simpleHMM.pullResult(sequence, Integer.parseInt(trajectory.getID()));
-//			}
-//			List<Pair<Integer, List<String>>> matchedWaySequence = simpleHMM.getOutputRouteMatchResult();
-//			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(groundTruthRouteMatchResultFolder);
-//			RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(matchedWaySequence, gtRouteMatchResult, roadMap, null);
+			LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
+					(System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
 		}
+//		// run the evaluation directly
+//		String[] noArg = {""};
+//		MapMatchingEvaluationMain.main(noArg);
 	}
 	
 	private static MapMatchingMethod chooseMatchMethod(String matchingMethod, RoadNetworkGraph roadMap, BaseProperty property) {
 		switch (matchingMethod.substring(3)) {
 			case "HMM":
-                return new SimpleHMMMatching(roadMap, property);
+				return new SimpleHMMMatching(roadMap, property);
 			case "FST":
 				return new FeatureSTMapMatching(roadMap, property);
 			case "WGT":
