@@ -1,6 +1,7 @@
 package algorithm.mapmatching.simpleHMM;
 
-import util.object.structure.Pair;
+import util.function.GreatCircleDistanceFunction;
+import util.object.structure.PointMatch;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ import java.util.*;
  */
 public class SequenceMemory {
     private Map<String, Integer> sequenceCandidateVotes = new HashMap<>();
-    private LinkedList<Pair<StateMemory, StateSample>> stateMemoryVector = new LinkedList<>();
+    private LinkedList<StateMemory> stateMemoryVector = new LinkedList<>();
     private int maxStateNum = -1;
     private long maxWaitingTime = -1;
 
@@ -46,7 +47,7 @@ public class SequenceMemory {
 
         StateCandidate estimate = null;
 
-        StateMemory lastState = stateMemoryVector.peekLast()._1();
+        StateMemory lastState = stateMemoryVector.peekLast();
         if (lastState == null) return null;
 
         for (StateCandidate candidate : lastState.getStateCandidates().values()) {
@@ -66,7 +67,7 @@ public class SequenceMemory {
 
         if (candidates.isEmpty()) return;
         if (!stateMemoryVector.isEmpty()
-                && stateMemoryVector.peekLast()._2().getTime() > lastSample.getTime()) {
+                && stateMemoryVector.peekLast().getSample().getTime() > lastSample.getTime()) {
             throw new RuntimeException("inconsistent time sequence");
         }
 
@@ -81,7 +82,7 @@ public class SequenceMemory {
             // predecessors must be candidates in previous state
             if (candidate.getPredecessor() != null) {
                 if (!sequenceCandidateVotes.containsKey(candidate.getPredecessor().getId())
-                        || !stateMemoryVector.peekLast()._1().getStateCandidates().containsKey(candidate.getPredecessor().getId())) {
+                        || !stateMemoryVector.peekLast().getStateCandidates().containsKey(candidate.getPredecessor().getId())) {
                     throw new RuntimeException("inconsistent update vector");
                 }
                 // update votes of predecessors
@@ -98,7 +99,7 @@ public class SequenceMemory {
     private void deleteCandidates() {
         if (stateMemoryVector.isEmpty()) return;
 
-        StateMemory lastState = stateMemoryVector.peekLast()._1();
+        StateMemory lastState = stateMemoryVector.peekLast();
 
         Set<StateCandidate> deletes = new LinkedHashSet<>();
 
@@ -121,7 +122,7 @@ public class SequenceMemory {
     private void remove(StateCandidate candidate, int index) {
         while (index >= 0) {
             sequenceCandidateVotes.remove(candidate.getId());
-            stateMemoryVector.get(index)._1().getStateCandidates().remove(candidate.getId());
+            stateMemoryVector.get(index).getStateCandidates().remove(candidate.getId());
 
             StateCandidate predecessor = candidate.getPredecessor();
             if (predecessor == null) {
@@ -145,49 +146,69 @@ public class SequenceMemory {
      * Note: when program calls this method, the sequence has already expanded.
      * i.e. stateMemoryVector.peekLast()._1() returns current state
      */
-    private List<StateCandidate> manageWindSize(StateSample latestSample) {
-        if (getStateMemoryVector().size() == 1) return new LinkedList<>(); // just finished initial mm
+    private Map<String, StateCandidate> manageWindSize(
+            StateSample latestSample, Map<String, StateCandidate> routeMatchResult) {
+        if (getStateMemoryVector().size() == 1) return new HashMap<>(); // just finished initial mm
 
-        StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2)._1();
+        StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2);
         List<StateMemory> deletes = new LinkedList<>();
-        LinkedList<StateCandidate> routeMatchResult = new LinkedList<>();
-
-        if (last.getStateCandidates().size() == 0) {
-            throw new RuntimeException("matching break");
-
-        }
 
         if (maxStateNum < 0 && maxWaitingTime < 0)
-            return new LinkedList<>(); // offline mm doesn't need variable window size
+            return new HashMap<>(); // offline mm doesn't need variable window size
 
         if (last.getStateCandidates().size() == 1) {
             // if only one candidate in last state is stored in the chain, this candidate match is known as convergence point
+            StateCandidate kEstimate = last.getFiltProbCandidate();
+            for (int i = stateMemoryVector.size() - 2; i >= 0; --i) {
+                String stateID = stateMemoryVector.get(i).getId();
+                if (routeMatchResult.containsKey(stateID)) continue;
 
-            // pull local path result
-            StateCandidate kestimate = optimalPredecessor();
-            for (int i = stateMemoryVector.size() - 1; i >= 0; --i) {
-                if (kestimate != null) {
-                    routeMatchResult.push(kestimate);
-                    kestimate = kestimate.getPredecessor();
+                if (kEstimate != null) {
+                    routeMatchResult.put(stateID, kEstimate);
+                    kEstimate = kEstimate.getPredecessor();
+                } else {
+                    StateMemory breakState = stateMemoryVector.get(i);
+                    StateCandidate probCandidate = breakState.getFiltProbCandidate();
+                    if (probCandidate != null) {
+                        routeMatchResult.put(stateID, probCandidate);
+                    } else {
+                        // this state got no candidate (no neighbour points)
+                        routeMatchResult.put(stateID, new StateCandidate(new PointMatch(new GreatCircleDistanceFunction()), latestSample));
+                    }
                 }
             }
 
-            // converging state then becomes first state in the sequence
-            while (getStateMemoryVector().size() > 1) {
-                deletes.add(stateMemoryVector.removeFirst()._1());
+            // new sequence contains two states: converging state -> current state
+            while (getStateMemoryVector().size() > 2) {
+                deletes.add(stateMemoryVector.removeFirst());
             }
 
         } else if (maxStateNum < stateMemoryVector.size() || (maxWaitingTime >= 0 &&
-                latestSample.getTime() - stateMemoryVector.peekFirst()._2().getTime() > maxWaitingTime)) {
+                latestSample.getTime() - stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
+            // reach maximum bound, force to output the most likely candidate of the first state
+            StateMemory firstState = stateMemoryVector.peekFirst();
 
-            StateCandidate estimate = null;
-            for (StateCandidate candidate : stateMemoryVector.peekFirst()._1().getStateCandidates().values()) {
-                if (estimate == null || estimate.getFiltProb() < candidate.getFiltProb()) {
-                    estimate = candidate;
+            if (firstState.getStateCandidates().isEmpty()) {
+                // peek the candidate with the highest filter prob
+                if (!routeMatchResult.containsKey(firstState.getId())) {
+                    routeMatchResult.put(firstState.getId(), firstState.getFiltProbCandidate());
+                }
+            } else {
+                // it was NOT a convergence state, so need to output for this time
+                // peek the candidate with the greatest vote
+                int vote = -1;
+                StateCandidate optimalCandidate = null;
+                for (StateCandidate firstStateCandidate : firstState.getStateCandidates().values()) {
+                    if (optimalCandidate == null || vote < sequenceCandidateVotes.get(firstStateCandidate.getId())) {
+                        vote = sequenceCandidateVotes.get(firstStateCandidate.getId());
+                        optimalCandidate = firstStateCandidate;
+                    }
+                }
+                if (!routeMatchResult.containsKey(firstState.getId())) {
+                    routeMatchResult.put(firstState.getId(), optimalCandidate);
                 }
             }
-            routeMatchResult.add(estimate);
-            deletes.add(stateMemoryVector.removeFirst()._1());
+            deletes.add(stateMemoryVector.removeFirst());
         }
 
         for (StateMemory delete : deletes) {
@@ -197,31 +218,34 @@ public class SequenceMemory {
         }
 
         // set predecessors of candidates in the first state of new sequence to null
-        StateMemory newFirst = stateMemoryVector.peekFirst()._1();
-        for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
-            stateCandidate.setPredecessor(null);
+        if (deletes.size() > 0) {
+            StateMemory newFirst = stateMemoryVector.peekFirst();
+            for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
+                stateCandidate.setPredecessor(null);
+            }
         }
 
         assert (maxStateNum < 0 || maxStateNum + 1 < stateMemoryVector.size());
         return routeMatchResult;
     }
 
-    public List<StateCandidate> update(StateMemory latestStateMemory, StateSample lastSample) {
+    public Map<String, StateCandidate> update(
+            StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> routeMatchResult) {
         expand(latestStateMemory, lastSample);
 
         deleteCandidates(); // delete redundant candidates in the chain
 
-        stateMemoryVector.add(new Pair<>(latestStateMemory, lastSample));
+        stateMemoryVector.add(latestStateMemory);
 
-        return manageWindSize(lastSample);
+        return manageWindSize(lastSample, routeMatchResult);
     }
 
     public StateMemory lastStateMemory() {
         if (stateMemoryVector.isEmpty()) return null;
-        return stateMemoryVector.peekLast()._1();
+        return stateMemoryVector.peekLast();
     }
 
-    public LinkedList<Pair<StateMemory, StateSample>> getStateMemoryVector() {
+    public LinkedList<StateMemory> getStateMemoryVector() {
         return stateMemoryVector;
     }
 }

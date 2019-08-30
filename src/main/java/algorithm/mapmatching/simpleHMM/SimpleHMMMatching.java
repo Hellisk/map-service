@@ -257,16 +257,19 @@ public class SimpleHMMMatching extends MapMatchingMethod {
 
         SequenceMemory sequence = new SequenceMemory();
 
-
         for (StateSample sample : samples) {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
-            sequence.update(vector, sample);
+            sequence.update(vector, sample, new HashMap<>());
         }
-        List<StateCandidate> matchSequence = reverse(sequence);
+        List<Pair<String, StateCandidate>> matchSequence = reverse(sequence, new HashMap<>());
+
+        if (matchSequence.size() != trajectory.size()) {
+            throw new RuntimeException("Output size inconsistent");
+        }
         List<String> matchRoute = new LinkedList<>();
 
-        for (StateCandidate candidate : matchSequence) {
-            matchRoute.addAll(candidate.getTransition().getRoute());
+        for (Pair<String, StateCandidate> candidate : matchSequence) {
+            matchRoute.addAll(candidate._2().getTransition().getRoute());
         }
 
         return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(), matchRoute);
@@ -286,20 +289,26 @@ public class SimpleHMMMatching extends MapMatchingMethod {
             }
         });
 
-        List<StateCandidate> matchRouteResult = new ArrayList<>();
         SequenceMemory sequence = new SequenceMemory(10, -1);
 
+        Map<String, StateCandidate> routeMatchResultMap = new HashMap<>();
         for (StateSample sample : samples) {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
-            matchRouteResult.addAll(sequence.update(vector, sample));
+            routeMatchResultMap = sequence.update(vector, sample, routeMatchResultMap);
         }
 
         if (sequence.getStateMemoryVector().size() > 0) {
-            matchRouteResult.addAll(reverse(sequence));
+            List<Pair<String, StateCandidate>> routeMatchResultList = reverse(sequence, routeMatchResultMap);
+            for (Pair<String, StateCandidate> stringStateCandidatePair : routeMatchResultList) {
+                routeMatchResultMap.put(stringStateCandidatePair._1(), stringStateCandidatePair._2()); // routeMatchResultMap contains keys with different format
+            }
         }
 
+        if (routeMatchResultMap.size() != trajectory.size()) {
+            throw new RuntimeException("Output size inconsistent");
+        }
         List<String> matchRoute = new LinkedList<>();
-        for (StateCandidate candidate : matchRouteResult) {
+        for (StateCandidate candidate : routeMatchResultMap.values()) {
             matchRoute.addAll(candidate.getTransition().getRoute());
         }
         return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(), matchRoute);
@@ -310,18 +319,30 @@ public class SimpleHMMMatching extends MapMatchingMethod {
      *
      * @return List of the most likely sequence of state candidates.
      */
-    public static List<StateCandidate> reverse(SequenceMemory sequence) {
+    public List<Pair<String, StateCandidate>> reverse(SequenceMemory sequence, Map<String, StateCandidate> routeMatchResultMap) {
         if (sequence.getStateMemoryVector().isEmpty()) {
             return new ArrayList<>();
         }
 
         StateCandidate kEstimate = sequence.optimalPredecessor();
-        LinkedList<StateCandidate> kSequence = new LinkedList<>();
+        LinkedList<Pair<String, StateCandidate>> kSequence = new LinkedList<>();
 
         for (int i = sequence.getStateMemoryVector().size() - 1; i >= 0; --i) {
+            String stateID = sequence.getStateMemoryVector().get(i).getId();
+            if (routeMatchResultMap.containsKey(stateID)) continue;
             if (kEstimate != null) {
-                kSequence.push(kEstimate);
+                kSequence.push(new Pair<>(stateID, kEstimate));
                 kEstimate = kEstimate.getPredecessor();
+            } else {
+                // HMM break
+                StateMemory breakState = sequence.getStateMemoryVector().get(i);
+                StateCandidate probCandidate = breakState.getFiltProbCandidate();
+                if (probCandidate != null) {
+                    kSequence.add(new Pair<>(stateID, breakState.getFiltProbCandidate()));
+                } else {
+                    // this state got no candidate (no neighbour points)
+                    kSequence.add(new Pair<>(stateID, new StateCandidate(new PointMatch(distFunc), breakState.getSample())));
+                }
             }
         }
         return kSequence;
