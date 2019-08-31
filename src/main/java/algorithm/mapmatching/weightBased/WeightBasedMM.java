@@ -79,7 +79,8 @@ public class WeightBasedMM extends MapMatchingMethod {
      * Initial map-matching
      */
     private Pair<PointMatch, Integer> initialMM(
-            Trajectory trajectory, int timestamp, List<String> matchedWaySequence, List<PointMatch> matchedPointSequence) {
+            Trajectory trajectory, int timestamp, List<String> matchedWaySequence,
+            Map<Integer, PointMatch> matchedPointSequence) {
 
         Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> candiPaths = new HashMap<>();
 
@@ -96,10 +97,15 @@ public class WeightBasedMM extends MapMatchingMethod {
         }
 
         while (iterations > 1) {
-            matchedPointSequence.add(new PointMatch(distFunc));
+            matchedPointSequence.put(timestamp - iterations, new PointMatch(distFunc));
             iterations -= 1;
         }
+
         if (candiPaths.size() == 0) {
+            if (!matchedPointSequence.containsKey(timestamp - 1)) {
+                matchedPointSequence.put(timestamp - 1, new PointMatch(distFunc));
+            }
+            matchedPointSequence.put(timestamp, new PointMatch(distFunc));
             return new Pair<>(new PointMatch(new Point(distFunc),
                     new Segment(distFunc), "***"), timestamp + 1);
         }
@@ -113,15 +119,17 @@ public class WeightBasedMM extends MapMatchingMethod {
         for (String pmId : pmIds) {
             matchedWaySequence.add(pmId.split("\\|")[0]);
         }
-        if (timestamp <= 1) {
-            matchedPointSequence.add(scoredCandiPaths.peek()._1()._1());
+
+        if (!matchedPointSequence.containsKey(timestamp - 1)) {
+            matchedPointSequence.put(timestamp - 1, scoredCandiPaths.peek()._1()._1());
         }
-        matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
+        matchedPointSequence.put(timestamp, scoredCandiPaths.peek()._1()._2());
         return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
     }
 
     private Pair<PointMatch, Integer> subsqtMM(
-            PointMatch prevMatchedPM, Trajectory trajectory, int timestamp, List<String> matchedWaySequence, List<PointMatch> matchedPointSequence) {
+            PointMatch prevMatchedPM, Trajectory trajectory, int timestamp,
+            List<String> matchedWaySequence, Map<Integer, PointMatch> matchedPointSequence) {
         List<PointMatch> secCandiPMs = rtree.searchNeighbours(trajectory.get(timestamp), candidateRange);
 
         // List<DestinationPM, shortestPathLength, Path>
@@ -151,23 +159,24 @@ public class WeightBasedMM extends MapMatchingMethod {
             matchedWaySequence.add(pmId.split("\\|")[0]);
         }
 
-        matchedPointSequence.add(scoredCandiPaths.peek()._1()._2());
+        matchedPointSequence.put(timestamp, scoredCandiPaths.peek()._1()._2());
         return new Pair<>(scoredCandiPaths.peek()._1()._2(), timestamp + 1);
     }
 
     @Override
     public SimpleTrajectoryMatchResult offlineMatching(final Trajectory trajectory) {
         // initialMM
-        List<String> matchedWaySequence = new ArrayList<>();
-        List<PointMatch> matchedPointSequence = new ArrayList<>();
-        Pair<PointMatch, Integer> result = initialMM(trajectory, 0, matchedWaySequence, matchedPointSequence);
-        while (result._2() < trajectory.size() - 1) {
-            result = subsqtMM(result._1(), trajectory, result._2(), matchedWaySequence, matchedPointSequence);
+        List<String> matchedWaySequence = new LinkedList<>();
+        Map<Integer, PointMatch> matchedPointSequenceMap = new HashMap<>();
+        Pair<PointMatch, Integer> result = initialMM(trajectory, 0, matchedWaySequence, matchedPointSequenceMap);
+        while (result._2() < trajectory.size()) {
+            result = subsqtMM(result._1(), trajectory, result._2(), matchedWaySequence, matchedPointSequenceMap);
         }
         // Store map-matching result
-        if (matchedPointSequence.size() != trajectory.size()) {
+        if (matchedPointSequenceMap.size() != trajectory.size()) {
             throw new RuntimeException("Output number inconsistent");
         }
-        return new SimpleTrajectoryMatchResult(trajectory.getID(), matchedPointSequence, matchedWaySequence);
+        return new SimpleTrajectoryMatchResult(trajectory.getID(),
+                new LinkedList<>(matchedPointSequenceMap.values()), matchedWaySequence);
     }
 }
