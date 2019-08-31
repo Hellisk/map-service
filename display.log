@@ -239,3 +239,10 @@
 2019-08-30 17:21:05 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
 2019-08-30 17:24:32 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
 2019-08-30 17:24:32 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-30 20:35:22 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-08-30 20:35:22 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-30 20:38:00 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-08-30 20:38:00 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-08-30 20:39:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-08-30 20:39:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-08-30 20:39:05 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
