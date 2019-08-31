@@ -1,5 +1,6 @@
 package util.object.structure;
 
+import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import java.util.List;
  * @since 30/03/2019
  */
 public class SimpleTrajectoryMatchResult {
-	
+
+
+    private static final Logger LOG = Logger.getLogger(SimpleTrajectoryMatchResult.class);
 	private String trajID;    // the original trajectory
 	private List<PointMatch> pointMatchResult;    // either point match or route match can be empty, but not both.
 	private List<String> routeMatchResult;
@@ -33,7 +36,7 @@ public class SimpleTrajectoryMatchResult {
 			this.routeMatchResult = routeMatchResult;
 		
 		if (this.routeMatchResult.isEmpty() && this.pointMatchResult.isEmpty())
-			throw new IllegalArgumentException("Both the point and route match result is empty, trajectory ID: " + trajID);
+            LOG.warn("Both the point and route match result is empty, trajectory ID: " + trajID);
 	}
 	
 	public static SimpleTrajectoryMatchResult parseSimpleTrajMatchResult(String s, String trajID, DistanceFunction df) {
