@@ -158,7 +158,6 @@ public class WeightBasedMM extends MapMatchingMethod {
     @Override
     public SimpleTrajectoryMatchResult offlineMatching(final Trajectory trajectory) {
         // initialMM
-        System.out.println(trajectory.getID());
         List<String> matchedWaySequence = new ArrayList<>();
         List<PointMatch> matchedPointSequence = new ArrayList<>();
         Pair<PointMatch, Integer> result = initialMM(trajectory, 0, matchedWaySequence, matchedPointSequence);
