@@ -68,9 +68,9 @@ public abstract class MapMatchingMethod {
 		} else {
 			forkJoinPool = new ForkJoinPool(numOfThreads);
 		}
-		LOG.info("Current number of threads for map-matching: " + forkJoinPool.getPoolSize());
 		ForkJoinTask<Stream<SimpleTrajectoryMatchResult>> taskResult =
 				forkJoinPool.submit(() -> inputTrajectory.parallel().map(isOnline ? this::onlineMatching : this::offlineMatching));
+		LOG.info("Current number of threads for map-matching: " + forkJoinPool.getParallelism());
 		while (!taskResult.isDone())
 			Thread.sleep(5);
 		return taskResult.get().collect(Collectors.toList());

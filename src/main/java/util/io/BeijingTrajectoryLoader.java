@@ -99,7 +99,7 @@ public class BeijingTrajectoryLoader {
 		initializeMapping(roadGraph, id2VisitCountMapping, id2RoadWayMapping);
 		
 		DecimalFormat df = new DecimalFormat("0.00000");    // the format of the input trajectory points
-
+		
 		BufferedReader brTrajectory = new BufferedReader(new FileReader(rawTrajFilePath));
 		List<Trajectory> resultTrajList = new ArrayList<>();
 		List<Pair<Integer, List<String>>> gtRouteMatchList = new ArrayList<>();
@@ -296,7 +296,7 @@ public class BeijingTrajectoryLoader {
 						}
 					}
 					
-					if (newRouteMatchResult._2().size() == 0)
+					if (newRouteMatchResult._2().size() == 0 || newPointMatchResult._2().size() == 0)
 						continue;
 					
 					String lastRoadID = newPointMatchResult._2().get(newPointMatchResult._2().size() - 1).getRoadID();

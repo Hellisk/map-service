@@ -110,11 +110,10 @@ public class MapMatchingEvaluationMain {
 				LOG.info("Route Match Fraction (RMF) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(rmf);
 				evaluationTime = System.currentTimeMillis();
-				
-				String nonGT = "Measure without GT: " + RouteMatchingEvaluation.nonGTEvaluation(routeMatchResult, inputTraj, inputMap);
-				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
-				evaluationResultList.add(nonGT);
-				
+
+//				String nonGT = "Measure without GT: " + RouteMatchingEvaluation.nonGTEvaluation(routeMatchResult, inputTraj, inputMap);
+//				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
+//				evaluationResultList.add(nonGT);
 			}
 			
 			if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty()) {
