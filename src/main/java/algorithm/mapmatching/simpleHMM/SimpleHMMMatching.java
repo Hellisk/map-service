@@ -28,7 +28,6 @@ public class SimpleHMMMatching extends MapMatchingMethod {
     private HMMProbabilities hmmProbabilities;
     private double candidateRange;
     private double dijkstraDist;
-    private List<Pair<Integer, List<String>>> outputRouteMatchResult = new LinkedList<>();
     private long maxWaitingTime = -1;
 
     public SimpleHMMMatching(RoadNetworkGraph roadMap, BaseProperty property) {
@@ -40,7 +39,7 @@ public class SimpleHMMMatching extends MapMatchingMethod {
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
         this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
-//        this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
+        this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
 
     }
 
@@ -332,8 +331,9 @@ public class SimpleHMMMatching extends MapMatchingMethod {
 
         List<String> matchRoute = new LinkedList<>();
         for (StateCandidate candidate : routeMatchResultMap.values()) {
-            if (candidate.getPointMatch().lon() == 0.0 && candidate.getPointMatch().lat() == 0.0) continue;
-            matchRoute.addAll(candidate.getTransition().getRoute());
+            if (candidate != null && candidate.getTransition() != null) {
+                matchRoute.addAll(candidate.getTransition().getRoute());
+            }
         }
         return matchRoute;
     }
