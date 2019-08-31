@@ -29,6 +29,7 @@ public class SimpleHMMMatching extends MapMatchingMethod {
     private double candidateRange;
     private double dijkstraDist;
     private List<Pair<Integer, List<String>>> outputRouteMatchResult = new LinkedList<>();
+    private long maxWaitingTime = -1;
 
     public SimpleHMMMatching(RoadNetworkGraph roadMap, BaseProperty property) {
         this.routingGraph = new RoutingGraph(roadMap, false, property);
@@ -39,6 +40,8 @@ public class SimpleHMMMatching extends MapMatchingMethod {
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
         this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
+//        this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
+
     }
 
     /**
@@ -211,14 +214,19 @@ public class SimpleHMMMatching extends MapMatchingMethod {
                 }
 
                 candidate.setFiltProb(candidate.getFiltProb() * candidate.getEmiProb());
-                result.add(candidate);
 
-                normSum += candidate.getFiltProb();
+                // ignore candidates that don't have predecessors
+                if (candidate.getPredecessor() != null) {
+                    result.add(candidate);
+                    normSum += candidate.getFiltProb();
+                }
+
             }
         }
 
 
         if (result.isEmpty() || predecessors.isEmpty()) {
+            // either because initial map-matching or matching break
             for (StateCandidate candidate : candidates) {
                 if (candidate.getEmiProb() == 0) {
                     continue;
@@ -247,49 +255,63 @@ public class SimpleHMMMatching extends MapMatchingMethod {
      */
     @Override
     public SimpleTrajectoryMatchResult offlineMatching(Trajectory trajectory) {
-        List<StateSample> samples = new LinkedList<>();
+//        SequenceMemory sequence = new SequenceMemory();
+//        if (trajectory.size() == 0) {
+//            throw new RuntimeException("Invalid trajectory");
+//        }
+//
+//        List<StateSample> samples = new LinkedList<>();
+//
+//        for (int i = 0; i < trajectory.getPoints().size(); i++) {
+//            samples.add(new StateSample(trajectory.get(i), trajectory.get(i).heading(), trajectory.get(i).time()));
+//        }
+//
+//        samples.sort((left, right) -> (int) (left.getTime() - right.getTime()));
+//
+//
+//        Map<String, StateCandidate> routeMatchResultMap = new HashMap<>();
+//        for (StateSample sample : samples) {
+//            StateMemory vector = execute(sequence.lastStateMemory(), sample);
+//            routeMatchResultMap = sequence.update(vector, sample, new HashMap<>());
+//        }
+//        if (sequence.getStateMemoryVector().size() > 0) {
+//            List<Pair<String, StateCandidate>> matchSequence = reverse(sequence, routeMatchResultMap);
+//            for (Pair<String, StateCandidate> result : matchSequence) {
+//                routeMatchResultMap.put(result._1(), result._2());
+//            }
+//        }
+//
+//        if (routeMatchResultMap.size() != trajectory.size()) {
+//            throw new RuntimeException("Output size inconsistent");
+//        }
+//
+//        List<String> matchRoute = new LinkedList<>();
+//        for (StateCandidate candidate : routeMatchResultMap.values()) {
+//            if (candidate.getPointMatch().lon() == 0.0 && candidate.getPointMatch().lat() == 0.0) continue;
+//            matchRoute.addAll(candidate.getTransition().getRoute());
+//        }
 
+        return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(),
+                pullMatchResult(new SequenceMemory(), trajectory));
+    }
+
+    @Override
+    public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
+        return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(),
+                pullMatchResult(new SequenceMemory(maxWaitingTime), trajectory));
+    }
+
+    private List<String> pullMatchResult(SequenceMemory sequence, Trajectory trajectory) {
+        if (trajectory.size() == 0) {
+            throw new RuntimeException("Invalid trajectory");
+        }
+
+        List<StateSample> samples = new LinkedList<>();
         for (int i = 0; i < trajectory.getPoints().size(); i++) {
             samples.add(new StateSample(trajectory.get(i), trajectory.get(i).heading(), trajectory.get(i).time()));
         }
 
         samples.sort((left, right) -> (int) (left.getTime() - right.getTime()));
-
-        SequenceMemory sequence = new SequenceMemory();
-
-        for (StateSample sample : samples) {
-            StateMemory vector = execute(sequence.lastStateMemory(), sample);
-            sequence.update(vector, sample, new HashMap<>());
-        }
-        List<Pair<String, StateCandidate>> matchSequence = reverse(sequence, new HashMap<>());
-
-        if (matchSequence.size() != trajectory.size()) {
-            throw new RuntimeException("Output size inconsistent");
-        }
-        List<String> matchRoute = new LinkedList<>();
-
-        for (Pair<String, StateCandidate> candidate : matchSequence) {
-            matchRoute.addAll(candidate._2().getTransition().getRoute());
-        }
-
-        return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(), matchRoute);
-    }
-
-    @Override
-    public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
-        List<StateSample> samples = new LinkedList<>();
-        for (int i = 0; i < trajectory.getPoints().size(); i++) {
-            samples.add(new StateSample(trajectory.get(i), trajectory.get(i).heading(), trajectory.get(i).time()));
-        }
-
-        Collections.sort(samples, new Comparator<StateSample>() {
-            @Override
-            public int compare(StateSample left, StateSample right) {
-                return (int) (left.getTime() - right.getTime());
-            }
-        });
-
-        SequenceMemory sequence = new SequenceMemory(10, -1);
 
         Map<String, StateCandidate> routeMatchResultMap = new HashMap<>();
         for (StateSample sample : samples) {
@@ -299,19 +321,21 @@ public class SimpleHMMMatching extends MapMatchingMethod {
 
         if (sequence.getStateMemoryVector().size() > 0) {
             List<Pair<String, StateCandidate>> routeMatchResultList = reverse(sequence, routeMatchResultMap);
-            for (Pair<String, StateCandidate> stringStateCandidatePair : routeMatchResultList) {
-                routeMatchResultMap.put(stringStateCandidatePair._1(), stringStateCandidatePair._2()); // routeMatchResultMap contains keys with different format
+            for (Pair<String, StateCandidate> result : routeMatchResultList) {
+                routeMatchResultMap.put(result._1(), result._2());
             }
         }
 
         if (routeMatchResultMap.size() != trajectory.size()) {
             throw new RuntimeException("Output size inconsistent");
         }
+
         List<String> matchRoute = new LinkedList<>();
         for (StateCandidate candidate : routeMatchResultMap.values()) {
+            if (candidate.getPointMatch().lon() == 0.0 && candidate.getPointMatch().lat() == 0.0) continue;
             matchRoute.addAll(candidate.getTransition().getRoute());
         }
-        return new SimpleTrajectoryMatchResult(trajectory.getID(), new ArrayList<>(), matchRoute);
+        return matchRoute;
     }
 
     /**
@@ -319,7 +343,7 @@ public class SimpleHMMMatching extends MapMatchingMethod {
      *
      * @return List of the most likely sequence of state candidates.
      */
-    public List<Pair<String, StateCandidate>> reverse(SequenceMemory sequence, Map<String, StateCandidate> routeMatchResultMap) {
+    private List<Pair<String, StateCandidate>> reverse(SequenceMemory sequence, Map<String, StateCandidate> routeMatchResultMap) {
         if (sequence.getStateMemoryVector().isEmpty()) {
             return new ArrayList<>();
         }

@@ -71,13 +71,13 @@ public class SequenceMemory {
             throw new RuntimeException("inconsistent time sequence");
         }
 
-        StateCandidate estimate = optimalPredecessor();
+//        StateCandidate estimate = optimalPredecessor();
 
         for (StateCandidate candidate : candidates) {
             // add latest candidates to vote count map
             sequenceCandidateVotes.put(candidate.getId(), 0);
 
-            if (candidate.getPredecessor() == null) candidate.setPredecessor(estimate);
+//            if (candidate.getPredecessor() == null) candidate.setPredecessor(estimate);
 
             // predecessors must be candidates in previous state
             if (candidate.getPredecessor() != null) {
@@ -153,14 +153,10 @@ public class SequenceMemory {
         StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2);
         List<StateMemory> deletes = new LinkedList<>();
 
-        if (maxStateNum < 0 && maxWaitingTime < 0)
-            return new HashMap<>(); // offline mm doesn't need variable window size
-
         if (last.getStateCandidates().size() == 1) {
-            // if only one candidate in last state is stored in the chain, this candidate match is known as convergence point
-            StateCandidate kEstimate = last.getFiltProbCandidate();
+            StateCandidate kEstimate = last.getFiltProbCandidate(); // 不可能是null
             for (int i = stateMemoryVector.size() - 2; i >= 0; --i) {
-                String stateID = stateMemoryVector.get(i).getId();
+                String stateID = stateMemoryVector.get(i).getId(); // start from the convergence state
                 if (routeMatchResult.containsKey(stateID)) continue;
 
                 if (kEstimate != null) {
@@ -183,8 +179,8 @@ public class SequenceMemory {
                 deletes.add(stateMemoryVector.removeFirst());
             }
 
-        } else if (maxStateNum < stateMemoryVector.size() || (maxWaitingTime >= 0 &&
-                latestSample.getTime() - stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
+        } else if ((maxStateNum < stateMemoryVector.size() && maxStateNum > 0)
+                || (maxWaitingTime >= 0 && latestSample.getTime() - stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
             // reach maximum bound, force to output the most likely candidate of the first state
             StateMemory firstState = stateMemoryVector.peekFirst();
 
