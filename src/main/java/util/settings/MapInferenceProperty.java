@@ -129,9 +129,9 @@ public class MapInferenceProperty extends BaseProperty {
 		if (dataset.contains("Beijing")) {
 			super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + rawSpec + "/");
 			super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");
-//			super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
-//			super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
-//			super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + rawSpec + "/");
+			super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
+			super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
+			super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + rawSpec + "/");
 		} else {
 			super.setProperty("path.InputTrajectoryFolder", rootPath + "raw/trajectory/");
 		}

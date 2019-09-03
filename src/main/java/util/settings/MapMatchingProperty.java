@@ -42,6 +42,20 @@ public class MapMatchingProperty extends BaseProperty {
 						case "dn":
 							super.setProperty("data.NumberOfTrajectory", arg.substring(3));
 							break;
+						case "dy":
+							if (arg.substring(3).equals("true") || arg.substring(3).equals("false"))
+								super.setProperty("data.IsSyntheticTrajectory", arg.substring(3));
+							else
+								throw new IllegalArgumentException("The \"data.IsSyntheticTrajectory\" argument incorrect: " + arg.substring(3));
+						case "di":
+							super.setProperty("data.Sigma", arg.substring(3));
+							break;
+						case "dr":
+							super.setProperty("data.SamplingInterval", arg.substring(3));
+							break;
+						case "do":
+							super.setProperty("data.OutlierPct", arg.substring(3));
+							break;
 						case "mc":
 							super.setProperty("algorithm.mapmatching.CandidateRange", arg.substring(3));
 							break;
@@ -84,26 +98,48 @@ public class MapMatchingProperty extends BaseProperty {
 			super.setProperty("data.BoundingBox", super.getPropertyString("data.BoundingBox" + size));
 		}
 		
-		String dataSpec;
-		if (dataset.contains("Beijing")) {
+		String dataSpec;        // used for setting the input and log folder
+		String rawSpec;        // used to find the corresponding folder for synthetic data generation
+		if (dataset.contains("Beijing") && super.getPropertyBoolean("data.IsSyntheticTrajectory")) {
+			// folder name for different data specification
+			dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
+					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
+					+ "_N" + super.getPropertyString("data.NumberOfTrajectory")
+					+ "_S" + super.getPropertyInteger("data.Sigma")
+					+ "_R" + super.getPropertyInteger("data.SamplingInterval")
+					+ "_O" + super.getPropertyInteger("data.OutlierPct");
+			
+			rawSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
+					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
+					+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
+		} else if (dataset.contains("Beijing")) {
 			// folder name for different data specification
 			dataSpec = "L" + super.getPropertyString("data.TrajectoryMinimalLengthSec")
 					+ "_I" + super.getPropertyString("data.SampleMaximalIntervalSec")
 					+ "_N" + super.getPropertyString("data.NumberOfTrajectory");
+			rawSpec = dataSpec;
 		} else {
 			dataSpec = "";
+			rawSpec = dataSpec;
 		}
+		
 		// different paths in Beijing dataset
 		if (dataset.contains("Beijing")) {
 			super.setProperty("path.RawDataFolder", super.getPropertyString("data.RootPath") + "Beijing/raw/");
 		} else
 			super.setProperty("path.RawDataFolder", rootPath + "raw/");        // apply to Global data only
-		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + dataSpec + "/");    // doesn't work for Global,
+		super.setProperty("path.InputOriginalTrajectoryFolder", rootPath + "input/trajectory/" + (rawSpec.equals("") ? "" : rawSpec + "/"));
+		super.setProperty("path.InputTrajectoryFolder", rootPath + "input/trajectory/" + (dataSpec.equals("") ? "" : dataSpec + "/"));    // doesn't work for Global,
 		// use raw data directly
 		super.setProperty("path.InputMapFolder", rootPath + "input/map/");
-		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + dataSpec + "/");
-		super.setProperty("path.GroundTruthRouteMatchResultFolder", rootPath + "groundTruth/matchResult/route/" + dataSpec + "/");
-		super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
+		super.setProperty("path.GroundTruthMapFolder", rootPath + "groundTruth/map/");
+		super.setProperty("path.OutputMatchResultFolder", rootPath + "output/matchResult/" + (dataSpec.equals("") ? "" : dataSpec + "/"));
+		super.setProperty("path.GroundTruthRouteMatchResultFolder",
+				rootPath + "groundTruth/matchResult/route/" + (dataSpec.equals("") ? "" : dataSpec + "/"));
+		super.setProperty("path.GroundTruthPointMatchResultFolder",
+				rootPath + "groundTruth/matchResult/point/" + (dataSpec.equals("") ? "" : dataSpec + "/"));
+		super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder",
+				rootPath + "groundTruth/matchResult/route/" + (rawSpec.equals("") ? "" : rawSpec + "/"));
 		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
 		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
 		super.setProperty("data.DataSpec", dataSpec);

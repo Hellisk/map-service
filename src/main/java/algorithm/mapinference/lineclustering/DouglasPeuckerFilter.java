@@ -80,36 +80,36 @@ public class DouglasPeuckerFilter {
 		// the end points should be kept
 		bitSet.set(0);
 		bitSet.set(polyline.size() - 1);
-		
-		List<Range> stack = new ArrayList<>();
-		stack.add(new Range(0, polyline.size() - 1));
-		
-		while (!stack.isEmpty()) {
-			Range range = stack.remove(stack.size() - 1);
+		if (!polyline.get(0).equals2D(polyline.get(polyline.size() - 1))) {
+			List<Range> stack = new ArrayList<>();
+			stack.add(new Range(0, polyline.size() - 1));
 			
-			int index = -1;
-			double maxDist = 0f;
-			
-			// find index of point with maximum square distance from first and last point
-			for (int i = range.first + 1; i < range.last; ++i) {
-				double currDist = distFunc.pointToSegmentProjectionDistance(polyline.get(i).x(), polyline.get(i).y(),
-						polyline.get(range.first).x(), polyline.get(range.first).y(), polyline.get(range.last).x(),
-						polyline.get(range.last).y());
+			while (!stack.isEmpty()) {
+				Range range = stack.remove(stack.size() - 1);
 				
-				if (currDist > maxDist) {
-					index = i;
-					maxDist = currDist;
+				int index = -1;
+				double maxDist = 0f;
+				
+				// find index of point with maximum square distance from first and last point
+				for (int i = range.first + 1; i < range.last; ++i) {
+					double currDist = distFunc.pointToSegmentProjectionDistance(polyline.get(i).x(), polyline.get(i).y(),
+							polyline.get(range.first).x(), polyline.get(range.first).y(), polyline.get(range.last).x(),
+							polyline.get(range.last).y());
+					
+					if (currDist > maxDist) {
+						index = i;
+						maxDist = currDist;
+					}
+				}
+				
+				if (maxDist > epsilon) {
+					bitSet.set(index);
+					
+					stack.add(new Range(range.first, index));
+					stack.add(new Range(index, range.last));
 				}
 			}
-			
-			if (maxDist > epsilon) {
-				bitSet.set(index);
-				
-				stack.add(new Range(range.first, index));
-				stack.add(new Range(index, range.last));
-			}
 		}
-		
 		List<Integer> remainPointIndex = new ArrayList<>(bitSet.cardinality());
 		for (int index = bitSet.nextSetBit(0); index >= 0; index = bitSet.nextSetBit(index + 1)) {
 			remainPointIndex.add(index);

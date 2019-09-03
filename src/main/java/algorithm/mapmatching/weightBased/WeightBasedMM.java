@@ -164,7 +164,7 @@ public class WeightBasedMM extends MapMatchingMethod {
     }
 
     @Override
-    public SimpleTrajectoryMatchResult offlineMatching(final Trajectory trajectory) {
+	public SimpleTrajectoryMatchResult onlineMatching(final Trajectory trajectory) {
         // initialMM
         List<String> matchedWaySequence = new LinkedList<>();
         Map<Integer, PointMatch> matchedPointSequenceMap = new HashMap<>();

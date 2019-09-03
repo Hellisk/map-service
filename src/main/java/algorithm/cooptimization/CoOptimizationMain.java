@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
@@ -82,7 +83,10 @@ public class CoOptimizationMain {
 		}
 		// evaluation: map matching evaluation
 		List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
-		RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResults, gtRouteMatchResult, initialMap, removedWayList);
+		Map<String, Double> id2RoadLength = new HashMap<>();
+		for (RoadWay w : initialMap.getWays())
+			id2RoadLength.put(w.getID(), w.getLength());
+		RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResults, gtRouteMatchResult, id2RoadLength, removedWayList);
 		
 		LOG.info("Task finish, total time spent: " + (System.currentTimeMillis() - initTaskTime) / 1000 + " seconds");
 	}

@@ -2,6 +2,7 @@ package evaluation.matchingevaluation;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
+import util.object.spatialobject.Point;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
 
@@ -65,8 +66,8 @@ class PointMatchingEvaluation {
 			for (int i = 0; i < r._2().size(); i++) {
 				PointMatch currOutputMatch = r._2().get(i);
 				PointMatch currGTMatch = gtPointMatchList.get(i);
-				if (currOutputMatch != null && currOutputMatch.getMatchPoint() != null && distFunc.distance(currOutputMatch.getMatchPoint(),
-						currGTMatch.getMatchPoint()) == 0) {
+				if (currOutputMatch != null && !currOutputMatch.getMatchPoint().equals2D(new Point(distFunc))
+						&& currOutputMatch.getMatchedSegment().equals2D(currGTMatch.getMatchedSegment())) {
 					totalCorrectlyMatchedCount++;
 					currCorrectlyMatchedCount++;
 				}
@@ -82,7 +83,7 @@ class PointMatchingEvaluation {
 		
 		double CountAccuracy = totalCorrectlyMatchedCount / totalPointCount;
 		String CountAccuracyString = convertPercentage(CountAccuracy, df);
-		LOG.info("Map-matching result evaluated, count accuracy: " + CountAccuracyString + "%.");
+		LOG.info("Map-matching result evaluated, count accuracy: " + CountAccuracyString + "%, total number of trajectory points: " + totalPointCount + ".");
 		return CountAccuracyString;
 	}
 	
@@ -97,10 +98,11 @@ class PointMatchingEvaluation {
 	 *
 	 * @param matchedResultList Output point match result list.
 	 * @param gtResultList      Ground-truth point match result list.
+	 * @param maximumDist       The maximum distance allowable if match result is not found
 	 * @return Evaluation result.
 	 */
 	static String rootMeanSquareErrorEvaluation(List<Pair<Integer, List<PointMatch>>> matchedResultList,
-												List<Pair<Integer, List<PointMatch>>> gtResultList) {
+												List<Pair<Integer, List<PointMatch>>> gtResultList, double maximumDist) {
 		if (matchedResultList.size() != gtResultList.size())
 			throw new IllegalArgumentException("The size of the output point match list is different from the ground-truth: "
 					+ matchedResultList.size() + "," + gtResultList.size() + ".");
@@ -114,10 +116,10 @@ class PointMatchingEvaluation {
 		}
 		
 		double totalRMSE = 0;    // total Count of the incorrect output roads
+		int pointCount = 0;
 		for (Pair<Integer, List<PointMatch>> r : matchedResultList) {
 			if (r._2().size() == 0)
 				throw new IllegalArgumentException("The current point match result is empty: " + r._1());
-			double currRMSE = 0;
 			List<PointMatch> gtPointMatchList = trajID2GTResultMapping.get(r._1());
 			if (r._2().size() != gtPointMatchList.size())
 				throw new IllegalArgumentException("The output point match result has different size as the ground-truth: " + r._2().size() +
@@ -125,14 +127,15 @@ class PointMatchingEvaluation {
 			for (int i = 0; i < r._2().size(); i++) {
 				PointMatch currOutputMatch = r._2().get(i);
 				PointMatch currGTMatch = gtPointMatchList.get(i);
-				if (currOutputMatch != null && currOutputMatch.getMatchPoint() != null) {
-					currRMSE += Math.pow(distFunc.distance(currOutputMatch.getMatchPoint(), currGTMatch.getMatchPoint()), 2);
+				if (currOutputMatch != null && !currOutputMatch.getMatchPoint().equals2D(new Point(distFunc)) && currOutputMatch.getMatchPoint() != null) {
+					totalRMSE += Math.pow(distFunc.distance(currOutputMatch.getMatchPoint(), currGTMatch.getMatchPoint()), 2);
+				} else {    // the match point is empty, use maximum distance, which is two times of candidateRange, instead
+					totalRMSE += Math.pow(maximumDist, 2);
 				}
+				pointCount++;
 			}
-			currRMSE = Math.sqrt(currRMSE / r._2().size());
-			totalRMSE += currRMSE;
 		}
-		totalRMSE = totalRMSE / matchedResultList.size();
+		totalRMSE = Math.sqrt(totalRMSE / pointCount);
 		LOG.info("Map-matching result evaluated, the average Root Mean Square Error (RMSE): " + totalRMSE + ".");
 		return totalRMSE + "";
 	}

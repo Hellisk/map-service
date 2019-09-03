@@ -7,7 +7,10 @@ import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Rect;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.object.structure.Pair;
+import util.object.structure.PointMatch;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +28,11 @@ public class PreprocessingStatistics {
 	/**
 	 * Calculate the statistics of trajectory dataset and the underlying map.
 	 *
-	 * @param inputTrajList Input trajectory list.
-	 * @param inputMap      Underlying map.
+	 * @param inputTrajList          Input trajectory list.
+	 * @param inputMap               Underlying map.
+	 * @param gtPointMatchResultList Ground-truth point match result list.
 	 */
-	static void datasetStatsCalc(List<Trajectory> inputTrajList, RoadNetworkGraph inputMap) {
+	static void datasetStatsCalc(List<Trajectory> inputTrajList, RoadNetworkGraph inputMap, List<Pair<Integer, List<PointMatch>>> gtPointMatchResultList) {
 		DistanceFunction df = inputMap.getDistanceFunction();
 		// trajectory stats
 		int trajPointCount = 0;
@@ -39,6 +43,7 @@ public class PreprocessingStatistics {
 		Map<Long, Integer> samplingRateCount = new LinkedHashMap<>();
 		long prevTime = 0;
 		long currTimeDiff;
+		Map<Integer, Trajectory> id2TrajectoryMapping = new HashMap<>();
 		for (Trajectory traj : inputTrajList) {
 			isValidTraj = true;
 			for (int i = 0; i < traj.size(); i++) {
@@ -53,8 +58,8 @@ public class PreprocessingStatistics {
 						isValidTraj = false;
 					} else {
 						currTimeDiff = point.time() - prevTime;
-						minTimeDiff = minTimeDiff > currTimeDiff ? currTimeDiff : minTimeDiff;
-						maxTimeDiff = maxTimeDiff < currTimeDiff ? currTimeDiff : maxTimeDiff;
+						minTimeDiff = Math.min(minTimeDiff, currTimeDiff);
+						maxTimeDiff = Math.max(maxTimeDiff, currTimeDiff);
 						totalTimeDiff += currTimeDiff;
 						if (!samplingRateCount.containsKey(currTimeDiff)) {
 							samplingRateCount.put(currTimeDiff, 1);
@@ -66,12 +71,43 @@ public class PreprocessingStatistics {
 				
 				prevTime = point.time();
 			}
-			if (isValidTraj)
+			if (isValidTraj) {
 				trajPointCount += traj.size();
+				id2TrajectoryMapping.put(Integer.parseInt(traj.getID()), traj);
+			}
 		}
+		double maxGPSError = 0;
+		double totalGPSError = 0;
+		int pointCount = 0;
+		for (Pair<Integer, List<PointMatch>> gtPointMatchResult : gtPointMatchResultList) {
+			if (id2TrajectoryMapping.containsKey(gtPointMatchResult._1())) {
+				Trajectory currTraj = id2TrajectoryMapping.get(gtPointMatchResult._1());
+				List<PointMatch> pointMatches = gtPointMatchResult._2();
+				for (int i = 0; i < pointMatches.size(); i++) {
+					double currGPSError = df.distance(pointMatches.get(i).getMatchPoint(), currTraj.get(i));
+					totalGPSError += currGPSError;
+					maxGPSError = Math.max(maxGPSError, currGPSError);
+					pointCount++;
+				}
+			}
+		}
+		double avgGPSError = totalGPSError / trajPointCount;
+		double stdGPSError = 0;
+		for (Pair<Integer, List<PointMatch>> gtPointMatchResult : gtPointMatchResultList) {
+			if (id2TrajectoryMapping.containsKey(gtPointMatchResult._1())) {
+				Trajectory currTraj = id2TrajectoryMapping.get(gtPointMatchResult._1());
+				List<PointMatch> pointMatches = gtPointMatchResult._2();
+				for (int i = 0; i < pointMatches.size(); i++) {
+					double currGPSDiffPow = Math.pow((df.distance(pointMatches.get(i).getMatchPoint(), currTraj.get(i)) - avgGPSError), 2);
+					stdGPSError += currGPSDiffPow;
+				}
+			}
+		}
+		stdGPSError = Math.sqrt(stdGPSError / pointCount);
 		LOG.info("Total number of trajectories: " + inputTrajList.size() + ", trajectory point count: " + trajPointCount);
 		LOG.info("Average sampling rate is : " + totalTimeDiff / (double) (trajPointCount - inputTrajList.size()) + ". Min time interval: "
 				+ minTimeDiff + " sec, max time interval: " + maxTimeDiff + " sec");
+		LOG.info("Average GPS measurement error is :" + avgGPSError + " m, maximum error: " + maxGPSError + " m, standard deviation: " + stdGPSError);
 		
 		// road network stats
 		int vertexCount = inputMap.getNodes().size();

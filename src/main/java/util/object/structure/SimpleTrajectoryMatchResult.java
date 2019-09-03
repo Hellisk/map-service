@@ -16,9 +16,8 @@ import java.util.List;
  * @since 30/03/2019
  */
 public class SimpleTrajectoryMatchResult {
-
-
-    private static final Logger LOG = Logger.getLogger(SimpleTrajectoryMatchResult.class);
+	
+	private static final Logger LOG = Logger.getLogger(SimpleTrajectoryMatchResult.class);
 	private String trajID;    // the original trajectory
 	private List<PointMatch> pointMatchResult;    // either point match or route match can be empty, but not both.
 	private List<String> routeMatchResult;
@@ -36,11 +35,13 @@ public class SimpleTrajectoryMatchResult {
 			this.routeMatchResult = routeMatchResult;
 		
 		if (this.routeMatchResult.isEmpty() && this.pointMatchResult.isEmpty())
-            LOG.warn("Both the point and route match result is empty, trajectory ID: " + trajID);
+			LOG.warn("Both the point and route match result is empty, trajectory ID: " + trajID);
 	}
 	
 	public static SimpleTrajectoryMatchResult parseSimpleTrajMatchResult(String s, String trajID, DistanceFunction df) {
 		String[] lines = s.split("\n");
+		if (lines.length == 0)    // matching result contains no route and point match
+			return new SimpleTrajectoryMatchResult(trajID, new ArrayList<>(), new ArrayList<>());
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		// start parsing the first line, which contains point matches
 		String[] firstLine = lines[0].split(",");

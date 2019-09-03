@@ -65,6 +65,8 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 	
 	@Override
 	public SimpleTrajectoryMatchResult offlineMatching(Trajectory traj) {
+		if (traj.get(0).equals2D(traj.get(traj.size() - 1)))
+			return new SimpleTrajectoryMatchResult(traj.getID(), new ArrayList<>(), new ArrayList<>());
 		// find the key GPS points through Douglas-Peucker algorithm
 		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, distFunc);
 		List<Integer> keyTrajPointList = dpFilter.dpSimplifier(traj);    // the indices of the key trajectory points for segmentation
@@ -182,8 +184,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 					}
 					if (maxProb != 0) {
 						resultPath.add(candidateMap.get(i).get(maxIndex).getRoadID().split("\\|")[0]);
-					} else
-						throw new IllegalArgumentException("Emission probability should not be zero.");
+					}
 				}
 			}
 		}

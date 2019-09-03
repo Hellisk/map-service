@@ -28,7 +28,7 @@ public class SimpleHMMMatching extends MapMatchingMethod {
     private HMMProbabilities hmmProbabilities;
     private double candidateRange;
     private double dijkstraDist;
-    private long maxWaitingTime = -1;
+	private long maxWaitingTime;
 
     public SimpleHMMMatching(RoadNetworkGraph roadMap, BaseProperty property) {
         this.routingGraph = new RoutingGraph(roadMap, false, property);

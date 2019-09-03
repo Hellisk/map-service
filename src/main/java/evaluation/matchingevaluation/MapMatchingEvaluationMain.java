@@ -8,6 +8,7 @@ import util.io.MapReader;
 import util.io.MatchResultReader;
 import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
+import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Trajectory;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
@@ -44,6 +45,7 @@ public class MapMatchingEvaluationMain {
 		String gtPointMatchResultFolder = property.getPropertyString("path.GroundTruthPointMatchResultFolder");
 		String matchingMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
 		String dataSpec = property.getPropertyString("data.DataSpec");
+		double candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
 		// log file name
 		String logFileName = "evaluation_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" + initTaskTime;
 		DistanceFunction distFunc;
@@ -61,7 +63,9 @@ public class MapMatchingEvaluationMain {
 		
 		if (dataSet.equals("Global")) {
 			long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
-			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
+			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
+			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input" +
+					" sampling interval: " + samplingInterval);
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
 			List<SimpleTrajectoryMatchResult> outputMatchResult =
 					MatchResultReader.readSimpleMatchResultsToList(outputMatchResultFolder.substring(0,
@@ -71,11 +75,11 @@ public class MapMatchingEvaluationMain {
 				id2OutputRouteMatchMapping.put(Integer.parseInt(matchResult.getTrajID()), matchResult.getRouteMatchResultList());
 			}
 			String precisionRecall =
-					"Precision/recall/f-score/acc: " + RouteMatchingEvaluation.globalPrecisionRecallEvaluation(id2OutputRouteMatchMapping,
+					"Precision/recall/f-score: " + RouteMatchingEvaluation.globalPrecisionRecallEvaluation(id2OutputRouteMatchMapping,
 							rawDataFolder);
 			
 			LOG.info("Precision-recall map-matching finished, total time cost: " + (System.currentTimeMillis() - startTaskTime));
-			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet + "_" + dataSpec);
+			LOG.info("Evaluation results for " + matchingMethod + "_" + dataSet);
 			LOG.info(precisionRecall);
 		} else {
 			// evaluation step, read the output and ground-truth dataset
@@ -93,6 +97,10 @@ public class MapMatchingEvaluationMain {
 			List<String> evaluationResultList = new ArrayList<>();
 			if (!outputMatchResult.get(0).getRouteMatchResultList().isEmpty()) {
 				List<Pair<Integer, List<String>>> routeMatchResult = new ArrayList<>();
+				Map<String, Double> id2RoadLength = new HashMap<>();
+				for (RoadWay w : inputMap.getWays())
+					id2RoadLength.put(w.getID(), w.getLength());
+				
 				LOG.info("Start route match result evaluation for " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
 				
 				// collect all route match results
@@ -102,18 +110,18 @@ public class MapMatchingEvaluationMain {
 				long evaluationTime = System.currentTimeMillis();
 				String precisionRecallFScoreAcc =
 						"Precision/recall/f-score/acc: " + RouteMatchingEvaluation.precisionRecallFScoreAccEvaluation(routeMatchResult,
-								gtRouteMatchResult, inputMap, null);
+								gtRouteMatchResult, id2RoadLength, null);
 				LOG.info("Precision/recall/f-score/acc evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(precisionRecallFScoreAcc);
 				evaluationTime = System.currentTimeMillis();
-				String rmf = "RMF: " + RouteMatchingEvaluation.rmfEvaluation(routeMatchResult, gtRouteMatchResult, inputMap);
+				String rmf = "RMF: " + RouteMatchingEvaluation.rmfEvaluation(routeMatchResult, gtRouteMatchResult, id2RoadLength);
 				LOG.info("Route Match Fraction (RMF) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(rmf);
 				evaluationTime = System.currentTimeMillis();
-
-//				String nonGT = "Measure without GT: " + RouteMatchingEvaluation.nonGTEvaluation(routeMatchResult, inputTraj, inputMap);
-//				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
-//				evaluationResultList.add(nonGT);
+				
+				String nonGT = "Measure without GT: " + RouteMatchingEvaluation.nonGTEvaluation(routeMatchResult, inputTraj, id2RoadLength);
+				LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
+				evaluationResultList.add(nonGT);
 			}
 			
 			if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty()) {
@@ -133,7 +141,7 @@ public class MapMatchingEvaluationMain {
 				
 				evaluationTime = System.currentTimeMillis();
 				String rmse = "Root Mean Square Error: " + PointMatchingEvaluation.rootMeanSquareErrorEvaluation(pointMatchResult,
-						gtPointMatchResult);
+						gtPointMatchResult, candidateRange * 2);
 				LOG.info("Root Mean Square Error (RMSE) evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(rmse);
 			}

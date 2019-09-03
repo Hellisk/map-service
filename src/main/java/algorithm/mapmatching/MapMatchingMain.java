@@ -85,11 +85,17 @@ public class MapMatchingMain {
 		List<SimpleTrajectoryMatchResult> matchResultList = new ArrayList<>();
 		if (dataSet.equals("Global")) {
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
+			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
 			GlobalMapLoader mapReader = new GlobalMapLoader(rawDataFolder);
 			int trajPointCount = 0;
 			for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
-				Trajectory currTraj = reader.readInputTrajectory(i);
+				Trajectory currTraj;
+				if (samplingInterval != -1) {
+					currTraj = reader.readInputTrajectory(i).subSample(samplingInterval);
+				} else {
+					currTraj = reader.readInputTrajectory(i);
+				}
 				Iterator<TrajectoryPoint> iterator = currTraj.getSTPoints().iterator();
 				TrajectoryPoint prevPoint = iterator.next();
 				while (iterator.hasNext()) {

@@ -246,3 +246,40 @@
 2019-08-30 20:39:03 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
 2019-08-30 20:39:04 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
 2019-08-30 20:39:05 INFO  [AbstractMapDisplay]: Cleaning image buffer due to MAX_IMAGE reached.
+2019-08-31 23:50:13 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: F:\Users\macbookpro\Desktop\capstone\Beijing-M\input\map\vertices_0.txt (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:164)
+	at util.io.IOService.readFile(IOService.java:151)
+	at util.io.IOService.readFile(IOService.java:141)
+	at util.io.MapReader.readNodes(MapReader.java:109)
+	at util.io.MapReader.readMap(MapReader.java:39)
+	at util.visualization.UnfoldingBeijingMapDisplay.setup(UnfoldingBeijingMapDisplay.java:64)
+	at processing.core.PApplet.handleDraw(PApplet.java:2361)
+	at processing.core.PGraphicsJava2D.requestDraw(PGraphicsJava2D.java:240)
+	at processing.core.PApplet.run(PApplet.java:2256)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-08-31 23:50:13 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: F:\Users\macbookpro\Desktop\capstone\Beijing-M\input\map\edges_0.txt (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:164)
+	at util.io.IOService.readFile(IOService.java:151)
+	at util.io.IOService.readFile(IOService.java:141)
+	at util.io.MapReader.readWays(MapReader.java:131)
+	at util.io.MapReader.readMap(MapReader.java:46)
+	at util.visualization.UnfoldingBeijingMapDisplay.setup(UnfoldingBeijingMapDisplay.java:64)
+	at processing.core.PApplet.handleDraw(PApplet.java:2361)
+	at processing.core.PGraphicsJava2D.requestDraw(PGraphicsJava2D.java:240)
+	at processing.core.PApplet.run(PApplet.java:2256)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-08-31 23:50:13 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:0, total road ways: 0
+2019-08-31 23:51:00 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-08-31 23:51:00 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:12311, total road ways: 22580
+2019-08-31 23:53:18 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-08-31 23:53:18 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:12311, total road ways: 22580

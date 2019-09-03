@@ -261,6 +261,22 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 	}
 	
 	/**
+	 * Down-sample the trajectory to the <tt>multiplier</tt> times lower sampling rate.
+	 *
+	 * @param multiplier The new sampling interval is (multiplier * \delta t)
+	 * @return Sub-trajectory.
+	 */
+	public Trajectory subSample(int multiplier) {
+		List<TrajectoryPoint> newPointList = new ArrayList<>();
+		newPointList.add(this.get(0));
+		for (int i = 1; i < this.size(); i += multiplier) {
+			newPointList.add(this.get(i));
+		}
+		newPointList.add(this.get(this.size() - 1));
+		return new Trajectory(this.getID(), newPointList);
+	}
+	
+	/**
 	 * The reverse representation of this Trajectory.
 	 */
 	public Trajectory reverse() {

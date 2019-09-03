@@ -5,9 +5,12 @@ import util.function.DistanceFunction;
 import util.function.EuclideanDistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.io.MapReader;
+import util.io.MatchResultReader;
 import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Trajectory;
+import util.object.structure.Pair;
+import util.object.structure.PointMatch;
 import util.settings.MapServiceLogger;
 import util.settings.PreprocessingProperty;
 
@@ -30,6 +33,7 @@ public class StatisticsMain {
 		String logPath = property.getPropertyString("algorithm.preprocessing.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
+		String gtPointMatchResultFolder = property.getPropertyString("path.GroundTruthPointMatchResultFolder");
 		String inputMapPath = property.getPropertyString("path.InputMapFolder");
 		// log file name
 		String logFileName = "statistics_" + dataSet + "_" + initTaskTime;
@@ -37,7 +41,7 @@ public class StatisticsMain {
 		MapServiceLogger.logInit(logPath, logFileName);
 		
 		final Logger LOG = Logger.getLogger(PreprocessingMain.class);
-		LOG.info("Map inference input data preprocessing: " + property.toString());
+		LOG.info("Data preprocessing statistic process start.");
 		
 		DistanceFunction distFunc;
 		if (dataSet.contains("Beijing")) {
@@ -47,7 +51,9 @@ public class StatisticsMain {
 		}
 		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
 		RoadNetworkGraph inputMap = MapReader.readMap(inputMapPath + "0.txt", false, distFunc);
-		PreprocessingStatistics.datasetStatsCalc(inputTrajList, inputMap);
+		List<Pair<Integer, List<PointMatch>>> gtPointMatchResultList = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
+				distFunc);
+		PreprocessingStatistics.datasetStatsCalc(inputTrajList, inputMap, gtPointMatchResultList);
 		LOG.info("Statistics calculation done.");
 	}
 }

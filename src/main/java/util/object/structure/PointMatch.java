@@ -35,11 +35,15 @@ public class PointMatch extends LengthObject {
 		String[] matchInfo = s.split(" ");
 		if (matchInfo.length != 7)
 			throw new IllegalArgumentException("The input text cannot be parsed to a PointMatch: " + s);
-		Point currPoint = new Point(Double.parseDouble(matchInfo[0]), Double.parseDouble(matchInfo[1]), df);
-		Segment currMatchSegment = new Segment(Double.parseDouble(matchInfo[2]), Double.parseDouble(matchInfo[3]),
-				Double.parseDouble(matchInfo[4]), Double.parseDouble(matchInfo[5]), df);
 		String id = matchInfo[6].equals("null") ? "" : matchInfo[6];
-		return new PointMatch(currPoint, currMatchSegment, id);
+		if (matchInfo[0].equals("null") && matchInfo[1].equals("null")) {
+			return new PointMatch(df);
+		} else {
+			Point currPoint = new Point(Double.parseDouble(matchInfo[0]), Double.parseDouble(matchInfo[1]), df);
+			Segment currMatchSegment = new Segment(Double.parseDouble(matchInfo[2]), Double.parseDouble(matchInfo[3]),
+					Double.parseDouble(matchInfo[4]), Double.parseDouble(matchInfo[5]), df);
+			return new PointMatch(currPoint, currMatchSegment, id);
+		}
 	}
 	
 	public Point getMatchPoint() {
@@ -82,10 +86,14 @@ public class PointMatch extends LengthObject {
 	
 	@Override
 	public String toString() {
-		return matchPoint.x() + " " + matchPoint.y() + " " + matchedSegment.x1() + " " + matchedSegment.y1() + " " + matchedSegment.x2()
-				+ " " + matchedSegment.y2() + " " + (super.getID().equals("") ? "null" : super.getID());
+		if (this.equals(new PointMatch(this.getDistanceFunction())) || (this.getMatchPoint().x() == 0.0 && this.getMatchPoint().y() == 0.0))
+			// the current point match is a empty match result, output null for each field
+			return "null null null null null null null";
+		else
+			return matchPoint.x() + " " + matchPoint.y() + " " + matchedSegment.x1() + " " + matchedSegment.y1() + " " + matchedSegment.x2()
+					+ " " + matchedSegment.y2() + " " + (super.getID().equals("") ? "null" : super.getID());
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -95,7 +103,7 @@ public class PointMatch extends LengthObject {
 				matchedSegment.equals(that.matchedSegment) &&
 				super.getID().equals(that.getRoadID());
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(matchPoint, matchedSegment);

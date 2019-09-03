@@ -28,12 +28,12 @@ public class RouteMatchingEvaluation {
 	 *
 	 * @param matchedResultList The route match result list.
 	 * @param gtResultList      The ground-truth match result list.
-	 * @param currentMap        The underlying map.
+	 * @param id2RoadLength     Road id to its length on map.
 	 * @param removedEdges      The removed edges. Only used to evaluate the map update result. =empty for normal map-matching evaluation.
 	 * @return precision, recall, F-score
 	 */
 	public static String precisionRecallFScoreAccEvaluation(List<Pair<Integer, List<String>>> matchedResultList, List<Pair<Integer,
-			List<String>>> gtResultList, RoadNetworkGraph currentMap, List<RoadWay> removedEdges) {
+			List<String>>> gtResultList, Map<String, Double> id2RoadLength, List<RoadWay> removedEdges) {
 		DecimalFormat df = new DecimalFormat("0.000");
 		// insert all ground truth road match into id2GTResultMapping
 		Map<Integer, HashSet<String>> id2GTResultMapping = new HashMap<>();
@@ -43,9 +43,6 @@ public class RouteMatchingEvaluation {
 		}
 		
 		// prepare the mapping of road id to road way length
-		Map<String, Double> id2RoadLength = new HashMap<>();
-		for (RoadWay w : currentMap.getWays())
-			id2RoadLength.put(w.getID(), w.getLength());
 		if (removedEdges != null && !removedEdges.isEmpty()) {
 			for (RoadWay w : removedEdges) {
 				if (!id2RoadLength.containsKey(w.getID()))
@@ -114,7 +111,7 @@ public class RouteMatchingEvaluation {
 		double lengthPrecision = totalCorrectlyMatchedLength / totalMatchedLength;
 		double lengthRecall = totalCorrectlyMatchedLength / totalGroundTruthLength;
 		double lengthFScore = 2 * (lengthPrecision * lengthRecall / (lengthPrecision + lengthRecall));
-		double lengthAcc = totalMatchedLength / totalUniqueLength;
+		double lengthAcc = totalCorrectlyMatchedLength / totalUniqueLength;
 		String lengthPrecisionString = convertPercentage(lengthPrecision, df);
 		String lengthRecallString = convertPercentage(lengthRecall, df);
 		String lengthFScoreString = convertPercentage(lengthFScore, df);
@@ -197,22 +194,17 @@ public class RouteMatchingEvaluation {
 	 *
 	 * @param matchedResultList Output route match result list.
 	 * @param gtResultList      Ground-truth route match result list.
-	 * @param currentMap        Underlying map.
+	 * @param id2RoadLength     Road id to its length on map.
 	 * @return Evaluation result.
 	 */
 	public static String rmfEvaluation(List<Pair<Integer, List<String>>> matchedResultList, List<Pair<Integer, List<String>>> gtResultList,
-									   RoadNetworkGraph currentMap) {
+									   Map<String, Double> id2RoadLength) {
 		// insert all ground truth road match into trajID2GTResultMapping
 		Map<Integer, HashSet<String>> trajID2GTResultMapping = new HashMap<>();
 		for (Pair<Integer, List<String>> gtResult : gtResultList) {
 			HashSet<String> gtRoadIDList = new LinkedHashSet<>(gtResult._2());
 			trajID2GTResultMapping.put(gtResult._1(), gtRoadIDList);
 		}
-		
-		// prepare the mapping of road id to road way length
-		Map<String, Double> id2RoadLength = new HashMap<>();
-		for (RoadWay w : currentMap.getWays())
-			id2RoadLength.put(w.getID(), w.getLength());
 		
 		double totalFalsePositiveLength = 0;    // total length of the incorrect output roads
 		double totalFalseNegativeLength = 0;    // total length of the missing ground-truth roads
@@ -257,17 +249,13 @@ public class RouteMatchingEvaluation {
 	 *
 	 * @param matchedResultList List of output route match results.
 	 * @param trajectoryList    List of original trajectories.
-	 * @param currentMap        The underlying map.
+	 * @param id2RoadLength     Road id to its length on map.
 	 * @return The measure result.
 	 */
 	public static String nonGTEvaluation(List<Pair<Integer, List<String>>> matchedResultList,
-										 List<Trajectory> trajectoryList, RoadNetworkGraph currentMap) {
-		DecimalFormat df = new DecimalFormat("0.000");
+										 List<Trajectory> trajectoryList, Map<String, Double> id2RoadLength) {
 		
 		// prepare the mapping of road id to road way length
-		Map<String, Double> id2RoadLength = new HashMap<>();
-		for (RoadWay w : currentMap.getWays())
-			id2RoadLength.put(w.getID(), w.getLength());
 		
 		double totalMatchLength = 0;    // total length of the incorrect output roads
 		double totalTrajLength = 0;    // total length of the missing ground-truth roads
