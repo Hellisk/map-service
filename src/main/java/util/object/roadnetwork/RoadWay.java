@@ -33,6 +33,10 @@ public class RoadWay extends RoadNetworkPrimitive {
 	private double length = 0;
 	
 	/**
+	 * Only useful when length is given, the length will not be written to file, hence, it will be lost after I/O.
+	 */
+	private boolean isPresetLength = false;
+	/**
 	 * The spatially center of the road way. The center is the middle point between two end points
 	 */
 	private Point virtualCenter;
@@ -289,7 +293,8 @@ public class RoadWay extends RoadNetworkPrimitive {
 		}
 		clone.addNodes(nodeList);
 		clone.setNewRoad(isNewRoad);
-		clone.length = getLength();
+		if (isPresetLength)
+			clone.setLength(getLength());
 		clone.calculateCenter();
 		return clone;
 	}
@@ -333,6 +338,11 @@ public class RoadWay extends RoadNetworkPrimitive {
 			return false;
 		RoadWay other = (RoadWay) obj;
 		return this.size() == other.size() && this.getID().equals(other.getID());
+	}
+	
+	public void setLength(double length) {
+		this.isPresetLength = true;
+		this.length = length;
 	}
 	
 	public double getLength() {

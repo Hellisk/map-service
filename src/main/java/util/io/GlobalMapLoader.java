@@ -45,20 +45,6 @@ public class GlobalMapLoader {
 			double lon = Double.parseDouble(nodeInfo[0]);
 			double lat = Double.parseDouble(nodeInfo[1]);
 			
-			// update the map boarder
-			if (maxLon < lon) {
-				maxLon = lon;
-			}
-			if (minLon > lon) {
-				minLon = lon;
-			}
-			if (maxLat < lat) {
-				maxLat = lat;
-			}
-			if (minLat > lat) {
-				minLat = lat;
-			}
-			
 			RoadNode newNode = new RoadNode(lineCount + "", lon, lat, distFunc);
 			if (!loc2NodeMapping.containsKey(lon + "_" + lat)) {
 				loc2NodeMapping.put(lon + "_" + lat, newNode.getID());
@@ -85,13 +71,13 @@ public class GlobalMapLoader {
 			String endNodeID = edgeInfo[1];
 			if (!index2NodeMapping.containsKey(startNodeID)) {
 				if (!duplicatePointMapping.containsKey(startNodeID))
-					throw new IllegalAccessError("Cannot find the road node whose id does not appear in both correct and duplicate node " +
+					throw new IllegalArgumentException("Cannot find the road node whose id does not appear in both correct and duplicate node " +
 							"list: " + startNodeID);
 				startNodeID = duplicatePointMapping.get(startNodeID);
 			}
 			if (!index2NodeMapping.containsKey(endNodeID)) {
 				if (!duplicatePointMapping.containsKey(endNodeID))
-					throw new IllegalAccessError("Cannot find the road node whose id does not appear in both correct and duplicate node " +
+					throw new IllegalArgumentException("Cannot find the road node whose id does not appear in both correct and duplicate node " +
 							"list: " + endNodeID);
 				endNodeID = duplicatePointMapping.get(endNodeID);
 			}
@@ -103,7 +89,7 @@ public class GlobalMapLoader {
 				continue;
 			}
 			if (existingRoadIndexSet.contains(startNodeID + "_" + endNodeID)) {
-				LOG.debug("Road that connects" + startNodeID + " and " + endNodeID + " already exists, ignore it: " + roadCount);
+				LOG.debug("Road that connects " + startNodeID + " and " + endNodeID + " already exists, ignore it: " + roadCount);
 				roadCount++;
 				continue;
 			}
@@ -117,16 +103,15 @@ public class GlobalMapLoader {
 		
 		roadGraph.addNodes(nodes);
 		roadGraph.addWays(ways);
-		roadGraph.setBoundary(minLon, maxLon, minLat, maxLat);
 		List<RoadNode> removedRoadNodeList = new ArrayList<>();
 		for (RoadNode n : nodes) {
 			if (n.getDegree() == 0) {
 				removedRoadNodeList.add(n);
 			}
 		}
+		int count = removedRoadNodeList.size();
 		roadGraph.getNodes().removeAll(removedRoadNodeList);
-		LOG.info("Read " + trajNum + "-th Global road map, isolate nodes:" + removedRoadNodeList.size() + ", total nodes:" + nodes.size() +
-				", total roads:" + ways.size());
+		LOG.info("Read " + trajNum + "-th Global road map, isolate nodes:" + count + ", total nodes:" + nodes.size() + ", total roads:" + ways.size());
 		return roadGraph;
 	}
 }

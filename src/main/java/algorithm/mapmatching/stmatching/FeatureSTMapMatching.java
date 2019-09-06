@@ -30,7 +30,7 @@ import java.util.*;
  * @author uqpchao
  * Created 18/08/2019
  */
-public class FeatureSTMapMatching extends MapMatchingMethod implements Serializable {
+public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 	
 	private static final Logger LOG = Logger.getLogger(FeatureSTMapMatching.class);
 	
@@ -45,11 +45,13 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 	private final double omega;        // balancing factor used between C_len and C_turn in action weight
 	private final DistanceFunction distFunc;
 	private final BaseProperty prop;
+	private final RoadNetworkGraph originalMap;
 	private final RoadNetworkGraph roadMap;
 	private final RTreeIndexing rtree;
 	private final RoutingGraph routingGraph;
 	
 	public FeatureSTMapMatching(RoadNetworkGraph roadMap, BaseProperty property) {
+		this.originalMap = roadMap;
 		this.roadMap = roadMap.toLooseMap();    // the current method only accept loose map
 		this.prop = property;
 		this.distFunc = roadMap.getDistanceFunction();
@@ -189,7 +191,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 			}
 		}
 		List<String> routeMatchList = compactRoadID(resultPath);
-		List<PointMatch> pointMatchList = new ArrayList<>();
+		List<PointMatch> pointMatchList = findPointMatch(traj, routeMatchList, originalMap);
 		return new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList);
 	}
 	
@@ -283,7 +285,7 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 				resultPath.addAll(candidateRoute);
 				currStepIndex++;
 			} else
-				throw new IllegalArgumentException("TEST");
+				throw new IllegalArgumentException("Transition has been considered as result but not found.");
 		}
 	}
 	
@@ -324,5 +326,42 @@ public class FeatureSTMapMatching extends MapMatchingMethod implements Serializa
 		if (trajLength == 0)
 			throw new IllegalArgumentException("The length of the sub-trajectory is zero.");
 		return Math.exp(-(subTrajPointList.size() * costRes) / (totalTrajPointCount * trajLength));
+	}
+	
+	/**
+	 * Generate point match for each trajectory point. The point match only consider the closeness of the point to the road.
+	 *
+	 * @param traj       The input trajectory.
+	 * @param roadIDList The corresponding route match result.
+	 * @param roadMap    The underlying map.
+	 * @return Each trajectory point generates a point match result.
+	 */
+	public static List<PointMatch> findPointMatch(Trajectory traj, List<String> roadIDList, RoadNetworkGraph roadMap) {
+		if (roadIDList.isEmpty())
+			return new ArrayList<>();
+		DistanceFunction distFunc = traj.getDistanceFunction();
+		List<PointMatch> pointMatchList = new ArrayList<>();
+		for (TrajectoryPoint trajectoryPoint : traj) {
+			double minDistance = Double.POSITIVE_INFINITY;
+			Segment matchSegment = new Segment(distFunc);
+			String matchID = "";
+			for (String roadID : roadIDList) {
+				if (!roadMap.containsWay(roadID))
+					throw new IllegalArgumentException("The road ID " + roadID + " is not found in the map.");
+				for (Segment edge : roadMap.getWayByID(roadID).getEdges()) {
+					double currDist = distFunc.distance(trajectoryPoint, edge);
+					if (currDist < minDistance) {
+						matchSegment = edge;
+						matchID = roadID;
+						minDistance = currDist;
+					}
+				}
+			}
+			
+			if (minDistance == Double.POSITIVE_INFINITY)
+				throw new IllegalArgumentException("The current trajectory point is not close to any road: " + trajectoryPoint.toString());
+			pointMatchList.add(new PointMatch(distFunc.getClosestPoint(trajectoryPoint, matchSegment), matchSegment, matchID));
+		}
+		return pointMatchList;
 	}
 }

@@ -140,6 +140,7 @@ public class MapMatchingProperty extends BaseProperty {
 				rootPath + "groundTruth/matchResult/point/" + (dataSpec.equals("") ? "" : dataSpec + "/"));
 		super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder",
 				rootPath + "groundTruth/matchResult/route/" + (rawSpec.equals("") ? "" : rawSpec + "/"));
+		super.setProperty("path.GroundTruthSyntheticRouteMatchBaseFolder", rootPath + "groundTruth/matchResult/route/" + rawSpec);
 		super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
 		super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
 		super.setProperty("data.DataSpec", dataSpec);

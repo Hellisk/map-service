@@ -139,7 +139,7 @@ public class MapMatchingMain {
 //		MapMatchingEvaluationMain.main(noArg);
 	}
 	
-	private static MapMatchingMethod chooseMatchMethod(String matchingMethod, RoadNetworkGraph roadMap, BaseProperty property) {
+	public static MapMatchingMethod chooseMatchMethod(String matchingMethod, RoadNetworkGraph roadMap, BaseProperty property) {
 		switch (matchingMethod.substring(3)) {
 			case "HMM":
 				return new SimpleHMMMatching(roadMap, property);

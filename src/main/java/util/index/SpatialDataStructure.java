@@ -214,7 +214,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialQu
 			// build a circle made of the query object as center, and the distance from the query object to its k-NN in the partition as
 			// radius
 			
-			knnDistance = distanceList.get((k <= distanceList.size() ? k : distanceList.size()) - 1)._2();
+			knnDistance = distanceList.get(Math.min(k, distanceList.size()) - 1)._2();
 		} else {
 			List<Point> boundaryPointList = new ArrayList<>(getModel().getBoundary().getCoordinates());
 			List<Pair<Point, Double>> boundaryPointDistanceList = new ArrayList<>();
@@ -240,7 +240,7 @@ public interface SpatialDataStructure<T extends SpatialObject> extends SpatialQu
 			// if there are more than k element inside, the k nearest neighbor is in this partition, no need to search further kNN is
 			// already in this partition
 			if (partitionsList.size() == 1) {
-				int count = k <= distanceList.size() ? k : distanceList.size();
+				int count = Math.min(k, distanceList.size());
 				for (int i = 0; i < count; i++) {
 					Pair<XYObject<T>, Double> pair = distanceList.get(i);
 					knnList.add(pair._1());

@@ -18,9 +18,9 @@ import java.util.stream.Stream;
  * @author uqpchao
  * Created 26/08/2019
  */
-public abstract class MapMatchingMethod {
+public interface MapMatchingMethod {
 	
-	private static final Logger LOG = Logger.getLogger(MapMatchingMethod.class);
+	Logger LOG = Logger.getLogger(MapMatchingMethod.class);
 	
 	/**
 	 * The map-matching function used in offline scenario.
@@ -28,7 +28,7 @@ public abstract class MapMatchingMethod {
 	 * @param traj Input trajectory.
 	 * @return Output map-matching result. Must include route match result in offline matching.
 	 */
-	public SimpleTrajectoryMatchResult offlineMatching(Trajectory traj) {
+	default SimpleTrajectoryMatchResult offlineMatching(Trajectory traj) {
 		LOG.error("Offline map-matching is not supported");
 		return new SimpleTrajectoryMatchResult("", new ArrayList<>(), new ArrayList<>());
 	}
@@ -39,7 +39,7 @@ public abstract class MapMatchingMethod {
 	 * @param traj Input trajectory.
 	 * @return Output map-matching result. Must include route match result in offline matching.
 	 */
-	public SimpleTrajectoryMatchResult onlineMatching(Trajectory traj) {
+	default SimpleTrajectoryMatchResult onlineMatching(Trajectory traj) {
 		LOG.error("Online map-matching is not supported");
 		return new SimpleTrajectoryMatchResult("", new ArrayList<>(), new ArrayList<>());
 	}
@@ -54,7 +54,7 @@ public abstract class MapMatchingMethod {
 	 * @throws ExecutionException   Errors during parallel processing.
 	 * @throws InterruptedException Concurrent error.
 	 */
-	List<SimpleTrajectoryMatchResult> parallelMatching(Stream<Trajectory> inputTrajectory, int numOfThreads, boolean isOnline)
+	default List<SimpleTrajectoryMatchResult> parallelMatching(Stream<Trajectory> inputTrajectory, int numOfThreads, boolean isOnline)
 			throws ExecutionException, InterruptedException {
 		
 		if (inputTrajectory == null) {
@@ -83,7 +83,7 @@ public abstract class MapMatchingMethod {
 	 * @param isOnline        If the current map-matching process is online or offline.
 	 * @return List of map-matching results.
 	 */
-	List<SimpleTrajectoryMatchResult> sequentialMatching(List<Trajectory> inputTrajectory, boolean isOnline) {
+	default List<SimpleTrajectoryMatchResult> sequentialMatching(List<Trajectory> inputTrajectory, boolean isOnline) {
 		if (inputTrajectory == null) {
 			throw new IllegalArgumentException("Trajectory list for map-matching must not be null.");
 		}
@@ -92,6 +92,8 @@ public abstract class MapMatchingMethod {
 		List<SimpleTrajectoryMatchResult> resultList = new ArrayList<>();
 		int completeCount = 0;
 		for (Trajectory currTraj : inputTrajectory) {
+			if (currTraj.getID().equals("1953"))
+				System.out.println("TEST");
 			if (isOnline)
 				resultList.add(onlineMatching(currTraj));
 			else

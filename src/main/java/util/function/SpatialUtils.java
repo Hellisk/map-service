@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static util.index.SpatialDataStructure.LOG;
-
 /**
  * Implementation of miscellaneous utilities functions.
  *
@@ -64,7 +62,7 @@ public class SpatialUtils implements Serializable {
 				maxY = p.y();
 		}
 		if (minX == maxX && minY == maxY)
-			LOG.warn("The bounding box for point list: " + pointList.toString() + " is a point: " + minX + "," + maxY);
+			throw new IllegalArgumentException("The bounding box for point list: " + pointList.toString() + " is a point: " + minX + "," + maxY);
 		return new Rect(minX, minY, maxX, maxY, df);
 	}
 	

@@ -91,6 +91,8 @@ public class RTreeIndexing {
 		// First we need to calculate an enclosing lat long rectangle for this
 		// distance then we refine on the exact distance
 		final Position from = Position.create(lat, lon);
+		DistanceFunction distFunc = currMap.getDistanceFunction();
+		final Point searchPoint = new Point(lon, lat, distFunc);
 //		Rectangle bounds = createBounds(from, distanceM * 1.5 / 1000);
 		Rectangle bounds = createBounds(from, distanceM / 1000);
 		
@@ -102,9 +104,8 @@ public class RTreeIndexing {
 					@Override
 					public Boolean call(Entry<String, Line> entry) {
 						Line line = entry.geometry();
-						
-						DistanceFunction df = currMap.getDistanceFunction();
-						return df.pointToSegmentProjectionDistance(lon, lat, line.x1(), line.y1(), line.x2(), line.y2()) < distanceM;
+						Segment segment = new Segment(line.x1(), line.y1(), line.x2(), line.y2(), distFunc);
+						return distFunc.distance(searchPoint, segment) < distanceM;
 					}
 				});
 	}
@@ -205,14 +206,14 @@ public class RTreeIndexing {
 	private List<Entry<String, Line>> knnSearch(Point searchPoint, final int candidateCount, final double radiusM) {
 		
 		final PointDouble from = PointDouble.create(searchPoint.x(), searchPoint.y());
-		DistanceFunction df = searchPoint.getDistanceFunction();
-		if (searchPoint.getDistanceFunction() instanceof GreatCircleDistanceFunction) {
+		DistanceFunction distFunc = searchPoint.getDistanceFunction();
+		if (distFunc instanceof GreatCircleDistanceFunction) {
 			Observable<Entry<String, Line>> roughRes = rTree.nearest(from, radiusM * 4, (int) (candidateCount * 1.5));  // obtain
 			// more candidate than required since they use different distance function.
 			List<Entry<String, Line>> candidateList = roughRes.filter(entry -> {
 				Line line = entry.geometry();
-				
-				return df.pointToSegmentProjectionDistance(searchPoint.x(), searchPoint.y(), line.x1(), line.y1(), line.x2(), line.y2()) < radiusM;
+				Segment segment = new Segment(line.x1(), line.y1(), line.x2(), line.y2(), distFunc);
+				return distFunc.distance(searchPoint, segment) < radiusM;
 			}).toList().toBlocking().single();
 			
 			if (candidateList.size() <= candidateCount)    // the number of candidate already no more than requirement, output right
@@ -223,8 +224,8 @@ public class RTreeIndexing {
 			PriorityQueue<DistanceItem> candidateQueue = new PriorityQueue<>();
 			for (Entry<String, Line> entry : candidateList) {
 				Line line = entry.geometry();
-				double distance = df.pointToSegmentProjectionDistance(searchPoint.x(), searchPoint.y(), line.x1(), line.y1(), line.x2(),
-						line.y2());
+				Segment segment = new Segment(line.x1(), line.y1(), line.x2(), line.y2(), distFunc);
+				double distance = distFunc.distance(searchPoint, segment);
 				candidateQueue.add(new DistanceItem(entry, distance));
 			}
 			List<Entry<String, Line>> resList = new ArrayList<>();

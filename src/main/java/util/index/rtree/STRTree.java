@@ -66,7 +66,7 @@ public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T>
 			throw new IllegalArgumentException("Nodes max capacity must be positive.");
 		}
 		this.count = objectsList.size();
-		this.maxCapacity = (nodesMaxCapacity < count ? nodesMaxCapacity : count);
+		this.maxCapacity = Math.min(nodesMaxCapacity, count);
 		this.numSlices = (int) Math.sqrt((float) count / maxCapacity);
 		this.nodesFillRate = 1.0; // 100%
 		this.strNodes = new ArrayList<>();
@@ -94,7 +94,7 @@ public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T>
 			throw new IllegalArgumentException("Nodes fill rate must be between ]0.0,...,1.0].");
 		}
 		this.count = objectsList.size();
-		this.maxCapacity = (nodesMaxCapacity < count ? nodesMaxCapacity : count);
+		this.maxCapacity = Math.min(nodesMaxCapacity, count);
 		this.numSlices = (int) Math.sqrt((float) count / maxCapacity);
 		this.nodesFillRate = nodesFillRate;
 		this.strNodes = new ArrayList<>();
@@ -118,7 +118,7 @@ public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T>
 		int index;
 		for (int i = 0; i < count; ) {
 			index = i + numSlices * maxCapacity;
-			index = index < count ? index : count;
+			index = Math.min(index, count);
 			// create a slice for this objects
 			sliceObjects = objectsList.subList(i, index);
 			maxX = sliceObjects.get(sliceObjects.size() - 1).x();
@@ -143,7 +143,7 @@ public class STRTree<T extends SpatialObject> implements SpatialDataStructure<T>
 			// pack them into nodes of size (maxCapacity)
 			for (int j = 0; j < slice.size(); ) {
 				index = j + nodesCapacity;
-				index = index < slice.size() ? index : slice.size();
+				index = Math.min(index, slice.size());
 				// build the node
 				nodeObjects = slice.subList(j, index);
 				maxY = nodeObjects.get(nodeObjects.size() - 1).y();

@@ -16,11 +16,12 @@ import util.object.structure.SimpleTrajectoryMatchResult;
 import util.object.structure.Triplet;
 import util.settings.BaseProperty;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class SimpleHMMMatching extends MapMatchingMethod {
+public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
 
     private final RoutingGraph routingGraph;
     private final DistanceFunction distFunc;

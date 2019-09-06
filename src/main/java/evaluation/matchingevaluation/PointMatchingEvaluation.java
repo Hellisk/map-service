@@ -118,8 +118,10 @@ class PointMatchingEvaluation {
 		double totalRMSE = 0;    // total Count of the incorrect output roads
 		int pointCount = 0;
 		for (Pair<Integer, List<PointMatch>> r : matchedResultList) {
-			if (r._2().size() == 0)
-				throw new IllegalArgumentException("The current point match result is empty: " + r._1());
+			if (r._2().size() == 0) {
+				LOG.error("The current point match result is empty, ignore it: " + r._1());
+				continue;
+			}
 			List<PointMatch> gtPointMatchList = trajID2GTResultMapping.get(r._1());
 			if (r._2().size() != gtPointMatchList.size())
 				throw new IllegalArgumentException("The output point match result has different size as the ground-truth: " + r._2().size() +

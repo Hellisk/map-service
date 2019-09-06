@@ -169,6 +169,8 @@ public class RouteMatchingEvaluation {
 				} else
 					LOG.debug("Road " + s + " is missing in the map. Inconsistency between map and ground-truth matching result.");
 			}
+			if (correctlyMatchedLength / currMatchedLength > 1)
+				System.out.println("TEST");
 			LOG.info("Trajectory " + i + ": Precision=" + correctlyMatchedLength / currMatchedLength + ", " +
 					"recall=" + correctlyMatchedLength / currGroundTruthLength);
 			totalMatchedLength += currMatchedLength;
