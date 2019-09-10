@@ -86,7 +86,11 @@ public class TrajectoryReader {
 //			indexPointList = Collections.synchronizedList(new ArrayList<>());
 		return dataFiles.parallel().map(
 				file -> {
-					String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.'));
+					if (!file.getName().matches("trip[_][0-9]*[.]txt")) {
+//						System.out.println(file.getName());
+						return null;
+					}
+					String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().lastIndexOf('.'));
 					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, df);
 					newTrajectory.setID(trajID);
 					return newTrajectory;

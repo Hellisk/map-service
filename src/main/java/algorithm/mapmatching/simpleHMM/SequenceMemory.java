@@ -169,7 +169,8 @@ public class SequenceMemory {
                         routeMatchResult.put(stateID, probCandidate);
                     } else {
                         // this state got no candidate (no neighbour points)
-                        routeMatchResult.put(stateID, new StateCandidate(new PointMatch(new GreatCircleDistanceFunction()), latestSample));
+                        routeMatchResult.put(stateID, new StateCandidate(
+                                new PointMatch(new GreatCircleDistanceFunction()), stateMemoryVector.get(i).getSample()));
                     }
                 }
             }
