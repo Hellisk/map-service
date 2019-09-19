@@ -12,7 +12,9 @@ public class StateMemory {
     private Map<String, StateCandidate> stateCandidates = new HashMap<>();
     private StateSample sample;
     private StateCandidate filtProbCandidate = null; // the candidate with the largest filter probability
+    private StateCandidate seqProbCandidate = null;
     private String id;
+
     public StateMemory(Set<StateCandidate> stateCandidates, StateSample sample) {
         for (StateCandidate stateCandidate : stateCandidates) {
             this.stateCandidates.put(stateCandidate.getId(), stateCandidate);
@@ -20,8 +22,14 @@ public class StateMemory {
         this.sample = sample;
         this.id = Double.toString(sample.getTime());
         for (StateCandidate candidate : stateCandidates) {
-            if (filtProbCandidate == null || candidate.getFiltProb() < candidate.getFiltProb()) {
+            if (filtProbCandidate == null || filtProbCandidate.getFiltProb() < candidate.getFiltProb()) {
                 filtProbCandidate = candidate;
+            }
+        }
+
+        for (StateCandidate candidate : stateCandidates) {
+            if (seqProbCandidate == null || seqProbCandidate.getSeqProb() < candidate.getSeqProb()) {
+                seqProbCandidate = candidate;
             }
         }
     }
@@ -36,6 +44,10 @@ public class StateMemory {
 
     public StateCandidate getFiltProbCandidate() {
         return filtProbCandidate;
+    }
+
+    public StateCandidate getSeqProbCandidate() {
+        return seqProbCandidate;
     }
 
     public String getId() {

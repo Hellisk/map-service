@@ -257,7 +257,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     @Override
     public SimpleTrajectoryMatchResult offlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
-        System.out.println(trajectory.getID());
         Pair<List<PointMatch>, List<String>> pointToRouteResult =
                 pullMatchResult(new SequenceMemory(), trajectory);
 
@@ -269,7 +268,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     @Override
     public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
-        System.out.println(trajectory.getID());
         Pair<List<PointMatch>, List<String>> pointToRouteResult =
                 pullMatchResult(new SequenceMemory(maxWaitingTime), trajectory);
 
