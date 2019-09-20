@@ -188,7 +188,8 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                     transitions(prevStateMemory, new Pair<>(sample, candidates));
 
             for (StateCandidate candidate : candidates) {
-                candidate.setSeqProb(Double.NEGATIVE_INFINITY);
+//                candidate.setSeqProb(Double.NEGATIVE_INFINITY);
+                double maxSeqProb = -1; // seqProb used to find backTrackingPointer
 
                 for (StateCandidate predecessor : predecessors) {
                     Pair<StateTransition, Double> transition = transitions.get(predecessor.getId()).get(candidate.getId());
@@ -196,25 +197,25 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                     if (transition == null || transition._2() == 0) {
                         continue;
                     }
+//                    candidate.setFiltProb(
+//                            candidate.getFiltProb() + (transition._2() * predecessor.getFiltProb()));
 
-                    candidate.setFiltProb(
-                            candidate.getFiltProb() + (transition._2() * predecessor.getFiltProb()));
-
-                    double seqProb = predecessor.getSeqProb() + Math.log10(transition._2()) + Math.log10(candidate.getEmiProb());
-
-                    if (seqProb > candidate.getSeqProb()) {
+//                    double seqProb = predecessor.getSeqProb() + Math.log10(transition._2()) + Math.log10(candidate.getEmiProb());
+                    double seqProb = predecessor.getFiltProb() * transition._2();
+                    if (seqProb > maxSeqProb) {
                         candidate.setPredecessor(predecessor);
                         candidate.setTransition(transition._1());
-                        candidate.setSeqProb(seqProb);
+//                        candidate.setSeqProb(seqProb);
+                        maxSeqProb = seqProb;
                     }
                 }
 
-
+                // omit candidate that don't have any predecessor to be connected to
                 if (candidate.getFiltProb() == 0) {
                     continue;
                 }
 
-                candidate.setFiltProb(candidate.getFiltProb() * candidate.getEmiProb());
+                candidate.setFiltProb(maxSeqProb * candidate.getEmiProb());
 
                 // ignore candidates that don't have predecessors
                 if (candidate.getPredecessor() != null) {
@@ -234,7 +235,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 }
                 normSum += candidate.getEmiProb();
                 candidate.setFiltProb(candidate.getEmiProb());
-                candidate.setSeqProb(Math.log10(candidate.getEmiProb()));
+//                candidate.setSeqProb(Math.log10(candidate.getEmiProb()));
                 result.add(candidate);
 
             }
@@ -268,6 +269,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     @Override
     public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
+        System.out.println(trajectory.getID());
         Pair<List<PointMatch>, List<String>> pointToRouteResult =
                 pullMatchResult(new SequenceMemory(maxWaitingTime), trajectory);
 
@@ -288,7 +290,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
 
         samples.sort((left, right) -> (int) (left.getTime() - right.getTime()));
 
-        Map<String, StateCandidate> routeMatchResultMap = new HashMap<>();
+        Map<String, StateCandidate> routeMatchResultMap = new HashMap<>(); // key is state id
         for (StateSample sample : samples) {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
             routeMatchResultMap = sequence.update(vector, sample, routeMatchResultMap);

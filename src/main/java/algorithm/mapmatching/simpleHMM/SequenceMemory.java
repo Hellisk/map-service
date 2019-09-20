@@ -51,11 +51,7 @@ public class SequenceMemory {
         if (lastState == null) return null;
 
         for (StateCandidate candidate : lastState.getStateCandidates().values()) {
-//            if (estimate == null || estimate.getFiltProb() < candidate.getFiltProb()) {
-//                estimate = candidate;
-//            }
-
-            if (estimate == null || estimate.getSeqProb() < candidate.getSeqProb()) {
+            if (estimate == null || estimate.getFiltProb() < candidate.getFiltProb()) {
                 estimate = candidate;
             }
         }
@@ -152,14 +148,13 @@ public class SequenceMemory {
      */
     private Map<String, StateCandidate> manageWindSize(
             StateSample latestSample, Map<String, StateCandidate> routeMatchResult) {
-        if (getStateMemoryVector().size() == 1) return new HashMap<>(); // just finished initial mm
+        if (getStateMemoryVector().size() == 1) return routeMatchResult; // just finished initial mm
 
         StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2);
         List<StateMemory> deletes = new LinkedList<>();
 
         if (last.getStateCandidates().size() == 1) {
-//            StateCandidate kEstimate = last.getFiltProbCandidate(); // 不可能是null
-            StateCandidate kEstimate = last.getSeqProbCandidate(); // 不可能是null
+            StateCandidate kEstimate = last.getFiltProbCandidate(); // 不可能是null
             for (int i = stateMemoryVector.size() - 2; i >= 0; --i) {
                 String stateID = stateMemoryVector.get(i).getId(); // start from the convergence state
                 if (routeMatchResult.containsKey(stateID)) continue;
@@ -169,8 +164,7 @@ public class SequenceMemory {
                     kEstimate = kEstimate.getPredecessor();
                 } else {
                     StateMemory breakState = stateMemoryVector.get(i);
-//                    StateCandidate probCandidate = breakState.getFiltProbCandidate();
-                    StateCandidate probCandidate = breakState.getSeqProbCandidate();
+                    StateCandidate probCandidate = breakState.getFiltProbCandidate();
                     if (probCandidate != null) {
                         routeMatchResult.put(stateID, probCandidate);
                     } else {
@@ -190,32 +184,28 @@ public class SequenceMemory {
                 || (maxWaitingTime >= 0 && latestSample.getTime() - stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
             // reach maximum bound, force to output the most likely candidate of the first state
             StateMemory firstState = stateMemoryVector.peekFirst();
-            // peek the candidate with the highest sequence prob
-            if (!routeMatchResult.containsKey(firstState.getId())) {
-                routeMatchResult.put(firstState.getId(), firstState.getSeqProbCandidate());
-            }
 
-//            if (firstState.getStateCandidates().isEmpty()) {
-//                // peek the candidate with the highest sequence prob
-//                if (!routeMatchResult.containsKey(firstState.getId())) {
-////                    routeMatchResult.put(firstState.getId(), firstState.getFiltProbCandidate());
-//                    routeMatchResult.put(firstState.getId(), firstState.getSeqProbCandidate());
-//                }
-//            } else {
-//                // it was NOT a convergence state, so need to output for this time
-//                // peek the candidate with the greatest vote
-//                int vote = -1;
-//                StateCandidate optimalCandidate = null;
-//                for (StateCandidate firstStateCandidate : firstState.getStateCandidates().values()) {
-//                    if (optimalCandidate == null || vote < sequenceCandidateVotes.get(firstStateCandidate.getId())) {
-//                        vote = sequenceCandidateVotes.get(firstStateCandidate.getId());
-//                        optimalCandidate = firstStateCandidate;
-//                    }
-//                }
-//                if (!routeMatchResult.containsKey(firstState.getId())) {
-//                    routeMatchResult.put(firstState.getId(), optimalCandidate);
-//                }
-//            }
+            if (firstState.getStateCandidates().isEmpty()) {
+                // peek the candidate with the highest filtProb in history
+                if (!routeMatchResult.containsKey(firstState.getId())) {
+                    // the first point may have been saved as a convergence point previously
+                    routeMatchResult.put(firstState.getId(), firstState.getFiltProbCandidate());
+                }
+            } else {
+                // it was NOT a convergence state, so need to output for this time
+                // peek the candidate with the greatest filtProb among the existed ones
+                double filtProb = -1;
+                StateCandidate optimalCandidate = null;
+                for (StateCandidate firstStateCandidate : firstState.getStateCandidates().values()) {
+                    if (optimalCandidate == null || filtProb < firstStateCandidate.getFiltProb()) {
+                        filtProb = firstStateCandidate.getFiltProb();
+                        optimalCandidate = firstStateCandidate;
+                    }
+                }
+                if (!routeMatchResult.containsKey(firstState.getId())) {
+                    routeMatchResult.put(firstState.getId(), optimalCandidate);
+                }
+            }
             deletes.add(stateMemoryVector.removeFirst());
         }
 

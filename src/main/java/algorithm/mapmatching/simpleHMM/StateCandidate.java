@@ -2,14 +2,12 @@ package algorithm.mapmatching.simpleHMM;
 
 import util.object.structure.PointMatch;
 
-import java.util.Objects;
-
 public class StateCandidate {
 
     private StateSample stateSample;
     private StateCandidate predecessor = null;
     private double filtProb = 0d;
-    private double seqProb = 0d;
+    //    private double seqProb = 0d;
     private PointMatch pointMatch;
     private StateTransition transition = new StateTransition();
     private double emiProb = 0d;
@@ -36,14 +34,14 @@ public class StateCandidate {
     public void setFiltProb(double filtProb) {
         this.filtProb = filtProb;
     }
+//
+//    public double getSeqProb() {
+//        return seqProb;
+//    }
 
-    public double getSeqProb() {
-        return seqProb;
-    }
-
-    public void setSeqProb(double seqProb) {
-        this.seqProb = seqProb;
-    }
+//    public void setSeqProb(double seqProb) {
+//        this.seqProb = seqProb;
+//    }
 
     public StateSample getStateSample() {
         return stateSample;
@@ -81,23 +79,23 @@ public class StateCandidate {
         return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StateCandidate that = (StateCandidate) o;
-        return pointMatch.equals(that.getPointMatch())
-                && stateSample.equals(that.getStateSample())
-                && predecessor.equals(that.getPredecessor())
-                && transition.equals(that.getTransition())
-                && filtProb == that.getFiltProb()
-                && seqProb == that.getSeqProb()
-                && emiProb == that.getEmiProb()
-                && id.equals(that.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pointMatch, stateSample, predecessor, transition, filtProb, seqProb, emiProb, id);
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        StateCandidate that = (StateCandidate) o;
+//        return pointMatch.equals(that.getPointMatch())
+//                && stateSample.equals(that.getStateSample())
+//                && predecessor.equals(that.getPredecessor())
+//                && transition.equals(that.getTransition())
+//                && filtProb == that.getFiltProb()
+//                && seqProb == that.getSeqProb()
+//                && emiProb == that.getEmiProb()
+//                && id.equals(that.getId());
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(pointMatch, stateSample, predecessor, transition, filtProb, seqProb, emiProb, id);
+//    }
 }
