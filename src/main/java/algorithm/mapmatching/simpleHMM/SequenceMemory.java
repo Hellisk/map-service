@@ -1,5 +1,7 @@
 package algorithm.mapmatching.simpleHMM;
 
+import util.object.structure.Pair;
+
 import java.util.*;
 
 /**
@@ -59,9 +61,9 @@ public class SequenceMemory {
             if (candidate.getPredecessor() != null) {
                 if (!sequenceCandidateVotes.containsKey(candidate.getPredecessor().getId())
                         || !stateMemoryVector.peekLast().getStateCandidates().containsKey(candidate.getPredecessor().getId())) {
-                    throw new RuntimeException("inconsistent update vector");
+                    throw new RuntimeException("inconsistent updateGoh vector");
                 }
-                // update votes of predecessors
+                // updateGoh votes of predecessors
                 sequenceCandidateVotes.put(candidate.getPredecessor().getId(),
                         sequenceCandidateVotes.get(candidate.getPredecessor().getId()) + 1);
 
@@ -196,12 +198,16 @@ public class SequenceMemory {
     }
 
 
-    public void update(
-            StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> routeMatchResult) {
+    public void updateGoh(
+            StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> optimalCandiSeq) {
         expand(latestStateMemory, lastSample);
-        shrink(routeMatchResult);
-        // if gamma > 0
-        // shrinkWisely()
+        shrink(optimalCandiSeq);
+    }
+
+    public void updateEddy(StateMemory latestStateMemory,
+                           StateSample lastSample, Map<String, StateCandidate> optimalCandiSeq, double gamma) {
+        expand(latestStateMemory, lastSample);
+        shrinkWisely(optimalCandiSeq, checkUncertainty(gamma));
     }
 
     public StateMemory lastStateMemory() {
@@ -215,76 +221,92 @@ public class SequenceMemory {
 
 
     /**
-     * Eddy method to detect convergence
+     * Eddy method to check matching uncertainty at the first state
      *
      * @param gamma to control the severity of latency would like to pay
-     * @return -1 if no need to back track; or the index of state where backtracking should be initialized
-     * the index is statevector.size()-1; or the index where HMM break happened
+     * @return Pair<Integer, Map < String, Map < String, Double>>>
      */
-    private int backTrackAtState(double gamma) {
+    private Pair<Integer, Map<String, Map<StateCandidate, Double>>> checkUncertainty(double gamma) {
+        if (stateMemoryVector.size() == 1) return null;
         // t1 is the first state, t^ is the last state
         StateMemory firstState = stateMemoryVector.peekFirst();
-        Map<String, Double> firstCandiScoreFromFuture = new HashMap<>();
 
-        // first state is empty if hmm break happened
-        for (String candidateID : firstState.getStateCandidates().keySet()) {
-            firstCandiScoreFromFuture.put(candidateID, 0d);
-        }
+
+        // stateMemoryId -> (stateCandidateId --> uncertainty)
+        Map<String, Map<StateCandidate, Double>> stateUncertainties = new HashMap<>();
 
         Collection<StateCandidate> lastState = stateMemoryVector.peekLast().getStateCandidates().values();
 
-        int breakStateIndex = -1;
+        int outputState = -1;
         for (StateCandidate kEstimate : lastState) {
             double filtProbAtLastState = kEstimate.getFiltProb();
-            for (int i = stateMemoryVector.size() - 1; i >= 1; --i) {
-                if (kEstimate != null) {
-                    kEstimate = kEstimate.getPredecessor();
+            for (int i = stateMemoryVector.size() - 1; i > 0; --i) {
+                // smallest i is 1
+                // corresponding state index is i-1, so the last kEstimate in the last is at first state
+                kEstimate = kEstimate.getPredecessor();
+                if (kEstimate == null) {
+                    // hmm break can only happen between the last and second last state in window
+                    outputState = i - 1;
+                    kEstimate = stateMemoryVector.get(i - 1).getFiltProbCandidate();
+                    filtProbAtLastState = kEstimate.getFiltProb();
+                }
+                String corresStateId = stateMemoryVector.get(i - 1).getId(); // use the predecessor's state id
+                stateUncertainties.computeIfAbsent(corresStateId, k -> new HashMap<>());
+
+                if (stateUncertainties.get(corresStateId).get(kEstimate) == null) {
+                    stateUncertainties.get(corresStateId).put(kEstimate, filtProbAtLastState);
                 } else {
-                    // hmm break
-                    breakStateIndex = i;
-                    break;
+                    stateUncertainties.get(corresStateId).put(
+                            kEstimate, stateUncertainties.get(corresStateId).get(kEstimate) + filtProbAtLastState);
                 }
             }
-            if (breakStateIndex > 0) break;
-            StateCandidate firstStateCandidate = kEstimate.getPredecessor();
-            firstCandiScoreFromFuture.put(firstStateCandidate.getId(),
-                    firstCandiScoreFromFuture.get(firstStateCandidate.getId()) + filtProbAtLastState);
         }
-
-        // if hmm break happened, return its state index
-        if (breakStateIndex > 0) return breakStateIndex;
 
         double entropyLoss = 0;
-        for (Double score : firstCandiScoreFromFuture.values()) {
+        Map<StateCandidate, Double> firstStateUncertainties = stateUncertainties.get(firstState.getId());
+        for (Double score : firstStateUncertainties.values()) {
             entropyLoss += score * Math.log(score);
         }
-        double accuracyCost = -entropyLoss / firstCandiScoreFromFuture.size();
+        double accuracyCost = -entropyLoss / firstStateUncertainties.size();
         double latencyCost = gamma * (stateMemoryVector.peekLast().getSample().getTime()
                 - stateMemoryVector.peekFirst().getSample().getTime());
 
-        // when entropy loss equals (or less than) latency penalty, output result
-        if (accuracyCost <= latencyCost) {
-            return stateMemoryVector.size() - 1;
+        // when entropy loss equals (or less than) latency penalty, need to output the first state
+        // if outputState != -1, need to output results for states before break
+        if (accuracyCost <= latencyCost || outputState != -1) {
+            outputState = outputState == -1 ? 0 : outputState;
+            return new Pair<>(outputState, stateUncertainties);
         }
-        return -1;
+
+        return new Pair<>(-1, stateUncertainties);
     }
 
     /**
-     * shrink the sliding window from indicated state index (if converged or break)
+     * shrink the sliding window from indicated state index (if matching uncertainty is low or break)
      *
-     * @param candidateSeq store the selected candidate for each state inside the window
+     * @param optimalCandidateSeq store the selected candidate for each state inside the window
      */
-    private void shrinkWisely(Map<String, StateCandidate> candidateSeq, double gamma) {
-        if (stateMemoryVector.size() == 1) return; // initial mm
+    private void shrinkWisely(Map<String, StateCandidate> optimalCandidateSeq,
+                              Pair<Integer, Map<String, Map<StateCandidate, Double>>> outputIndexToStateUncertainties) {
 
-        //
-        int backTrackingStateIndex = backTrackAtState(gamma);
-        if (backTrackingStateIndex == -1) return;
+        if (stateMemoryVector.size() == 1) return;
+        // check if to output any result
+        Map<String, Map<StateCandidate, Double>> statesUncertainties = outputIndexToStateUncertainties._2();
+        int outputIndex = outputIndexToStateUncertainties._1();
+        if (outputIndex == -1) return;
 
-        reverse(candidateSeq, backTrackingStateIndex);
-        // new sequence contains two states: converging state -> current state
         List<StateMemory> deletes = new ArrayList<>();
-        while (stateMemoryVector.size() > backTrackingStateIndex) {
+        for (int i = 0; i <= outputIndex; ++i) {
+            StateCandidate estimate = null;
+            double maxProb = -1;
+            Map<StateCandidate, Double> stateUncertainties = statesUncertainties.get(stateMemoryVector.peekFirst().getId());
+            for (Map.Entry<StateCandidate, Double> candiToProb : stateUncertainties.entrySet()) {
+                if (estimate == null || maxProb < candiToProb.getValue()) {
+                    estimate = candiToProb.getKey();
+                    maxProb = candiToProb.getValue();
+                }
+            }
+            optimalCandidateSeq.put(stateMemoryVector.peekFirst().getId(), estimate);
             deletes.add(stateMemoryVector.removeFirst());
         }
 
@@ -295,12 +317,31 @@ public class SequenceMemory {
         }
 
         // set predecessors of candidates in the first state of new sequence to null
-        if (deletes.size() > 0) {
+        if (deletes.size() > 0 && stateMemoryVector.size() > 0) {
             StateMemory newFirst = stateMemoryVector.peekFirst();
             for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
                 stateCandidate.setPredecessor(null);
             }
         }
 
+    }
+
+    /**
+     * Eddy's force output after travel completed
+     *
+     * @param optimalCcandidateSeq to store matching result
+     * @param gamma                parameter
+     */
+    public void forceFinalOutput(Map<String, StateCandidate> optimalCcandidateSeq, double gamma) {
+        Pair<Integer, Map<String, Map<StateCandidate, Double>>> stateUncertainties = checkUncertainty(gamma);
+
+        // uncertainty of last state will not be checked
+        if (stateMemoryVector.size() >= 2) {
+            shrinkWisely(optimalCcandidateSeq, new Pair<>(stateMemoryVector.size() - 2, stateUncertainties._2()));
+        }
+
+        // therefore, the last state need to be removed manually
+        StateMemory lastState = stateMemoryVector.removeLast();
+        optimalCcandidateSeq.put(lastState.getId(), lastState.getFiltProbCandidate());
     }
 }

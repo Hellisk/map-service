@@ -13,6 +13,10 @@ public class StateCandidate {
     private double emiProb = 0d;
     private String id;
 
+    public StateCandidate() {
+        super();
+    }
+
     public StateCandidate(PointMatch self, StateSample stateSample) {
         this.pointMatch = self;
         this.stateSample = stateSample;
@@ -34,14 +38,6 @@ public class StateCandidate {
     public void setFiltProb(double filtProb) {
         this.filtProb = filtProb;
     }
-//
-//    public double getSeqProb() {
-//        return seqProb;
-//    }
-
-//    public void setSeqProb(double seqProb) {
-//        this.seqProb = seqProb;
-//    }
 
     public StateSample getStateSample() {
         return stateSample;
@@ -78,24 +74,4 @@ public class StateCandidate {
     public String getId() {
         return id;
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        StateCandidate that = (StateCandidate) o;
-//        return pointMatch.equals(that.getPointMatch())
-//                && stateSample.equals(that.getStateSample())
-//                && predecessor.equals(that.getPredecessor())
-//                && transition.equals(that.getTransition())
-//                && filtProb == that.getFiltProb()
-//                && seqProb == that.getSeqProb()
-//                && emiProb == that.getEmiProb()
-//                && id.equals(that.getId());
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(pointMatch, stateSample, predecessor, transition, filtProb, seqProb, emiProb, id);
-//    }
 }

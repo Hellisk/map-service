@@ -31,6 +31,8 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     private double candidateRange;
     private double dijkstraDist;
     private long maxWaitingTime;
+    private double gamma;
+    private String hmmMethod;
 
     public SimpleHMMMatching(RoadNetworkGraph roadMap, BaseProperty property) {
         this.routingGraph = new RoutingGraph(roadMap, false, property);
@@ -38,10 +40,13 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         this.rtree = new RTreeIndexing(roadMap);
         double sigma = property.getPropertyDouble("algorithm.mapmatching.Sigma");
         double beta = property.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
+        gamma = property.getPropertyDouble("algorithm.mapmatching.hmm.Gamma");
+        hmmMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
         this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
         this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
+
 
     }
 
@@ -256,7 +261,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     @Override
     public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
-        System.out.println(trajectory.getID());
         Pair<List<PointMatch>, List<String>> pointToRouteResult =
                 pullMatchResult(new SequenceMemory(maxWaitingTime), trajectory);
 
@@ -265,11 +269,11 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         return new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult);
     }
 
+
     private Pair<List<PointMatch>, List<String>> pullMatchResult(SequenceMemory sequence, Trajectory trajectory) {
         if (trajectory.size() == 0) {
             throw new RuntimeException("Invalid trajectory");
         }
-
         List<StateSample> samples = new LinkedList<>();
         for (int i = 0; i < trajectory.getPoints().size(); i++) {
             samples.add(new StateSample(trajectory.get(i), trajectory.get(i).heading(), trajectory.get(i).time()));
@@ -282,19 +286,26 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
             // ignore a gps point which doesn't have candidate point
             if (!vector.getStateCandidates().isEmpty()) {
-                sequence.update(vector, sample, optimalCandidateSeq);
+                if (hmmMethod.toLowerCase().contains("eddy")) {
+                    sequence.updateEddy(vector, sample, optimalCandidateSeq, gamma);
+                } else {
+                    sequence.updateGoh(vector, sample, optimalCandidateSeq);
+                }
             }
         }
 
-
         if (sequence.getStateMemoryVector().size() > 0) {
-            sequence.reverse(optimalCandidateSeq, sequence.getStateMemoryVector().size() - 1);
+            if (hmmMethod.toLowerCase().contains("eddy")) {
+                sequence.forceFinalOutput(optimalCandidateSeq, gamma);
+            } else {
+                sequence.reverse(optimalCandidateSeq, sequence.getStateMemoryVector().size() - 1);
+            }
         }
 
         List<String> routeMatchResult = new LinkedList<>();
         List<PointMatch> pointMatchResult = new LinkedList<>();
         for (StateCandidate candidate : optimalCandidateSeq.values()) {
-            if (candidate != null && candidate.getTransition() != null) {
+            if (candidate != null && candidate.getEmiProb() > 0) {
                 StateSample sample = candidate.getStateSample();
                 if (candidate.getId().charAt(0) == '_') continue;
                 Point point = distFunc.getClosestPoint(sample.getSampleMeasurement(),
@@ -302,10 +313,10 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 PointMatch pm = new PointMatch(point, candidate.getPointMatch().getMatchedSegment(), candidate.getId());
                 pointMatchResult.add(pm);
                 routeMatchResult.addAll(candidate.getTransition().getRoute());
+            } else {
+                pointMatchResult.add(new PointMatch(distFunc));
             }
         }
         return new Pair<>(pointMatchResult, routeMatchResult);
     }
-
-
 }
