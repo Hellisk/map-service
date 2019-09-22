@@ -291,6 +291,8 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 } else {
                     sequence.updateGoh(vector, sample, optimalCandidateSeq);
                 }
+            } else {
+                optimalCandidateSeq.put(Double.toString(sample.getTime()), new StateCandidate());
             }
         }
 
