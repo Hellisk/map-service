@@ -12,7 +12,6 @@ public class StateMemory {
     private Map<String, StateCandidate> stateCandidates = new HashMap<>();
     private StateSample sample;
     private StateCandidate filtProbCandidate = null; // the candidate with the largest filter probability
-    //    private StateCandidate seqProbCandidate = null;
     private String id;
 
     public StateMemory(Set<StateCandidate> stateCandidates, StateSample sample) {
@@ -26,12 +25,6 @@ public class StateMemory {
                 filtProbCandidate = candidate;
             }
         }
-
-//        for (StateCandidate candidate : stateCandidates) {
-//            if (seqProbCandidate == null || seqProbCandidate.getSeqProb() < candidate.getSeqProb()) {
-//                seqProbCandidate = candidate;
-//            }
-//        }
     }
 
     public Map<String, StateCandidate> getStateCandidates() {
@@ -45,8 +38,6 @@ public class StateMemory {
     public StateCandidate getFiltProbCandidate() {
         return filtProbCandidate;
     }
-
-//    z
 
     public String getId() {
         return id;
