@@ -295,7 +295,7 @@ public class LineClusteringMapInference {
 				replaceNodeList.add(currWay.getToNode());
 				currWay.getToNode().setId(nodeCount + "");
 				nodeCount++;
-				location2NodeMap.put(startLocation, currWay.getToNode());
+				location2NodeMap.put(endLocation, currWay.getToNode());
 			}
 			currWay.setNodes(replaceNodeList);
 		}

@@ -13,7 +13,7 @@ from location import TripLoader
 ##
 
 cell_size = 1  # meters
-gaussian_blur = 17
+gaussian_blur = 20
 
 
 def pairwise(iterable):

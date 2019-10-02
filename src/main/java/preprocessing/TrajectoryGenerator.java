@@ -29,15 +29,15 @@ public class TrajectoryGenerator {
 	private static Logger LOG;
 	
 	public static void main(String[] args) {
-
-//		MapInferenceProperty property = new MapInferenceProperty();
-//		property.loadPropertiesFromResourceFile("mapinference.properties", args);
-		MapMatchingProperty property = new MapMatchingProperty();
-		property.loadPropertiesFromResourceFile("mapmatching.properties", args);
+		
+		MapInferenceProperty property = new MapInferenceProperty();
+		property.loadPropertiesFromResourceFile("mapinference.properties", args);
+//		MapMatchingProperty property = new MapMatchingProperty();
+//		property.loadPropertiesFromResourceFile("mapmatching.properties", args);
 		long initTaskTime = System.currentTimeMillis();
 		// setup java log
-//		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
-		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
+		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
+//		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
 		String dataSpec = property.getPropertyString("data.DataSpec");
 		
@@ -48,9 +48,9 @@ public class TrajectoryGenerator {
 		
 		// use global dataset to evaluate the map-matching accuracy
 		LOG = Logger.getLogger(TrajectoryGenerator.class);
-		
-		startMapMatchingTrajectoryGen(property);
-//		startMapInferenceTrajectoryGen(property);
+
+//		startMapMatchingTrajectoryGen(property);
+		startMapInferenceTrajectoryGen(property);
 	}
 	
 	private static void startMapInferenceTrajectoryGen(MapInferenceProperty property) {
@@ -69,7 +69,7 @@ public class TrajectoryGenerator {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		samplingInterval = 5;
 		coverage = -1;
-		int[] sigmaValues = {0, 5, 10, 20, 35};
+		int[] sigmaValues = {0, 5, 10, 20, 35, 50};
 		for (int sigmaValue : sigmaValues) {
 			LOG.info("Start the generation on sigma=" + sigmaValue);
 			syntheticSpec = "_S" + sigmaValue + "_R" + samplingInterval + "_C" + coverage;
@@ -93,7 +93,7 @@ public class TrajectoryGenerator {
 				LOG.info("Trajectory written for sigma=" + sigmaValue + " is done");
 			}
 		}
-		int[] samplingValues = {1, 10, 20, 30, 45, 60, 90, 120, 180};
+		int[] samplingValues = {1, 10, 30, 60, 120, 180};
 		sigma = 0;
 		for (int samplingValue : samplingValues) {
 			samplingInterval = samplingValue;
@@ -164,7 +164,7 @@ public class TrajectoryGenerator {
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
 		samplingInterval = 5;
 		outlierPercentage = 0;
-		int[] sigmaValues = {0, 5, 10, 20, 35};
+		int[] sigmaValues = {0, 5, 10, 20, 35, 50};
 		for (int sigmaValue : sigmaValues) {
 			LOG.info("Start the generation on sigma=" + sigmaValue);
 			syntheticSpec = "_S" + sigmaValue + "_R" + samplingInterval + "_O" + outlierPercentage;

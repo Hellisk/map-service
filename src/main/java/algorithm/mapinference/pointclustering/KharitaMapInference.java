@@ -42,7 +42,7 @@ public class KharitaMapInference {
 	public KharitaMapInference(BaseProperty prop) {
 		this.os = prop.getPropertyString("OS");
 		this.radius = prop.getPropertyDouble("algorithm.mapinference.pointclustering.Radius");
-		this.densifyDistance = prop.getPropertyDouble("algorithm.mapinference.pointclustering.DensifyDistance");
+		this.densifyDistance = prop.getPropertyDouble("algorithm.mapinference.pointclustering.DensityDistance");
 		this.angleTolerance = prop.getPropertyDouble("algorithm.mapinference.pointclustering.AngleTolerance");
 		this.property = prop;
 	}

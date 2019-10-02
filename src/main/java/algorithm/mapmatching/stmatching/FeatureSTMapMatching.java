@@ -196,11 +196,16 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 	}
 	
 	@Override
-    public Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory traj) {
+	public Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory traj) {
 		int windowSizeSec = prop.getPropertyInteger("algorithm.mapmatching.WindowSize");
 		List<Trajectory> subTrajList = splitTrajByWindowSize(traj, windowSizeSec);
 		List<SimpleTrajectoryMatchResult> subTrajResultList = new ArrayList<>();
+		List<Double> latencyList = new ArrayList<>();
 		for (Trajectory currTraj : subTrajList) {
+			for (int i = 0; i < currTraj.size(); i++) {
+				TrajectoryPoint currPoint = currTraj.get(i);
+				latencyList.add((double) (currTraj.get(currTraj.size() - 1).time() - currPoint.time()));
+			}
 			subTrajResultList.add(offlineMatching(currTraj));
 		}
 		List<String> routeMatch = new ArrayList<>();
@@ -215,8 +220,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 				routeMatch.addAll(currRouteMatch);
 			}
 		}
-        return new Pair<>(new ArrayList<>(),
-                new SimpleTrajectoryMatchResult(traj.getID(), new ArrayList<>(), routeMatch));
+		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), new ArrayList<>(), routeMatch));
 	}
 	
 	private List<Trajectory> splitTrajByWindowSize(Trajectory originalTraj, int windowSizeSec) {

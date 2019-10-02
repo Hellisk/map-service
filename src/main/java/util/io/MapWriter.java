@@ -40,6 +40,7 @@ public class MapWriter {
 			LOG.warn("The map to be written is empty. Skip the writing step.");
 			return;
 		}
+		LOG.info("Write map files to folder " + folderPath + " under the file name vertices_/edges_" + fileName);
 		writeNodes(roadGraph.getNodes(), folderPath + "vertices_" + fileName);
 		writeWays(roadGraph.getWays(), folderPath + "edges_" + fileName);
 		LOG.info("Map written. Total number of intersections: " + roadGraph.getNodes().size()

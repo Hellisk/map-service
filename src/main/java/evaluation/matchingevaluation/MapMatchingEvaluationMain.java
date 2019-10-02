@@ -134,8 +134,7 @@ public class MapMatchingEvaluationMain {
 				}
 				long evaluationTime = System.currentTimeMillis();
 				
-				String accuracy =
-						"Accuracy: " + PointMatchingEvaluation.accuracyEvaluation(pointMatchResult, gtPointMatchResult);
+				String accuracy = "Accuracy: " + PointMatchingEvaluation.accuracyEvaluation(pointMatchResult, gtPointMatchResult);
 				LOG.info("Accuracy evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 				evaluationResultList.add(accuracy);
 				

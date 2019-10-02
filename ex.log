@@ -1,0 +1,1256 @@
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Added new config entry: "maxy"
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Added new config entry: "minx"
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Added new config entry: "miny"
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 16:19:03,089 - 15315540615536 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 16:19:03,091 - 15315540615536.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 16:19:03,091 - 15315540615536.DNLP - INFO -
+	Running command 'main'
+2019-06-15 16:19:33,286 - 15315540615536.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 16:19:33,288 - 15315540615536.DNLP - ERROR -
+	Failed after 0:00:30!
+2019-06-15 16:28:09,849 - 15316088214252 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 16:28:09,849 - 15316088214252 - WARNING -
+	Added new config entry: "maxy"
+2019-06-15 16:28:09,849 - 15316088214252 - WARNING -
+	Added new config entry: "minx"
+2019-06-15 16:28:09,849 - 15316088214252 - WARNING -
+	Added new config entry: "miny"
+2019-06-15 16:28:09,851 - 15316088214252 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 16:28:09,851 - 15316088214252 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 16:28:09,851 - 15316088214252.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 16:28:09,851 - 15316088214252.DNLP - INFO -
+	Running command 'main'
+2019-06-15 16:28:40,115 - 15316088214252.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 16:28:40,115 - 15316088214252.DNLP - ERROR -
+	Failed after 0:00:30!
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Added new config entry: "maxy"
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Added new config entry: "minx"
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Added new config entry: "miny"
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 16:29:38,394 - 15316176713620 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 16:29:38,394 - 15316176713620.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 16:29:38,394 - 15316176713620.DNLP - INFO -
+	Running command 'main'
+2019-06-15 16:30:08,549 - 15316176713620.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 16:30:08,551 - 15316176713620.DNLP - ERROR -
+	Failed after 0:00:30!
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Added new config entry: "maxy"
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Added new config entry: "minx"
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Added new config entry: "miny"
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 16:46:57,236 - 15317215614636 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 16:46:57,237 - 15317215614636.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 16:46:57,237 - 15317215614636.DNLP - INFO -
+	Running command 'main'
+2019-06-15 16:47:27,470 - 15317215614636.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 16:47:27,470 - 15317215614636.DNLP - ERROR -
+	Failed after 0:00:30!
+2019-06-15 17:42:23,903 - 15320538518228 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 17:42:23,928 - 15320538518228 - WARNING -
+	Added new config entry: "maxy"
+2019-06-15 17:42:23,928 - 15320538518228 - WARNING -
+	Added new config entry: "minx"
+2019-06-15 17:42:23,928 - 15320538518228 - WARNING -
+	Added new config entry: "miny"
+2019-06-15 17:42:23,930 - 15320538518228 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 17:42:23,930 - 15320538518228 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 17:42:23,930 - 15320538518228.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 17:42:23,930 - 15320538518228.DNLP - INFO -
+	Running command 'main'
+2019-06-15 17:42:24,713 - 15320538518228.DNLP - INFO -
+	Started run with ID "1"
+2019-06-15 17:42:24,713 - 15320538518228.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 17:42:24,714 - 15320538518228.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 17:42:24,720 - 15320538518228.DNLP - ERROR -
+	Failed after 0:00:01!
+2019-06-15 17:46:54,894 - 15320813217124 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 17:48:03,869 - 15320882222476 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 17:48:03,871 - 15320882222476 - WARNING -
+	Added new config entry: "max_y"
+2019-06-15 17:48:03,871 - 15320882222476 - WARNING -
+	Added new config entry: "min_x"
+2019-06-15 17:48:03,871 - 15320882222476 - WARNING -
+	Added new config entry: "min_y"
+2019-06-15 17:48:03,871 - 15320882222476 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 17:48:03,871 - 15320882222476 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 17:48:03,871 - 15320882222476.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 17:48:03,871 - 15320882222476.DNLP - INFO -
+	Running command 'main'
+2019-06-15 17:48:03,878 - 15320882222476.DNLP - INFO -
+	Started run with ID "2"
+2019-06-15 17:48:03,878 - 15320882222476.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 17:48:03,878 - 15320882222476.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 17:48:03,884 - 15320882222476.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 17:54:37,973 - 15321276310816 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 17:54:37,974 - 15321276310816 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 17:54:37,974 - 15321276310816.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 17:54:37,974 - 15321276310816.DNLP - INFO -
+	Running command 'main'
+2019-06-15 17:54:37,982 - 15321276310816.DNLP - INFO -
+	Started run with ID "3"
+2019-06-15 17:54:37,983 - 15321276310816.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 17:54:37,983 - 15321276310816.main - DEBUG -
+	Started
+2019-06-15 17:54:37,983 - 15321276310816.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 17:54:37,986 - 15321276310816.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:00:31,421 - 15321629722304 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:00:31,423 - 15321629722304 - WARNING -
+	Changed type of config entry "k" from int to unicode
+2019-06-15 18:00:31,424 - 15321629722304.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:00:31,424 - 15321629722304.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:00:31,430 - 15321629722304.DNLP - INFO -
+	Started run with ID "4"
+2019-06-15 18:00:31,430 - 15321629722304.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:00:31,431 - 15321629722304.main - DEBUG -
+	Started
+2019-06-15 18:00:31,431 - 15321629722304.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:00:31,437 - 15321629722304.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:01:53,947 - 15321712317196 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:01:53,948 - 15321712317196 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:01:53,948 - 15321712317196 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:01:53,948 - 15321712317196 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:01:53,948 - 15321712317196 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:01:53,948 - 15321712317196 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:01:53,948 - 15321712317196.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:01:53,950 - 15321712317196.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:01:53,954 - 15321712317196.DNLP - INFO -
+	Started run with ID "5"
+2019-06-15 18:01:53,954 - 15321712317196.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:01:53,956 - 15321712317196.main - DEBUG -
+	Started
+2019-06-15 18:01:53,956 - 15321712317196.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:01:53,960 - 15321712317196.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:09:41,073 - 1532217949908 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:09:41,075 - 1532217949908.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:09:41,075 - 1532217949908.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:09:41,082 - 1532217949908.DNLP - INFO -
+	Started run with ID "6"
+2019-06-15 18:09:41,082 - 1532217949908.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:09:41,082 - 1532217949908.main - DEBUG -
+	Started
+2019-06-15 18:09:41,082 - 1532217949908.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:09:41,088 - 1532217949908.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:11:02,921 - 1532226122200 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:11:02,923 - 1532226122200 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:11:02,923 - 1532226122200 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:11:02,923 - 1532226122200 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:11:02,923 - 1532226122200 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:11:02,923 - 1532226122200 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:11:02,923 - 1532226122200.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:11:02,923 - 1532226122200.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:11:02,930 - 1532226122200.DNLP - INFO -
+	Started run with ID "7"
+2019-06-15 18:11:02,930 - 1532226122200.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:11:02,930 - 1532226122200.main - DEBUG -
+	Started
+2019-06-15 18:11:02,930 - 1532226122200.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:11:02,936 - 1532226122200.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:12:07,611 - 15322325916224 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:12:07,611 - 15322325916224.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:12:07,611 - 15322325916224.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:12:07,618 - 15322325916224.DNLP - INFO -
+	Started run with ID "8"
+2019-06-15 18:12:07,618 - 15322325916224.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:12:07,619 - 15322325916224.main - DEBUG -
+	Started
+2019-06-15 18:12:07,619 - 15322325916224.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:12:07,625 - 15322325916224.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:13:06,594 - 15322384920272 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:13:06,595 - 15322384920272 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:13:06,595 - 15322384920272 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:13:06,595 - 15322384920272 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:13:06,595 - 15322384920272 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:13:06,595 - 15322384920272 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:13:06,595 - 15322384920272.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:13:06,595 - 15322384920272.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:13:06,602 - 15322384920272.DNLP - INFO -
+	Started run with ID "9"
+2019-06-15 18:13:06,602 - 15322384920272.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:13:06,604 - 15322384920272.main - DEBUG -
+	Started
+2019-06-15 18:13:06,604 - 15322384920272.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 18:13:06,605 - 15322384920272.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:13:06,607 - 15322384920272.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:18:32,980 - 1532271139676 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:18:32,982 - 1532271139676 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:18:32,982 - 1532271139676 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:18:32,982 - 1532271139676 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:18:32,982 - 1532271139676 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:18:32,983 - 1532271139676 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:18:32,983 - 1532271139676.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:18:32,983 - 1532271139676.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:18:32,990 - 1532271139676.DNLP - INFO -
+	Started run with ID "10"
+2019-06-15 18:18:32,990 - 1532271139676.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:18:32,990 - 1532271139676.main - DEBUG -
+	Started
+2019-06-15 18:18:32,990 - 1532271139676.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 18:18:32,990 - 1532271139676.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:18:32,996 - 1532271139676.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 18:53:40,075 - 15324818417988 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 18:53:40,076 - 15324818417988.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 18:53:40,076 - 15324818417988.DNLP - INFO -
+	Running command 'main'
+2019-06-15 18:53:40,082 - 15324818417988.DNLP - INFO -
+	Started run with ID "11"
+2019-06-15 18:53:40,082 - 15324818417988.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 18:53:40,082 - 15324818417988.main - DEBUG -
+	Started
+2019-06-15 18:53:40,082 - 15324818417988.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 18:53:40,084 - 15324818417988.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 18:53:40,085 - 15324818417988.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 22:29:56,066 - 15337791718008 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 22:29:56,068 - 15337791718008.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 22:29:56,068 - 15337791718008.DNLP - INFO -
+	Running command 'main'
+2019-06-15 22:29:56,099 - 15337791718008.DNLP - INFO -
+	Started run with ID "12"
+2019-06-15 22:29:56,099 - 15337791718008.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 22:29:56,101 - 15337791718008.main - DEBUG -
+	Started
+2019-06-15 22:29:56,101 - 15337791718008.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 22:29:56,101 - 15337791718008.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 22:29:56,104 - 15337791718008.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 22:46:13,380 - 15338771714520 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 22:46:13,381 - 15338771714520 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 22:46:13,381 - 15338771714520 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 22:46:13,381 - 15338771714520 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 22:46:13,381 - 15338771714520 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 22:46:13,381 - 15338771714520 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 22:46:13,381 - 15338771714520.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 22:46:13,381 - 15338771714520.DNLP - INFO -
+	Running command 'main'
+2019-06-15 22:46:13,387 - 15338771714520.DNLP - INFO -
+	Started run with ID "14"
+2019-06-15 22:46:13,387 - 15338771714520.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 22:46:13,388 - 15338771714520.main - DEBUG -
+	Started
+2019-06-15 22:46:13,388 - 15338771714520.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 22:46:13,388 - 15338771714520.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 22:46:13,392 - 15338771714520.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 23:06:24,915 - 15339981315008 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 23:06:24,917 - 15339981315008 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 23:06:24,917 - 15339981315008 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 23:06:24,917 - 15339981315008 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 23:06:24,917 - 15339981315008 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 23:06:24,917 - 15339981315008 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 23:06:24,917 - 15339981315008.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 23:06:24,917 - 15339981315008.DNLP - INFO -
+	Running command 'main'
+2019-06-15 23:06:25,071 - 15339981315008.DNLP - INFO -
+	Started run with ID "15"
+2019-06-15 23:06:25,071 - 15339981315008.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 23:06:25,072 - 15339981315008.main - DEBUG -
+	Started
+2019-06-15 23:06:25,072 - 15339981315008.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 23:06:26,141 - 15339981315008.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 23:06:26,210 - 15339981315008.DNLP - ERROR -
+	Failed after 0:00:01!
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 23:36:53,591 - 15341811912384 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 23:36:53,591 - 15341811912384.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 23:36:53,591 - 15341811912384.DNLP - INFO -
+	Running command 'main'
+2019-06-15 23:36:53,596 - 15341811912384.DNLP - INFO -
+	Started run with ID "16"
+2019-06-15 23:36:53,596 - 15341811912384.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 23:36:53,598 - 15341811912384.main - DEBUG -
+	Started
+2019-06-15 23:36:53,598 - 15341811912384.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 23:36:53,598 - 15341811912384.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 23:36:53,601 - 15341811912384.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 23:38:54,456 - 15341932819296 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 23:38:54,457 - 15341932819296.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 23:38:54,457 - 15341932819296.DNLP - INFO -
+	Running command 'main'
+2019-06-15 23:38:54,464 - 15341932819296.DNLP - INFO -
+	Started run with ID "17"
+2019-06-15 23:38:54,464 - 15341932819296.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 23:38:54,466 - 15341932819296.main - DEBUG -
+	Started
+2019-06-15 23:38:54,466 - 15341932819296.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 23:38:54,467 - 15341932819296.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 23:38:54,469 - 15341932819296.DNLP - ERROR -
+	Failed after 0:00:00!
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 23:46:49,234 - 15342407516576 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 23:46:49,236 - 15342407516576.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 23:46:49,236 - 15342407516576.DNLP - INFO -
+	Running command 'main'
+2019-06-15 23:46:49,244 - 15342407516576.DNLP - INFO -
+	Started run with ID "18"
+2019-06-15 23:46:49,244 - 15342407516576.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 23:46:49,246 - 15342407516576.main - DEBUG -
+	Started
+2019-06-15 23:46:49,246 - 15342407516576.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-15 23:47:48,177 - 15342407516576.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-15 23:47:48,246 - 15342407516576.DNLP - ERROR -
+	Failed after 0:00:59!
+2019-06-15 23:55:51,683 - 15342950014912 - WARNING -
+	Added new config entry: "data_file"
+2019-06-15 23:55:51,683 - 15342950014912 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-15 23:55:51,683 - 15342950014912 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-15 23:55:51,684 - 15342950014912 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-15 23:55:51,684 - 15342950014912 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-15 23:55:51,684 - 15342950014912 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-15 23:55:51,684 - 15342950014912.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-15 23:55:51,684 - 15342950014912.DNLP - INFO -
+	Running command 'main'
+2019-06-15 23:55:51,688 - 15342950014912.DNLP - INFO -
+	Started run with ID "19"
+2019-06-15 23:55:51,690 - 15342950014912.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-15 23:55:51,690 - 15342950014912.main - DEBUG -
+	Started
+2019-06-15 23:55:51,690 - 15342950014912.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 00:01:42,236 - 15342950014912.DNLP - WARNING -
+	An error ocurred in the '<sacred.observers.mongo.MongoObserver object at 0x0000000009E21A90>' observer: Run contained an unserializable entry.(most likely in the info)
+2019-06-16 00:44:04,170 - 1534583987060 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 00:44:04,170 - 1534583987060 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 00:44:04,170 - 1534583987060 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 00:44:04,170 - 1534583987060 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 00:44:04,171 - 1534583987060 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 00:44:04,171 - 1534583987060 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 00:44:04,171 - 1534583987060.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 00:44:04,171 - 1534583987060.DNLP - INFO -
+	Running command 'main'
+2019-06-16 00:44:04,338 - 1534583987060.DNLP - INFO -
+	Started run with ID "20"
+2019-06-16 00:44:04,338 - 1534583987060.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 00:44:04,338 - 1534583987060.main - DEBUG -
+	Started
+2019-06-16 00:44:04,338 - 1534583987060.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 02:28:22,367 - 1534583987060.main - DEBUG -
+	Finished after 1:44:18.
+2019-06-16 02:28:22,367 - 1534583987060.DNLP - INFO -
+	Result: {'origin': {'length': 77327.26188957818}, 'time': 6251.1449999809265}
+2019-06-16 02:28:22,367 - 1534583987060.DNLP - INFO -
+	Completed after 1:44:18
+2019-06-16 02:28:22,367 - 1534583987060.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 05:50:15,927 - 1536421405032 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 05:50:15,927 - 1536421405032.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 05:50:15,927 - 1536421405032.DNLP - INFO -
+	Running command 'main'
+2019-06-16 05:50:15,937 - 1536421405032.DNLP - INFO -
+	Started run with ID "21"
+2019-06-16 05:50:15,937 - 1536421405032.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 05:50:15,937 - 1536421405032.main - DEBUG -
+	Started
+2019-06-16 05:50:15,937 - 1536421405032.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 06:12:10,109 - 1536421405032.main - DEBUG -
+	Finished after 0:21:54.
+2019-06-16 06:12:10,111 - 1536421405032.DNLP - INFO -
+	Result: {'origin': {'length': 57119.12913734745}, 'time': 1309.758999824524}
+2019-06-16 06:12:10,111 - 1536421405032.DNLP - INFO -
+	Completed after 0:21:54
+2019-06-16 06:12:10,111 - 1536421405032.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 06:12:20,423 - 15365538416992 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 06:12:20,424 - 15365538416992.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 06:12:20,424 - 15365538416992.DNLP - INFO -
+	Running command 'main'
+2019-06-16 06:12:20,430 - 15365538416992.DNLP - INFO -
+	Started run with ID "22"
+2019-06-16 06:12:20,430 - 15365538416992.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 06:12:20,430 - 15365538416992.main - DEBUG -
+	Started
+2019-06-16 06:12:20,430 - 15365538416992.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 07:45:20,582 - 15365538416992.main - DEBUG -
+	Finished after 1:33:00.
+2019-06-16 07:45:20,582 - 15365538416992.DNLP - INFO -
+	Result: {'origin': {'length': 74773.53605955796}, 'time': 5574.6630001068115}
+2019-06-16 07:45:20,582 - 15365538416992.DNLP - INFO -
+	Completed after 1:33:00
+2019-06-16 07:45:20,584 - 15365538416992.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 07:46:19,042 - 15371176313740 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 07:46:19,042 - 15371176313740.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 07:46:19,042 - 15371176313740.DNLP - INFO -
+	Running command 'main'
+2019-06-16 07:46:19,048 - 15371176313740.DNLP - INFO -
+	Started run with ID "23"
+2019-06-16 07:46:19,048 - 15371176313740.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 07:46:19,049 - 15371176313740.main - DEBUG -
+	Started
+2019-06-16 07:46:19,049 - 15371176313740.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 13:20:07,198 - 1539120548636 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 13:20:07,198 - 1539120548636 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 13:20:07,200 - 1539120548636 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 13:20:07,200 - 1539120548636 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 13:20:07,200 - 1539120548636 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 13:20:07,200 - 1539120548636 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 13:20:07,200 - 1539120548636.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 13:20:07,200 - 1539120548636.DNLP - INFO -
+	Running command 'main'
+2019-06-16 13:20:07,207 - 1539120548636.DNLP - INFO -
+	Started run with ID "24"
+2019-06-16 13:20:07,207 - 1539120548636.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 13:20:07,207 - 1539120548636.main - DEBUG -
+	Started
+2019-06-16 13:20:07,207 - 1539120548636.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Berlin/inference/cache/crifTraj/Berlin.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-06-16 14:38:05,630 - 15371176313740.main - DEBUG -
+	Finished after 6:51:47.
+2019-06-16 14:38:05,632 - 15371176313740.DNLP - INFO -
+	Result: {'origin': {'length': 84747.26188957776}, 'time': 24689.384999990463}
+2019-06-16 14:38:05,634 - 15371176313740.DNLP - INFO -
+	Completed after 6:51:47
+2019-06-16 14:38:05,634 - 15371176313740.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "data_file"
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "map_max_x"
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "map_max_y"
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "map_min_x"
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "map_min_y"
+2019-06-16 14:39:04,579 - 15395942218732 - WARNING -
+	Added new config entry: "output_folder"
+2019-06-16 14:39:04,581 - 15395942218732.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-06-16 14:39:04,581 - 15395942218732.DNLP - INFO -
+	Running command 'main'
+2019-06-16 14:39:04,588 - 15395942218732.DNLP - INFO -
+	Started run with ID "26"
+2019-06-16 14:39:04,588 - 15395942218732.DNLP - DEBUG -
+	Starting Heartbeat
+2019-06-16 14:39:04,588 - 15395942218732.main - DEBUG -
+	Started
+2019-06-16 14:39:04,589 - 15395942218732.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Berlin/inference/cache/crifTraj/Berlin.pickle 	side: 10	k: 400	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-24 12:32:07,773 - 24028323296968 - WARNING -
+	Added new config entry: "data_file"
+2019-09-24 12:32:07,795 - 24028323296968 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-24 12:32:07,795 - 24028323296968 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-24 12:32:07,796 - 24028323296968 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-24 12:32:07,796 - 24028323296968 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-24 12:32:07,796 - 24028323296968 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-24 12:32:07,798 - 24028323296968.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-24 12:32:07,798 - 24028323296968.DNLP - INFO -
+	Running command 'main'
+2019-09-24 12:32:08,255 - 24028323296968.DNLP - INFO -
+	Started run with ID "28"
+2019-09-24 12:32:08,255 - 24028323296968.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-24 12:32:08,256 - 24028323296968.main - DEBUG -
+	Started
+2019-09-24 12:32:08,256 - 24028323296968.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-24 13:34:25,789 - 24032063084404 - WARNING -
+	Added new config entry: "data_file"
+2019-09-24 13:34:25,790 - 24032063084404 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-24 13:34:25,790 - 24032063084404 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-24 13:34:25,790 - 24032063084404 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-24 13:34:25,790 - 24032063084404 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-24 13:34:25,792 - 24032063084404 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-24 13:34:25,792 - 24032063084404.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-24 13:34:25,792 - 24032063084404.DNLP - INFO -
+	Running command 'main'
+2019-09-24 13:34:25,801 - 24032063084404.DNLP - INFO -
+	Started run with ID "29"
+2019-09-24 13:34:25,801 - 24032063084404.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-24 13:34:25,802 - 24032063084404.main - DEBUG -
+	Started
+2019-09-24 13:34:25,802 - 24032063084404.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-24 14:49:30,200 - 24028323296968.main - DEBUG -
+	Finished after 2:17:22.
+2019-09-24 14:49:30,217 - 24028323296968.DNLP - INFO -
+	Result: {'origin': {'length': 98186.19766708631}, 'time': 8234.161999940872}
+2019-09-24 14:49:30,217 - 24028323296968.DNLP - INFO -
+	Completed after 2:17:22
+2019-09-24 14:49:30,219 - 24028323296968.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-24 15:53:45,443 - 24032063084404.main - DEBUG -
+	Finished after 2:19:20.
+2019-09-24 15:53:45,443 - 24032063084404.DNLP - INFO -
+	Result: {'origin': {'length': 89048.61181906544}, 'time': 8352.259999990463}
+2019-09-24 15:53:45,444 - 24032063084404.DNLP - INFO -
+	Completed after 2:19:20
+2019-09-24 15:53:45,444 - 24032063084404.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-24 15:55:31,789 - 24040528850632 - WARNING -
+	Added new config entry: "data_file"
+2019-09-24 15:55:31,789 - 24040528850632 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-24 15:55:31,790 - 24040528850632 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-24 15:55:31,790 - 24040528850632 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-24 15:55:31,790 - 24040528850632 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-24 15:55:31,790 - 24040528850632 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-24 15:55:31,792 - 24040528850632.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-24 15:55:31,792 - 24040528850632.DNLP - INFO -
+	Running command 'main'
+2019-09-24 15:55:31,801 - 24040528850632.DNLP - INFO -
+	Started run with ID "30"
+2019-09-24 15:55:31,801 - 24040528850632.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-24 15:55:31,802 - 24040528850632.main - DEBUG -
+	Started
+2019-09-24 15:55:31,802 - 24040528850632.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-24 18:50:33,691 - 24040528850632.main - DEBUG -
+	Finished after 2:55:02.
+2019-09-24 18:50:33,693 - 24040528850632.DNLP - INFO -
+	Result: {'origin': {'length': 120928.02158726257}, 'time': 10492.954999923706}
+2019-09-24 18:50:33,693 - 24040528850632.DNLP - INFO -
+	Completed after 2:55:02
+2019-09-24 18:50:33,693 - 24040528850632.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-24 18:52:01,506 - 240511184100584 - WARNING -
+	Added new config entry: "data_file"
+2019-09-24 18:52:01,506 - 240511184100584 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-24 18:52:01,507 - 240511184100584 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-24 18:52:01,507 - 240511184100584 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-24 18:52:01,507 - 240511184100584 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-24 18:52:01,507 - 240511184100584 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-24 18:52:01,509 - 240511184100584.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-24 18:52:01,509 - 240511184100584.DNLP - INFO -
+	Running command 'main'
+2019-09-24 18:52:01,516 - 240511184100584.DNLP - INFO -
+	Started run with ID "31"
+2019-09-24 18:52:01,516 - 240511184100584.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-24 18:52:01,517 - 240511184100584.main - DEBUG -
+	Started
+2019-09-24 18:52:01,519 - 240511184100584.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 01:36:51,061 - 240511184100584.main - DEBUG -
+	Finished after 6:44:50.
+2019-09-25 01:36:51,062 - 240511184100584.DNLP - INFO -
+	Result: {'origin': {'length': 463281.7456753532}, 'time': 24256.861000061035}
+2019-09-25 01:36:51,062 - 240511184100584.DNLP - INFO -
+	Completed after 6:44:50
+2019-09-25 01:36:51,062 - 240511184100584.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 01:37:56,104 - 24075472290956 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 01:37:56,105 - 24075472290956 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 01:37:56,105 - 24075472290956 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 01:37:56,105 - 24075472290956 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 01:37:56,105 - 24075472290956 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 01:37:56,105 - 24075472290956 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 01:37:56,105 - 24075472290956.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 01:37:56,107 - 24075472290956.DNLP - INFO -
+	Running command 'main'
+2019-09-25 01:37:56,114 - 24075472290956.DNLP - INFO -
+	Started run with ID "32"
+2019-09-25 01:37:56,115 - 24075472290956.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 01:37:56,115 - 24075472290956.main - DEBUG -
+	Started
+2019-09-25 01:37:56,115 - 24075472290956.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 03:50:43,002 - 24075472290956.main - DEBUG -
+	Finished after 2:12:47.
+2019-09-25 03:50:43,002 - 24075472290956.DNLP - INFO -
+	Result: {'origin': {'length': 87350.2770414791}, 'time': 7959.995000123978}
+2019-09-25 03:50:43,002 - 24075472290956.DNLP - INFO -
+	Completed after 2:12:47
+2019-09-25 03:50:43,002 - 24075472290956.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 03:50:57,319 - 24083454670628 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 03:50:57,319 - 24083454670628 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 03:50:57,319 - 24083454670628 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 03:50:57,319 - 24083454670628 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 03:50:57,319 - 24083454670628 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 03:50:57,321 - 24083454670628 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 03:50:57,321 - 24083454670628.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 03:50:57,321 - 24083454670628.DNLP - INFO -
+	Running command 'main'
+2019-09-25 03:50:57,328 - 24083454670628.DNLP - INFO -
+	Started run with ID "33"
+2019-09-25 03:50:57,329 - 24083454670628.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 03:50:57,331 - 24083454670628.main - DEBUG -
+	Started
+2019-09-25 03:50:57,331 - 24083454670628.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 06:00:50,328 - 24083454670628.main - DEBUG -
+	Finished after 2:09:53.
+2019-09-25 06:00:50,329 - 24083454670628.DNLP - INFO -
+	Result: {'origin': {'length': 93154.94875027622}, 'time': 7786.330000162125}
+2019-09-25 06:00:50,329 - 24083454670628.DNLP - INFO -
+	Completed after 2:09:53
+2019-09-25 06:00:50,329 - 24083454670628.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 06:01:04,585 - 24091261836344 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 06:01:04,586 - 24091261836344 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 06:01:04,586 - 24091261836344 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 06:01:04,586 - 24091261836344 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 06:01:04,588 - 24091261836344 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 06:01:04,588 - 24091261836344 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 06:01:04,588 - 24091261836344.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 06:01:04,588 - 24091261836344.DNLP - INFO -
+	Running command 'main'
+2019-09-25 06:01:04,598 - 24091261836344.DNLP - INFO -
+	Started run with ID "34"
+2019-09-25 06:01:04,598 - 24091261836344.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 06:01:04,598 - 24091261836344.main - DEBUG -
+	Started
+2019-09-25 06:01:04,598 - 24091261836344.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 08:09:46,418 - 24091261836344.main - DEBUG -
+	Finished after 2:08:42.
+2019-09-25 08:09:46,418 - 24091261836344.DNLP - INFO -
+	Result: {'origin': {'length': 134030.59951314997}, 'time': 7711.631000041962}
+2019-09-25 08:09:46,420 - 24091261836344.DNLP - INFO -
+	Completed after 2:08:42
+2019-09-25 08:09:46,420 - 24091261836344.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 08:10:00,092 - 24098997143952 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 08:10:00,094 - 24098997143952 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 08:10:00,094 - 24098997143952 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 08:10:00,094 - 24098997143952 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 08:10:00,094 - 24098997143952 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 08:10:00,094 - 24098997143952 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 08:10:00,094 - 24098997143952.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 08:10:00,095 - 24098997143952.DNLP - INFO -
+	Running command 'main'
+2019-09-25 08:10:00,101 - 24098997143952.DNLP - INFO -
+	Started run with ID "35"
+2019-09-25 08:10:00,101 - 24098997143952.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 08:10:00,102 - 24098997143952.main - DEBUG -
+	Started
+2019-09-25 08:10:00,102 - 24098997143952.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 10:18:40,180 - 24098997143952.main - DEBUG -
+	Finished after 2:08:40.
+2019-09-25 10:18:40,180 - 24098997143952.DNLP - INFO -
+	Result: {'origin': {'length': 171725.2661457979}, 'time': 7706.973000049591}
+2019-09-25 10:18:40,180 - 24098997143952.DNLP - INFO -
+	Completed after 2:08:40
+2019-09-25 10:18:40,181 - 24098997143952.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 10:18:53,700 - 241067310104192 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 10:18:53,700 - 241067310104192 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 10:18:53,700 - 241067310104192 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 10:18:53,701 - 241067310104192 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 10:18:53,701 - 241067310104192 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 10:18:53,701 - 241067310104192 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 10:18:53,703 - 241067310104192.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 10:18:53,703 - 241067310104192.DNLP - INFO -
+	Running command 'main'
+2019-09-25 10:18:53,710 - 241067310104192.DNLP - INFO -
+	Started run with ID "36"
+2019-09-25 10:18:53,711 - 241067310104192.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 10:18:53,713 - 241067310104192.main - DEBUG -
+	Started
+2019-09-25 10:18:53,713 - 241067310104192.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 12:25:33,822 - 241067310104192.main - DEBUG -
+	Finished after 2:06:40.
+2019-09-25 12:25:33,823 - 241067310104192.DNLP - INFO -
+	Result: {'origin': {'length': 186865.27840068802}, 'time': 7586.0}
+2019-09-25 12:25:33,823 - 241067310104192.DNLP - INFO -
+	Completed after 2:06:40
+2019-09-25 12:25:33,823 - 241067310104192.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 12:25:44,250 - 241143415101772 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 12:25:44,250 - 241143415101772 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 12:25:44,250 - 241143415101772 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 12:25:44,252 - 241143415101772 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 12:25:44,252 - 241143415101772 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 12:25:44,252 - 241143415101772 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 12:25:44,253 - 241143415101772.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 12:25:44,253 - 241143415101772.DNLP - INFO -
+	Running command 'main'
+2019-09-25 12:25:44,260 - 241143415101772.DNLP - INFO -
+	Started run with ID "37"
+2019-09-25 12:25:44,262 - 241143415101772.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 12:25:44,263 - 241143415101772.main - DEBUG -
+	Started
+2019-09-25 12:25:44,263 - 241143415101772.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 12:29:42,723 - 241143415101772.main - DEBUG -
+	Finished after 0:03:58.
+2019-09-25 12:29:42,723 - 241143415101772.DNLP - INFO -
+	Result: {'origin': {'length': 16675.807358037444}, 'time': 237.10800004005432}
+2019-09-25 12:29:42,723 - 241143415101772.DNLP - INFO -
+	Completed after 0:03:58
+2019-09-25 12:29:42,723 - 241143415101772.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 12:29:53,138 - 241145905106024 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 12:29:53,138 - 241145905106024 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 12:29:53,138 - 241145905106024 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 12:29:53,138 - 241145905106024 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 12:29:53,138 - 241145905106024 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 12:29:53,140 - 241145905106024 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 12:29:53,140 - 241145905106024.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 12:29:53,140 - 241145905106024.DNLP - INFO -
+	Running command 'main'
+2019-09-25 12:29:53,148 - 241145905106024.DNLP - INFO -
+	Started run with ID "38"
+2019-09-25 12:29:53,148 - 241145905106024.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 12:29:53,150 - 241145905106024.main - DEBUG -
+	Started
+2019-09-25 12:29:53,150 - 241145905106024.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 12:35:52,423 - 241145905106024.main - DEBUG -
+	Finished after 0:05:59.
+2019-09-25 12:35:52,424 - 241145905106024.DNLP - INFO -
+	Result: {'origin': {'length': 24749.777054234117}, 'time': 357.10400009155273}
+2019-09-25 12:35:52,424 - 241145905106024.DNLP - INFO -
+	Completed after 0:05:59
+2019-09-25 12:35:52,424 - 241145905106024.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 12:36:03,377 - 24114960794568 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 12:36:03,377 - 24114960794568 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 12:36:03,377 - 24114960794568 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 12:36:03,378 - 24114960794568 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 12:36:03,378 - 24114960794568 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 12:36:03,378 - 24114960794568 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 12:36:03,378 - 24114960794568.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 12:36:03,378 - 24114960794568.DNLP - INFO -
+	Running command 'main'
+2019-09-25 12:36:03,387 - 24114960794568.DNLP - INFO -
+	Started run with ID "39"
+2019-09-25 12:36:03,387 - 24114960794568.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 12:36:03,388 - 24114960794568.main - DEBUG -
+	Started
+2019-09-25 12:36:03,388 - 24114960794568.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 12:44:49,193 - 24114960794568.main - DEBUG -
+	Finished after 0:08:46.
+2019-09-25 12:44:49,194 - 24114960794568.DNLP - INFO -
+	Result: {'origin': {'length': 37229.432175380025}, 'time': 522.6449999809265}
+2019-09-25 12:44:49,194 - 24114960794568.DNLP - INFO -
+	Completed after 0:08:46
+2019-09-25 12:44:49,194 - 24114960794568.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 12:45:02,558 - 24115499997880 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 12:45:02,559 - 24115499997880 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 12:45:02,559 - 24115499997880 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 12:45:02,559 - 24115499997880 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 12:45:02,559 - 24115499997880 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 12:45:02,559 - 24115499997880 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 12:45:02,559 - 24115499997880.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 12:45:02,561 - 24115499997880.DNLP - INFO -
+	Running command 'main'
+2019-09-25 12:45:02,569 - 24115499997880.DNLP - INFO -
+	Started run with ID "40"
+2019-09-25 12:45:02,569 - 24115499997880.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 12:45:02,569 - 24115499997880.main - DEBUG -
+	Started
+2019-09-25 12:45:02,569 - 24115499997880.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 12:57:04,542 - 24115499997880.main - DEBUG -
+	Finished after 0:12:02.
+2019-09-25 12:57:04,542 - 24115499997880.DNLP - INFO -
+	Result: {'origin': {'length': 51896.07214462453}, 'time': 717.944000005722}
+2019-09-25 12:57:04,542 - 24115499997880.DNLP - INFO -
+	Completed after 0:12:02
+2019-09-25 12:57:04,542 - 24115499997880.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 12:57:18,869 - 241162360103628 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 12:57:18,871 - 241162360103628 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 12:57:18,871 - 241162360103628 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 12:57:18,871 - 241162360103628 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 12:57:18,871 - 241162360103628 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 12:57:18,871 - 241162360103628 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 12:57:18,871 - 241162360103628.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 12:57:18,871 - 241162360103628.DNLP - INFO -
+	Running command 'main'
+2019-09-25 12:57:18,880 - 241162360103628.DNLP - INFO -
+	Started run with ID "41"
+2019-09-25 12:57:18,881 - 241162360103628.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 12:57:18,881 - 241162360103628.main - DEBUG -
+	Started
+2019-09-25 12:57:18,881 - 241162360103628.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 13:12:55,161 - 241162360103628.main - DEBUG -
+	Finished after 0:15:36.
+2019-09-25 13:12:55,161 - 241162360103628.DNLP - INFO -
+	Result: {'origin': {'length': 65799.57502887913}, 'time': 931.2759997844696}
+2019-09-25 13:12:55,161 - 241162360103628.DNLP - INFO -
+	Completed after 0:15:36
+2019-09-25 13:12:55,161 - 241162360103628.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 13:13:11,138 - 24117188581736 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 13:13:11,140 - 24117188581736.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 13:13:11,140 - 24117188581736.DNLP - INFO -
+	Running command 'main'
+2019-09-25 13:13:11,148 - 24117188581736.DNLP - INFO -
+	Started run with ID "42"
+2019-09-25 13:13:11,148 - 24117188581736.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 13:13:11,150 - 24117188581736.main - DEBUG -
+	Started
+2019-09-25 13:13:11,150 - 24117188581736.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 13:32:46,532 - 24117188581736.main - DEBUG -
+	Finished after 0:19:35.
+2019-09-25 13:32:46,532 - 24117188581736.DNLP - INFO -
+	Result: {'origin': {'length': 79440.35713374667}, 'time': 1169.3020000457764}
+2019-09-25 13:32:46,532 - 24117188581736.DNLP - INFO -
+	Completed after 0:19:35
+2019-09-25 13:32:46,533 - 24117188581736.DNLP - DEBUG -
+	Stopping Heartbeat
+2019-09-25 13:34:13,249 - 241184504103460 - WARNING -
+	Added new config entry: "data_file"
+2019-09-25 13:34:13,249 - 241184504103460 - WARNING -
+	Added new config entry: "map_max_x"
+2019-09-25 13:34:13,249 - 241184504103460 - WARNING -
+	Added new config entry: "map_max_y"
+2019-09-25 13:34:13,250 - 241184504103460 - WARNING -
+	Added new config entry: "map_min_x"
+2019-09-25 13:34:13,250 - 241184504103460 - WARNING -
+	Added new config entry: "map_min_y"
+2019-09-25 13:34:13,250 - 241184504103460 - WARNING -
+	Added new config entry: "output_folder"
+2019-09-25 13:34:13,250 - 241184504103460.DNLP - DEBUG -
+	Using capture mode "sys"
+2019-09-25 13:34:13,250 - 241184504103460.DNLP - INFO -
+	Running command 'main'
+2019-09-25 13:34:13,259 - 241184504103460.DNLP - INFO -
+	Started run with ID "43"
+2019-09-25 13:34:13,259 - 241184504103460.DNLP - DEBUG -
+	Starting Heartbeat
+2019-09-25 13:34:13,260 - 241184504103460.main - DEBUG -
+	Started
+2019-09-25 13:34:13,260 - 241184504103460.main - INFO -
+	topic_model: pLSA 	data_file: C:/data/Beijing-S/inference/cache/crifTraj/Beijing-S.pickle 	side: 10	k: 1000	percent: 0.0200	width: 5	alpha: 0.90	beta: 0.00
+2019-09-25 16:00:39,657 - 241184504103460.main - DEBUG -
+	Finished after 2:26:26.
+2019-09-25 16:00:39,657 - 241184504103460.DNLP - INFO -
+	Result: {'origin': {'length': 90257.82971419749}, 'time': 8777.914999961853}
+2019-09-25 16:00:39,658 - 241184504103460.DNLP - INFO -
+	Completed after 2:26:26
+2019-09-25 16:00:39,658 - 241184504103460.DNLP - DEBUG -
+	Stopping Heartbeat

@@ -201,7 +201,7 @@ def RawSimilarity(traceA, traceB):
     for i in xrange(n):
         s = s + np.sqrt(
             (traceA[i][0] - traceB[i][0] + biasX) * (traceA[i][0] - traceB[i][0] + biasX) + (traceA[i][1] - traceB[i][1] + biasY) * (
-                        traceA[i][1] - traceB[i][1] + biasY))
+                    traceA[i][1] - traceB[i][1] + biasY))
 
     return s / n
 
@@ -212,7 +212,7 @@ StepSize = 0.00015  # 15 meters
 # StepSize = 0.00025 # 15 meters
 QueryRange = 0.00003  # 2 meters
 
-DBDCheckRange = 35  # default is 20
+DBDCheckRange = 20  # default is 20
 DBDExclusionRange = 10  # 10 is good
 
 
@@ -644,7 +644,7 @@ class RoadTree:
         # return result
 
         for j in range(size * 2 + 1):
-            if result[j] >= threshold:
+            if len(result) > j and result[j] >= threshold:
                 score[j] = result[j]  # math.log(result[j]+0.00000001)
             else:
                 score[j] = -10000
@@ -1121,8 +1121,6 @@ class RoadTree:
 
                     # Try to remove this... Although 5 meter radius might be a bottomneck
                     # r2 = noise_radius
-
-
 
                     else:
                         if query_data[-1][2] + r2 > d and d != 0:
@@ -1637,8 +1635,9 @@ class RoadTree:
                     self.nodes[new_id]['score'][j] = self.nodes[new_id]['rawScoreStepsize2'][j]
 
         self.index_segment.insert(new_id, (
-        min(self.nodes[new_id]['lat'], parent_lat), min(self.nodes[new_id]['lon'], parent_lon), max(self.nodes[new_id]['lat'], parent_lat),
-        max(self.nodes[new_id]['lon'], parent_lon)))
+            min(self.nodes[new_id]['lat'], parent_lat), min(self.nodes[new_id]['lon'], parent_lon),
+            max(self.nodes[new_id]['lat'], parent_lat),
+            max(self.nodes[new_id]['lon'], parent_lon)))
 
         # Check Deferred Links
         possible_links = list(self.index_deferredLinks.intersection((min(self.nodes[new_id]['lat'], parent_lat),

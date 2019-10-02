@@ -53,13 +53,13 @@ public class CRIFMapInference {
 				break;
 			case "Berlin":
 			case "Beijing-S":
-				this.k = 400;
+				this.k = 1000;
 				break;
 			case "Beijing-M":
-				this.k = 800;
+				this.k = 5000;
 				break;
 			case "Beijing-L":
-				this.k = 1600;
+				this.k = 20000;
 				break;
 		}
 		this.cellWidth = prop.getPropertyInteger("algorithm.mapinference.crif.CellWidth");

@@ -87,7 +87,7 @@ public class MapInferenceMain {
 			case "KHA":
 				logFileName = "inference_" + dataSet + "_" + inferenceMethod + "_" + dataSpec + "_"
 						+ property.getPropertyString("algorithm.mapinference.pointclustering.Radius") + "_"
-						+ property.getPropertyString("algorithm.mapinference.pointclustering.DensifyDistance") + "_"
+						+ property.getPropertyString("algorithm.mapinference.pointclustering.DensityDistance") + "_"
 						+ property.getPropertyString("algorithm.mapinference.pointclustering.AngleTolerance") + "_" + initTaskTime;
 				break;
 			default:

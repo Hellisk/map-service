@@ -5,11 +5,14 @@ import algorithm.mapinference.lineclustering.pcurves.Optimize.Optimizable;
 import algorithm.mapinference.lineclustering.pcurves.PrincipalCurve.Vertex.*;
 import algorithm.mapinference.lineclustering.pcurves.PrincipalCurve.Vertex.Elements.*;
 import algorithm.mapinference.lineclustering.pcurves.Utilities.MyMath;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
+	
+	private static final Logger LOG = Logger.getLogger(PrincipalCurveClass.class);
 	private List<Edge> edges;
 	private PrincipalCurveSample sample;
 	private Sample oldVertices = new Sample(); // vertices from the previous iteration
@@ -356,8 +359,9 @@ public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
 				if (GetVertexAt(i).EmptySet()) {
 //                    System.out.println("deleted " + GetVertexAt(i));
 					vertexDeletionCount += 1;
-					if (vertexDeletionCount >= 10)
-						throw new IllegalStateException("WARNING! Vertex deletes more than 10 times.");
+					if (vertexDeletionCount >= 10) {
+						LOG.debug("Vertex deletes more than 10 times.");
+					}
 					cont = true;
 					try {
 						DeleteLineVertexAt(i);
@@ -700,7 +704,7 @@ public class PrincipalCurveClass extends GraphAbstract implements Optimizable {
 	
 	@Override
 	final public String toString() {
-		String s = new String();
+		String s = "";
 		for (int i = 0; i < getSize(); i++) {
 			s += "point[" + i + "]:\t";
 			s += GetPointAt(i).toString();

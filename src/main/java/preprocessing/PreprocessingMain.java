@@ -40,7 +40,7 @@ public class PreprocessingMain {
 		MapServiceLogger.logInit(logPath, logFileName);
 		
 		final Logger LOG = Logger.getLogger(PreprocessingMain.class);
-		LOG.info("Map-Trajectory Co-Optimization with arguments: " + property.toString());
+		LOG.info("Start data preprocessing");
 		
 		if (dataSet.contains("Beijing")) {
 			DistanceFunction distFunc = new GreatCircleDistanceFunction();
