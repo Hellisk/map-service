@@ -126,8 +126,8 @@ class CoOptimization {
 				prevMap.addWays(newWayList);
 //                        MapWriter updatedMapWriter = new MapWriter(prevMap, CACHE_FOLDER);
 //                        updatedMapWriter.writeMap(PERCENTAGE, iteration, true);
-				
-				// map update evaluation
+
+                // map updateGoh evaluation
 				
 				// step 3: map-matching process on updated map
 				Pair<List<MultipleTrajectoryMatchResult>, List<Triplet<Trajectory, String, String>>> matchResultPair;
@@ -195,10 +195,10 @@ class CoOptimization {
 				
 				if (matchResultPair._2().size() == 0)  // no unmatched trajectory, iteration terminates
 					costFunc = -1;
-				// evaluation: map update evaluation
-				LOG.info("Evaluate the map update result and compare the map accuracy before and after refinement.");
+                // evaluation: map updateGoh evaluation
+                LOG.info("Evaluate the map updateGoh result and compare the map accuracy before and after refinement.");
 				prevMatchResultPair = new Pair<>(iterationFinalMatchResult, iterationFinalUnmatchedResult);
-			} else {    // index-based parallel map update
+            } else {    // index-based parallel map updateGoh
 				CoOptimizationFunc coOptimizationFunc = new CoOptimizationFunc(prevMap, newWayList);
 				// read the previous map-matching result
 				HashMap<String, List<Pair<String, MatchResultWithUnmatchedTraj>>> trajID2MatchResultUpdate = new LinkedHashMap<>();
@@ -309,7 +309,7 @@ class CoOptimization {
 		MapWriter.writeMap(prevMap, outputMapFolder + percentage + ".txt");
 		MatchResultWriter.writeMultipleMatchResults(prevMatchResultPair._1(), outputMatchResultFolder);
 		LOG.info("Co-optimization finish. Total running time: " + (System.currentTimeMillis() - startTaskTime) / 1000 +
-				" seconds, matching time: " + matchingTime + ", update time: " + updateTime + ", refinement time: " +
+                " seconds, matching time: " + matchingTime + ", updateGoh time: " + updateTime + ", refinement time: " +
 				refinementTime + ", refinement matching time: " + refineMatchingTime + ", average time per " +
 				"iteration: " + (System.currentTimeMillis() - totalIterationStartTime) / (iteration - 1) / 1000 + ", total number of " +
 				"iterations: " + (iteration - 1));

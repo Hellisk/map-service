@@ -140,8 +140,8 @@ public class TraceMergeMapInference {
 	 * algorithm is in the publication.
 	 */
 	private void updateMap(List<VertexTM> constructedMap, Map<String, Integer> map, EdgeTM edge) {
-		
-		// update the map by adding a new edge
+
+        // updateGoh the map by adding a new edge
 		VertexTM v;
 		int parent = -1;
 		int child = -1;
@@ -166,7 +166,7 @@ public class TraceMergeMapInference {
 			child = constructedMap.indexOf(v);
 			map.put(keyChild, child);
 		}
-		// update the map
+        // updateGoh the map
 		if (parent == -1 || child == -1) {
 			LOG.error("inconsistent graph child, parent :" + child + ", " + parent);
 		} else if (parent != child) {

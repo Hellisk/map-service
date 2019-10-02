@@ -71,7 +71,7 @@ public class BeijingMapLoader {
 	}
 	
 	/**
-	 * Remove the prefix of the point ID of connection node and update its adjacent roads.
+     * Remove the prefix of the point ID of connection node and updateGoh its adjacent roads.
 	 *
 	 * @param pointID           Original point ID.
 	 * @param edgeID            The road way ID which contains the point

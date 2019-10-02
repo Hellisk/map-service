@@ -147,11 +147,11 @@ public class MatchResultWriter {
 	}
 	
 	/**
-	 * Merge the matching results generated before and after the result update and write new map-matching results to the file. Only used
-	 * in map update.
-	 *
-	 * @param oldMatchResults The original map-matching result before result update.
-	 * @param newMatchResults The map-matching results affected by the result update.
+     * Merge the matching results generated before and after the result updateGoh and write new map-matching results to the file. Only used
+     * in map updateGoh.
+     *
+     * @param oldMatchResults The original map-matching result before result updateGoh.
+     * @param newMatchResults The map-matching results affected by the result updateGoh.
 	 * @param fileFolder      The output file folder.
 	 * @return The merged map-matching results.
 	 */

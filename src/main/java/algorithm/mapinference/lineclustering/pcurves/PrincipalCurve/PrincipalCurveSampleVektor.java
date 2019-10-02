@@ -50,7 +50,7 @@ final public class PrincipalCurveSampleVektor extends Vektor2D implements Weight
 	}
 	
 	// Recomputes the distance from the nearest segment over all segments, assuming that
-	// the largest change in vertex positions before last update is maxChange, and the
+    // the largest change in vertex positions before last updateGoh is maxChange, and the
 	// maximum possible distance is maxDistance (usually equals to the diameter of the data).
 	final public double GetDist2FromNearestSegment(double maxChange, double maxDistance,
 												   LineSegmentAbstract[] lineSegments) {

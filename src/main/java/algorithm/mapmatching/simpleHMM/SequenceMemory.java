@@ -197,6 +197,34 @@ public class SequenceMemory {
         }
     }
 
+    public void update(
+            StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> candidateSeq) {
+        expand(latestStateMemory, lastSample);
+        List<StateMemory> deletes = new ArrayList<>();
+        if (maxStateNum < stateMemoryVector.size() && maxStateNum > 0) {
+            // force to output all states in window, then empty window
+            reverse(candidateSeq, stateMemoryVector.size() - 1);
+            while (stateMemoryVector.size() > 0) {
+                deletes.add(stateMemoryVector.removeFirst());
+            }
+        }
+
+        for (StateMemory delete : deletes) {
+            for (StateCandidate stateCandidate : delete.getStateCandidates().values()) {
+                sequenceCandidateVotes.remove(stateCandidate.getId());
+            }
+        }
+
+        // set predecessors of candidates in the first state of new sequence to null
+        if (deletes.size() > 0) {
+            StateMemory newFirst = stateMemoryVector.peekFirst();
+            for (StateCandidate stateCandidate : newFirst.getStateCandidates().values()) {
+                stateCandidate.setPredecessor(null);
+            }
+        }
+
+        assert (maxStateNum + 1 < stateMemoryVector.size());
+    }
 
     public void updateGoh(
             StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> optimalCandiSeq) {
@@ -329,19 +357,19 @@ public class SequenceMemory {
     /**
      * Eddy's force output after travel completed
      *
-     * @param optimalCcandidateSeq to store matching result
+     * @param optimalCandidateSeq to store matching result
      * @param gamma                parameter
      */
-    public void forceFinalOutput(Map<String, StateCandidate> optimalCcandidateSeq, double gamma) {
+    public void forceFinalOutput(Map<String, StateCandidate> optimalCandidateSeq, double gamma) {
         Pair<Integer, Map<String, Map<StateCandidate, Double>>> stateUncertainties = checkUncertainty(gamma);
 
         // uncertainty of last state will not be checked
         if (stateMemoryVector.size() >= 2) {
-            shrinkWisely(optimalCcandidateSeq, new Pair<>(stateMemoryVector.size() - 2, stateUncertainties._2()));
+            shrinkWisely(optimalCandidateSeq, new Pair<>(stateMemoryVector.size() - 2, stateUncertainties._2()));
         }
 
         // therefore, the last state need to be removed manually
         StateMemory lastState = stateMemoryVector.removeLast();
-        optimalCcandidateSeq.put(lastState.getId(), lastState.getFiltProbCandidate());
+        optimalCandidateSeq.put(lastState.getId(), lastState.getFiltProbCandidate());
     }
 }

@@ -201,8 +201,8 @@ public class CoOptimizationFunc {
 						LOG.warn("The certainty difference should be larger than zero.");
 						continue;
 					}
-					
-					// insert the current matching result to the update list
+
+                    // insert the current matching result to the updateGoh list
 					trajID2MatchResultUpdate.get(matchResult.getTrajID()).add(new Pair<>(newRoadID, matchResult));
 					
 					if (!wayID2InfluenceScore.containsKey(newRoadID))

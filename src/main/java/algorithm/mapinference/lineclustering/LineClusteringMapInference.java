@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * Trace clustering algorithm proposed in "X. Liu, J. Biagioni, J. Eriksson, Y. Wang, G. Forman, and Y. Zhu. Mining large-scale, sparse
- * GPS traces for map inference: Comparison of approaches. In KDD, 2012." It is also used in <tt>CrowdAtlas</tt> map update method as the map
+ * GPS traces for map inference: Comparison of approaches. In KDD, 2012." It is also used in <tt>CrowdAtlas</tt> map updateGoh method as the map
  * inference step.
  *
  * @author Hellisk

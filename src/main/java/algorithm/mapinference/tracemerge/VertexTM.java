@@ -168,7 +168,7 @@ public class VertexTM {
 	/**
 	 * Set the adjacent vertex as value at index
 	 *
-	 * @param index the index to update
+     * @param index the index to updateGoh
 	 * @param value the new value at index
 	 */
 	

@@ -40,7 +40,7 @@ public class RoadNetworkGraph implements Serializable {
 	// Otherwise it is a loose map whose road ways are all straight line (no intermediate point on the road).
 	
 	/**
-	 * The current map will be used for map update if <tt>isUpdatable==true</tt>. The below variables are only useful for an updatable map.
+     * The current map will be used for map updateGoh if <tt>isUpdatable==true</tt>. The below variables are only useful for an updatable map.
 	 */
 	private boolean isUpdatable;
 	
@@ -288,7 +288,7 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	private void updateBoundary(RoadNode node) {
-		// update the map boarder
+        // updateGoh the map boarder
 		if (this.maxLon < node.lon()) {
 			this.maxLon = node.lon();
 		}
@@ -467,7 +467,7 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	public void setUpdatable(boolean updatable) {
-		if (!this.isUpdatable && updatable) {        // enable the map update, update the current value of the IDs
+        if (!this.isUpdatable && updatable) {        // enable the map updateGoh, updateGoh the current value of the IDs
 			for (RoadNode n : nodeList) {
 				if (Long.parseLong(n.getID()) > maxRoadNodeID)
 					maxRoadNodeID = Long.parseLong(n.getID());
@@ -478,7 +478,7 @@ public class RoadNetworkGraph implements Serializable {
 					maxMiniNodeID = Math.max(Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)), maxMiniNodeID);
 				}
 			}
-		} else if (this.isUpdatable && !updatable) {    // disable the map update
+        } else if (this.isUpdatable && !updatable) {    // disable the map updateGoh
 			maxRoadNodeID = 0;
 			maxAbsWayID = 0;
 			maxMiniNodeID = 0;

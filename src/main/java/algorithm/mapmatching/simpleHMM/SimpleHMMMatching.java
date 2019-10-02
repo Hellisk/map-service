@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
-
+    private final RoadNetworkGraph roadMap;
     private final RoutingGraph routingGraph;
     private final DistanceFunction distFunc;
     private final RTreeIndexing rtree;
@@ -32,21 +32,23 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     private double dijkstraDist;
     private long maxWaitingTime;
     private double gamma;
+    private double turnWeight;
     private String hmmMethod;
 
     public SimpleHMMMatching(RoadNetworkGraph roadMap, BaseProperty property) {
+        this.roadMap = roadMap;
         this.routingGraph = new RoutingGraph(roadMap, false, property);
         this.distFunc = roadMap.getDistanceFunction();
         this.rtree = new RTreeIndexing(roadMap);
         double sigma = property.getPropertyDouble("algorithm.mapmatching.Sigma");
         double beta = property.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
-        gamma = property.getPropertyDouble("algorithm.mapmatching.hmm.Gamma");
+        gamma = property.getPropertyDouble("algorithm.mapmatching.hmm.Eddy.Gamma");
         hmmMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
+        turnWeight = property.getPropertyDouble("algorithm.mapmatching.hmm.turnWeight");
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
         this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
         this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
-
 
     }
 
@@ -84,12 +86,17 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 map.put(triplet._1(), new Pair<>(triplet._2(), triplet._3()));
             }
 
+
             for (StateCandidate candidate : candidates._2()) {
                 if (map.containsKey(candidate.getPointMatch())) {
                     // the predecessor is able to reach the candidate
                     double distance = map.get(candidate.getPointMatch())._1();
                     double timeDiff = sample.getTime() - previous.getTime();
-                    double transition = hmmProbabilities.transitionProbability(distance, linearDist, timeDiff);
+                    List<String> path = map.get(candidate.getPointMatch())._2();
+                    double transition = turnWeight <= 0 ?
+                            hmmProbabilities.transitionProbability(distance, linearDist, timeDiff) :
+                            hmmProbabilities.transitionProbabilityWithTurn(distance, linearDist, timeDiff, path, roadMap,
+                                    turnWeight);
                     result.put(candidate.getId(), new Pair<>(new StateTransition(map.get(candidate.getPointMatch())._2()), transition));
                 }
             }
@@ -251,7 +258,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     public SimpleTrajectoryMatchResult offlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
         Pair<List<PointMatch>, List<String>> pointToRouteResult =
-                pullMatchResult(new SequenceMemory(), trajectory);
+                pullMatchResult(new SequenceMemory(), trajectory)._2();
 
         List<PointMatch> pointMatchResult = pointToRouteResult._1();
         List<String> routeMatchResult = pointToRouteResult._2();
@@ -259,18 +266,27 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     }
 
     @Override
-    public SimpleTrajectoryMatchResult onlineMatching(Trajectory trajectory) {
+    public Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory trajectory) {
         if (trajectory == null) return null;
-        Pair<List<PointMatch>, List<String>> pointToRouteResult =
-                pullMatchResult(new SequenceMemory(maxWaitingTime), trajectory);
-
+        SequenceMemory sequenceMemory = null;
+        if (hmmMethod.toLowerCase().contains("goh") || hmmMethod.toLowerCase().contains("fix")) {
+            sequenceMemory = new SequenceMemory(maxWaitingTime);
+        } else if (hmmMethod.toLowerCase().contains("eddy")) {
+            sequenceMemory = new SequenceMemory();
+        }
+        Pair<List<Double>, Pair<List<PointMatch>, List<String>>> result = pullMatchResult(sequenceMemory, trajectory);
+        List<Double> latency = result._1();
+        Pair<List<PointMatch>, List<String>> pointToRouteResult = result._2();
         List<PointMatch> pointMatchResult = pointToRouteResult._1();
         List<String> routeMatchResult = pointToRouteResult._2();
-        return new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult);
+
+        return new Pair<>(latency,
+                new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult));
     }
 
 
-    private Pair<List<PointMatch>, List<String>> pullMatchResult(SequenceMemory sequence, Trajectory trajectory) {
+    private Pair<List<Double>, Pair<List<PointMatch>, List<String>>> pullMatchResult(SequenceMemory sequence,
+                                                                                     Trajectory trajectory) {
         if (trajectory.size() == 0) {
             throw new RuntimeException("Invalid trajectory");
         }
@@ -282,24 +298,54 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         samples.sort((left, right) -> (int) (left.getTime() - right.getTime()));
 
         Map<String, StateCandidate> optimalCandidateSeq = new HashMap<>(); // key is state id
+        // calculate latency
+        List<Double> latency = new ArrayList<>();
+
+        // Record states have been matched
+        Set<String> statesRecord = new HashSet<>();
         for (StateSample sample : samples) {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
             // ignore a gps point which doesn't have candidate point
             if (!vector.getStateCandidates().isEmpty()) {
                 if (hmmMethod.toLowerCase().contains("eddy")) {
                     sequence.updateEddy(vector, sample, optimalCandidateSeq, gamma);
-                } else {
+                } else if (hmmMethod.toLowerCase().contains("goh")) {
                     sequence.updateGoh(vector, sample, optimalCandidateSeq);
-                }
+                } else if (hmmMethod.toLowerCase().contains("fix")) {
+                    sequence.update(vector, sample, optimalCandidateSeq);
+                } else sequence.update(vector, sample, optimalCandidateSeq); // offline mode
             } else {
                 optimalCandidateSeq.put(Double.toString(sample.getTime()), new StateCandidate());
             }
+
+            if (hmmMethod.toLowerCase().contains("on")) {
+                if (statesRecord.size() != optimalCandidateSeq.size()) {
+                    // optimalCandiSeq update
+                    Set<String> newStateRecord = new HashSet<>(optimalCandidateSeq.keySet());
+                    for (String newStateName : newStateRecord) {
+                        if (!statesRecord.contains(newStateName)) {
+                            latency.add(sample.getTime() - Double.parseDouble(newStateName));
+                        }
+                    }
+                    statesRecord = newStateRecord;
+                }
+            }
         }
 
-        if (sequence.getStateMemoryVector().size() > 0) {
+        List<StateMemory> stateMemories = sequence.getStateMemoryVector();
+        if (stateMemories.size() > 0) {
+            // calculate latency if online scenario
+            if (hmmMethod.contains("on")) {
+                double lastSampleTime = stateMemories.get(stateMemories.size() - 1).getSample().getTime();
+                for (StateMemory stateMemory : stateMemories) {
+                    latency.add(lastSampleTime - stateMemory.getSample().getTime());
+                }
+            }
+
             if (hmmMethod.toLowerCase().contains("eddy")) {
                 sequence.forceFinalOutput(optimalCandidateSeq, gamma);
             } else {
+                // both goh and fixed-window use this method to get last states
                 sequence.reverse(optimalCandidateSeq, sequence.getStateMemoryVector().size() - 1);
             }
         }
@@ -319,6 +365,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 pointMatchResult.add(new PointMatch(distFunc));
             }
         }
-        return new Pair<>(pointMatchResult, routeMatchResult);
+        return new Pair<>(latency, new Pair<>(pointMatchResult, routeMatchResult));
     }
 }

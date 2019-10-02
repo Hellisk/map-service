@@ -53,7 +53,7 @@ public class MinPriorityQueue {
 	}
 	
 	/**
-	 * Update existing min heap item or insert a new update.
+     * Update existing min heap item or insert a new updateGoh.
 	 *
 	 * @param index    the index of the currently updating node
 	 * @param distance the current calculated distance
@@ -62,7 +62,7 @@ public class MinPriorityQueue {
 	public boolean decreaseKey(int index, double distance) {
 		if (insertedNodes.containsKey(index)) {   // the coming key already exists
 			Item queryNode = insertedNodes.get(index);
-			if (distance < queryNode.distance) {  // the update is valid
+            if (distance < queryNode.distance) {  // the updateGoh is valid
 				queryNode.distance = distance;
 				if ((queryNode.distance < queryNode.parent.distance || (queryNode.distance == queryNode.parent.distance
 						&& queryNode.arrayIndex < queryNode.parent.arrayIndex)) && this.lastItem == queryNode)
@@ -102,7 +102,7 @@ public class MinPriorityQueue {
 			newPoint.lastNode = this.lastItem;
 			this.lastItem.nextNode = newPoint;
 			this.lastItem = newPoint;
-			// when the newPoint is at the end of the tree, the swap requires to update this.lastItem
+            // when the newPoint is at the end of the tree, the swap requires to updateGoh this.lastItem
 			if (newPoint.distance < newPoint.parent.distance || (newPoint.distance == newPoint.parent.distance
 					&& newPoint.arrayIndex < newPoint.parent.arrayIndex))
 				this.lastItem = newPoint.parent;

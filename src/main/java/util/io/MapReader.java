@@ -26,7 +26,7 @@ public class MapReader {
 	 * "vertices_"/"edges_" and will be added during the read process.
 	 *
 	 * @param filePath    The input file path, which contains the file name without "vertices_"/"edges_" included.
-	 * @param isUpdatable True if this map will be used for map update.
+     * @param isUpdatable True if this map will be used for map updateGoh.
 	 * @param df          The distance function of the map.
 	 * @return A road network graph containing the road nodes and road ways.
 	 */
@@ -56,7 +56,7 @@ public class MapReader {
 	 * Read the ground truth map and extract the sub graph enclosed by the bounding box.
 	 *
 	 * @param filePath    The input file path, which contains the file name without "vertices_"/"edges_" included.
-	 * @param isUpdatable True if this map will be used for map update.
+     * @param isUpdatable True if this map will be used for map updateGoh.
 	 * @param boundingBox The specified bounding box, same as readMap(0) when the bounding box is empty
 	 * @param df          The distance function of the map.
 	 * @return The road network graph enclosed by the given bounding box

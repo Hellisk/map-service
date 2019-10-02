@@ -19,8 +19,8 @@ public class MapMatchingProperty extends BaseProperty {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		// update the properties according to the command line input
+
+        // updateGoh the properties according to the command line input
 		if (args != null) {
 			for (String arg : args) {
 				if (arg.charAt(0) == '-') {

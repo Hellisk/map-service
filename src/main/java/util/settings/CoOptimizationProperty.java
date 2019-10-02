@@ -19,8 +19,8 @@ public class CoOptimizationProperty extends BaseProperty {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		// update the properties according to the command line input
+
+        // updateGoh the properties according to the command line input
 		if (args != null) {
 			for (String arg : args) {
 				if (arg.charAt(0) == '-') {
@@ -112,7 +112,7 @@ public class CoOptimizationProperty extends BaseProperty {
 		super.setProperty("path.GroundTruthPointMatchResultFolder", rootPath + "groundTruth/matchResult/point/" + dataSpec + "/");
 		super.setProperty("path.GroundTruthManualRouteMatchResultFolder", rootPath + "groundTruth/matchResultM/route/" + dataSpec + "/");
 		super.setProperty("path.GroundTruthManualMatchResultFolder", rootPath + "groundTruth/matchResultM/point/" + dataSpec + "/");
-		super.setProperty("algorithm.cooptimization.path.CacheFolder", rootPath + "update/cache/");
-		super.setProperty("algorithm.cooptimization.log.LogFolder", rootPath + "update/log/");
+        super.setProperty("algorithm.cooptimization.path.CacheFolder", rootPath + "updateGoh/cache/");
+        super.setProperty("algorithm.cooptimization.log.LogFolder", rootPath + "updateGoh/log/");
 	}
 }

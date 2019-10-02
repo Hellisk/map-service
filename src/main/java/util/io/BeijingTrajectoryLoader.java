@@ -121,7 +121,7 @@ public class BeijingTrajectoryLoader {
 			String[] matchedRoadWayID = trajectoryInfo[4].split("\\|");
 			String startRoadID;    // The road way ID that is supposed to be the start of the trajectory
 			// test whether the matching result pass through the area
-//			// continuous is required for better map-matching and map update quality
+//			// continuous is required for better map-matching and map updateGoh quality
 //			startRoadID = doesNotHaveContinuousEnclosedSequence(id2RoadWayMapping, matchedRoadWayID);
 //			if (startRoadID.equals(""))
 //				continue;

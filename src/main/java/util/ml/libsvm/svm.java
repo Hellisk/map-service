@@ -511,7 +511,7 @@ class Solver {
 
             ++iter;
 
-            // update alpha[i] and alpha[j], handle bounds carefully
+            // updateGoh alpha[i] and alpha[j], handle bounds carefully
 
             float[] Q_i = Q.get_Q(i, active_size);
             float[] Q_j = Q.get_Q(j, active_size);
@@ -586,7 +586,7 @@ class Solver {
                 }
             }
 
-            // update G
+            // updateGoh G
 
             double delta_alpha_i = alpha[i] - old_alpha_i;
             double delta_alpha_j = alpha[j] - old_alpha_j;
@@ -595,7 +595,7 @@ class Solver {
                 G[k] += Q_i[k] * delta_alpha_i + Q_j[k] * delta_alpha_j;
             }
 
-            // update alpha_status and G_bar
+            // updateGoh alpha_status and G_bar
 
             {
                 boolean ui = is_upper_bound(i);

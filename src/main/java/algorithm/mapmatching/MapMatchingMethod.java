@@ -2,6 +2,7 @@ package algorithm.mapmatching;
 
 import org.apache.log4j.Logger;
 import util.object.spatialobject.Trajectory;
+import util.object.structure.Pair;
 import util.object.structure.SimpleTrajectoryMatchResult;
 
 import java.util.ArrayList;
@@ -19,9 +20,9 @@ import java.util.stream.Stream;
  * Created 26/08/2019
  */
 public interface MapMatchingMethod {
-	
+
 	Logger LOG = Logger.getLogger(MapMatchingMethod.class);
-	
+
 	/**
 	 * The map-matching function used in offline scenario.
 	 *
@@ -32,18 +33,19 @@ public interface MapMatchingMethod {
 		LOG.error("Offline map-matching is not supported");
 		return new SimpleTrajectoryMatchResult("", new ArrayList<>(), new ArrayList<>());
 	}
-	
+
 	/**
 	 * The map-matching function used in offline scenario.
 	 *
 	 * @param traj Input trajectory.
 	 * @return Output map-matching result. Must include route match result in offline matching.
 	 */
-	default SimpleTrajectoryMatchResult onlineMatching(Trajectory traj) {
+	default Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory traj) {
 		LOG.error("Online map-matching is not supported");
-		return new SimpleTrajectoryMatchResult("", new ArrayList<>(), new ArrayList<>());
+		return new Pair<>(new ArrayList<>(),
+				new SimpleTrajectoryMatchResult("", new ArrayList<>(), new ArrayList<>()));
 	}
-	
+
 	/**
 	 * Conduct map-matching in parallel mode.
 	 *
@@ -54,13 +56,14 @@ public interface MapMatchingMethod {
 	 * @throws ExecutionException   Errors during parallel processing.
 	 * @throws InterruptedException Concurrent error.
 	 */
-	default List<SimpleTrajectoryMatchResult> parallelMatching(Stream<Trajectory> inputTrajectory, int numOfThreads, boolean isOnline)
+	default List<SimpleTrajectoryMatchResult> parallelMatching(Stream<Trajectory> inputTrajectory,
+															   int numOfThreads, boolean isOnline)
 			throws ExecutionException, InterruptedException {
-		
+
 		if (inputTrajectory == null) {
 			throw new IllegalArgumentException("Trajectory stream for map-matching must not be null.");
 		}
-		
+
 		// parallel processing
 		ForkJoinPool forkJoinPool;
 		if (numOfThreads == -1) {
@@ -68,14 +71,61 @@ public interface MapMatchingMethod {
 		} else {
 			forkJoinPool = new ForkJoinPool(numOfThreads);
 		}
-		ForkJoinTask<Stream<SimpleTrajectoryMatchResult>> taskResult =
-				forkJoinPool.submit(() -> inputTrajectory.parallel().map(isOnline ? this::onlineMatching : this::offlineMatching));
-		LOG.info("Current number of threads for map-matching: " + forkJoinPool.getParallelism());
-		while (!taskResult.isDone())
-			Thread.sleep(5);
-		return taskResult.get().collect(Collectors.toList());
+		List<SimpleTrajectoryMatchResult> result = new ArrayList<>();
+		if (isOnline) {
+			ForkJoinTask<Stream<Pair<List<Double>, SimpleTrajectoryMatchResult>>> taskResult =
+					forkJoinPool.submit(() -> inputTrajectory.parallel().map(this::onlineMatching));
+
+			LOG.info("Current number of threads for map-matching: " + forkJoinPool.getParallelism());
+			while (!taskResult.isDone())
+				Thread.sleep(5);
+
+			// pull matching result
+			List<Pair<List<Double>, SimpleTrajectoryMatchResult>> tempRes = taskResult.get().collect(Collectors.toList());
+			for (Pair<List<Double>, SimpleTrajectoryMatchResult> tempRe : tempRes) {
+				result.add(tempRe._2());
+			}
+
+			/* summarize latency */
+			List<Double> latencies = new ArrayList<>();
+			for (Pair<List<Double>, SimpleTrajectoryMatchResult> tempRe : tempRes) {
+				latencies.addAll(tempRe._1());
+			}
+			if (latencies.size() > 0) {
+				// get mean value
+				double sum = 0;
+				for (Double latency : latencies) {
+					sum += latency;
+				}
+				LOG.info("Mean of latency is " + sum / latencies.size());
+				// get median
+				double median = 0;
+				latencies.sort((left, right) -> (int) (left - right));
+				if (latencies.size() % 2 == 0)
+					median = (latencies.get(latencies.size() / 2) + latencies.get(latencies.size() / 2 + 1)) / 2;
+				else
+					median = latencies.get(latencies.size() / 2);
+				LOG.info("Median of latency is " + median);
+				// get std
+				double std = 0;
+				for (Double latency : latencies) {
+					std += Math.pow(latency - sum / latencies.size(), 2);
+				}
+				LOG.info("Std of latency is" + Math.sqrt(std) / latencies.size());
+			}
+
+		} else {
+			ForkJoinTask<Stream<SimpleTrajectoryMatchResult>> taskResult =
+					forkJoinPool.submit(() -> inputTrajectory.parallel().map(this::offlineMatching));
+
+			LOG.info("Current number of threads for map-matching: " + forkJoinPool.getParallelism());
+			while (!taskResult.isDone())
+				Thread.sleep(5);
+			result = taskResult.get().collect(Collectors.toList());
+		}
+		return result;
 	}
-	
+
 	/**
 	 * Conduct map-matching in sequential mode.
 	 *
@@ -94,9 +144,9 @@ public interface MapMatchingMethod {
 		for (Trajectory currTraj : inputTrajectory) {
 			if (currTraj.getID().equals("1953"))
 				System.out.println("TEST");
-			if (isOnline)
-				resultList.add(onlineMatching(currTraj));
-			else
+			if (isOnline) {
+				resultList.add(onlineMatching(currTraj)._2());
+			} else
 				resultList.add(offlineMatching(currTraj));
 			completeCount++;
 			if (currPercentage != Math.floor(completeCount / ((double) trajSize / 100))) {

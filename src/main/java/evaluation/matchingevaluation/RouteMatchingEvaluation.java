@@ -29,7 +29,7 @@ public class RouteMatchingEvaluation {
 	 * @param matchedResultList The route match result list.
 	 * @param gtResultList      The ground-truth match result list.
 	 * @param id2RoadLength     Road id to its length on map.
-	 * @param removedEdges      The removed edges. Only used to evaluate the map update result. =empty for normal map-matching evaluation.
+     * @param removedEdges      The removed edges. Only used to evaluate the map updateGoh result. =empty for normal map-matching evaluation.
 	 * @return precision, recall, F-score
 	 */
 	public static String precisionRecallFScoreAccEvaluation(List<Pair<Integer, List<String>>> matchedResultList, List<Pair<Integer,
