@@ -68,6 +68,9 @@ public class MapMatchingProperty extends BaseProperty {
 						case "mm":
 							super.setProperty("algorithm.mapmatching.MatchingMethod", arg.substring(3));
 							break;
+						case "mg":
+							super.setProperty("algorithm.mapmatching.hmm.Eddy.Gamma", arg.substring(3));
+							break;
 						default:
 							throw new IllegalArgumentException("Invalid argument: " + arg);
 					}
