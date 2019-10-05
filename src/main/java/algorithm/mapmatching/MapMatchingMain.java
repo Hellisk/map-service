@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 /**
  * Entry for running map-matching algorithms and evaluation.
@@ -55,7 +54,9 @@ public class MapMatchingMain {
             case "HMM":
                 parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
                         + property.getPropertyString("algorithm.mapmatching.Sigma") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.hmm.Beta");
+                        + property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_"
+                        + property.getPropertyString("algorithm.mapmatching.hmm.Eddy.Gamma") + "_"
+                        + property.getPropertyString("algorithm.mapmatching.WindowSize");
                 break;
             case "FST":
                 parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
@@ -123,20 +124,17 @@ public class MapMatchingMain {
         } else if (dataSet.contains("Beijing")) {
             distFunc = new GreatCircleDistanceFunction();
             RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
-            Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
-//            List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+//            Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
+            List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
             MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, roadMap, property);
             long loadingTime = System.currentTimeMillis();
             LOG.info("Loading complete, loading time: " + (loadingTime - startTaskTime) / 1000.0 + "s.");
-//            matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
-            matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
+            matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
+//            matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
             MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
             LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
                     (System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
         }
-//		// run the evaluation directly
-//		String[] noArg = {""};
-//		MapMatchingEvaluationMain.main(noArg);
     }
 
     public static MapMatchingMethod chooseMatchMethod(String matchingMethod, RoadNetworkGraph roadMap, BaseProperty property) {
