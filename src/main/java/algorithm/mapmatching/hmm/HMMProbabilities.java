@@ -58,6 +58,17 @@ public class HMMProbabilities implements Serializable {
     }
 
     /**
+     * Emission probability proposed by Wei Hong 2013
+     *
+     * @param distance distance between segment and GPS point
+     * @param timeDiff t_i is time interval between t_i - t_i-1
+     * @return emission probability
+     */
+    public double emissionProbabilityWithTime(double distance, double timeDiff) {
+        return Distributions.normalDistribution(sigma, distance * Math.sqrt(timeDiff));
+    }
+
+    /**
      * Returns the logarithmic transition probability density for the given transition
      * parameters.
      *
