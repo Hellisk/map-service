@@ -11,6 +11,7 @@ import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
+import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
 import util.object.structure.SimpleTrajectoryMatchResult;
@@ -49,7 +50,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
         this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
         this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
-
     }
 
     /**
@@ -72,8 +72,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             targets.add(candidate.getPointMatch());
         }
 
-        final Map<String, Map<String, Pair<StateTransition, Double>>> transitions =
-                new ConcurrentHashMap<>();
+        final Map<String, Map<String, Pair<StateTransition, Double>>> transitions = new ConcurrentHashMap<>();
 
         for (StateCandidate predecessor : prevMemory.getStateCandidates().values()) {
             Map<String, Pair<StateTransition, Double>> result = new HashMap<>();
@@ -93,11 +92,14 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                     double distance = map.get(candidate.getPointMatch())._1();
                     double timeDiff = sample.getTime() - previous.getTime();
                     List<String> path = map.get(candidate.getPointMatch())._2();
+                    if (hmmMethod.toLowerCase().contains("frechet") && path.size() > 0) linearDist = 0;
                     double transition = turnWeight <= 0 ?
                             hmmProbabilities.transitionProbability(distance, linearDist, timeDiff) :
                             hmmProbabilities.transitionProbabilityWithTurn(distance, linearDist, timeDiff, path, roadMap,
                                     turnWeight);
-                    result.put(candidate.getId(), new Pair<>(new StateTransition(map.get(candidate.getPointMatch())._2()), transition));
+
+                    result.put(candidate.getId(),
+                            new Pair<>(new StateTransition(map.get(candidate.getPointMatch())._2()), transition));
                 }
             }
             transitions.put(predecessor.getId(), result);
@@ -162,6 +164,12 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         for (PointMatch neighbourPm : neighbourPms) {
             StateCandidate candidate = new StateCandidate(neighbourPm, sample);
             double dz = distFunc.pointToPointDistance(neighbourPm.lon(), neighbourPm.lat(), sample.x(), sample.y());
+//            if (hmmMethod.toLowerCase().contains("frechet")) {
+//                double timDiff = prevStateMemory == null ? 1 : sample.getTime() - prevStateMemory.getSample().getTime();
+//                candidate.setEmiProb(hmmProbabilities.emissionProbabilityWithTime(dz, timDiff));
+//            } else {
+//                candidate.setEmiProb(hmmProbabilities.emissionProbability(dz));
+//            }
             candidate.setEmiProb(hmmProbabilities.emissionProbability(dz));
             candidates.add(candidate);
         }
@@ -189,7 +197,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         }
 
 
-        Set<StateCandidate> result = new HashSet<>();
+        Set<StateCandidate> stateCandidates = new HashSet<>();
         Set<StateCandidate> candidates = candidates(prevStateMemory, sample);
 
         double normSum = 0;
@@ -219,7 +227,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 // ignore candidates that are not connected to any predecessor in the chain
                 if (candidate.getPredecessor() != null) {
                     candidate.setFiltProb(maxSeqProb * candidate.getEmiProb());
-                    result.add(candidate);
+                    stateCandidates.add(candidate);
                     normSum += candidate.getFiltProb();
                 }
 
@@ -227,7 +235,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         }
 
 
-        if (result.isEmpty() || predecessors.isEmpty()) {
+        if (stateCandidates.isEmpty() || predecessors.isEmpty()) {
             // either because initial map-matching or matching break
             for (StateCandidate candidate : candidates) {
                 if (candidate.getEmiProb() == 0) {
@@ -235,16 +243,16 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 }
                 normSum += candidate.getEmiProb();
                 candidate.setFiltProb(candidate.getEmiProb());
-                result.add(candidate);
+                stateCandidates.add(candidate);
 
             }
         }
 
 
-        for (StateCandidate candidate : result) {
+        for (StateCandidate candidate : stateCandidates) {
             candidate.setFiltProb(candidate.getFiltProb() / normSum);
         }
-        return new StateMemory(result, sample);
+        return new StateMemory(stateCandidates, sample);
     }
 
     /**
@@ -300,9 +308,8 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         Map<String, StateCandidate> optimalCandidateSeq = new HashMap<>(); // key is state id
         // calculate latency
         List<Double> latency = new ArrayList<>();
-
         // Record states have been matched
-        Set<String> statesRecord = new HashSet<>();
+        Set<String> preStatesRecord = new HashSet<>();
         for (StateSample sample : samples) {
             StateMemory vector = execute(sequence.lastStateMemory(), sample);
             // ignore a gps point which doesn't have candidate point
@@ -312,22 +319,22 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 } else if (hmmMethod.toLowerCase().contains("goh")) {
                     sequence.updateGoh(vector, sample, optimalCandidateSeq);
                 } else if (hmmMethod.toLowerCase().contains("fix")) {
-                    sequence.update(vector, sample, optimalCandidateSeq);
-                } else sequence.update(vector, sample, optimalCandidateSeq); // offline mode
+                    sequence.updateFixed(vector, sample, optimalCandidateSeq);
+                } else sequence.updateFixed(vector, sample, optimalCandidateSeq); // offline mode
             } else {
                 optimalCandidateSeq.put(Double.toString(sample.getTime()), new StateCandidate());
             }
 
             if (hmmMethod.toLowerCase().contains("on")) {
-                if (statesRecord.size() != optimalCandidateSeq.size()) {
+                if (preStatesRecord.size() != optimalCandidateSeq.size()) {
                     // optimalCandiSeq update
-                    Set<String> newStateRecord = new HashSet<>(optimalCandidateSeq.keySet());
-                    for (String newStateName : newStateRecord) {
-                        if (!statesRecord.contains(newStateName)) {
+                    Set<String> updateStoredStates = new HashSet<>(optimalCandidateSeq.keySet());
+                    for (String newStateName : updateStoredStates) {
+                        if (!preStatesRecord.contains(newStateName)) {
                             latency.add(sample.getTime() - Double.parseDouble(newStateName));
                         }
                     }
-                    statesRecord = newStateRecord;
+                    preStatesRecord = updateStoredStates;
                 }
             }
         }
@@ -352,12 +359,15 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
 
         List<String> routeMatchResult = new LinkedList<>();
         List<PointMatch> pointMatchResult = new LinkedList<>();
-        for (StateCandidate candidate : optimalCandidateSeq.values()) {
-            if (candidate != null && candidate.getEmiProb() > 0) {
+
+        for (TrajectoryPoint trajectoryPoint : trajectory) {
+            String id = Double.toString(trajectoryPoint.time());
+            if (optimalCandidateSeq.get(id).getPointMatch() != null) {
+                StateCandidate candidate = optimalCandidateSeq.get(id);
                 StateSample sample = candidate.getStateSample();
                 if (candidate.getId().charAt(0) == '_') continue;
-                Point point = distFunc.getClosestPoint(sample.getSampleMeasurement(),
-                        candidate.getPointMatch().getMatchedSegment());
+                Point point = distFunc.getClosestPoint(
+                        sample.getSampleMeasurement(), candidate.getPointMatch().getMatchedSegment());
                 PointMatch pm = new PointMatch(point, candidate.getPointMatch().getMatchedSegment(), candidate.getId());
                 pointMatchResult.add(pm);
                 routeMatchResult.addAll(candidate.getTransition().getRoute());

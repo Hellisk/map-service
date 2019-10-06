@@ -98,20 +98,6 @@ public interface MapMatchingMethod {
 					sum += latency;
 				}
 				LOG.info("Mean of latency is " + sum / latencies.size());
-				// get median
-				double median = 0;
-				latencies.sort((left, right) -> (int) (left - right));
-				if (latencies.size() % 2 == 0)
-					median = (latencies.get(latencies.size() / 2) + latencies.get(latencies.size() / 2 + 1)) / 2;
-				else
-					median = latencies.get(latencies.size() / 2);
-				LOG.info("Median of latency is " + median);
-				// get std
-				double std = 0;
-				for (Double latency : latencies) {
-					std += Math.pow(latency - sum / latencies.size(), 2);
-				}
-				LOG.info("Std of latency is" + Math.sqrt(std) / latencies.size());
 			}
 
 		} else {
@@ -156,4 +142,8 @@ public interface MapMatchingMethod {
 		}
 		return resultList;
 	}
+
+    default double trajectoryTime(Trajectory trajectory) {
+        return trajectory.get(trajectory.size() - 1).time() - trajectory.get(0).time();
+    }
 }

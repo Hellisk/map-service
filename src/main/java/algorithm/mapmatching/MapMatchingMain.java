@@ -50,13 +50,15 @@ public class MapMatchingMain {
         String logFileName;
         String parameters = "";
         // log file name
-        switch (matchingMethod.substring(2)) {
-            case "HMM":
-                parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.Sigma") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.hmm.Beta") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.hmm.Eddy.Gamma") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.WindowSize");
+        switch (matchingMethod.substring(3)) {
+            case "HMM-goh":
+                parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
+                break;
+            case "HMM-eddy":
+                parameters = property.getPropertyString("algorithm.mapmatching.hmm.Eddy.Gamma");
+                break;
+            case "HMM-fixed":
+                parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
                 break;
             case "FST":
                 parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"

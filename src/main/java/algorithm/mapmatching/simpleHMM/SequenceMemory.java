@@ -143,7 +143,7 @@ public class SequenceMemory {
             }
 
         } else if ((maxStateNum < stateMemoryVector.size() && maxStateNum > 0)
-                || (maxWaitingTime >= 0 &&
+                || (maxWaitingTime > 0 &&
                 stateMemoryVector.getLast().getSample().getTime() -
                         stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
             // reach maximum bound, force to output the most likely candidate of the first state
@@ -176,15 +176,15 @@ public class SequenceMemory {
     /**
      * Gets the most likely sequence of state candidates
      */
-    public void reverse(Map<String, StateCandidate> candidateSeq, int index) {
+    public void reverse(Map<String, StateCandidate> optimalCandidateSeq, int index) {
 
         StateCandidate kEstimate = stateMemoryVector.get(index).getFiltProbCandidate();
 
         for (int i = index; i >= 0; --i) {
             String stateID = stateMemoryVector.get(i).getId();
-            if (candidateSeq.containsKey(stateID)) continue;
+            if (optimalCandidateSeq.containsKey(stateID)) continue;
             if (kEstimate != null) {
-                candidateSeq.put(stateID, kEstimate);
+                optimalCandidateSeq.put(stateID, kEstimate);
                 kEstimate = kEstimate.getPredecessor();
 
             } else {
@@ -192,19 +192,23 @@ public class SequenceMemory {
                 StateMemory breakState = stateMemoryVector.get(i);
                 StateCandidate estimate = breakState.getFiltProbCandidate();
                 kEstimate = estimate.getPredecessor();
-                candidateSeq.put(stateID, estimate);
+                optimalCandidateSeq.put(stateID, estimate);
             }
         }
     }
 
-    public void update(
-            StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> candidateSeq) {
+    public void updateFixed(StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> optimalCandidateSeq) {
         expand(latestStateMemory, lastSample);
+        if (stateMemoryVector.size() == 1) return; // just finished initial mm
+
         List<StateMemory> deletes = new ArrayList<>();
-        if (maxStateNum < stateMemoryVector.size() && maxStateNum > 0) {
+        if ((maxStateNum < stateMemoryVector.size() && maxStateNum > 0)
+                || (maxWaitingTime > 0 &&
+                stateMemoryVector.getLast().getSample().getTime() -
+                        stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
             // force to output all states in window, then empty window
-            reverse(candidateSeq, stateMemoryVector.size() - 1);
-            while (stateMemoryVector.size() > 0) {
+            reverse(optimalCandidateSeq, stateMemoryVector.size() - 2);
+            while (stateMemoryVector.size() > 1) {
                 deletes.add(stateMemoryVector.removeFirst());
             }
         }
@@ -268,12 +272,12 @@ public class SequenceMemory {
         int outputState = -1;
         for (StateCandidate kEstimate : lastState) {
             double filtProbAtLastState = kEstimate.getFiltProb();
+            StateCandidate secStateCandidate = kEstimate.getPredecessor();
             for (int i = stateMemoryVector.size() - 1; i > 0; --i) {
                 // smallest i is 1
                 // corresponding state index is i-1, so the last kEstimate in the last is at first state
                 kEstimate = kEstimate.getPredecessor();
                 if (kEstimate == null) {
-                    // hmm break can only happen between the last and second last state in window
                     outputState = i - 1;
                     kEstimate = stateMemoryVector.get(i - 1).getFiltProbCandidate();
                     filtProbAtLastState = kEstimate.getFiltProb();
@@ -288,6 +292,8 @@ public class SequenceMemory {
                             kEstimate, stateUncertainties.get(corresStateId).get(kEstimate) + filtProbAtLastState);
                 }
             }
+            // hmm break can only happen between the last and second last state in window
+            if (secStateCandidate == null) break;
         }
 
         double entropyLoss = 0;
@@ -295,7 +301,7 @@ public class SequenceMemory {
         for (Double score : firstStateUncertainties.values()) {
             entropyLoss += score * Math.log(score);
         }
-        double accuracyCost = -entropyLoss / firstStateUncertainties.size();
+        double accuracyCost = -entropyLoss;
         double latencyCost = gamma * (stateMemoryVector.peekLast().getSample().getTime()
                 - stateMemoryVector.peekFirst().getSample().getTime());
 
@@ -358,7 +364,7 @@ public class SequenceMemory {
      * Eddy's force output after travel completed
      *
      * @param optimalCandidateSeq to store matching result
-     * @param gamma                parameter
+     * @param gamma               parameter
      */
     public void forceFinalOutput(Map<String, StateCandidate> optimalCandidateSeq, double gamma) {
         Pair<Integer, Map<String, Map<StateCandidate, Double>>> stateUncertainties = checkUncertainty(gamma);
