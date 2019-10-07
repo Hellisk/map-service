@@ -67,8 +67,13 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 	
 	@Override
 	public SimpleTrajectoryMatchResult offlineMatching(Trajectory traj) {
-		if (traj.get(0).equals2D(traj.get(traj.size() - 1)))
-			return new SimpleTrajectoryMatchResult(traj.getID(), new ArrayList<>(), new ArrayList<>());
+		if (traj.get(0).equals2D(traj.get(traj.size() - 1))) {
+			List<PointMatch> pointMatchResList = new ArrayList<>();
+			for (int i = 0; i < traj.size(); i++) {
+				pointMatchResList.add(new PointMatch(distFunc));
+			}
+			return new SimpleTrajectoryMatchResult(traj.getID(), pointMatchResList, new ArrayList<>());
+		}
 		// find the key GPS points through Douglas-Peucker algorithm
 		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, distFunc);
 		List<Integer> keyTrajPointList = dpFilter.dpSimplifier(traj);    // the indices of the key trajectory points for segmentation
@@ -208,19 +213,21 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			}
 			subTrajResultList.add(offlineMatching(currTraj));
 		}
-		List<String> routeMatch = new ArrayList<>();
+		List<String> routeMatchList = new ArrayList<>();
+		List<PointMatch> pointMatchList = new ArrayList<>();
 		for (SimpleTrajectoryMatchResult matchResult : subTrajResultList) {
 			List<String> currRouteMatch = matchResult.getRouteMatchResultList();
-			if (!routeMatch.isEmpty() && !currRouteMatch.isEmpty()) {
-				if (routeMatch.get(routeMatch.size() - 1).equals(currRouteMatch.get(0))) {
+			if (!routeMatchList.isEmpty() && !currRouteMatch.isEmpty()) {
+				if (routeMatchList.get(routeMatchList.size() - 1).equals(currRouteMatch.get(0))) {
 					// the route match of the two connecting margin points are the same, deduplicate it.
-					routeMatch.addAll(currRouteMatch.subList(1, currRouteMatch.size()));
+					routeMatchList.addAll(currRouteMatch.subList(1, currRouteMatch.size()));
 				}
 			} else {
-				routeMatch.addAll(currRouteMatch);
+				routeMatchList.addAll(currRouteMatch);
 			}
+			pointMatchList.addAll(matchResult.getPointMatchResultList());
 		}
-		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), new ArrayList<>(), routeMatch));
+		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList));
 	}
 	
 	private List<Trajectory> splitTrajByWindowSize(Trajectory originalTraj, int windowSizeSec) {
@@ -342,10 +349,14 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 	 * @return Each trajectory point generates a point match result.
 	 */
 	public static List<PointMatch> findPointMatch(Trajectory traj, List<String> roadIDList, RoadNetworkGraph roadMap) {
-		if (roadIDList.isEmpty())
-			return new ArrayList<>();
-		DistanceFunction distFunc = traj.getDistanceFunction();
 		List<PointMatch> pointMatchList = new ArrayList<>();
+		DistanceFunction distFunc = traj.getDistanceFunction();
+		if (roadIDList.isEmpty()) {
+			for (int i = 0; i < traj.size(); i++) {
+				pointMatchList.add(new PointMatch(distFunc));
+			}
+			return pointMatchList;
+		}
 		for (TrajectoryPoint trajectoryPoint : traj) {
 			double minDistance = Double.POSITIVE_INFINITY;
 			Segment matchSegment = new Segment(distFunc);

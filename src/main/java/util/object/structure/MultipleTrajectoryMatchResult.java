@@ -453,6 +453,8 @@ public class MultipleTrajectoryMatchResult {
 	 */
 	public Route getCompleteMatchRouteAtRank(int rankIndex) {
 		if (rankIndex >= numOfRanks) throw new IndexOutOfBoundsException("way list get failed: the specified rank is out of range.");
+		if (routeMatchResult.size() - 1 < 0)
+			return new Route(null, null, new ArrayList<>());
 		List<Route> routeList = routeMatchResult.get(rankIndex);
 		Route currRoute = routeList.get(0).clone();
 		for (int i = 1; i < routeList.size(); i++) {
