@@ -70,8 +70,8 @@ public class CoOptimizationMain {
 		RoadNetworkGraph initialMap = MapReader.readMap(inputMapFolder + percentage + ".txt", true, distanceFunction);
 		List<RoadWay> removedWayList = MapReader.readWays(inputMapFolder + "remove_edges_" + percentage + ".txt", new HashMap<>(),
 				distanceFunction);
-		Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distanceFunction);
-//		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distanceFunction);
+		Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, 1, distanceFunction);
+//		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distanceFunction);
 		
 		Pair<RoadNetworkGraph, List<MultipleTrajectoryMatchResult>> coOptimizationResult = CoOptimization.coOptimisationProcess(trajectoryStream,
 				initialMap, removedWayList, property);

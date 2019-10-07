@@ -81,7 +81,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {
@@ -107,7 +107,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {
@@ -132,7 +132,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtMatchResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {
@@ -176,7 +176,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchOriginalResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {
@@ -204,7 +204,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchOriginalResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {
@@ -231,7 +231,7 @@ public class TrajectoryGenerator {
 				LOG.info("The synthetic dataset " + syntheticSpec + " has already been generated, total count: "
 						+ Objects.requireNonNull(outputTrajFolder.listFiles()).length);
 			} else {
-				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 				List<Pair<Integer, List<String>>> gtMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchOriginalResultFolder);
 				Map<Integer, Long> id2timeDiffMap = new HashMap<>();
 				for (Trajectory traj : inputTrajList) {

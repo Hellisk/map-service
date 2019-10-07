@@ -234,6 +234,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 		List<Trajectory> resultTrajList = new ArrayList<>();
 		List<TrajectoryPoint> currTrajPointList = new ArrayList<>();
 		long firstPointTime = originalTraj.get(0).time();    // the timestamp of the first point in this window
+		currTrajPointList.add(originalTraj.get(0));
 		for (int i = 1; i < originalTraj.size(); i++) {
 			long currPointTime = originalTraj.get(i).time();
 			if (currPointTime - firstPointTime <= windowSizeSec || currTrajPointList.size() < 2)

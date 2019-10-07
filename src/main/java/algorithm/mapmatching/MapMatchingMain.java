@@ -48,6 +48,7 @@ public class MapMatchingMain {
 		String outputMatchResultFolder = property.getPropertyString("path.OutputMatchResultFolder");
 		String matchingMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
 		String dataSpec = property.getPropertyString("data.DataSpec");
+		int downSampleRate = property.getPropertyInteger("data.DownSample");
 		int numOfThreads = property.getPropertyInteger("algorithm.mapmatching.NumOfThreads");
 		boolean isOnline = matchingMethod.substring(0, 2).equals("ON");        // check if the current matching is online matching
 		DistanceFunction distFunc;
@@ -133,8 +134,8 @@ public class MapMatchingMain {
 		} else if (dataSet.contains("Beijing")) {
 			distFunc = new GreatCircleDistanceFunction();
 			RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
-			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
-//			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, distFunc);
+//			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
 			if (matchingMethod.equals("OF-HMM-old")) {
 				HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
 				long loadingTime = System.currentTimeMillis();
