@@ -342,7 +342,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         List<StateMemory> stateMemories = sequence.getStateMemoryVector();
         if (stateMemories.size() > 0) {
             // calculate latency if online scenario
-            if (hmmMethod.contains("on")) {
+            if (hmmMethod.toLowerCase().contains("on")) {
                 double lastSampleTime = stateMemories.get(stateMemories.size() - 1).getSample().getTime();
                 for (StateMemory stateMemory : stateMemories) {
                     latency.add(lastSampleTime - stateMemory.getSample().getTime());
