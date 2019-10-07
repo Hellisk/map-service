@@ -213,21 +213,14 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			}
 			subTrajResultList.add(offlineMatching(currTraj));
 		}
-		List<String> routeMatchList = new ArrayList<>();
+		Set<String> routeMatchList = new LinkedHashSet<>();
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		for (SimpleTrajectoryMatchResult matchResult : subTrajResultList) {
 			List<String> currRouteMatch = matchResult.getRouteMatchResultList();
-			if (!routeMatchList.isEmpty() && !currRouteMatch.isEmpty()) {
-				if (routeMatchList.get(routeMatchList.size() - 1).equals(currRouteMatch.get(0))) {
-					// the route match of the two connecting margin points are the same, deduplicate it.
-					routeMatchList.addAll(currRouteMatch.subList(1, currRouteMatch.size()));
-				}
-			} else {
-				routeMatchList.addAll(currRouteMatch);
-			}
+			routeMatchList.addAll(currRouteMatch);
 			pointMatchList.addAll(matchResult.getPointMatchResultList());
 		}
-		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList));
+		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, new ArrayList<>(routeMatchList)));
 	}
 	
 	private List<Trajectory> splitTrajByWindowSize(Trajectory originalTraj, int windowSizeSec) {
