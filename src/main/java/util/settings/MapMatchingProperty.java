@@ -74,6 +74,12 @@ public class MapMatchingProperty extends BaseProperty {
                         case "wt":
                             super.setProperty("algorithm.mapmatching.WindowSize", arg.substring(3));
                             break;
+                        case "om":
+                            super.setProperty("algorithm.mapmatching.fst.Omega", arg.substring(3));
+                            break;
+                        case "sa":
+                            super.setProperty("data.DownSample", arg.substring(3));
+                            break;
                         default:
                             throw new IllegalArgumentException("Invalid argument: " + arg);
                     }
