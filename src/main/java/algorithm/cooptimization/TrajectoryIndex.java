@@ -25,7 +25,7 @@ import java.util.List;
 public class TrajectoryIndex {
 	
 	static STRTree<Point> buildTrajectoryIndex(String fileFolder, DistanceFunction df) {
-		List<Trajectory> trajList = TrajectoryReader.readTrajectoriesToList(fileFolder, df);
+		List<Trajectory> trajList = TrajectoryReader.readTrajectoriesToList(fileFolder, 1, df);
 		List<XYObject<Point>> indexPointList = new ArrayList<>();
 		for (Trajectory trajectory : trajList) {
 			for (TrajectoryPoint trajectoryPoint : trajectory) {

@@ -213,27 +213,21 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			}
 			subTrajResultList.add(offlineMatching(currTraj));
 		}
-		List<String> routeMatchList = new ArrayList<>();
+		Set<String> routeMatchList = new LinkedHashSet<>();
 		List<PointMatch> pointMatchList = new ArrayList<>();
 		for (SimpleTrajectoryMatchResult matchResult : subTrajResultList) {
 			List<String> currRouteMatch = matchResult.getRouteMatchResultList();
-			if (!routeMatchList.isEmpty() && !currRouteMatch.isEmpty()) {
-				if (routeMatchList.get(routeMatchList.size() - 1).equals(currRouteMatch.get(0))) {
-					// the route match of the two connecting margin points are the same, deduplicate it.
-					routeMatchList.addAll(currRouteMatch.subList(1, currRouteMatch.size()));
-				}
-			} else {
-				routeMatchList.addAll(currRouteMatch);
-			}
+			routeMatchList.addAll(currRouteMatch);
 			pointMatchList.addAll(matchResult.getPointMatchResultList());
 		}
-		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList));
+		return new Pair<>(latencyList, new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, new ArrayList<>(routeMatchList)));
 	}
 	
 	private List<Trajectory> splitTrajByWindowSize(Trajectory originalTraj, int windowSizeSec) {
 		List<Trajectory> resultTrajList = new ArrayList<>();
 		List<TrajectoryPoint> currTrajPointList = new ArrayList<>();
 		long firstPointTime = originalTraj.get(0).time();    // the timestamp of the first point in this window
+		currTrajPointList.add(originalTraj.get(0));
 		for (int i = 1; i < originalTraj.size(); i++) {
 			long currPointTime = originalTraj.get(i).time();
 			if (currPointTime - firstPointTime <= windowSizeSec || currTrajPointList.size() < 2)

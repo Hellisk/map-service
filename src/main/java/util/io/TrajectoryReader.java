@@ -21,12 +21,14 @@ public class TrajectoryReader {
 	
 	private static final Logger LOG = Logger.getLogger(TrajectoryReader.class);
 	
-	public static Trajectory readTrajectory(String filePath, String trajID, DistanceFunction distFunc) {
+	public static Trajectory readTrajectory(String filePath, String trajID, int downSampleRate, DistanceFunction distFunc) {
 		List<String> pointInfo = IOService.readFile(filePath);
 		Trajectory newTrajectory = new Trajectory(trajID, distFunc);
-		for (String s : pointInfo) {
+		for (int i = 0; i < pointInfo.size(); i++) {
+			String s = pointInfo.get(i);
 			TrajectoryPoint newTrajectoryPoint = TrajectoryPoint.parseTrajectoryPoint(s, distFunc);
-			newTrajectory.add(newTrajectoryPoint);
+			if (i == 0 || i % downSampleRate == 0 || i == pointInfo.size() - 1)
+				newTrajectory.add(newTrajectoryPoint);
 		}
 		return newTrajectory;
 	}
@@ -38,7 +40,7 @@ public class TrajectoryReader {
 	 * @param df         The distance function
 	 * @return The output trajectory list.
 	 */
-	public static List<Trajectory> readTrajectoriesToList(String fileFolder, DistanceFunction df) {
+	public static List<Trajectory> readTrajectoriesToList(String fileFolder, int downSampleRate, DistanceFunction df) {
 		File inputFile = new File(fileFolder);
 		List<Trajectory> trajectoryList = new ArrayList<>();
 		if (!inputFile.exists())
@@ -47,18 +49,18 @@ public class TrajectoryReader {
 			File[] trajectoryFiles = inputFile.listFiles();
 			if (trajectoryFiles != null) {
 				for (File trajectoryFile : trajectoryFiles) {
-                    if (!trajectoryFile.getName().substring(trajectoryFile.getName().indexOf(".")).matches(".txt")) {
-                        continue;
-                    }
+					if (!trajectoryFile.getName().substring(trajectoryFile.getName().indexOf(".")).matches(".txt")) {
+						continue;
+					}
 					String trajID = trajectoryFile.getName().substring(trajectoryFile.getName().indexOf('_') + 1,
 							trajectoryFile.getName().indexOf('.'));
-					Trajectory newTrajectory = readTrajectory(trajectoryFile.getAbsolutePath(), trajID, df);
+					Trajectory newTrajectory = readTrajectory(trajectoryFile.getAbsolutePath(), trajID, downSampleRate, df);
 					trajectoryList.add(newTrajectory);
 				}
 			} else
 				LOG.error("The input trajectory dictionary is empty: " + fileFolder);
 		} else {
-			trajectoryList.add(readTrajectory(fileFolder, 0 + "", df));
+			trajectoryList.add(readTrajectory(fileFolder, 0 + "", downSampleRate, df));
 		}
 		int count = 0;
 		for (Trajectory t : trajectoryList) {
@@ -73,10 +75,11 @@ public class TrajectoryReader {
 	 * Read and parse the input CSV trajectory files to a Stream
 	 * of trajectories.
 	 *
-	 * @param fileFolder The trajectory input path.
-	 * @param df         The distance function.
+	 * @param fileFolder     The trajectory input path.
+	 * @param downSampleRate Down-sample the input trajectory rate by
+	 * @param df             The distance function.
 	 */
-	public static Stream<Trajectory> readTrajectoriesToStream(String fileFolder, DistanceFunction df) {
+	public static Stream<Trajectory> readTrajectoriesToStream(String fileFolder, int downSampleRate, DistanceFunction df) {
 		// read input data
 		File inputFile = new File(fileFolder);
 		if (!inputFile.exists())
@@ -91,7 +94,7 @@ public class TrajectoryReader {
 						return null;
 					}
 					String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().lastIndexOf('.'));
-					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, df);
+					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, downSampleRate, df);
 					newTrajectory.setID(trajID);
 					return newTrajectory;
 				});
@@ -112,7 +115,7 @@ public class TrajectoryReader {
 		return dataFiles.parallel().map(
 				file -> {
 					String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.'));
-					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, df);
+					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, 1, df);
 					newTrajectory.setID(trajID);
 					return newTrajectory;
 				});

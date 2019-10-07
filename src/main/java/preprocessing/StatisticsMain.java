@@ -49,10 +49,10 @@ public class StatisticsMain {
 		} else {
 			distFunc = new EuclideanDistanceFunction();
 		}
-		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 		RoadNetworkGraph inputMap = MapReader.readMap(inputMapPath + "0.txt", false, distFunc);
 		List<Pair<Integer, List<PointMatch>>> gtPointMatchResultList = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
-				distFunc);
+				1, distFunc);
 		PreprocessingStatistics.datasetStatsCalc(inputTrajList, inputMap, gtPointMatchResultList);
 		LOG.info("Statistics calculation done.");
 	}

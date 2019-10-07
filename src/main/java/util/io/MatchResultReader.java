@@ -129,7 +129,7 @@ public class MatchResultReader {
 	 * @param fileFolder The matching result folder
 	 * @return The list of matching result pairs, each of which contains the trajectory ID and its point match list
 	 */
-	public static List<Pair<Integer, List<PointMatch>>> readPointMatchResults(String fileFolder, DistanceFunction df) {
+	public static List<Pair<Integer, List<PointMatch>>> readPointMatchResults(String fileFolder, int downSampleRate, DistanceFunction df) {
 		File inputFolder = new File(fileFolder);
 		List<Pair<Integer, List<PointMatch>>> pointMatchResult = new ArrayList<>();
 		if (inputFolder.isDirectory()) {
@@ -139,8 +139,10 @@ public class MatchResultReader {
 					if (file.toString().contains("pointmatch_")) {
 						List<String> lines = IOService.readFile(file.getAbsolutePath());
 						List<PointMatch> matchResult = new ArrayList<>();
-						for (String line : lines) {
-							matchResult.add(PointMatch.parsePointMatch(line, df));
+						for (int i = 0; i < lines.size(); i++) {
+							String line = lines.get(i);
+							if (i == 0 || i % downSampleRate == 0 || i == lines.size() - 1)
+								matchResult.add(PointMatch.parsePointMatch(line, df));
 						}
 						int fileNum = Integer.parseInt(file.getName().substring(file.getName().indexOf('_') + 1, file.getName().indexOf('.')));
 						pointMatchResult.add(new Pair<>(fileNum, matchResult));

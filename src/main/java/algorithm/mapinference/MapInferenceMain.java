@@ -104,7 +104,7 @@ public class MapInferenceMain {
 		
 		// start the process
 		RoadNetworkGraph gtMap = MapReader.readMap(gtMapFolder + "0.txt", false, distFunc);
-		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
 		
 		// KDE, RoadRunner and Kharita uses great circle (Haversine) distance
 		if (inferenceMethod.equals("KDE") || inferenceMethod.equals("RR") || inferenceMethod.equals("KHA")) {
