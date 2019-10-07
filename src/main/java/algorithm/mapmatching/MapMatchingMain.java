@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 /**
  * Entry for running map-matching algorithms and evaluation.
@@ -51,6 +52,9 @@ public class MapMatchingMain {
         String parameters = "";
         // log file name
         switch (matchingMethod.substring(3)) {
+            case "HMM":
+                parameters = property.getPropertyString("algorithm.mapmatching.hmm.Beta");
+                break;
             case "HMM-goh":
                 parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
                 break;
@@ -61,10 +65,7 @@ public class MapMatchingMain {
                 parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
                 break;
             case "FST":
-                parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.Sigma") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.CandidateSize") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.Omega");
+                parameters = property.getPropertyString("algorithm.mapmatching.fst.Omega");
                 break;
             case "WGT":
                 parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"
@@ -76,7 +77,7 @@ public class MapMatchingMain {
         }
 
         // initialize log file
-        logFileName = "matching_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" + parameters + "_" + initTaskTime;
+        logFileName = "matching_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" + initTaskTime + "_" + parameters;
         MapServiceLogger.logInit(logFolder, logFileName);
 
         final Logger LOG = Logger.getLogger(MapMatchingMain.class);
@@ -126,13 +127,13 @@ public class MapMatchingMain {
         } else if (dataSet.contains("Beijing")) {
             distFunc = new GreatCircleDistanceFunction();
             RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
-//            Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
-            List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
+            Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, distFunc);
+//            List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, distFunc);
             MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, roadMap, property);
             long loadingTime = System.currentTimeMillis();
             LOG.info("Loading complete, loading time: " + (loadingTime - startTaskTime) / 1000.0 + "s.");
-            matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
-//            matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
+//            matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
+            matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
             MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
             LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
                     (System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
