@@ -73,7 +73,8 @@ public class HMMMapMatching implements Serializable {
 		this.candidateRange = prop.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 		this.gapExtensionDist = prop.contains("algorithm.cooptimization.GapExtensionDistance") ? prop.getPropertyInteger("algorithm.cooptimization" +
 				".GapExtensionDistance") : 15;
-		this.rankLength = prop.getPropertyInteger("algorithm.mapmatching.hmm.RankLength");
+		this.rankLength = prop.contains("algorithm.mapmatching.hmm.RankLength") ? prop.getPropertyInteger("algorithm.mapmatching.hmm" +
+				".RankLength") : 1;
 		double sigma = prop.getPropertyDouble("algorithm.mapmatching.Sigma");
 		double beta = prop.getPropertyDouble("algorithm.mapmatching.hmm.Beta");
 		this.hmmProbabilities = new HMMProbabilities(sigma, beta);
@@ -653,7 +654,8 @@ public class HMMMapMatching implements Serializable {
 		double maxDistance = Math.min((50 * timeDiff), linearDistance * 8); // limit the maximum speed to
 		// 180km/h
 //        double maxDistance = 50 * timeDiff;
-		double uTurnPenalty = prop.getPropertyDouble("algorithm.mapmatching.hmm.UTurnPenalty");
+		double uTurnPenalty = prop.contains("algorithm.mapmatching.hmm.UTurnPenalty") ? prop.getPropertyDouble("algorithm.mapmatching.hmm" +
+				".UTurnPenalty") : 0;
 		for (PointMatch from : prevTimeStep.candidates) {
 			List<PointMatch> candidates = new ArrayList<>(timeStep.candidates);
 			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateShortestDistanceList(from, candidates, maxDistance);
