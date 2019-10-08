@@ -116,7 +116,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
      * @param sample          current sample
      * @return Set of tuples consisting of a {@link StateCandidate} and its emission probability.
      */
-    private Set<StateCandidate> candidates(StateMemory prevStateMemory, StateSample sample) {
+    private Set<StateCandidate> getNeighbourPoints(StateMemory prevStateMemory, StateSample sample) {
 
         List<PointMatch> neighbourPms = this.rtree.searchNeighbours(sample.getSampleMeasurement(), candidateRange);
 //        Set<PointMatch> neighbourPms = Minset.minimize(neighbourPms_, this.roadMap, this.distFunc);
@@ -192,52 +192,58 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
      */
     public StateMemory execute(StateMemory prevStateMemory, StateSample sample) {
         Set<StateCandidate> predecessors = new HashSet<>();
+        /* prevStateMemory is null if initial MM */
         if (prevStateMemory != null) {
             predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
         }
 
-
         Set<StateCandidate> stateCandidates = new HashSet<>();
-        Set<StateCandidate> candidates = candidates(prevStateMemory, sample);
+
+        /* Get neighbouring points to this sample. If none, return empty an empty StateMemory object */
+        Set<StateCandidate> neighbourPoints = getNeighbourPoints(prevStateMemory, sample);
+        if (neighbourPoints.isEmpty()) return new StateMemory(stateCandidates, sample);
 
         double normSum = 0;
 
         if (!predecessors.isEmpty()) {
 
             Map<String, Map<String, Pair<StateTransition, Double>>> transitions =
-                    transitions(prevStateMemory, new Pair<>(sample, candidates));
+                    transitions(prevStateMemory, new Pair<>(sample, neighbourPoints));
 
-            for (StateCandidate candidate : candidates) {
+            /* Assign the most likely predecessor for each neighbouring point */
+            for (StateCandidate neighbourPoint : neighbourPoints) {
                 double maxSeqProb = -1; // seqProb used to find backTrackingPointer
 
+                /* Find a predecessor that maximize filtProb for the neighbouring point */
                 for (StateCandidate predecessor : predecessors) {
-                    Pair<StateTransition, Double> transition = transitions.get(predecessor.getId()).get(candidate.getId());
+                    Pair<StateTransition, Double> transition = transitions.get(predecessor.getId()).get(neighbourPoint.getId());
 
                     if (transition == null || transition._2() == 0) {
                         continue;
                     }
                     double seqProb = predecessor.getFiltProb() * transition._2();
                     if (seqProb > maxSeqProb) {
-                        candidate.setPredecessor(predecessor);
-                        candidate.setTransition(transition._1());
+                        neighbourPoint.setPredecessor(predecessor);
+                        neighbourPoint.setTransition(transition._1());
                         maxSeqProb = seqProb;
                     }
                 }
 
-                // ignore candidates that are not connected to any predecessor in the chain
-                if (candidate.getPredecessor() != null) {
-                    candidate.setFiltProb(maxSeqProb * candidate.getEmiProb());
-                    stateCandidates.add(candidate);
-                    normSum += candidate.getFiltProb();
+                /* A neighbouring point is a valid candidate for this sample only if it connects to a predecessor */
+                if (neighbourPoint.getPredecessor() != null) {
+                    neighbourPoint.setFiltProb(maxSeqProb * neighbourPoint.getEmiProb());
+                    stateCandidates.add(neighbourPoint);
+                    normSum += neighbourPoint.getFiltProb();
                 }
 
             }
         }
 
-
+        /* stateCandidates is empty if none of the neighbouring point connect to a predecessor (i.e. HMM break)*/
+        /* predecessors is empty if HMM break happened in the previous (last) state */
         if (stateCandidates.isEmpty() || predecessors.isEmpty()) {
             // either because initial map-matching or matching break
-            for (StateCandidate candidate : candidates) {
+            for (StateCandidate candidate : neighbourPoints) {
                 if (candidate.getEmiProb() == 0) {
                     continue;
                 }
@@ -248,50 +254,11 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             }
         }
 
-
         for (StateCandidate candidate : stateCandidates) {
             candidate.setFiltProb(candidate.getFiltProb() / normSum);
         }
         return new StateMemory(stateCandidates, sample);
     }
-
-    /**
-     * Matches a full sequence of samples, StateSample objects and returns state
-     * representation of the full matching which is a SequenceMemory object. Output the map-matching result eventually.
-     *
-     * @param trajectory Sequence of samples, StateSample objects.
-     * @return State representation of the full matching which is a SequenceMemory object.
-     */
-    @Override
-    public SimpleTrajectoryMatchResult offlineMatching(Trajectory trajectory) {
-        if (trajectory == null) return null;
-        Pair<List<PointMatch>, List<String>> pointToRouteResult =
-                pullMatchResult(new SequenceMemory(), trajectory)._2();
-
-        List<PointMatch> pointMatchResult = pointToRouteResult._1();
-        List<String> routeMatchResult = pointToRouteResult._2();
-        return new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult);
-    }
-
-    @Override
-    public Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory trajectory) {
-        if (trajectory == null) return null;
-        SequenceMemory sequenceMemory = null;
-        if (hmmMethod.toLowerCase().contains("goh") || hmmMethod.toLowerCase().contains("fix")) {
-            sequenceMemory = new SequenceMemory(maxWaitingTime);
-        } else if (hmmMethod.toLowerCase().contains("eddy")) {
-            sequenceMemory = new SequenceMemory();
-        }
-        Pair<List<Double>, Pair<List<PointMatch>, List<String>>> result = pullMatchResult(sequenceMemory, trajectory);
-        List<Double> latency = result._1();
-        Pair<List<PointMatch>, List<String>> pointToRouteResult = result._2();
-        List<PointMatch> pointMatchResult = pointToRouteResult._1();
-        List<String> routeMatchResult = pointToRouteResult._2();
-
-        return new Pair<>(latency,
-                new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult));
-    }
-
 
     private Pair<List<Double>, Pair<List<PointMatch>, List<String>>> pullMatchResult(SequenceMemory sequence,
                                                                                      Trajectory trajectory) {
@@ -322,6 +289,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                     sequence.updateFixed(vector, sample, optimalCandidateSeq);
                 } else sequence.updateFixed(vector, sample, optimalCandidateSeq); // offline mode
             } else {
+                // the sample got no neighbouring point on road network
                 optimalCandidateSeq.put(Double.toString(sample.getTime()), new StateCandidate());
             }
 
@@ -376,5 +344,42 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             }
         }
         return new Pair<>(latency, new Pair<>(pointMatchResult, routeMatchResult));
+    }
+
+    /**
+     * Matches a full sequence of samples, StateSample objects and returns state
+     * representation of the full matching which is a SequenceMemory object. Output the map-matching result eventually.
+     *
+     * @param trajectory Sequence of samples, StateSample objects.
+     * @return State representation of the full matching which is a SequenceMemory object.
+     */
+    @Override
+    public SimpleTrajectoryMatchResult offlineMatching(Trajectory trajectory) {
+        if (trajectory == null) return null;
+        Pair<List<PointMatch>, List<String>> pointToRouteResult =
+                pullMatchResult(new SequenceMemory(), trajectory)._2();
+
+        List<PointMatch> pointMatchResult = pointToRouteResult._1();
+        List<String> routeMatchResult = pointToRouteResult._2();
+        return new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult);
+    }
+
+    @Override
+    public Pair<List<Double>, SimpleTrajectoryMatchResult> onlineMatching(Trajectory trajectory) {
+        if (trajectory == null) return null;
+        SequenceMemory sequenceMemory = null;
+        if (hmmMethod.toLowerCase().contains("goh") || hmmMethod.toLowerCase().contains("fix")) {
+            sequenceMemory = new SequenceMemory(maxWaitingTime);
+        } else if (hmmMethod.toLowerCase().contains("eddy")) {
+            sequenceMemory = new SequenceMemory();
+        }
+        Pair<List<Double>, Pair<List<PointMatch>, List<String>>> result = pullMatchResult(sequenceMemory, trajectory);
+        List<Double> latency = result._1();
+        Pair<List<PointMatch>, List<String>> pointToRouteResult = result._2();
+        List<PointMatch> pointMatchResult = pointToRouteResult._1();
+        List<String> routeMatchResult = pointToRouteResult._2();
+
+        return new Pair<>(latency,
+                new SimpleTrajectoryMatchResult(trajectory.getID(), pointMatchResult, routeMatchResult));
     }
 }
