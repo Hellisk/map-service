@@ -651,8 +651,7 @@ public class HMMMapMatching implements Serializable {
 		final double linearDistance = getDistance(prevTimeStep.observation.x(), prevTimeStep.observation.y(), timeStep.observation.x(),
 				timeStep.observation.y());
 		final double timeDiff = (timeStep.observation.time() - prevTimeStep.observation.time());
-		double maxDistance = Math.min((50 * timeDiff), linearDistance * 8); // limit the maximum speed to
-		// 180km/h
+		double maxDistance = Math.min((50 * timeDiff), linearDistance * 8); // limit the maximum speed to 180km/h
 //        double maxDistance = 50 * timeDiff;
 		double uTurnPenalty = prop.contains("algorithm.mapmatching.hmm.UTurnPenalty") ? prop.getPropertyDouble("algorithm.mapmatching.hmm" +
 				".UTurnPenalty") : 0;
@@ -664,6 +663,7 @@ public class HMMMapMatching implements Serializable {
 					if (shortestPathResultList.get(i)._2().contains(reverseID(from.getRoadID())))
 						shortestPathResultList.get(i).set_1(shortestPathResultList.get(i)._1() + uTurnPenalty);
 					timeStep.addRoadPath(from, candidates.get(i), new RoadPath(from, candidates.get(i), shortestPathResultList.get(i)._2()));
+//					timeStep.addTransitionLogProbability(from, candidates.get(i), 1);	// test if transition is useless
 					double transitionLogProbability = hmmProbabilities.transitionLogProbability(shortestPathResultList.get(i)._1(),
 							linearDistance, timeDiff);
 //                    // apply the penalty if the path incurs an u-turn

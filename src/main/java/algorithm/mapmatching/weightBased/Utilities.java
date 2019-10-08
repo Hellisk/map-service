@@ -23,9 +23,8 @@ public class Utilities {
 	 * @param maxDistance  threshold
 	 * @return shortest paths List<DestinationPM, shortestPathLength, Path>
 	 */
-	public static List<Triplet<PointMatch, Double, List<String>>> getShortestPaths(
-			RoutingGraph routingGraph,
-			List<PointMatch> destinations, PointMatch source, double maxDistance) {
+	public static List<Triplet<PointMatch, Double, List<String>>> getShortestPaths(RoutingGraph routingGraph,
+																				   List<PointMatch> destinations, PointMatch source, double maxDistance) {
 		
 		// The graph for Dijkstra shortest distance calculation
 		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateShortestDistanceList(source, destinations, maxDistance);

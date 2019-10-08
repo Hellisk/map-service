@@ -96,14 +96,13 @@ public class MapMatchingMain {
 		List<SimpleTrajectoryMatchResult> matchResultList = new ArrayList<>();
 		if (dataSet.equals("Global")) {
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
-			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
 			GlobalMapLoader mapReader = new GlobalMapLoader(rawDataFolder);
 			int trajPointCount = 0;
 			for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
 				Trajectory currTraj;
-				if (samplingInterval != -1) {
-					currTraj = reader.readInputTrajectory(i).subSample(samplingInterval);
+				if (downSampleRate != 1) {
+					currTraj = reader.readInputTrajectory(i).subSample(downSampleRate);
 				} else {
 					currTraj = reader.readInputTrajectory(i);
 				}
@@ -118,18 +117,26 @@ public class MapMatchingMain {
 				}
 				trajPointCount += currTraj.size();
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
-				MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, currMap, property);
-				SimpleTrajectoryMatchResult matchResult;
-				if (isOnline)
-					matchResult = mapMatching.onlineMatching(currTraj)._2();
-				else
-					matchResult = mapMatching.offlineMatching(currTraj);
-				
-				matchResultList.add(matchResult);
+				if (matchingMethod.equals("OF-HMM-old")) {
+					HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
+					MatchResultWithUnmatchedTraj matchResult = mapMatching.doMatching(currTraj);
+					SimpleTrajectoryMatchResult currResult = new SimpleTrajectoryMatchResult(matchResult.getTrajID(),
+							matchResult.getMatchResult().getAllPointMatchResult().get(0),
+							matchResult.getMatchResult().getBestRoadIDList());
+					matchResultList.add(currResult);
+				} else {
+					MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, currMap, property);
+					SimpleTrajectoryMatchResult matchResult;
+					if (isOnline)
+						matchResult = mapMatching.onlineMatching(currTraj)._2();
+					else
+						matchResult = mapMatching.offlineMatching(currTraj);
+					
+					matchResultList.add(matchResult);
+				}
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");
 			MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
-			
 			System.out.println("Total number of trajectory points is " + trajPointCount);
 		} else if (dataSet.contains("Beijing")) {
 			distFunc = new GreatCircleDistanceFunction();
@@ -143,13 +150,13 @@ public class MapMatchingMain {
 				Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream =
 						mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
 				List<MatchResultWithUnmatchedTraj> currMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
-				int brokenTrajCount = 0;
 				for (MatchResultWithUnmatchedTraj currPair : currMatchResultList) {
 					SimpleTrajectoryMatchResult currResult = new SimpleTrajectoryMatchResult(currPair.getTrajID(),
 							currPair.getMatchResult().getAllPointMatchResult().get(0),
-							currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList());
+							currPair.getMatchResult().getBestRoadIDList());
 					matchResultList.add(currResult);
 				}
+				MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
 				LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
 						(System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
 			} else {

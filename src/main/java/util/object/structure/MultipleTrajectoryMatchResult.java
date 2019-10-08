@@ -5,9 +5,7 @@ import util.function.DistanceFunction;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * The object for storing top-k map-matching results of a trajectory, which includes the matching node and edge of each point, the matching
@@ -461,6 +459,17 @@ public class MultipleTrajectoryMatchResult {
 			currRoute.addRoute(routeList.get(i));
 		}
 		return currRoute;
+	}
+	
+	public List<String> getBestRoadIDList() {
+		if (routeMatchResult.size() == 0)
+			throw new IllegalArgumentException("The current match result have no route match: " + this.getTrajID());
+		Set<String> roadIDSet = new LinkedHashSet<>();
+		for (Route routeList : routeMatchResult.get(0)) {
+			roadIDSet.addAll(routeList.getRoadIDList());
+		}
+		roadIDSet.remove("");
+		return new ArrayList<>(roadIDSet);
 	}
 	
 	/**
