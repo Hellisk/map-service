@@ -117,18 +117,26 @@ public class MapMatchingMain {
 				}
 				trajPointCount += currTraj.size();
 				RoadNetworkGraph currMap = mapReader.readRawMap(i);
-				MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, currMap, property);
-				SimpleTrajectoryMatchResult matchResult;
-				if (isOnline)
-					matchResult = mapMatching.onlineMatching(currTraj)._2();
-				else
-					matchResult = mapMatching.offlineMatching(currTraj);
-				
-				matchResultList.add(matchResult);
+				if (matchingMethod.equals("OF-HMM-old")) {
+					HMMMapMatching mapMatching = new HMMMapMatching(currMap, property);
+					MatchResultWithUnmatchedTraj matchResult = mapMatching.doMatching(currTraj);
+					SimpleTrajectoryMatchResult currResult = new SimpleTrajectoryMatchResult(matchResult.getTrajID(),
+							matchResult.getMatchResult().getAllPointMatchResult().get(0),
+							matchResult.getMatchResult().getBestRoadIDList());
+					matchResultList.add(currResult);
+				} else {
+					MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, currMap, property);
+					SimpleTrajectoryMatchResult matchResult;
+					if (isOnline)
+						matchResult = mapMatching.onlineMatching(currTraj)._2();
+					else
+						matchResult = mapMatching.offlineMatching(currTraj);
+					
+					matchResultList.add(matchResult);
+				}
 			}
 			LOG.info("Map matching finished, total time spent:" + (System.currentTimeMillis() - startTaskTime) / 1000 + "seconds");
 			MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
-			
 			System.out.println("Total number of trajectory points is " + trajPointCount);
 		} else if (dataSet.contains("Beijing")) {
 			distFunc = new GreatCircleDistanceFunction();
