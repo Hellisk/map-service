@@ -261,15 +261,15 @@ public class Trajectory extends ComplexSpatialObject<TrajectoryPoint> implements
 	}
 	
 	/**
-	 * Down-sample the trajectory to the <tt>multiplier</tt> times lower sampling rate.
+	 * Down-sample the trajectory to the <tt>downSampleRate</tt> times lower sampling rate.
 	 *
-	 * @param multiplier The new sampling interval is (multiplier * \delta t)
+	 * @param downSampleRate One trajectory point is sampled for every <tt>downSampleRate</tt> points.
 	 * @return Sub-trajectory.
 	 */
-	public Trajectory subSample(int multiplier) {
+	public Trajectory subSample(int downSampleRate) {
 		List<TrajectoryPoint> newPointList = new ArrayList<>();
 		newPointList.add(this.get(0));
-		for (int i = 1; i < this.size(); i += multiplier) {
+		for (int i = downSampleRate; i < this.size() - 1; i += downSampleRate) {
 			newPointList.add(this.get(i));
 		}
 		newPointList.add(this.get(this.size() - 1));

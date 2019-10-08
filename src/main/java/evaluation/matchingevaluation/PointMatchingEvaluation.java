@@ -124,7 +124,7 @@ class PointMatchingEvaluation {
 			}
 			List<PointMatch> gtPointMatchList = trajID2GTResultMapping.get(r._1());
 			if (r._2().size() != gtPointMatchList.size())
-				throw new IllegalArgumentException("The output point match result has different size as the ground-truth: " + r._2().size() +
+				LOG.error("The output point match result has different size as the ground-truth: " + r._2().size() +
 						"," + gtPointMatchList.size() + ".");
 			for (int i = 0; i < r._2().size(); i++) {
 				PointMatch currOutputMatch = r._2().get(i);

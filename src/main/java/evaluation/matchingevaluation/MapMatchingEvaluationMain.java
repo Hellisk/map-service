@@ -90,9 +90,8 @@ public class MapMatchingEvaluationMain {
 		
 		if (dataSet.equals("Global")) {
 			long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
-			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
 			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input" +
-					" sampling interval: " + samplingInterval);
+					" sampling interval: " + downSampleRate);
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
 			List<SimpleTrajectoryMatchResult> outputMatchResult =
 					MatchResultReader.readSimpleMatchResultsToList(outputMatchResultFolder.substring(0,

@@ -96,14 +96,13 @@ public class MapMatchingMain {
 		List<SimpleTrajectoryMatchResult> matchResultList = new ArrayList<>();
 		if (dataSet.equals("Global")) {
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
-			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
 			GlobalTrajectoryLoader reader = new GlobalTrajectoryLoader(rawDataFolder);
 			GlobalMapLoader mapReader = new GlobalMapLoader(rawDataFolder);
 			int trajPointCount = 0;
 			for (int i = 0; i < reader.getNumOfTrajectory(); i++) {
 				Trajectory currTraj;
-				if (samplingInterval != -1) {
-					currTraj = reader.readInputTrajectory(i).subSample(samplingInterval);
+				if (downSampleRate != 1) {
+					currTraj = reader.readInputTrajectory(i).subSample(downSampleRate);
 				} else {
 					currTraj = reader.readInputTrajectory(i);
 				}
@@ -143,13 +142,13 @@ public class MapMatchingMain {
 				Stream<MatchResultWithUnmatchedTraj> currCombinedMatchResultStream =
 						mapMatching.trajectoryStreamMatchingProcess(inputTrajStream);
 				List<MatchResultWithUnmatchedTraj> currMatchResultList = currCombinedMatchResultStream.collect(Collectors.toList());
-				int brokenTrajCount = 0;
 				for (MatchResultWithUnmatchedTraj currPair : currMatchResultList) {
 					SimpleTrajectoryMatchResult currResult = new SimpleTrajectoryMatchResult(currPair.getTrajID(),
 							currPair.getMatchResult().getAllPointMatchResult().get(0),
-							currPair.getMatchResult().getCompleteMatchRouteAtRank(0).getRoadIDList());
+							currPair.getMatchResult().getBestRoadIDList());
 					matchResultList.add(currResult);
 				}
+				MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
 				LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
 						(System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
 			} else {
