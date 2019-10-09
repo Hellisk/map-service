@@ -9,7 +9,6 @@ import util.function.DistanceFunction;
 import util.index.rtree.RTreeIndexing;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
-import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
@@ -126,39 +125,39 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             map.put(neighbourPm.getRoadID(), neighbourPm);
         }
 
-        if (prevStateMemory != null) {
-            Set<StateCandidate> predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
-
-            for (StateCandidate predecessor : predecessors) {
-                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
-                if (curPM != null && curPM.getMatchedSegment() != null) {
-                    // the cur pm and the predecessor pm is on a same roadway
-                    Segment matchedSeg = curPM.getMatchedSegment();
-
-                    if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
-                            distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
-                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
-                                    < hmmProbabilities.getSigma())
-
-                        if (
-                            // same direction, cur PM should be closer to endpoint than predecessor, otherwise it is a wrong candidate
-                                (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-                                        - prevStateMemory.getSample().getHeading()) < 45
-                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-                                        > distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))
-
-                                        // opposite direction, cur PM should be further to endpoint, otherwise it is a incorrect
-                                        || (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-                                        - prevStateMemory.getSample().getHeading()) >= 135
-                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-                                        < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
-
-                            neighbourPms.remove(curPM);
-                            neighbourPms.add(predecessor.getPointMatch());
-                        }
-                }
-            }
-        }
+//        if (prevStateMemory != null) {
+//            Set<StateCandidate> predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
+//
+//            for (StateCandidate predecessor : predecessors) {
+//                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
+//                if (curPM != null && curPM.getMatchedSegment() != null) {
+//                    // the cur pm and the predecessor pm is on a same roadway
+//                    Segment matchedSeg = curPM.getMatchedSegment();
+//
+//                    if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
+//                            distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
+//                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
+//                                    < hmmProbabilities.getSigma())
+//
+//                        if (
+//                            // same direction, cur PM should be closer to endpoint than predecessor, otherwise it is a wrong candidate
+//                                (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
+//                                        - prevStateMemory.getSample().getHeading()) < 45
+//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
+//                                        > distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))
+//
+//                                        // opposite direction, cur PM should be further to endpoint, otherwise it is a incorrect
+//                                        || (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
+//                                        - prevStateMemory.getSample().getHeading()) >= 135
+//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
+//                                        < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
+//
+//                            neighbourPms.remove(curPM);
+//                            neighbourPms.add(predecessor.getPointMatch());
+//                        }
+//                }
+//            }
+//        }
 
         Set<StateCandidate> candidates = new LinkedHashSet<>();
         for (PointMatch neighbourPm : neighbourPms) {
