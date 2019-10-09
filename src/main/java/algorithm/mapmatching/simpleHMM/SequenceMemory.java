@@ -69,7 +69,9 @@ public class SequenceMemory {
 
             }
         }
-        deleteCandidates(); // delete redundant candidates in the chain
+        /* Delete redundant candidates in the chain.
+         * Should be IMPOSSIBLE that all previous states get zero vote */
+        deleteCandidates();
         stateMemoryVector.add(stateMemory);
     }
 
@@ -126,7 +128,7 @@ public class SequenceMemory {
      * Note: when program calls this method, the sequence has already expanded.
      * i.e. stateMemoryVector.peekLast()._1() returns current state
      */
-    private void shrink(Map<String, StateCandidate> candidateSeq) {
+    private void shrinkGoh(Map<String, StateCandidate> candidateSeq) {
         if (stateMemoryVector.size() == 1) return; // just finished initial mm
 
         StateMemory last = stateMemoryVector.get(stateMemoryVector.size() - 2);
@@ -178,9 +180,17 @@ public class SequenceMemory {
      */
     public void reverse(Map<String, StateCandidate> optimalCandidateSeq, int index) {
 
-        StateCandidate kEstimate = stateMemoryVector.get(index).getFiltProbCandidate();
+        StateCandidate kEstimate = null;
+        if (stateMemoryVector.get(index).getStateCandidates().size() == 1) {
+            List<StateCandidate> convergenceCandidate =
+                    new ArrayList<>(stateMemoryVector.get(index).getStateCandidates().values());
+            kEstimate = convergenceCandidate.get(0);
+        } else {
+            kEstimate = stateMemoryVector.get(index).getFiltProbCandidate();
+        }
 
         for (int i = index; i >= 0; --i) {
+            /* StateID corresponds to index correspond to candidate */
             String stateID = stateMemoryVector.get(i).getId();
             if (optimalCandidateSeq.containsKey(stateID)) continue;
             if (kEstimate != null) {
@@ -199,6 +209,7 @@ public class SequenceMemory {
 
     public void updateFixed(StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> optimalCandidateSeq) {
         expand(latestStateMemory, lastSample);
+
         if (stateMemoryVector.size() == 1) return; // just finished initial mm
 
         List<StateMemory> deletes = new ArrayList<>();
@@ -206,8 +217,9 @@ public class SequenceMemory {
                 || (maxWaitingTime > 0 &&
                 stateMemoryVector.getLast().getSample().getTime() -
                         stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
-            // force to output all states in window, then empty window
+            // force to output all states in window
             reverse(optimalCandidateSeq, stateMemoryVector.size() - 2);
+            // preserve only current state
             while (stateMemoryVector.size() > 1) {
                 deletes.add(stateMemoryVector.removeFirst());
             }
@@ -233,13 +245,13 @@ public class SequenceMemory {
     public void updateGoh(
             StateMemory latestStateMemory, StateSample lastSample, Map<String, StateCandidate> optimalCandiSeq) {
         expand(latestStateMemory, lastSample);
-        shrink(optimalCandiSeq);
+        shrinkGoh(optimalCandiSeq);
     }
 
     public void updateEddy(StateMemory latestStateMemory,
                            StateSample lastSample, Map<String, StateCandidate> optimalCandiSeq, double gamma) {
         expand(latestStateMemory, lastSample);
-        shrinkWisely(optimalCandiSeq, checkUncertainty(gamma));
+        shrinkEddy(optimalCandiSeq, checkUncertainty(gamma));
     }
 
     public StateMemory lastStateMemory() {
@@ -317,29 +329,35 @@ public class SequenceMemory {
 
     /**
      * shrink the sliding window from indicated state index (if matching uncertainty is low or break)
+     * if HMM break (state index > 0), output results of states prior to the break; if low uncertainty, output
+     * results at first state
      *
-     * @param optimalCandidateSeq store the selected candidate for each state inside the window
+     * @param optimalCandidateSeq store the candidates with lowest accuracy uncertainty for each state inside the window
      */
-    private void shrinkWisely(Map<String, StateCandidate> optimalCandidateSeq,
-                              Pair<Integer, Map<String, Map<StateCandidate, Double>>> outputIndexToStateUncertainties) {
+    private void shrinkEddy(Map<String, StateCandidate> optimalCandidateSeq,
+                            Pair<Integer, Map<String, Map<StateCandidate, Double>>> outputIndexToStateUncertainties) {
 
         if (stateMemoryVector.size() == 1) return;
         // check if to output any result
         Map<String, Map<StateCandidate, Double>> statesUncertainties = outputIndexToStateUncertainties._2();
         int outputIndex = outputIndexToStateUncertainties._1();
+        /* index == -1 : no need to output; index = 0; low accuracy cost, output first state;
+        index = j (j > 0): break between state j and j+1, output states from 0 to j */
         if (outputIndex == -1) return;
 
         List<StateMemory> deletes = new ArrayList<>();
         for (int i = 0; i <= outputIndex; ++i) {
             StateCandidate estimate = null;
-            double maxProb = -1;
-            Map<StateCandidate, Double> stateUncertainties = statesUncertainties.get(stateMemoryVector.peekFirst().getId());
-            for (Map.Entry<StateCandidate, Double> candiToProb : stateUncertainties.entrySet()) {
-                if (estimate == null || maxProb < candiToProb.getValue()) {
-                    estimate = candiToProb.getKey();
-                    maxProb = candiToProb.getValue();
+            // find a point with the lowest uncertainty
+            double maxFiltProbSum = Double.MIN_VALUE;
+            Map<StateCandidate, Double> firstStateFiltProbSums = statesUncertainties.get(stateMemoryVector.peekFirst().getId());
+            for (Map.Entry<StateCandidate, Double> candidateToFiltProbSum : firstStateFiltProbSums.entrySet()) {
+                if (estimate == null || candidateToFiltProbSum.getValue() > maxFiltProbSum) {
+                    estimate = candidateToFiltProbSum.getKey();
+                    maxFiltProbSum = candidateToFiltProbSum.getValue();
                 }
             }
+
             optimalCandidateSeq.put(stateMemoryVector.peekFirst().getId(), estimate);
             deletes.add(stateMemoryVector.removeFirst());
         }
@@ -370,8 +388,8 @@ public class SequenceMemory {
         Pair<Integer, Map<String, Map<StateCandidate, Double>>> stateUncertainties = checkUncertainty(gamma);
 
         // uncertainty of last state will not be checked
-        if (stateMemoryVector.size() >= 2) {
-            shrinkWisely(optimalCandidateSeq, new Pair<>(stateMemoryVector.size() - 2, stateUncertainties._2()));
+        if (stateMemoryVector.size() > 1) {
+            shrinkEddy(optimalCandidateSeq, new Pair<>(stateMemoryVector.size() - 2, stateUncertainties._2()));
         }
 
         // therefore, the last state need to be removed manually
