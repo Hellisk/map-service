@@ -53,7 +53,7 @@ public class MapMatchingEvaluationMain {
         switch (matchingMethod.substring(3)) {
             case "HMM":
                 parameters = property.getPropertyString("data.DownSample") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.Sigma");
+                        + property.getPropertyString("data.OutlierPct");
             case "HMM-old":
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("algorithm.mapmatching.Sigma");
@@ -68,14 +68,17 @@ public class MapMatchingEvaluationMain {
                 break;
             case "HMM-fixed":
                 parameters = property.getPropertyString("data.DownSample") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.WindowSize");
+                        + property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
+                        + property.getPropertyString("data.OutlierPct");
                 break;
             case "FST":
                 parameters = property.getPropertyString("data.DownSample") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.WindowSize");
+                        + property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
+                        + property.getPropertyString("data.OutlierPct");
                 break;
             case "WGT":
-                parameters = property.getPropertyString("data.DownSample");
+                parameters = property.getPropertyString("data.DownSample") + "_"
+                        + property.getPropertyString("data.OutlierPct");
                 break;
             default:
                 parameters = "null";
