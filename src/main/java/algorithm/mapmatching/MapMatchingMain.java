@@ -60,13 +60,11 @@ public class MapMatchingMain {
 				parameters = property.getPropertyString("algorithm.mapmatching.Sigma");
 				break;
 			case "HMM-goh":
+			case "HMM-fixed":
 				parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
 				break;
 			case "HMM-eddy":
 				parameters = property.getPropertyString("algorithm.mapmatching.hmm.Eddy.Gamma");
-				break;
-			case "HMM-fixed":
-				parameters = property.getPropertyString("algorithm.mapmatching.WindowSize");
 				break;
 			case "FST":
 				parameters = property.getPropertyString("algorithm.mapmatching.CandidateRange") + "_"

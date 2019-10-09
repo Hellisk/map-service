@@ -7,6 +7,7 @@ import util.io.*;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
+import util.object.spatialobject.Rect;
 import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
@@ -30,16 +31,16 @@ public class TrajectoryGenerator {
 	
 	public static void main(String[] args) {
 		
-		MapInferenceProperty property = new MapInferenceProperty();
-		property.loadPropertiesFromResourceFile("mapinference.properties", args);
-//		MapMatchingProperty property = new MapMatchingProperty();
-//		property.loadPropertiesFromResourceFile("mapmatching.properties", args);
-		long initTaskTime = System.currentTimeMillis();
 		// setup java log
-		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
-//		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
+//		MapInferenceProperty property = new MapInferenceProperty();
+//		property.loadPropertiesFromResourceFile("mapinference.properties", args);
+//		String logFolder = property.getPropertyString("algorithm.mapinference.log.LogFolder");  // obtain the log folder from args
+		MapMatchingProperty property = new MapMatchingProperty();
+		property.loadPropertiesFromResourceFile("mapmatching.properties", args);
+		String logFolder = property.getPropertyString("algorithm.mapmatching.log.LogFolder");  // obtain the log folder from args
 		String dataSet = property.getPropertyString("data.Dataset");
 		String dataSpec = property.getPropertyString("data.DataSpec");
+		long initTaskTime = System.currentTimeMillis();
 		
 		// log file name
 		String logFileName = "syntheticTrajGeneration_" + dataSet + "_" + dataSpec + "_" + initTaskTime;
@@ -48,9 +49,9 @@ public class TrajectoryGenerator {
 		
 		// use global dataset to evaluate the map-matching accuracy
 		LOG = Logger.getLogger(TrajectoryGenerator.class);
-
-//		startMapMatchingTrajectoryGen(property);
-		startMapInferenceTrajectoryGen(property);
+		
+		startMapMatchingTrajectoryGen(property);
+//		startMapInferenceTrajectoryGen(property);
 	}
 	
 	private static void startMapInferenceTrajectoryGen(MapInferenceProperty property) {
@@ -190,7 +191,7 @@ public class TrajectoryGenerator {
 				LOG.info("Trajectory written for sigma=" + sigmaValue + " is done");
 			}
 		}
-		int[] samplingValues = {1, 10, 20, 30, 45, 60, 90, 120, 180};
+		int[] samplingValues = {1, 10, 20, 30, 60, 90, 120, 180};
 		sigma = 0;
 		for (int samplingValue : samplingValues) {
 			samplingInterval = samplingValue;
@@ -220,7 +221,7 @@ public class TrajectoryGenerator {
 		}
 		sigma = 5;
 		samplingInterval = 5;
-		for (outlierPercentage = 1; outlierPercentage <= 10; outlierPercentage++) {
+		for (outlierPercentage = 2; outlierPercentage <= 20; outlierPercentage += 2) {
 			LOG.info("Start the generation on outlier percentage=" + outlierPercentage);
 			syntheticSpec = "_S" + sigma + "_R" + samplingInterval + "_O" + outlierPercentage;
 			outputTrajFolderName = inputTrajFolder.substring(0, inputTrajFolder.length() - 1) + syntheticSpec + "/";        // remove the
@@ -253,7 +254,7 @@ public class TrajectoryGenerator {
 							requiredOutlierCount--;
 						}
 					}
-					trajPointShift(outlierPoint, sigma * 10, distFunc);
+					trajPointShift(outlierPoint, sigma * 5, gtMap.getBoundary(), distFunc);
 				}
 				TrajectoryWriter.writeTrajectories(resultTraj._1(), outputTrajFolderName);
 				MatchResultWriter.writeRouteMatchResults(resultTraj._2(), gtRouteMatchResultFolder + syntheticSpec + "/");
@@ -325,7 +326,7 @@ public class TrajectoryGenerator {
 			
 			// add start point
 			trajPointList.add(new TrajectoryPoint(endNode.lon(), endNode.lat(), trajPointList.size() + 1, distFunc));
-			trajPointShift(trajPointList, sigma, distFunc);
+			trajPointShift(trajPointList, sigma, map.getBoundary(), distFunc);
 			Trajectory currTraj = new Trajectory(integerListPair._1() + "", trajPointList);
 			resultTrajList.add(currTraj);
 			resultGTRouteMatch.add(integerListPair);
@@ -379,16 +380,20 @@ public class TrajectoryGenerator {
 	 *
 	 * @param trajPointList The input trajectory point list.
 	 * @param sigma         The Gaussian parameter.
+	 * @param boundary      The boundary of the map region.
 	 * @param distFunc      The distance function.
 	 */
-	private static void trajPointShift(List<TrajectoryPoint> trajPointList, double sigma, DistanceFunction distFunc) {
+	private static void trajPointShift(List<TrajectoryPoint> trajPointList, double sigma, Rect boundary, DistanceFunction distFunc) {
 		Random random = new Random(10);
 		if (sigma == 0) {
 			return;        // no shift required
 		}
 		for (TrajectoryPoint point : trajPointList) {
-			double newLon = point.x() + distFunc.getCoordinateOffsetX(random.nextGaussian() * sigma, point.y());
-			double newLat = point.y() + distFunc.getCoordinateOffsetY(random.nextGaussian() * sigma, point.x());
+			double newLon, newLat;
+			do {
+				newLon = point.x() + distFunc.getCoordinateOffsetX(random.nextGaussian() * sigma, point.y());
+				newLat = point.y() + distFunc.getCoordinateOffsetY(random.nextGaussian() * sigma, point.x());
+			} while (!boundary.contains(newLon, newLat));
 			point.setPoint(newLon, newLat, distFunc);
 		}
 	}
