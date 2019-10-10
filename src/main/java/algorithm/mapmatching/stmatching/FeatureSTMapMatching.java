@@ -57,7 +57,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 		this.distFunc = roadMap.getDistanceFunction();
 		this.candidateRange = property.getPropertyInteger("algorithm.mapmatching.CandidateRange");
 		this.sigma = property.getPropertyDouble("algorithm.mapmatching.Sigma");
-		this.tolerance = property.getPropertyDouble("algorithm.mapmatching.fst.Tolerance");
+		this.tolerance = property.getPropertyDouble("algorithm.mapmatching.Tolerance");
 		this.candidateSize = property.getPropertyInteger("algorithm.mapmatching.fst.CandidateSize");
 		this.maxCTraj = property.getPropertyInteger("algorithm.mapmatching.fst.MaxCTraj");
 		this.omega = property.getPropertyDouble("algorithm.mapmatching.fst.Omega");

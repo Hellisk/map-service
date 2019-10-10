@@ -33,8 +33,7 @@ public class Utilities {
 		
 		for (int i = 0; i < destinations.size(); i++) {
 			if (shortestPaths.get(i)._1() != Double.POSITIVE_INFINITY) {
-				shortestPathToDestPM.add(
-						new Triplet<>(destinations.get(i), shortestPaths.get(i)._1(), shortestPaths.get(i)._2()));
+				shortestPathToDestPM.add(new Triplet<>(destinations.get(i), shortestPaths.get(i)._1(), shortestPaths.get(i)._2()));
 			}
 		}
 		

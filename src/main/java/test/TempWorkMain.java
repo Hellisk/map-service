@@ -45,7 +45,7 @@ public class TempWorkMain {
 		for (int i = 1; i <= 31; i++) {
 			String currTrajFolder = trajFolder + i + "/";
 			String currOutputFolder = outputFolder + i + "/";
-			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, 1, distFunc);
+			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, 1, 0, distFunc);
 			MapMatchingMethod mapMatchingMethod = MapMatchingMain.chooseMatchMethod(matchingMethod, roadMap, property);
 			List<SimpleTrajectoryMatchResult> matchResult = mapMatchingMethod.parallelMatching(trajectoryStream, numOfThreads, false);
 			MatchResultWriter.writeMatchResults(matchResult, outputFolder);

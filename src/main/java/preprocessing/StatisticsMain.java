@@ -16,6 +16,8 @@ import util.settings.PreprocessingProperty;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Hellisk
@@ -36,6 +38,7 @@ public class StatisticsMain {
 		String gtPointMatchResultFolder = property.getPropertyString("path.GroundTruthPointMatchResultFolder");
 		String inputMapPath = property.getPropertyString("path.InputMapFolder");
 		int downSampleRate = property.getPropertyInteger("data.DownSample");
+		double tolerance = property.getPropertyDouble("data.Tolerance");
 		// log file name
 		String logFileName = "statistics_" + dataSet + "_" + initTaskTime;
 		// initialize log file
@@ -50,7 +53,9 @@ public class StatisticsMain {
 		} else {
 			distFunc = new EuclideanDistanceFunction();
 		}
-		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
+		Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, tolerance,
+				distFunc);
+		List<Trajectory> inputTrajList = inputTrajStream.collect(Collectors.toList());
 		RoadNetworkGraph inputMap = MapReader.readMap(inputMapPath + "0.txt", false, distFunc);
 		List<Pair<Integer, List<PointMatch>>> gtPointMatchResultList = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
 				downSampleRate, distFunc);

@@ -1,5 +1,6 @@
 package util.io;
 
+import algorithm.mapinference.lineclustering.DouglasPeuckerFilter;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.object.spatialobject.Trajectory;
@@ -77,14 +78,16 @@ public class TrajectoryReader {
 	 *
 	 * @param fileFolder     The trajectory input path.
 	 * @param downSampleRate Down-sample the input trajectory rate by
+	 * @param tolerance      The DP trajectory compression tolerance, = 0 if not required.
 	 * @param df             The distance function.
 	 */
-	public static Stream<Trajectory> readTrajectoriesToStream(String fileFolder, int downSampleRate, DistanceFunction df) {
+	public static Stream<Trajectory> readTrajectoriesToStream(String fileFolder, int downSampleRate, double tolerance, DistanceFunction df) {
 		// read input data
 		File inputFile = new File(fileFolder);
 		if (!inputFile.exists())
 			LOG.error("The input trajectory path doesn't exist: " + fileFolder);
 		Stream<File> dataFiles = IOService.getFiles(fileFolder);
+		DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, df);
 //		if (indexType != 0)
 //			indexPointList = Collections.synchronizedList(new ArrayList<>());
 		return dataFiles.parallel().map(
@@ -95,6 +98,16 @@ public class TrajectoryReader {
 					}
 					String trajID = file.getName().substring(file.getName().indexOf('_') + 1, file.getName().lastIndexOf('.'));
 					Trajectory newTrajectory = readTrajectory(file.getAbsolutePath(), trajID, downSampleRate, df);
+					if (tolerance != 0) {
+						List<Integer> keyTrajPointList = dpFilter.dpSimplifier(newTrajectory);    // the indices of the compressed
+						// trajectory points
+						List<TrajectoryPoint> compressedTrajPointList = new ArrayList<>();
+						for (Integer index : keyTrajPointList) {
+							compressedTrajPointList.add(newTrajectory.get(index));
+						}
+						newTrajectory = new Trajectory(trajID, compressedTrajPointList);
+					}
+					// segmentation
 					newTrajectory.setID(trajID);
 					return newTrajectory;
 				});
