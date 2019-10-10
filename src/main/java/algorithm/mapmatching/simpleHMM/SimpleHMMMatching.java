@@ -9,6 +9,7 @@ import util.function.DistanceFunction;
 import util.index.rtree.RTreeIndexing;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
+import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
@@ -29,7 +30,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     private final RTreeIndexing rtree;
     private HMMProbabilities hmmProbabilities;
     private double candidateRange;
-    private double dijkstraDist;
+    //    private double dijkstraDist;
     private long maxWaitingTime;
     private double gamma;
     private double turnWeight;
@@ -47,7 +48,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         turnWeight = property.getPropertyDouble("algorithm.mapmatching.hmm.turnWeight");
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
-        this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
+//        this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
         this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
     }
 
@@ -75,9 +76,12 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
 
         for (StateCandidate predecessor : prevMemory.getStateCandidates().values()) {
             Map<String, Pair<StateTransition, Double>> result = new HashMap<>();
-
+            double timeDiff = sample.getTime() - previous.getTime();
+            double maxDistance = Math.min((50 * timeDiff), linearDist * 8);
             List<Triplet<PointMatch, Double, List<String>>> shortestPath = Utilities.getShortestPaths(
-                    routingGraph, targets, predecessor.getPointMatch(), dijkstraDist);
+                    routingGraph, targets, predecessor.getPointMatch(), maxDistance);
+            //List<Triplet<PointMatch, Double, List<String>>> shortestPath = Utilities.getShortestPaths(
+            //                    routingGraph, targets, predecessor.getPointMatch(), dijkstraDist);
 
             Map<PointMatch, Pair<Double, List<String>>> map = new HashMap<>();
             for (Triplet<PointMatch, Double, List<String>> triplet : shortestPath) {
@@ -89,7 +93,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 if (map.containsKey(candidate.getPointMatch())) {
                     // the predecessor is able to reach the candidate
                     double distance = map.get(candidate.getPointMatch())._1();
-                    double timeDiff = sample.getTime() - previous.getTime();
+//                    double timeDiff = sample.getTime() - previous.getTime();
                     List<String> path = map.get(candidate.getPointMatch())._2();
                     if (hmmMethod.toLowerCase().contains("frechet") && path.size() > 0) linearDist = 0;
                     double transition = turnWeight <= 0 ?
@@ -125,39 +129,39 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             map.put(neighbourPm.getRoadID(), neighbourPm);
         }
 
-//        if (prevStateMemory != null) {
-//            Set<StateCandidate> predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
-//
-//            for (StateCandidate predecessor : predecessors) {
-//                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
-//                if (curPM != null && curPM.getMatchedSegment() != null) {
-//                    // the cur pm and the predecessor pm is on a same roadway
-//                    Segment matchedSeg = curPM.getMatchedSegment();
-//
-//                    if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
-//                            distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
-//                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
-//                                    < hmmProbabilities.getSigma())
-//
-//                        if (
-//                            // same direction, cur PM should be closer to endpoint than predecessor, otherwise it is a wrong candidate
-//                                (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-//                                        - prevStateMemory.getSample().getHeading()) < 45
-//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-//                                        > distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))
-//
-//                                        // opposite direction, cur PM should be further to endpoint, otherwise it is a incorrect
-//                                        || (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-//                                        - prevStateMemory.getSample().getHeading()) >= 135
-//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-//                                        < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
-//
-//                            neighbourPms.remove(curPM);
-//                            neighbourPms.add(predecessor.getPointMatch());
-//                        }
-//                }
-//            }
-//        }
+        if (prevStateMemory != null) {
+            Set<StateCandidate> predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
+
+            for (StateCandidate predecessor : predecessors) {
+                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
+                if (curPM != null && curPM.getMatchedSegment() != null) {
+                    // the cur pm and the predecessor pm is on a same roadway
+                    Segment matchedSeg = curPM.getMatchedSegment();
+
+                    if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
+                            distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
+                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
+                                    < hmmProbabilities.getSigma())
+
+                        if (
+                            // same direction, cur PM should be closer to endpoint than predecessor, otherwise it is a wrong candidate
+                                (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
+                                        - prevStateMemory.getSample().getHeading()) < 45
+                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
+                                        > distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))
+
+                                        // opposite direction, cur PM should be further to endpoint, otherwise it is a incorrect
+                                        || (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
+                                        - prevStateMemory.getSample().getHeading()) >= 135
+                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
+                                        < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
+
+                            neighbourPms.remove(curPM);
+                            neighbourPms.add(predecessor.getPointMatch());
+                        }
+                }
+            }
+        }
 
         Set<StateCandidate> candidates = new LinkedHashSet<>();
         for (PointMatch neighbourPm : neighbourPms) {
