@@ -61,8 +61,8 @@ public class Triplet<T, S, R> implements Serializable {
         result = prime * result + ((_3 == null) ? 0 : _3.hashCode());
         return result;
     }
-
-    @Override
+	
+	@Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;

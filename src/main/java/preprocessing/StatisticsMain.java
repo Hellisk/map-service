@@ -35,6 +35,7 @@ public class StatisticsMain {
 		String inputTrajFolder = property.getPropertyString("path.InputTrajectoryFolder");
 		String gtPointMatchResultFolder = property.getPropertyString("path.GroundTruthPointMatchResultFolder");
 		String inputMapPath = property.getPropertyString("path.InputMapFolder");
+		int downSampleRate = property.getPropertyInteger("data.DownSample");
 		// log file name
 		String logFileName = "statistics_" + dataSet + "_" + initTaskTime;
 		// initialize log file
@@ -49,10 +50,10 @@ public class StatisticsMain {
 		} else {
 			distFunc = new EuclideanDistanceFunction();
 		}
-		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, 1, distFunc);
+		List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
 		RoadNetworkGraph inputMap = MapReader.readMap(inputMapPath + "0.txt", false, distFunc);
 		List<Pair<Integer, List<PointMatch>>> gtPointMatchResultList = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
-				1, distFunc);
+				downSampleRate, distFunc);
 		PreprocessingStatistics.datasetStatsCalc(inputTrajList, inputMap, gtPointMatchResultList);
 		LOG.info("Statistics calculation done.");
 	}
