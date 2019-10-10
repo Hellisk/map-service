@@ -1,5 +1,6 @@
 package preprocessing;
 
+import algorithm.mapmatching.stmatching.FeatureSTMapMatching;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
@@ -12,6 +13,8 @@ import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
+import util.object.structure.PointMatch;
+import util.object.structure.Triplet;
 import util.settings.MapInferenceProperty;
 import util.settings.MapMatchingProperty;
 import util.settings.MapServiceLogger;
@@ -154,6 +157,7 @@ public class TrajectoryGenerator {
 		String gtMapFolder = property.getPropertyString("path.GroundTruthMapFolder");
 		String gtRouteMatchOriginalResultFolder = property.getPropertyString("path.GroundTruthOriginalRouteMatchResultFolder");
 		String gtRouteMatchResultFolder = property.getPropertyString("path.GroundTruthSyntheticRouteMatchBaseFolder");
+		String gtPointMatchResultFolder = property.getPropertyString("path.GroundTruthSyntheticPointMatchBaseFolder");
 		int sigma;    // parameter for trajectory noise level
 		int samplingInterval;    // trajectory sampling interval minimum 1s
 		int outlierPercentage;    // road coverage among the map region
@@ -184,10 +188,17 @@ public class TrajectoryGenerator {
 					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
 					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				Pair<List<Trajectory>, List<Pair<Integer, List<String>>>> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap,
-						gtMap, sigmaValue, samplingInterval);
+				Pair<List<Trajectory>, List<Triplet<Integer, List<String>, List<PointMatch>>>> resultTraj = rawTrajGenerator(gtMatchResultList,
+						id2timeDiffMap, gtMap, sigmaValue, samplingInterval);
+				List<Pair<Integer, List<String>>> routeMatchPairList = new ArrayList<>();
+				List<Pair<Integer, List<PointMatch>>> pointMatchPairList = new ArrayList<>();
+				for (Triplet<Integer, List<String>, List<PointMatch>> triplet : resultTraj._2()) {
+					routeMatchPairList.add(new Pair<>(triplet._1(), triplet._2()));
+					pointMatchPairList.add(new Pair<>(triplet._1(), triplet._3()));
+				}
 				TrajectoryWriter.writeTrajectories(resultTraj._1(), outputTrajFolderName);
-				MatchResultWriter.writeRouteMatchResults(resultTraj._2(), gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writeRouteMatchResults(routeMatchPairList, gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writePointMatchResults(pointMatchPairList, gtPointMatchResultFolder + syntheticSpec + "/");
 				LOG.info("Trajectory written for sigma=" + sigmaValue + " is done");
 			}
 		}
@@ -212,10 +223,17 @@ public class TrajectoryGenerator {
 					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
 					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				Pair<List<Trajectory>, List<Pair<Integer, List<String>>>> resultTraj = rawTrajGenerator(gtMatchResultList,
+				Pair<List<Trajectory>, List<Triplet<Integer, List<String>, List<PointMatch>>>> resultTraj = rawTrajGenerator(gtMatchResultList,
 						id2timeDiffMap, gtMap, sigma, samplingInterval);
+				List<Pair<Integer, List<String>>> routeMatchPairList = new ArrayList<>();
+				List<Pair<Integer, List<PointMatch>>> pointMatchPairList = new ArrayList<>();
+				for (Triplet<Integer, List<String>, List<PointMatch>> triplet : resultTraj._2()) {
+					routeMatchPairList.add(new Pair<>(triplet._1(), triplet._2()));
+					pointMatchPairList.add(new Pair<>(triplet._1(), triplet._3()));
+				}
 				TrajectoryWriter.writeTrajectories(resultTraj._1(), outputTrajFolderName);
-				MatchResultWriter.writeRouteMatchResults(resultTraj._2(), gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writeRouteMatchResults(routeMatchPairList, gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writePointMatchResults(pointMatchPairList, gtPointMatchResultFolder + syntheticSpec + "/");
 				LOG.info("Trajectory written for sampling rate=" + samplingInterval + " is done");
 			}
 		}
@@ -239,8 +257,8 @@ public class TrajectoryGenerator {
 					long currTimeDiff = traj.get(traj.size() - 1).time() - traj.get(0).time();
 					id2timeDiffMap.put(Integer.parseInt(traj.getID()), currTimeDiff);
 				}
-				Pair<List<Trajectory>, List<Pair<Integer, List<String>>>> resultTraj = rawTrajGenerator(gtMatchResultList, id2timeDiffMap,
-						gtMap, sigma, samplingInterval);
+				Pair<List<Trajectory>, List<Triplet<Integer, List<String>, List<PointMatch>>>> resultTraj = rawTrajGenerator(gtMatchResultList,
+						id2timeDiffMap, gtMap, sigma, samplingInterval);
 				for (Trajectory currTraj : resultTraj._1()) {
 					List<TrajectoryPoint> outlierPoint = new ArrayList<>();
 					int requiredOutlierCount = Math.max(currTraj.size() * outlierPercentage / 100, 1);
@@ -256,8 +274,15 @@ public class TrajectoryGenerator {
 					}
 					trajPointShift(outlierPoint, sigma * 5, gtMap.getBoundary(), distFunc);
 				}
+				List<Pair<Integer, List<String>>> routeMatchPairList = new ArrayList<>();
+				List<Pair<Integer, List<PointMatch>>> pointMatchPairList = new ArrayList<>();
+				for (Triplet<Integer, List<String>, List<PointMatch>> triplet : resultTraj._2()) {
+					routeMatchPairList.add(new Pair<>(triplet._1(), triplet._2()));
+					pointMatchPairList.add(new Pair<>(triplet._1(), triplet._3()));
+				}
 				TrajectoryWriter.writeTrajectories(resultTraj._1(), outputTrajFolderName);
-				MatchResultWriter.writeRouteMatchResults(resultTraj._2(), gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writeRouteMatchResults(routeMatchPairList, gtRouteMatchResultFolder + syntheticSpec + "/");
+				MatchResultWriter.writePointMatchResults(pointMatchPairList, gtPointMatchResultFolder + syntheticSpec + "/");
 				LOG.info("Trajectory written for outlier percentage=" + outlierPercentage + "% is done");
 			}
 		}
@@ -271,18 +296,17 @@ public class TrajectoryGenerator {
 	 * @param map              The underlying map.
 	 * @param sigma            The Gaussian function parameter. Pr(x\in[x-sigma,x+sigma])=0.6526, Pr(x\in[x-2*sigma,x+2*sigma])=0.9544
 	 * @param samplingInterval The number of seconds per point.
-	 * @return The generated trajectories, which has the same size as the input route list.
+	 * @return The generated trajectories, ground-truth route and point matching result.
 	 */
-	private static Pair<List<Trajectory>, List<Pair<Integer, List<String>>>> rawTrajGenerator(List<Pair<Integer, List<String>>> gtRouteList,
-																							  Map<Integer, Long> id2timeDiffMap,
-																							  RoadNetworkGraph map, double sigma, int samplingInterval) {
+	private static Pair<List<Trajectory>, List<Triplet<Integer, List<String>, List<PointMatch>>>> rawTrajGenerator(List<Pair<Integer,
+			List<String>>> gtRouteList, Map<Integer, Long> id2timeDiffMap, RoadNetworkGraph map, double sigma, int samplingInterval) {
 		DistanceFunction distFunc = map.getDistanceFunction();
 		Map<String, RoadWay> id2WayMap = new HashMap<>();
 		for (RoadWay way : map.getWays()) {
 			id2WayMap.put(way.getID(), way);
 		}
 		List<Trajectory> resultTrajList = new ArrayList<>();
-		List<Pair<Integer, List<String>>> resultGTRouteMatch = new ArrayList<>();
+		List<Triplet<Integer, List<String>, List<PointMatch>>> gtMatchResult = new ArrayList<>();
 		for (Pair<Integer, List<String>> integerListPair : gtRouteList) {
 			List<RoadWay> currRoute = new ArrayList<>();
 			double length = 0;
@@ -309,7 +333,9 @@ public class TrajectoryGenerator {
 			RoadNode startNode = currRoute.get(0).getFromNode();
 			
 			// add start point
-			trajPointList.add(new TrajectoryPoint(startNode.lon(), startNode.lat(), trajPointList.size() + 1, distFunc));
+			TrajectoryPoint currPoint = new TrajectoryPoint(startNode.lon(), startNode.lat(), trajPointList.size() + 1, distFunc);
+			trajPointList.add(currPoint);
+			
 			for (RoadWay roadWay : currRoute) {
 				for (Segment edge : roadWay.getEdges()) {
 					remainLength += edge.length();
@@ -328,10 +354,11 @@ public class TrajectoryGenerator {
 			trajPointList.add(new TrajectoryPoint(endNode.lon(), endNode.lat(), trajPointList.size() + 1, distFunc));
 			trajPointShift(trajPointList, sigma, map.getBoundary(), distFunc);
 			Trajectory currTraj = new Trajectory(integerListPair._1() + "", trajPointList);
+			List<PointMatch> currPointMatchList = FeatureSTMapMatching.findPointMatch(currTraj, integerListPair._2(), map);
 			resultTrajList.add(currTraj);
-			resultGTRouteMatch.add(integerListPair);
+			gtMatchResult.add(new Triplet<>(integerListPair._1(), integerListPair._2(), currPointMatchList));
 		}
-		return new Pair<>(resultTrajList, resultGTRouteMatch);
+		return new Pair<>(resultTrajList, gtMatchResult);
 	}
 	
 	/**
