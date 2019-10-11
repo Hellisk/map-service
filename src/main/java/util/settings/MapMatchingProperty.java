@@ -77,6 +77,9 @@ public class MapMatchingProperty extends BaseProperty {
                         case "om":
                             super.setProperty("algorithm.mapmatching.fst.Omega", arg.substring(3));
                             break;
+                        case "dg":
+                            super.setProperty("algorithm.mapmatching.fst.Tolerance", arg.substring(3));
+                            break;
                         case "sa":
                             super.setProperty("data.DownSample", arg.substring(3));
                             break;
@@ -153,7 +156,7 @@ public class MapMatchingProperty extends BaseProperty {
         super.setProperty("path.GroundTruthOriginalRouteMatchResultFolder",
                 rootPath + "groundTruth/matchResult/route/" + (rawSpec.equals("") ? "" : rawSpec + "/"));
         super.setProperty("path.GroundTruthSyntheticRouteMatchBaseFolder", rootPath + "groundTruth/matchResult/route/" + rawSpec);
-		super.setProperty("path.GroundTruthSyntheticPointMatchBaseFolder", rootPath + "groundTruth/matchResult/point/" + rawSpec);
+        super.setProperty("path.GroundTruthSyntheticPointMatchBaseFolder", rootPath + "groundTruth/matchResult/point/" + rawSpec);
         super.setProperty("algorithm.mapmatching.path.CacheFolder", rootPath + "matching/cache/");
         super.setProperty("algorithm.mapmatching.log.LogFolder", rootPath + "matching/log/");
         super.setProperty("data.DataSpec", dataSpec);
