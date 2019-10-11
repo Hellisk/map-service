@@ -77,18 +77,18 @@ public class MapMatchingMain {
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
                         + property.getPropertyString("data.OutlierPct") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.Tolerance");
+                        + property.getPropertyString("algorithm.mapmatching.Tolerance");
                 break;
             case "FST":
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
                         + property.getPropertyString("data.OutlierPct") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.Tolerance");
+                        + property.getPropertyString("algorithm.mapmatching.Tolerance");
                 break;
             case "WGT":
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("data.OutlierPct") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.Tolerance");
+                        + property.getPropertyString("algorithm.mapmatching.Tolerance");
                 break;
             default:
                 parameters = "null";
