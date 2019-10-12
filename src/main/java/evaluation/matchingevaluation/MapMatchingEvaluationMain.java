@@ -57,6 +57,7 @@ public class MapMatchingEvaluationMain {
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
+				break;
 			case "HMM-old":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Sigma");
@@ -90,8 +91,7 @@ public class MapMatchingEvaluationMain {
 				parameters = "null";
 				break;
 		}
-		String logFileName = "evaluation_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" +
-				initTaskTime + "_" + parameters;
+		String logFileName = "evaluation_" + dataSet + "_" + matchingMethod + "_" + dataSpec + "_" + initTaskTime + "_" + parameters;
 		DistanceFunction distFunc;
 		
 		if (dataSet.contains("Beijing"))
@@ -134,20 +134,30 @@ public class MapMatchingEvaluationMain {
 			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
 					downSampleRate, distFunc);
 			if (!matchingMethod.contains("FST") && tolerance != 0) {
+				LOG.info("The current matching result has compression involved.");
+				HashMap<Integer, List<PointMatch>> id2GTPointMatch = new HashMap<>();
+				List<Pair<Integer, List<PointMatch>>> revisedGTPointMatchResult = new ArrayList<>();
+				for (Pair<Integer, List<PointMatch>> currGTPair : gtPointMatchResult) {
+					if (id2GTPointMatch.containsKey(currGTPair._1()))
+						throw new IllegalArgumentException("Duplicate ID from ground-truth map-matching result: " + currGTPair._1());
+					id2GTPointMatch.put(currGTPair._1(), currGTPair._2());
+				}
 				List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
 				DouglasPeuckerFilter dpFilter = new DouglasPeuckerFilter(tolerance, distFunc);
 				for (int i = 0; i < inputTrajList.size(); i++) {
 					Trajectory currTraj = inputTrajList.get(i);
 					List<Integer> keyTrajPointList = dpFilter.dpSimplifier(currTraj);    // the indices of the key trajectory points for
-					List<PointMatch> currPointMatchList = gtPointMatchResult.get(i)._2();
+					List<PointMatch> currPointMatchList = id2GTPointMatch.get(Integer.parseInt(currTraj.getID()));
 					if (currTraj.size() != currPointMatchList.size())
-						throw new IllegalArgumentException("The pre-compression trajectory has different length with the ground-truth:" + currTraj.size() + "," + currPointMatchList.size());
+						throw new IllegalArgumentException("The pre-compression trajectory has different length with the ground-truth:"
+								+ currTraj.size() + "," + currPointMatchList.size() + "," + currTraj.getID() + "," + i);
 					List<PointMatch> revisedPointMatchList = new ArrayList<>();
 					for (Integer index : keyTrajPointList) {
 						revisedPointMatchList.add(currPointMatchList.get(index));
 					}
-					gtPointMatchResult.get(i).set_2(revisedPointMatchList);
+					revisedGTPointMatchResult.add(new Pair<>(Integer.parseInt(currTraj.getID()), revisedPointMatchList));
 				}
+				gtPointMatchResult = revisedGTPointMatchResult;
 			}
 			long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
 			
