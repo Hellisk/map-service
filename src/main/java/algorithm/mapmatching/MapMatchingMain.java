@@ -60,7 +60,7 @@ public class MapMatchingMain {
             case "HMM":
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("data.OutlierPct") + "_"
-                        + property.getPropertyString("algorithm.mapmatching.fst.Tolerance");
+                        + property.getPropertyString("algorithm.mapmatching.Tolerance");
             case "HMM-old":
                 parameters = property.getPropertyString("data.DownSample") + "_"
                         + property.getPropertyString("algorithm.mapmatching.Sigma");
@@ -160,6 +160,7 @@ public class MapMatchingMain {
                 inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, 0, distFunc);
             }
 
+//			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, distFunc);
 //			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, distFunc);
 //			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
             if (matchingMethod.equals("OF-HMM-old")) {

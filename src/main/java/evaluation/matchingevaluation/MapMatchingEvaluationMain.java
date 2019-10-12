@@ -56,7 +56,7 @@ public class MapMatchingEvaluationMain {
 			case "HMM":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
-						+ property.getPropertyString("algorithm.mapmatching.fst.Tolerance");
+						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
 			case "HMM-old":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Sigma");
