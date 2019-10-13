@@ -134,7 +134,6 @@ public class MapMatchingEvaluationMain {
 			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
 					downSampleRate, distFunc);
 			if (!matchingMethod.contains("FST") && tolerance != 0) {
-				LOG.info("The current matching result has compression involved.");
 				HashMap<Integer, List<PointMatch>> id2GTPointMatch = new HashMap<>();
 				List<Pair<Integer, List<PointMatch>>> revisedGTPointMatchResult = new ArrayList<>();
 				for (Pair<Integer, List<PointMatch>> currGTPair : gtPointMatchResult) {
