@@ -272,7 +272,7 @@ public class TrajectoryGenerator {
 							requiredOutlierCount--;
 						}
 					}
-					trajPointShift(outlierPoint, sigma * 5, gtMap.getBoundary(), distFunc);
+					fixedTrajPointShift(outlierPoint, sigma * 10, gtMap.getBoundary(), distFunc);
 				}
 				List<Pair<Integer, List<String>>> routeMatchPairList = new ArrayList<>();
 				List<Pair<Integer, List<PointMatch>>> pointMatchPairList = new ArrayList<>();
@@ -420,6 +420,31 @@ public class TrajectoryGenerator {
 			do {
 				newLon = point.x() + distFunc.getCoordinateOffsetX(random.nextGaussian() * sigma, point.y());
 				newLat = point.y() + distFunc.getCoordinateOffsetY(random.nextGaussian() * sigma, point.x());
+			} while (!boundary.contains(newLon, newLat));
+			point.setPoint(newLon, newLat, distFunc);
+		}
+	}
+	
+	/**
+	 * Shift every point in the trajectories into a region whose distance to its original position is fixed distance.
+	 *
+	 * @param trajPointList The input trajectory point list.
+	 * @param distance      The fixed distance.
+	 * @param boundary      The boundary of the map region.
+	 * @param distFunc      The distance function.
+	 */
+	private static void fixedTrajPointShift(List<TrajectoryPoint> trajPointList, double distance, Rect boundary, DistanceFunction distFunc) {
+		Random random = new Random(10);
+		if (distance == 0) {
+			return;        // no shift required
+		}
+		for (TrajectoryPoint point : trajPointList) {
+			double newLon, newLat, lonDiff, latDiff;
+			do {
+				lonDiff = random.nextDouble();
+				latDiff = Math.sqrt(1 - Math.pow(lonDiff, 2));
+				newLon = point.x() + distFunc.getCoordinateOffsetX(lonDiff * distance, point.y());
+				newLat = point.y() + distFunc.getCoordinateOffsetY(latDiff * distance, point.x());
 			} while (!boundary.contains(newLon, newLat));
 			point.setPoint(newLon, newLat, distFunc);
 		}
