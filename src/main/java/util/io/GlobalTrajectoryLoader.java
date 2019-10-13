@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
+import util.object.spatialobject.Point;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
 
@@ -63,11 +64,14 @@ public class GlobalTrajectoryLoader {
 				(trajNum) + File.separator + stringFormatter(trajNum) + ".track"));
 		Trajectory newTrajectory = new Trajectory(trajNum + "", distFunc);
 		String line;
+		Point prevPoint = null;
 		while ((line = brTrajectory.readLine()) != null) {
 			String[] pointInfo = line.split("\t");
 			TrajectoryPoint newTrajectoryPoint = new TrajectoryPoint(Double.parseDouble(pointInfo[0]), Double.parseDouble(pointInfo[1]),
 					(long) Double.parseDouble(pointInfo[2]), distFunc);
-			newTrajectory.add(newTrajectoryPoint);
+			if (prevPoint != null && !newTrajectoryPoint.equals2D(prevPoint))
+				newTrajectory.add(newTrajectoryPoint);
+			prevPoint = newTrajectoryPoint;
 		}
 		brTrajectory.close();
 		return newTrajectory;
