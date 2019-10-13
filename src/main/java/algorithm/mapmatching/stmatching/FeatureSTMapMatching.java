@@ -357,7 +357,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			String matchID = "";
 			for (String roadID : roadIDList) {
 				if (!roadMap.containsWay(roadID))
-					throw new IllegalArgumentException("The road ID " + roadID + " is not found in the map.");
+					LOG.warn("The road ID " + roadID + " is not found in the map.");
 				for (Segment edge : roadMap.getWayByID(roadID).getEdges()) {
 					double currDist = distFunc.distance(trajectoryPoint, edge);
 					if (currDist < minDistance) {
@@ -369,7 +369,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			}
 			
 			if (minDistance == Double.POSITIVE_INFINITY)
-				throw new IllegalArgumentException("The current trajectory point is not close to any road: " + trajectoryPoint.toString());
+				LOG.warn("The current trajectory point is not close to any road: " + trajectoryPoint.toString());
 			pointMatchList.add(new PointMatch(distFunc.getClosestPoint(trajectoryPoint, matchSegment), matchSegment, matchID));
 		}
 		return pointMatchList;

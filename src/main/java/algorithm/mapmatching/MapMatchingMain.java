@@ -125,8 +125,8 @@ public class MapMatchingMain {
 				TrajectoryPoint prevPoint = iterator.next();
 				while (iterator.hasNext()) {
 					TrajectoryPoint currPoint = iterator.next();
-					if (currPoint.time() <= prevPoint.time()) {
-						LOG.warn("The input time is not ordered: " + currPoint.time() + "," + prevPoint.time());
+					
+					if (currPoint.time() <= prevPoint.time() || currPoint.equals2D(prevPoint)) {
 						currTraj.remove(currPoint);
 					} else prevPoint = currPoint;
 				}
