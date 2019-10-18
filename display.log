@@ -1,0 +1,4 @@
+2019-10-18 11:42:49 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-18 11:42:51 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:281861, total road ways: 602455
+2019-10-18 11:55:27 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-18 11:55:29 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:281861, total road ways: 602455

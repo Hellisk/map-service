@@ -187,6 +187,8 @@ public class MapMatchingMain {
 							currPair.getMatchResult().getBestRoadIDList());
 					matchResultList.add(currResult);
 				}
+//				List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
+//				MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResultList, roadMap, outputMatchResultFolder);
 				MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
 				LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
 						(System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
@@ -197,6 +199,8 @@ public class MapMatchingMain {
 //                matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
 				matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
 				MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
+//				List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
+//				MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResultList, roadMap, outputMatchResultFolder);
 				LOG.info("Matching complete, matching time: " + (System.currentTimeMillis() - loadingTime) / 1000.0 + "s, total time:" +
 						(System.currentTimeMillis() - startTaskTime) / 1000.0 + "s.");
 			}

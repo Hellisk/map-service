@@ -40,7 +40,7 @@ public class RoadNetworkGraph implements Serializable {
 	// Otherwise it is a loose map whose road ways are all straight line (no intermediate point on the road).
 	
 	/**
-     * The current map will be used for map updateGoh if <tt>isUpdatable==true</tt>. The below variables are only useful for an updatable map.
+	 * The current map will be used for map updateGoh if <tt>isUpdatable==true</tt>. The below variables are only useful for an updatable map.
 	 */
 	private boolean isUpdatable;
 	
@@ -288,7 +288,7 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	private void updateBoundary(RoadNode node) {
-        // updateGoh the map boarder
+		// updateGoh the map boarder
 		if (this.maxLon < node.lon()) {
 			this.maxLon = node.lon();
 		}
@@ -467,7 +467,7 @@ public class RoadNetworkGraph implements Serializable {
 	}
 	
 	public void setUpdatable(boolean updatable) {
-        if (!this.isUpdatable && updatable) {        // enable the map updateGoh, updateGoh the current value of the IDs
+		if (!this.isUpdatable && updatable) {        // enable the map updateGoh, updateGoh the current value of the IDs
 			for (RoadNode n : nodeList) {
 				if (Long.parseLong(n.getID()) > maxRoadNodeID)
 					maxRoadNodeID = Long.parseLong(n.getID());
@@ -478,7 +478,7 @@ public class RoadNetworkGraph implements Serializable {
 					maxMiniNodeID = Math.max(Integer.parseInt(n.getID().substring(0, n.getID().length() - 1)), maxMiniNodeID);
 				}
 			}
-        } else if (this.isUpdatable && !updatable) {    // disable the map updateGoh
+		} else if (this.isUpdatable && !updatable) {    // disable the map updateGoh
 			maxRoadNodeID = 0;
 			maxAbsWayID = 0;
 			maxMiniNodeID = 0;
@@ -831,7 +831,7 @@ public class RoadNetworkGraph implements Serializable {
 			LOG.info("The current map is already a loose map, skip the toLooseMap() step.");
 			return this;
 		}
-		
+		long startTime = System.currentTimeMillis();
 		boolean wasLooseMap = false;    // the current map was a loose map and we try to separate it back with its original road ID
 		
 		RoadNetworkGraph cloneMap = this.clone();
@@ -892,7 +892,22 @@ public class RoadNetworkGraph implements Serializable {
 					+ this.getAllTypeOfNodes().size() + "," + cloneMap.getNodes().size());
 		isCompactMap = false;
 		LOG.info("Finish loose map conversion, total number of roads affected: " + removedWayList.size() + ". Number of new way created: "
-				+ insertWayList.size() + ".");
+				+ insertWayList.size() + ", time spent: " + (System.currentTimeMillis() - startTime) / 1000 + "s.");
 		return cloneMap;
+	}
+	
+	/**
+	 * Convert road IDs from loose map to compact map. Merge the road IDs that refers the same road.
+	 *
+	 * @param originalRoads The original road IDs whose format is "roadID_Sindex" e.g.: 123456_S1
+	 * @return Route that only contains compact result.
+	 */
+	public static List<String> compactRoadID(Set<String> originalRoads) {
+		List<String> resultList = new ArrayList<>();
+		for (String road : originalRoads) {
+			if (resultList.isEmpty() || !road.split("_")[0].equals(resultList.get(resultList.size() - 1)))
+				resultList.add(road.split("_")[0]);
+		}
+		return resultList;
 	}
 }
