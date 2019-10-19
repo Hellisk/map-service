@@ -29,10 +29,12 @@ public class TrajectoryReader {
 		for (int i = 0; i < pointInfo.size(); i++) {
 			String s = pointInfo.get(i);
 			TrajectoryPoint newTrajectoryPoint = TrajectoryPoint.parseTrajectoryPoint(s, distFunc);
-//			// TODO Only used for temp work, remove it when done
+
+//			// Only used for temp work, remove it when it's done
 //			Pair<Double, Double> gcjCoordinate = SpatialUtils.convertWGS2GCJ(newTrajectoryPoint.x(), newTrajectoryPoint.y());
 //			newTrajectoryPoint.setX(gcjCoordinate._1());
 //			newTrajectoryPoint.setY(gcjCoordinate._2());
+			
 			if (i == 0 || i % downSampleRate == 0 || i == pointInfo.size() - 1) {
 				if (prevTime == 0 || newTrajectoryPoint.time() != prevTime) {
 					newTrajectory.add(newTrajectoryPoint);

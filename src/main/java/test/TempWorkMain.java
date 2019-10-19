@@ -45,7 +45,7 @@ public class TempWorkMain {
 		int numOfThreads = property.getPropertyInteger("algorithm.mapmatching.NumOfThreads");
 		int downSampleRate = property.getPropertyInteger("data.DownSample");
 		RoadNetworkGraph roadMap = MapReader.readMap(mapFolder + "0.txt", false, distFunc);
-		for (int i = 1; i <= 31; i++) {
+		for (int i = 4; i <= 31; i++) {
 			String currTrajFolder = trajFolder + i + "/";
 			String currOutputFolder = outputFolder + i + "/";
 			String currMatchResultFolder = matchResultOutputFolder + i + "/";
@@ -53,7 +53,7 @@ public class TempWorkMain {
 			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, downSampleRate, 0, distFunc);
 			MapMatchingMethod mapMatchingMethod = MapMatchingMain.chooseMatchMethod(matchingMethod, roadMap, property);
 			List<SimpleTrajectoryMatchResult> matchResult = mapMatchingMethod.parallelMatching(trajectoryStream, numOfThreads, false);
-			MatchResultWriter.writeMatchResults(matchResult, currMatchResultFolder);
+//			MatchResultWriter.writeMatchResults(matchResult, currMatchResultFolder);
 			MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResult, roadMap, currOutputFolder);
 			LOG.info("Finish matching of the " + i + " folder.");
 		}

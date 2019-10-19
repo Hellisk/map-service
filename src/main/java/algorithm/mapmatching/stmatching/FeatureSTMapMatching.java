@@ -108,7 +108,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 					double timeDiff = currPoint.time() - prevPoint.time();
 					double linearDistance = distFunc.distance(prevPoint, currPoint);
 					double maxDistance = Math.min((50 * timeDiff), linearDistance * 8);        // assume the maximum speed is 180km/h
-					List<Pair<Double, List<String>>> shortestPathList = this.routingGraph.calculateShortestDistanceList(startPointMatch,
+					List<Pair<Double, List<String>>> shortestPathList = this.routingGraph.calculateOneToNDijkstraSP(startPointMatch,
 							candidateList, maxDistance);
 					for (int k = 0; k < shortestPathList.size(); k++) {        // shortestPathList.get(k) is equivalent to candidateList.get(k)
 						Pair<Double, List<String>> currTransition = shortestPathList.get(k);

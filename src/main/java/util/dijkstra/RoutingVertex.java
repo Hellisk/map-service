@@ -6,8 +6,8 @@ import java.util.List;
 public class RoutingVertex {
     private List<RoutingEdge> outGoingRoutingEdges = new ArrayList<RoutingEdge>(); // now we must create outGoingRoutingEdges
     private int index;
-
-    public List<RoutingEdge> getOutGoingRoutingEdges() {
+    
+    List<RoutingEdge> getOutGoingRoutingEdges() {
         return outGoingRoutingEdges;
     }
 

@@ -2,7 +2,6 @@ package util.dijkstra;
 
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
-import util.function.GreatCircleDistanceFunction;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
@@ -20,17 +19,17 @@ public class RoutingGraph implements Serializable {
 	
 	private static final Logger LOG = Logger.getLogger(RoutingGraph.class);
 	private HashMap<Integer, String> index2RoadIDAndSN = new HashMap<>();    // the mapping between the mini edge index and its corresponding
-	// roadway id and serial number, format: (index,roadID,serialNum)
+	// roadway id and serial number, format: (index,roadID,serialNum), serialNum starts from 0
 	private HashMap<String, Integer> endPointLoc2EdgeIndex = new LinkedHashMap<>();  // find the mini edge index using the coordinates and
 	// road
 	// way id, format: (x1_x2,y1_y2,id)
 	private HashMap<Integer, Pair<Integer, Integer>> edgeIndex2EndpointsIndex = new HashMap<>();  // find the end point indices given the mini edge index
 	private HashMap<Pair<Integer, Integer>, Integer> endPointsIndex2EdgeIndex = new HashMap<>();  // find the mini edge index given the end point indices
-	private HashMap<Integer, Pair<Integer, Double>> edgeIndex2LeftMostEdgeIndexDist = new HashMap<>();  // find the first routing edge
+	private HashMap<Integer, Pair<Integer, Double>> edgeIndex2RoadWayStartDist = new HashMap<>();  // find the first routing edge
 	// and its distance to the current edge
 	private RoutingVertex[] vertices;
 	private RoutingEdge[] routingEdges;
-	private DistanceFunction distFunc = new GreatCircleDistanceFunction();
+	private DistanceFunction distFunc;
 	private HashSet<Integer> newNodeSet = new HashSet<>();  // useful only when isPartial = true;
 	private HashSet<Integer> newEdgeSet = new HashSet<>();  // useful only when isPartial = true;
 	private HashMap<String, List<Integer>> roadID2NewNodeList = new HashMap<>();  // for each new road, the generated node ID list.
@@ -40,23 +39,24 @@ public class RoutingGraph implements Serializable {
 	 * Create routing graph for map-matching.
 	 *
 	 * @param roadNetwork       The map used to build routing graph.
-     * @param isNewRoadIncluded Is new roads to be added together into the shortest path, only = true when in map updateGoh process.
+	 * @param isNewRoadIncluded Is new roads to be added together into the shortest path, only = true when in map updateGoh process.
 	 */
 	public RoutingGraph(RoadNetworkGraph roadNetwork, boolean isNewRoadIncluded, BaseProperty prop) {
+		this.distFunc = roadNetwork.getDistanceFunction();
 		// insert the road node into node list
 		HashMap<String, Integer> nodeID2Index = new HashMap<>();
 		HashSet<Integer> outGoingNodeSet = new HashSet<>();
 		// the size of the vertex list and the current index of the new vertex
-		int noOfVertices = 0;
+		int vertexIndex = 0;
 		for (RoadNode node : roadNetwork.getNodes()) {
 			if (nodeID2Index.containsKey(node.getID()))
 				throw new IllegalArgumentException("Road node ID already exists: " + node.getID());
-			nodeID2Index.put(node.getID(), noOfVertices);
-			noOfVertices++;
+			nodeID2Index.put(node.getID(), vertexIndex);
+			vertexIndex++;
 		}
 		
 		List<RoutingEdge> routingEdgeList = new ArrayList<>();
-		int noOfEdges = 0;
+		int edgeIndex = 0;
 		for (RoadWay way : roadNetwork.getWays()) {
 			// insert all the mini vertices to the node list
 			if (isNewRoadIncluded && way.isNewRoad()) {
@@ -67,13 +67,13 @@ public class RoutingGraph implements Serializable {
 				// insert all mini vertices into the nodeID index
 				RoadNode startNode = way.getNode(i);
 				if (nodeID2Index.containsKey(startNode.getID()))
-					throw new IllegalArgumentException("ERROR! Road node ID for mini node already exists: " + startNode.getID());
-				nodeID2Index.put(startNode.getID(), noOfVertices);
+					throw new IllegalArgumentException("Road node ID for mini node already exists: " + startNode.getID());
+				nodeID2Index.put(startNode.getID(), vertexIndex);
 				if (isNewRoadIncluded && way.isNewRoad()) {
-					newNodeSet.add(noOfVertices);
-					roadID2NewNodeList.get(way.getID()).add(noOfVertices);
+					newNodeSet.add(vertexIndex);
+					roadID2NewNodeList.get(way.getID()).add(vertexIndex);
 				}
-				noOfVertices++;
+				vertexIndex++;
 			}
 			
 			// insert mini routingEdges to the edge list
@@ -82,81 +82,86 @@ public class RoutingGraph implements Serializable {
 			for (int i = 0; i < way.getNodes().size() - 1; i++) {
 				RoadNode startNode = way.getNode(i);
 				RoadNode endNode = way.getNode(i + 1);
-				index2RoadIDAndSN.put(noOfEdges, way.getID() + "," + (i + 1));
+				index2RoadIDAndSN.put(edgeIndex, way.getID() + "," + i);    // sn from 0 to way.getNodes.size()-2
 				if (endPointLoc2EdgeIndex.containsKey(startNode.lon() + "_" + startNode.lat() + "," + endNode.lon() + "_" + endNode.lat() + "," + way.getID())) {
-					throw new IllegalArgumentException("The same start and end nodes generate multiple roads: " + noOfEdges);
+					throw new IllegalArgumentException("The same start and end nodes generate multiple roads: " + edgeIndex);
 				}
-				endPointLoc2EdgeIndex.put(startNode.lon() + "_" + startNode.lat() + "," + endNode.lon() + "_" + endNode.lat() + "," + way.getID(), noOfEdges);
-				int startID = nodeID2Index.get(startNode.getID());
-				int endID = nodeID2Index.get(endNode.getID());
-				Pair<Integer, Integer> endPointIndices = new Pair<>(startID, endID);
+				endPointLoc2EdgeIndex.put(startNode.lon() + "_" + startNode.lat() + "," + endNode.lon() + "_" + endNode.lat() + "," + way.getID(), edgeIndex);
+				int startIndex = nodeID2Index.get(startNode.getID());
+				int endIndex = nodeID2Index.get(endNode.getID());
+				Pair<Integer, Integer> endPointIndices = new Pair<>(startIndex, endIndex);
 				if (endPointsIndex2EdgeIndex.containsKey(endPointIndices))
-					throw new IllegalArgumentException("The same start and end node id refer to multiple roads: " + noOfEdges);
-				edgeIndex2EndpointsIndex.put(noOfEdges, endPointIndices);
-				endPointsIndex2EdgeIndex.put(endPointIndices, noOfEdges);
+					throw new IllegalArgumentException("The same start and end node id refer to multiple roads: " + edgeIndex);
+				edgeIndex2EndpointsIndex.put(edgeIndex, endPointIndices);
+				endPointsIndex2EdgeIndex.put(endPointIndices, edgeIndex);
 				if (i == 0) {
-					startEdgeIndex = noOfEdges;
-					edgeIndex2LeftMostEdgeIndexDist.put(noOfEdges, new Pair<>(startEdgeIndex, currDist));
-				} else {
-					edgeIndex2LeftMostEdgeIndexDist.put(noOfEdges, new Pair<>(startEdgeIndex, currDist));
+					startEdgeIndex = edgeIndex;
 				}
+				edgeIndex2RoadWayStartDist.put(edgeIndex, new Pair<>(startEdgeIndex, currDist));
 				currDist += distFunc.distance(startNode.toPoint(), endNode.toPoint());
-				RoutingEdge currRoutingEdge = new RoutingEdge(startID, endID, distFunc.distance(startNode.toPoint(), endNode.toPoint()));
-				currRoutingEdge.setIndex(noOfEdges);
+				RoutingEdge currRoutingEdge = new RoutingEdge(edgeIndex, startIndex, endIndex, distFunc.distance(startNode.toPoint(),
+						endNode.toPoint()));
 				routingEdgeList.add(currRoutingEdge);
 				if (isNewRoadIncluded && way.isNewRoad()) {
-					newEdgeSet.add(noOfEdges);
-					roadID2NewEdgeList.get(way.getID()).add(noOfEdges);
+					newEdgeSet.add(edgeIndex);
+					roadID2NewEdgeList.get(way.getID()).add(edgeIndex);
 				}
-				noOfEdges++;
+				edgeIndex++;
 			}
 		}
-		this.routingEdges = routingEdgeList.toArray(new RoutingEdge[0]);
+		this.routingEdges = new RoutingEdge[routingEdgeList.size()];
+		for (int i = 0; i < routingEdgeList.size(); i++) {
+			RoutingEdge currRoutingEdge = routingEdgeList.get(i);
+			if (currRoutingEdge.getIndex() != i)
+				throw new IllegalArgumentException("The current routing edge id is inconsistent: " + currRoutingEdge.getIndex() + "," + i + ".");
+			this.routingEdges[i] = currRoutingEdge;
+		}
 		
 		// create all vertices ready to be updated with the routingEdges
-		this.vertices = new RoutingVertex[noOfVertices];
-		for (int n = 0; n < noOfVertices; n++) {
+		this.vertices = new RoutingVertex[vertexIndex];
+		for (int n = 0; n < vertexIndex; n++) {
 			this.vertices[n] = new RoutingVertex();
 			this.vertices[n].setIndex(n);
 		}
+		
 		// add all the routingEdges to the vertices, each edge added to only from vertices
-		for (int i = 0; i < noOfEdges; i++) {
+		for (int i = 0; i < this.routingEdges.length; i++) {
 			if (!isNewRoadIncluded || !newEdgeSet.contains(i))
 				this.vertices[routingEdges[i].getFromNodeIndex()].getOutGoingRoutingEdges().add(routingEdges[i]);
 		}
 		
 		// check the completeness of the graph
-		for (RoutingVertex n : this.vertices) {
-			if (n.getOutGoingRoutingEdges().size() != 0) {
-				for (RoutingEdge e : n.getOutGoingRoutingEdges()) {
+		for (RoutingVertex currVertex : this.vertices) {
+			if (currVertex.getOutGoingRoutingEdges().size() != 0) {
+				for (RoutingEdge e : currVertex.getOutGoingRoutingEdges()) {
 					outGoingNodeSet.add(e.getToNodeIndex());
 				}
 			}
 		}
 		for (int i = 0; i < vertices.length; i++) {
 			if (this.vertices[i].getOutGoingRoutingEdges().size() == 0 && !outGoingNodeSet.contains(i) && !newNodeSet.contains(i))
-				LOG.error("ERROR! Isolated node detected: No. " + i);
+				LOG.error("Isolated node detected: No. " + i);
 		}
-		LOG.info("Shortest path graph generated. Total vertices:" + noOfVertices + ", total edges:" + noOfEdges);
+		LOG.info("Shortest path graph generated. Total vertices:" + vertexIndex + ", total edges:" + edgeIndex);
 	}
 	
 	/**
 	 * Given a source match point and a set of destination points, the function calculate the shortest path to each destination and their
-	 * distance.
+	 * distance using Dijkstra algorithm.
 	 *
-	 * @param source      The source match point and its segment.
-	 * @param pointList   The destination match point list.
-	 * @param maxDistance The maximum acceptable distance, shortest distance terminates.
+	 * @param source        The source match point and its segment.
+	 * @param pointList     The destination match point list.
+	 * @param maxSearchDist The maximum search range where shortest path search terminates.
 	 * @return List of results which contain distance and shortest path. distance = Double.POSITIVE_INFINITY and path is empty if not
-	 * reachable within maxDistance.
+	 * reachable within maxSearchDist.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Pair<Double, List<String>>> calculateShortestDistanceList(PointMatch source, List<PointMatch> pointList, double maxDistance) {
+	public List<Pair<Double, List<String>>> calculateOneToNDijkstraSP(PointMatch source, List<PointMatch> pointList, double maxSearchDist) {
 		double[] distance = new double[pointList.size()];   // the distance to every destination
 		List<String>[] path = new ArrayList[pointList.size()];     // the path to every destination
-		HashMap<Integer, Integer> parent = new HashMap<>();
-		HashMap<Integer, Double> vertexDistFromSource = new HashMap<>();
-		HashSet<Integer> vertexVisited = new HashSet<>();
+		HashMap<Integer, Integer> parent = new HashMap<>();        // the parent of each vertex, used during Dijkstra traversal
+		HashMap<Integer, Double> vertexDistFromSource = new HashMap<>();    // the distance from the vertex to the source node
+		HashSet<Integer> vertexVisited = new HashSet<>();        // set of vertices visited
 		List<Pair<Double, List<String>>> result;
 		
 		Arrays.fill(distance, Double.POSITIVE_INFINITY);
@@ -184,7 +189,7 @@ public class RoutingGraph implements Serializable {
 		int startEdgeIndex = endPointLoc2EdgeIndex.get(sourceLocID);
 		String startRoadID = index2RoadIDAndSN.get(startEdgeIndex).split(",")[0];
 		int startRoadSN = Integer.parseInt(index2RoadIDAndSN.get(startEdgeIndex).split(",")[1]);
-		int startNodeIndex = edgeIndex2EndpointsIndex.get(startEdgeIndex)._2();
+		int startNodeIndex = this.routingEdges[startEdgeIndex].getToNodeIndex();
 		double sourceDistance = this.distFunc.distance(source.getMatchPoint(), source.getMatchedSegment().p2());
 		
 		// attach all destination points to the graph
@@ -218,7 +223,7 @@ public class RoutingGraph implements Serializable {
 						// and they are in the right sequence
 						distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
 //						path[i].add(pointList.get(i).getRoadID());
-						path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
+						path[i].add(destRoadID);
 						destPointCount--;
 //					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
 //							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
@@ -228,14 +233,14 @@ public class RoutingGraph implements Serializable {
 //						destPointCount--;
 					} else {    // they are in different mini edges or wrong sequence inside one mini edge
 						int destRoadSN = Integer.parseInt(index2RoadIDAndSN.get(destEdgeIndex).split(",")[1]);
-						int destNodeIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._1();
+						int destNodeIndex = this.routingEdges[destEdgeIndex].getFromNodeIndex();
 						if (startRoadSN < destRoadSN) { // the start node is located at the upstream of the destination node within the same
 							// road
 							distance[i] += sourceDistance;
-							distance[i] += distanceWithinEdge(startNodeIndex, startEdgeIndex, destNodeIndex);
+							distance[i] += distanceWithinEdge(startNodeIndex, destNodeIndex);
 							distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList.get(i).getMatchPoint());
 //							path[i].add(pointList.get(i).getRoadID());
-							path[i].add(pointList.get(i).getRoadID().split("\\|")[0]);
+							path[i].add(destRoadID);
 							destPointCount--;
 //						} else if (destRoadSN < startRoadSN) {
 //							int startIndex = edgeIndex2EndpointsIndex.get(destEdgeIndex)._2();
@@ -263,7 +268,6 @@ public class RoutingGraph implements Serializable {
 		
 		// the rest of the destinations are on different roads, now set the end of the current road as start vertex
 		if (destPointCount > 0) {
-			
 			boolean isTheSameRoad = true;   // find the end of the current road as the start of the new sequence
 			while (isTheSameRoad) {
 				List<RoutingEdge> outGoingRoutingEdgeList = this.vertices[startNodeIndex].getOutGoingRoutingEdges();
@@ -292,7 +296,7 @@ public class RoutingGraph implements Serializable {
 
 //        LOG.info("start new shortest distance");
 			// visit every node
-			while (currIndex != -1 && vertexDistFromSource.get(currIndex) < (maxDistance - sourceDistance)) {
+			while (currIndex != -1 && vertexDistFromSource.get(currIndex) < (maxSearchDist - sourceDistance)) {
 				// loop around the edges of current node
 //            LOG.info(vertices[currIndex].getDistanceFromSource());
 				List<RoutingEdge> currentOutgoingRoutingEdges = vertices[currIndex].getOutGoingRoutingEdges();
@@ -359,32 +363,27 @@ public class RoutingGraph implements Serializable {
 		return result;
 	}
 	
-	private double distanceWithinEdge(int startNodeIndex, int currEdgeIndex, int destNodeIndex) {
+	private double distanceWithinEdge(int startNodeIndex, int destNodeIndex) {
 		double distance = 0;
 		while (startNodeIndex != destNodeIndex) {
 			List<RoutingEdge> outGoingRoutingEdgeList = this.vertices[startNodeIndex].getOutGoingRoutingEdges();
-			if (outGoingRoutingEdgeList.size() > 2)
-				LOG.error("ERROR! Current mini node has more than two outgoing edges:" + startNodeIndex);
-			for (RoutingEdge routingEdge : outGoingRoutingEdgeList) {
-				if (routingEdge.getIndex() != currEdgeIndex) {    // the current routingEdge is not the reverse routingEdge
-					distance += routingEdge.getLength();
-					currEdgeIndex = routingEdge.getIndex();
-					startNodeIndex = routingEdge.getToNodeIndex();
-					break;
-				}
-			}
+			if (outGoingRoutingEdgeList.size() != 1)
+				LOG.error("Current mini node has incorrect number of outgoing edges:" + startNodeIndex);
+			RoutingEdge currEdge = outGoingRoutingEdgeList.get(0);
+			distance += currEdge.getLength();
+			startNodeIndex = currEdge.getToNodeIndex();
 		}
 		return distance;
 	}
 	
 	private void insertDestPoint(HashMap<Integer, Set<Pair<Integer, Double>>> nodeIndex2DestPointSet, int pointIndex, int destEdgeIndex) {
-		int firstEdgeOfDest = edgeIndex2LeftMostEdgeIndexDist.get(destEdgeIndex)._1();
+		int firstEdgeOfDest = edgeIndex2RoadWayStartDist.get(destEdgeIndex)._1();
 		if (nodeIndex2DestPointSet.containsKey(edgeIndex2EndpointsIndex.get(firstEdgeOfDest)._1())) {
 			Set<Pair<Integer, Double>> currDestPointSet = nodeIndex2DestPointSet.get(edgeIndex2EndpointsIndex.get(firstEdgeOfDest)._1());
-			currDestPointSet.add(new Pair<>(pointIndex, edgeIndex2LeftMostEdgeIndexDist.get(destEdgeIndex)._2()));
+			currDestPointSet.add(new Pair<>(pointIndex, edgeIndex2RoadWayStartDist.get(destEdgeIndex)._2()));
 		} else {
 			Set<Pair<Integer, Double>> currDestPointSet = new LinkedHashSet<>();
-			currDestPointSet.add(new Pair<>(pointIndex, edgeIndex2LeftMostEdgeIndexDist.get(destEdgeIndex)._2()));
+			currDestPointSet.add(new Pair<>(pointIndex, edgeIndex2RoadWayStartDist.get(destEdgeIndex)._2()));
 			nodeIndex2DestPointSet.put(edgeIndex2EndpointsIndex.get(firstEdgeOfDest)._1(), currDestPointSet);
 		}
 	}
