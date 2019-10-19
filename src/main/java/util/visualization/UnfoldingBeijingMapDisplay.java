@@ -10,12 +10,15 @@ import processing.core.PApplet;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.io.MapReader;
+import util.io.MatchResultReader;
 import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadNode;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Trajectory;
 import util.object.spatialobject.TrajectoryPoint;
+import util.object.structure.Pair;
+import util.object.structure.SimpleTrajectoryMatchResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,12 +33,12 @@ import java.util.Map;
 //http://unfoldingmaps.org/
 public class UnfoldingBeijingMapDisplay extends PApplet {
 	private UnfoldingMap currMapDisplay;
-	//    private String inputMapFolder = "/Users/macbookpro/Desktop/capstone/Beijing-S/input/map/";
-//    private String inputTrajPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/input/trajectory/L180_I120_N-1/";
-	private String inputMapFolder = "C:/data/Beijing-L/input/map/";
-	private String inputTrajPath = "C:/data/db/";
-	//    private String outputRouteMatchResultPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/output/matchResult/L180_I120_N-1/";
-//    private String gtRouteMatchResultPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
+	private String inputMapFolder = "C:/data/Beijing-S/input/map/";
+	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
+	private String outputRouteMatchResultPath = "C:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
+	private String gtRouteMatchResultPath = "C:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
+	//	private String inputMapFolder = "C:/data/Beijing-L/input/map/";
+//	private String inputTrajPath = "C:/data/db/";
 	private DistanceFunction distFunc = new GreatCircleDistanceFunction();
 	private UnfoldingMap fullMapDisplay;    // full map visualization
 //	private UnfoldingMap compareMapDisplay;    // map for comparison
@@ -83,57 +86,56 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 //		compareMapDisplay.zoomAndPanTo(14, mapCenter);
 		
 		List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajPath, 1, distFunc);
-//        List<Pair<Integer, List<String>>> gtRouteMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchResultPath);
+		List<Pair<Integer, List<String>>> gtRouteMatchResultList = MatchResultReader.readRouteMatchResults(gtRouteMatchResultPath);
 //		List<Pair<Integer, List<String>>> routeMatchResultList = MatchResultReader.readRouteMatchResults(outputRouteMatchResultPath);
-//        List<SimpleTrajectoryMatchResult> routeMatchResultList = MatchResultReader.readSimpleMatchResultsToList(outputRouteMatchResultPath, distFunc);
+		List<SimpleTrajectoryMatchResult> routeMatchResultList = MatchResultReader.readSimpleMatchResultsToList(outputRouteMatchResultPath, distFunc);
 		
 		Map<Integer, Trajectory> trajectoryMap = new HashMap<>();
 		for (Trajectory trajectory : trajectoryList) {
-			List<Marker> trajMarker = trajMarkerBeijingGen(trajectory, red, 2);
+//			List<Marker> trajMarker = trajMarkerBeijingGen(trajectory, red, 2);
 			trajectoryMap.put(Integer.parseInt(trajectory.getID()), trajectory);
-			fullMapDisplay.addMarkers(trajMarker);
 		}
-
-//        Map<Integer, List<String>> gtRouteMatchResultMap = new HashMap<>();
-//        for (Pair<Integer, List<String>> gtRoute : gtRouteMatchResultList) {
-//            gtRouteMatchResultMap.put(gtRoute._1(), gtRoute._2());
-//        }
-//
-//        Map<Integer, List<String>> routeMatchResultMap = new HashMap<>();
-//        for (SimpleTrajectoryMatchResult simpleTrajectoryMatchResult : routeMatchResultList) {
-//            routeMatchResultMap.put(Integer.parseInt(simpleTrajectoryMatchResult.getTrajID()), simpleTrajectoryMatchResult.getRouteMatchResultList());
-//        }
-
-//        for (int index : routeMatchResultMap.keySet()) {
-//            Trajectory currTraj = trajectoryMap.get(index);
-//            List<Marker> trajMarker = trajMarkerBeijingGen(currTraj, red, 2);
-//
-//            Pair<Integer, List<String>> currOutputRouteMatchResult = new Pair<>(index, routeMatchResultMap.get(index));
-//
-//            Pair<Integer, List<String>> currGTRouteMatchResult = new Pair<>(index, gtRouteMatchResultMap.get(index));
-//            List<RoadWay> gtWayList = new ArrayList<>();
-//            for (String wayID : currGTRouteMatchResult._2()) {
-//                if (id2WayMap.containsKey(wayID)) {
-//                    gtWayList.add(id2WayMap.get(wayID));
-//                }
-//            }
-
-//            List<RoadWay> outPutList = new ArrayList<>();
-//            for (String wayID : currOutputRouteMatchResult._2()) {
-//                if (id2WayMap.containsKey(wayID)) {
-//                    outPutList.add(id2WayMap.get(wayID));
-//                }
-//            }
-//            List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, lightPurple, 2);
-//            List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2);
-//            fullMapDisplay.addMarkers(outputWayMarker);
-//            fullMapDisplay.addMarkers(gtWayMarker);
+		
+		Map<Integer, List<String>> gtRouteMatchResultMap = new HashMap<>();
+		for (Pair<Integer, List<String>> gtRoute : gtRouteMatchResultList) {
+			gtRouteMatchResultMap.put(gtRoute._1(), gtRoute._2());
+		}
+		
+		Map<Integer, List<String>> routeMatchResultMap = new HashMap<>();
+		for (SimpleTrajectoryMatchResult simpleTrajectoryMatchResult : routeMatchResultList) {
+			routeMatchResultMap.put(Integer.parseInt(simpleTrajectoryMatchResult.getTrajID()), simpleTrajectoryMatchResult.getRouteMatchResultList());
+		}
+		
+		for (int index : routeMatchResultMap.keySet()) {
+			Trajectory currTraj = trajectoryMap.get(index);
+			List<Marker> trajMarker = trajMarkerBeijingGen(currTraj, red, 2);
+			fullMapDisplay.addMarkers(trajMarker);
+			
+			Pair<Integer, List<String>> currOutputRouteMatchResult = new Pair<>(index, routeMatchResultMap.get(index));
+			
+			Pair<Integer, List<String>> currGTRouteMatchResult = new Pair<>(index, gtRouteMatchResultMap.get(index));
+			List<RoadWay> gtWayList = new ArrayList<>();
+			for (String wayID : currGTRouteMatchResult._2()) {
+				if (id2WayMap.containsKey(wayID)) {
+					gtWayList.add(id2WayMap.get(wayID));
+				}
+			}
+			List<RoadWay> outPutList = new ArrayList<>();
+			for (String wayID : currOutputRouteMatchResult._2()) {
+				if (id2WayMap.containsKey(wayID)) {
+					outPutList.add(id2WayMap.get(wayID));
+				}
+			}
+			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, lightPurple, 2);
+			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2);
+			fullMapDisplay.addMarkers(outputWayMarker);
+			fullMapDisplay.addMarkers(gtWayMarker);
 
 //            List<Marker> pointMs = new ArrayList<>();
 //            pointMs.add(new SimplePointMarker(new Location(39.95106, 116.40478)));
 //            pointMs.add(new SimplePointMarker(new Location(39.97501, 116.43453)));
 //            fullMapDisplay.addMarkers(pointMs);
-//        }
+		}
 		currMapDisplay = fullMapDisplay;
 	}
 	
