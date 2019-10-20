@@ -60,15 +60,14 @@ public class Utilities {
 	 * @param prevPoint previous GPS point
 	 * @param curPoint  current GPS point
 	 * @param pathDist  shortest path distance between candidate pair
-	 * @param threshold threshold
 	 * @return shortest path weight
 	 */
-	public static double shortestPathWeight(Point prevPoint, Point curPoint, double pathDist, double threshold) {
+    public static double shortestPathWeight(Point prevPoint, Point curPoint, double pathDist) {
 		double trjtryDist = prevPoint.getDistanceFunction().pointToPointDistance(prevPoint.x(), prevPoint.y(), curPoint.x(), curPoint.y());
 		double diff = Math.abs(trjtryDist - pathDist);
-		
-		if (diff <= threshold) {
-			return 1 - diff / threshold;
+
+        if (diff <= 1000) {
+            return 1 - diff / 1000;
 		} else {
 			return 0;
 		}
@@ -161,7 +160,6 @@ public class Utilities {
 	 * @param curCandi       current candidate matching point
 	 * @param candiSegment   candidate matching segment
 	 * @param shortestPLen   shortest path between previously matched point to current candidate matching point
-	 * @param threshold      threshold
 	 * @param headingWC      WC of heading difference
 	 * @param bearingWC      WC of bearing difference
 	 * @param pdWC           WC of perpendicular distance
@@ -169,15 +167,14 @@ public class Utilities {
 	 * @return total weighting score
 	 */
 	public static double getTotalWeightScore(Point prePoint, Point curPoint, double curPointDir,
-											 Point preCandi, Point curCandi,
-											 Segment candiSegment,
-											 double shortestPLen, double threshold,
-											 double headingWC, double bearingWC, double pdWC, double shortestPathWC) {
+                                             Point preCandi, Point curCandi,
+                                             Segment candiSegment,
+                                             double shortestPLen,
+                                             double headingWC, double bearingWC, double pdWC, double shortestPathWC) {
 		double headingW = headingDiffWeight(prePoint, curPoint, preCandi, curCandi);
 		double bearingW = bearingDiffWeight(curPointDir, candiSegment);
 		double pdW = penDistanceWeight(curPoint, candiSegment);
-		double shortestPathW = shortestPathWeight(prePoint, curPoint, shortestPLen, threshold);
-		
+        double shortestPathW = shortestPathWeight(prePoint, curPoint, shortestPLen);
 		return formatDoubles(headingWC * headingW + bearingWC * bearingW + pdWC * pdW + shortestPathWC * shortestPathW);
 	}
 	
@@ -186,7 +183,6 @@ public class Utilities {
 	 *
 	 * @param candiPaths     all candidate paths
 	 *                       <<sourcePM,destinationPM>, <shortestPathLength,shortestPathSequence>>
-	 * @param threshold      threshold
 	 * @param vehicleDir     vehicle direction (direction of second GPS point)
 	 * @param firstPoint     first GPS point
 	 * @param secondPoint    second GPS point
@@ -197,10 +193,10 @@ public class Utilities {
 	 * @return Queue<Pair < SourcePM, DestPM>, Pair<totalWeightScore, waySequence>> Ranking of candidate paths
 	 */
 	public static Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> rankCandiMatches(
-			Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> candiPaths,
-			Point firstPoint, Point secondPoint,
-			double threshold, double vehicleDir,
-			double headingWC, double bearingWC, double pdWC, double shortestPathWC) {
+            Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> candiPaths,
+            Point firstPoint, Point secondPoint,
+            double vehicleDir, double headingWC, double bearingWC, double pdWC,
+            double shortestPathWC) {
 		/* Customize a pq comparator */
 		Comparator<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> pathComparator =
 				new Comparator<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>>() {
@@ -226,8 +222,7 @@ public class Utilities {
 			
 			double tws = Utilities.getTotalWeightScore(
 					firstPoint, secondPoint, vehicleDir, sourcePoint, destPoint, destSegment,
-					candiPath.getValue().hashCode(),
-					threshold, headingWC, bearingWC, pdWC, shortestPathWC);
+                    candiPath.getValue()._1(), headingWC, bearingWC, pdWC, shortestPathWC);
 			candiScores.add(new Pair<>(candiPath.getKey(), new Pair<>(tws, candiPath.getValue()._2())));
 		}
 		return candiScores;
