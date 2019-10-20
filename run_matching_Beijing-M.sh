@@ -20,22 +20,22 @@ mvn compile
 # experiment on fixed (on & off)
 mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
 mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt10" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt10" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt20" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt20" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt35" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt35" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt50" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt50" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt100" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt100" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt200" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt200" -Dexec.cleanupDaemonThreads=false
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt300" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt300" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt10" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt10" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt20" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt20" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt35" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt35" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt50" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt50" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt100" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt100" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt200" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt200" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt300" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt300" -Dexec.cleanupDaemonThreads=false
 
 # experiment on eddy
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-eddy -ga0.000001" -Dexec.cleanupDaemonThreads=false
