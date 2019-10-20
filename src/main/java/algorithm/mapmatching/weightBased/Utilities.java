@@ -18,16 +18,19 @@ public class Utilities {
 	/**
 	 * Find the shortest path from a source node to each destination node
 	 *
-	 * @param destinations a set of destination nodes
-	 * @param source       the source node
-	 * @param maxDistance  threshold
+	 * @param destinations   a set of destination nodes
+	 * @param source         the source node
+	 * @param referencePoint
+	 * @param maxDistance    threshold
 	 * @return shortest paths List<DestinationPM, shortestPathLength, Path>
 	 */
 	public static List<Triplet<PointMatch, Double, List<String>>> getShortestPaths(RoutingGraph routingGraph,
-																				   List<PointMatch> destinations, PointMatch source, double maxDistance) {
+																				   List<PointMatch> destinations, PointMatch source, Point referencePoint, double maxDistance) {
 		
 		// The graph for Dijkstra shortest distance calculation
-		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateShortestDistanceList(source, destinations, maxDistance);
+//		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNDijkstraSP(source, destinations, maxDistance);
+		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNAStarSP(source, destinations, referencePoint,
+				maxDistance);
 		
 		List<Triplet<PointMatch, Double, List<String>>> shortestPathToDestPM = new ArrayList<>();
 		

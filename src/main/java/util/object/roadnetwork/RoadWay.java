@@ -319,8 +319,7 @@ public class RoadWay extends RoadNetworkPrimitive {
 			}
 		}
 		
-		String result = s.toString().replaceFirst(",", "");
-		return result.substring(0, s.length() - 1);
+		return s.deleteCharAt(s.length() - 1).toString().replaceFirst(",", "");
 	}
 	
 	@Override

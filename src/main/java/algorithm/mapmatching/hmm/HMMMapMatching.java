@@ -657,7 +657,9 @@ public class HMMMapMatching implements Serializable {
 				".UTurnPenalty") : 0;
 		for (PointMatch from : prevTimeStep.candidates) {
 			List<PointMatch> candidates = new ArrayList<>(timeStep.candidates);
-			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateShortestDistanceList(from, candidates, maxDistance);
+//			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNDijkstraSP(from, candidates, maxDistance);
+			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNAStarSP(from, candidates,
+					timeStep.observation, maxDistance);
 			for (int i = 0; i < candidates.size(); i++) {
 				if (shortestPathResultList.get(i)._1() != Double.POSITIVE_INFINITY) {
 					if (shortestPathResultList.get(i)._2().contains(reverseID(from.getRoadID())))

@@ -19,8 +19,9 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	private static final Logger LOG = Logger.getLogger(TrajectoryPoint.class);
 	
 	private final long time;        // timestamps
-	private final double speed;        // the instantaneous speed of the object at the current time
-	private final double heading;    // the heading of trajectory point ranging between -179~180. Degree 0 = (1,0)
+	
+	private double speed;        // the instantaneous speed of the object at the current time
+	private double heading;    // the heading of trajectory point ranging between -179~180. Degree 0 = (1,0)
 	
 	/**
 	 * Create a new empty point with zero time stamp.
@@ -110,6 +111,14 @@ public class TrajectoryPoint extends Point implements SpatialTemporalObject {
 	@Override
 	public long timeFinal() {
 		return time;
+	}
+	
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+	
+	public void setHeading(double heading) {
+		this.heading = heading;
 	}
 	
 	@NonNull

@@ -439,10 +439,12 @@ public class TrajectoryGenerator {
 			return;        // no shift required
 		}
 		for (TrajectoryPoint point : trajPointList) {
-			double newLon, newLat, lonDiff, latDiff;
+			double newLon, newLat, lonDiff, latDiff, initValue;
 			do {
-				lonDiff = random.nextDouble();
+				initValue = random.nextDouble();
+				lonDiff = random.nextBoolean() ? initValue : -initValue;
 				latDiff = Math.sqrt(1 - Math.pow(lonDiff, 2));
+				latDiff = random.nextBoolean() ? latDiff : -latDiff;
 				newLon = point.x() + distFunc.getCoordinateOffsetX(lonDiff * distance, point.y());
 				newLat = point.y() + distFunc.getCoordinateOffsetY(latDiff * distance, point.x());
 			} while (!boundary.contains(newLon, newLat));

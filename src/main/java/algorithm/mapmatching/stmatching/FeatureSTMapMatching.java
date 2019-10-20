@@ -25,7 +25,6 @@ import java.util.*;
  * Yin, Y., Shah, R.R., Wang, G., Zimmermann, R.: Feature-based map matching for low-sampling-rate gps trajectories. ACM Transactions on
  * Spatial Algorithms and Systems (TSAS) 4(2), 4 (2018)
  * <p>
- * The road speed limit is needed in this algorithm.
  *
  * @author uqpchao
  * Created 18/08/2019
@@ -109,8 +108,10 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 					double timeDiff = currPoint.time() - prevPoint.time();
 					double linearDistance = distFunc.distance(prevPoint, currPoint);
 					double maxDistance = Math.min((50 * timeDiff), linearDistance * 8);        // assume the maximum speed is 180km/h
-					List<Pair<Double, List<String>>> shortestPathList = this.routingGraph.calculateShortestDistanceList(startPointMatch,
-							candidateList, maxDistance);
+//					List<Pair<Double, List<String>>> shortestPathList = this.routingGraph.calculateOneToNDijkstraSP(startPointMatch,
+//							candidateList, maxDistance);
+					List<Pair<Double, List<String>>> shortestPathList = this.routingGraph.calculateOneToNAStarSP(startPointMatch,
+							candidateList, currPoint, maxDistance);
 					for (int k = 0; k < shortestPathList.size(); k++) {        // shortestPathList.get(k) is equivalent to candidateList.get(k)
 						Pair<Double, List<String>> currTransition = shortestPathList.get(k);
 						if (currTransition._1() == Double.POSITIVE_INFINITY || currTransition._2().isEmpty()) {    // the current
@@ -195,7 +196,7 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 				}
 			}
 		}
-		List<String> routeMatchList = compactRoadID(resultPath);
+		List<String> routeMatchList = RoadNetworkGraph.compactRoadID(resultPath);
 		List<PointMatch> pointMatchList = findPointMatch(traj, routeMatchList, originalMap);
 		return new SimpleTrajectoryMatchResult(traj.getID(), pointMatchList, routeMatchList);
 	}
@@ -247,21 +248,6 @@ public class FeatureSTMapMatching implements MapMatchingMethod, Serializable {
 			resultTrajList.get(resultTrajList.size() - 1).add(currTrajPointList.get(0));
 		}
 		return resultTrajList;
-	}
-	
-	/**
-	 * Convert road IDs from loose map to compact map. Merge the road IDs that refers the same road.
-	 *
-	 * @param originalRoads The original road IDs whose format is "roadID_Sindex" e.g.: 123456_S1
-	 * @return Route that only contains compact result.
-	 */
-	private List<String> compactRoadID(Set<String> originalRoads) {
-		List<String> resultList = new ArrayList<>();
-		for (String road : originalRoads) {
-			if (resultList.isEmpty() || !road.split("_")[0].equals(resultList.get(resultList.size() - 1)))
-				resultList.add(road.split("_")[0]);
-		}
-		return resultList;
 	}
 	
 	private void addBestPath(int currStepIndex, double[] finalCandidateProb, int[][] prevCandidateIndexMat,

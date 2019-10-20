@@ -77,6 +77,14 @@ public class Point extends SimpleSpatialObject {
 		return y;
 	}
 	
+	public void setX(double x) {
+		this.x = x;
+	}
+	
+	public void setY(double y) {
+		this.y = y;
+	}
+	
 	/**
 	 * Reset the point and set kn kn new
 	 *

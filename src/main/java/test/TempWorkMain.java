@@ -5,6 +5,7 @@ import algorithm.mapmatching.MapMatchingMethod;
 import org.apache.log4j.Logger;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
+import util.io.MapReader;
 import util.io.MatchResultWriter;
 import util.io.TrajectoryReader;
 import util.object.roadnetwork.RoadNetworkGraph;
@@ -24,15 +25,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 /**
- * @author uqpchao
+ * @author uqpchaoP
  * Created 5/09/2019
  */
 public class TempWorkMain {
 	
-	public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-		String mapFile = "/media/TraminerData/MapMatchingInput/beijing";
+	public static void main(String[] args) throws ExecutionException, InterruptedException {
+		String mapFolder = "/media/TraminerData/MapMatchingInput/";
 		String trajFolder = "/media/TraminerData/MapMatchingInput/";
 		String outputFolder = "/media/TraminerData/MapMatchingOutput/";
+		String matchResultOutputFolder = "/media/TraminerData/MapMatchingCache/";
 		DistanceFunction distFunc = new GreatCircleDistanceFunction();
 		// initialize arguments
 		MapMatchingProperty property = new MapMatchingProperty();
@@ -41,14 +43,18 @@ public class TempWorkMain {
 		final Logger LOG = Logger.getLogger(TempWorkMain.class);
 		String matchingMethod = property.getPropertyString("algorithm.mapmatching.MatchingMethod");
 		int numOfThreads = property.getPropertyInteger("algorithm.mapmatching.NumOfThreads");
-		RoadNetworkGraph roadMap = loadPreprocessedMap(mapFile, LOG);
-		for (int i = 1; i <= 31; i++) {
+		int downSampleRate = property.getPropertyInteger("data.DownSample");
+		RoadNetworkGraph roadMap = MapReader.readMap(mapFolder + "0.txt", false, distFunc);
+		for (int i = 4; i <= 31; i++) {
 			String currTrajFolder = trajFolder + i + "/";
 			String currOutputFolder = outputFolder + i + "/";
-			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, 1, 0, distFunc);
+			String currMatchResultFolder = matchResultOutputFolder + i + "/";
+			List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(currTrajFolder, downSampleRate, distFunc);
+			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, downSampleRate, 0, distFunc);
 			MapMatchingMethod mapMatchingMethod = MapMatchingMain.chooseMatchMethod(matchingMethod, roadMap, property);
 			List<SimpleTrajectoryMatchResult> matchResult = mapMatchingMethod.parallelMatching(trajectoryStream, numOfThreads, false);
-			MatchResultWriter.writeMatchResults(matchResult, outputFolder);
+//			MatchResultWriter.writeMatchResults(matchResult, currMatchResultFolder);
+			MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResult, roadMap, currOutputFolder);
 			LOG.info("Finish matching of the " + i + " folder.");
 		}
 	}

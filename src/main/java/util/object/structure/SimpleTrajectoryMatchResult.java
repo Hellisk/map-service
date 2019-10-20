@@ -26,8 +26,13 @@ public class SimpleTrajectoryMatchResult {
 		this.trajID = trajID;
 		if (pointMatchResult == null || pointMatchResult.isEmpty())
 			this.pointMatchResult = new ArrayList<>();
-		else
+		else {
+			for (PointMatch pointMatch : pointMatchResult) {    // remove the trailing road series number.
+				pointMatch.setRoadID(pointMatch.getRoadID().contains("|") ? pointMatch.getRoadID().substring(0,
+						pointMatch.getRoadID().lastIndexOf("|")) : pointMatch.getRoadID());
+			}
 			this.pointMatchResult = pointMatchResult;
+		}
 		
 		if (routeMatchResult == null || routeMatchResult.isEmpty())
 			this.routeMatchResult = new ArrayList<>();
@@ -106,6 +111,10 @@ public class SimpleTrajectoryMatchResult {
 	 * @param pointMatchList The point matching results.
 	 */
 	public void setPointMatchResult(List<PointMatch> pointMatchList) {
+		for (PointMatch pointMatch : pointMatchList) {    // remove the trailing road series number.
+			pointMatch.setRoadID(pointMatch.getRoadID().contains("\\|") ? pointMatch.getRoadID().substring(0,
+					pointMatch.getRoadID().lastIndexOf("\\|")) : pointMatch.getRoadID());
+		}
 		this.pointMatchResult = pointMatchList;
 	}
 	

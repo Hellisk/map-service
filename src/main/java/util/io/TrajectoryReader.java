@@ -22,14 +22,25 @@ public class TrajectoryReader {
 	
 	private static final Logger LOG = Logger.getLogger(TrajectoryReader.class);
 	
-	public static Trajectory readTrajectory(String filePath, String trajID, int downSampleRate, DistanceFunction distFunc) {
+	private static Trajectory readTrajectory(String filePath, String trajID, int downSampleRate, DistanceFunction distFunc) {
 		List<String> pointInfo = IOService.readFile(filePath);
 		Trajectory newTrajectory = new Trajectory(trajID, distFunc);
+		long prevTime = 0;
 		for (int i = 0; i < pointInfo.size(); i++) {
 			String s = pointInfo.get(i);
 			TrajectoryPoint newTrajectoryPoint = TrajectoryPoint.parseTrajectoryPoint(s, distFunc);
-			if (i == 0 || i % downSampleRate == 0 || i == pointInfo.size() - 1)
-				newTrajectory.add(newTrajectoryPoint);
+
+//			// Only used for temp work, remove it when it's done
+//			Pair<Double, Double> gcjCoordinate = SpatialUtils.convertWGS2GCJ(newTrajectoryPoint.x(), newTrajectoryPoint.y());
+//			newTrajectoryPoint.setX(gcjCoordinate._1());
+//			newTrajectoryPoint.setY(gcjCoordinate._2());
+			
+			if (i == 0 || i % downSampleRate == 0 || i == pointInfo.size() - 1) {
+				if (prevTime == 0 || newTrajectoryPoint.time() != prevTime) {
+					newTrajectory.add(newTrajectoryPoint);
+					prevTime = newTrajectoryPoint.time();
+				}
+			}
 		}
 		return newTrajectory;
 	}
