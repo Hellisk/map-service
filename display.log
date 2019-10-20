@@ -2,3 +2,72 @@
 2019-10-18 11:42:51 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:281861, total road ways: 602455
 2019-10-18 11:55:27 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
 2019-10-18 11:55:29 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:281861, total road ways: 602455
+2019-10-19 18:40:27 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-19 18:40:28 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-19 18:43:40 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-19 18:43:40 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:15:21 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: C:\data\Beijing-S\input\map\vertices_0.txt (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:164)
+	at util.io.IOService.readFile(IOService.java:151)
+	at util.io.IOService.readFile(IOService.java:141)
+	at util.io.MapReader.readNodes(MapReader.java:109)
+	at util.io.MapReader.readMap(MapReader.java:39)
+	at util.visualization.UnfoldingBeijingMapDisplay.setup(UnfoldingBeijingMapDisplay.java:65)
+	at processing.core.PApplet.handleDraw(PApplet.java:2361)
+	at processing.core.PGraphicsJava2D.requestDraw(PGraphicsJava2D.java:240)
+	at processing.core.PApplet.run(PApplet.java:2256)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-10-21 05:15:21 ERROR [IOService]: Error reading input file.
+java.io.FileNotFoundException: C:\data\Beijing-S\input\map\edges_0.txt (The system cannot find the path specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:219)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at java.base/java.io.FileReader.<init>(FileReader.java:75)
+	at util.io.IOService.readFile(IOService.java:164)
+	at util.io.IOService.readFile(IOService.java:151)
+	at util.io.IOService.readFile(IOService.java:141)
+	at util.io.MapReader.readWays(MapReader.java:131)
+	at util.io.MapReader.readMap(MapReader.java:46)
+	at util.visualization.UnfoldingBeijingMapDisplay.setup(UnfoldingBeijingMapDisplay.java:65)
+	at processing.core.PApplet.handleDraw(PApplet.java:2361)
+	at processing.core.PGraphicsJava2D.requestDraw(PGraphicsJava2D.java:240)
+	at processing.core.PApplet.run(PApplet.java:2256)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+2019-10-21 05:15:21 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:0, total road ways: 0
+2019-10-21 05:15:47 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:15:47 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:19:57 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:19:57 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:21:27 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:21:27 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:23:26 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:23:26 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:24:58 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:24:58 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:27:52 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:27:52 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:28:49 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:28:49 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:32:56 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:32:56 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:33:40 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:33:40 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:36:41 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:36:41 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:37:14 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:37:14 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:38:37 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:38:37 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:39:12 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:39:12 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:40:00 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:40:00 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:40:43 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:40:43 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484
+2019-10-21 05:41:55 INFO  [RoadNetworkGraph]: A polyline road added to the current map, set as a compact map.
+2019-10-21 05:41:55 INFO  [MapReader]: 0.txt road map read done. isolate nodes: 0, total nodes:2314, total road ways: 4484

@@ -178,7 +178,7 @@ public final class IOService implements Serializable {
 	}
 	
 	/**
-	 * Read the file in the given path as a Stream of file lines.
+	 * Read the file in the given path as a Stream of file l ines.
 	 *
 	 * @param pathName The absolute path to the file to read.
 	 * @return A Stream with the file lines.

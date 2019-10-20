@@ -4,11 +4,13 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
-import de.fhpotsdam.unfolding.providers.Google;
+import de.fhpotsdam.unfolding.marker.SimplePointMarker;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import processing.core.PApplet;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
+import util.function.SpatialUtils;
 import util.io.MapReader;
 import util.io.MatchResultReader;
 import util.io.TrajectoryReader;
@@ -33,10 +35,10 @@ import java.util.Map;
 //http://unfoldingmaps.org/
 public class UnfoldingBeijingMapDisplay extends PApplet {
 	private UnfoldingMap currMapDisplay;
-	private String inputMapFolder = "C:/data/Beijing-S/input/map/";
-	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
-	private String outputRouteMatchResultPath = "C:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
-	private String gtRouteMatchResultPath = "C:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
+	private String inputMapFolder = "F:/data/Beijing-S/input/map/";
+	private String inputTrajPath = "F:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
+	private String outputRouteMatchResultPath = "F:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
+	private String gtRouteMatchResultPath = "F:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
 	//	private String inputMapFolder = "C:/data/Beijing-L/input/map/";
 //	private String inputTrajPath = "C:/data/db/";
 	private DistanceFunction distFunc = new GreatCircleDistanceFunction();
@@ -47,8 +49,8 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		size(1440, 990);
 //		this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OpenStreetMapProvider());
 //		this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
-//		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
-		this.fullMapDisplay = new UnfoldingMap(this, new Google.GoogleMapProvider());
+		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
+//		this.fullMapDisplay = new UnfoldingMap(this, new Google.GoogleMapProvider());
 //		this.compareMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
 		MapUtils.createMouseEventDispatcher(this, fullMapDisplay);
 //		MapUtils.createMouseEventDispatcher(this, compareMapDisplay);
@@ -72,7 +74,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			} else
 				throw new IllegalArgumentException("Two roads has the same id:" + way.getID());
 		}
-		List<Marker> mapMarker = roadWayMarkerBeijingGen(rawMap.getWays(), grey, 2);
+		List<Marker> mapMarker = roadWayMarkerBeijingGen(rawMap.getWays(), grey, 2, false);
 		fullMapDisplay.addMarkers(mapMarker);
 
 //		RoadNetworkGraph planarRawMap = rawMap.toPlanarMap();
@@ -95,15 +97,18 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 //			List<Marker> trajMarker = trajMarkerBeijingGen(trajectory, red, 2);
 			trajectoryMap.put(Integer.parseInt(trajectory.getID()), trajectory);
 		}
-		
-		Map<Integer, List<String>> gtRouteMatchResultMap = new HashMap<>();
-		for (Pair<Integer, List<String>> gtRoute : gtRouteMatchResultList) {
-			gtRouteMatchResultMap.put(gtRoute._1(), gtRoute._2());
-		}
+//
+//		Map<Integer, List<String>> gtRouteMatchResultMap = new HashMap<>();
+//		for (Pair<Integer, List<String>> gtRoute : gtRouteMatchResultList) {
+//			gtRouteMatchResultMap.put(gtRoute._1(), gtRoute._2());
+//		}
 		
 		Map<Integer, List<String>> routeMatchResultMap = new HashMap<>();
 		for (SimpleTrajectoryMatchResult simpleTrajectoryMatchResult : routeMatchResultList) {
-			routeMatchResultMap.put(Integer.parseInt(simpleTrajectoryMatchResult.getTrajID()), simpleTrajectoryMatchResult.getRouteMatchResultList());
+			if (simpleTrajectoryMatchResult.getTrajID().equals("184")) {
+				routeMatchResultMap.put(Integer.parseInt(simpleTrajectoryMatchResult.getTrajID()), simpleTrajectoryMatchResult.getRouteMatchResultList());
+				break;
+			}
 		}
 		
 		for (int index : routeMatchResultMap.keySet()) {
@@ -112,24 +117,24 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			fullMapDisplay.addMarkers(trajMarker);
 			
 			Pair<Integer, List<String>> currOutputRouteMatchResult = new Pair<>(index, routeMatchResultMap.get(index));
-			
-			Pair<Integer, List<String>> currGTRouteMatchResult = new Pair<>(index, gtRouteMatchResultMap.get(index));
-			List<RoadWay> gtWayList = new ArrayList<>();
-			for (String wayID : currGTRouteMatchResult._2()) {
-				if (id2WayMap.containsKey(wayID)) {
-					gtWayList.add(id2WayMap.get(wayID));
-				}
-			}
+
+//			Pair<Integer, List<String>> currGTRouteMatchResult = new Pair<>(index, gtRouteMatchResultMap.get(index));
+//			List<RoadWay> gtWayList = new ArrayList<>();
+//			for (String wayID : currGTRouteMatchResult._2()) {
+//				if (id2WayMap.containsKey(wayID)) {
+//					gtWayList.add(id2WayMap.get(wayID));
+//				}
+//			}
 			List<RoadWay> outPutList = new ArrayList<>();
 			for (String wayID : currOutputRouteMatchResult._2()) {
 				if (id2WayMap.containsKey(wayID)) {
 					outPutList.add(id2WayMap.get(wayID));
 				}
 			}
-			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, lightPurple, 2);
-			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2);
+			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, blue, 2, true);
+//			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2);
 			fullMapDisplay.addMarkers(outputWayMarker);
-			fullMapDisplay.addMarkers(gtWayMarker);
+//			fullMapDisplay.addMarkers(gtWayMarker);
 
 //            List<Marker> pointMs = new ArrayList<>();
 //            pointMs.add(new SimplePointMarker(new Location(39.95106, 116.40478)));
@@ -139,14 +144,21 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		currMapDisplay = fullMapDisplay;
 	}
 	
-	private List<Marker> roadWayMarkerBeijingGen(List<RoadWay> w, int[] color, int strokeWeight) {
+	private List<Marker> roadWayMarkerBeijingGen(List<RoadWay> w, int[] color, int strokeWeight, boolean isPointRequired) {
 		List<Marker> result = new ArrayList<>();
 		for (RoadWay currWay : w) {
 			List<Location> locationList = new ArrayList<>();
 			for (RoadNode n : currWay.getNodes()) {
-//				Pair<Double, Double> currPoint = SpatialUtils.convertGCJ2WGS(n.lon(), n.lat());        // for map provider other than Google
-//				Pair<Double, Double> currPoint = new Pair<>(n.lon(), n.lat());
-				Location pointLocation = new Location(n.lat(), n.lon());
+				Pair<Double, Double> currPoint = SpatialUtils.convertGCJ2WGS(n.lon(), n.lat());        // for map provider other than Google
+				Location pointLocation = new Location(currPoint._2(), currPoint._1());
+//				Location pointLocation = new Location(n.lat(), n.lon());
+				if (isPointRequired) {
+					SimplePointMarker currPointMarker = new SimplePointMarker(pointLocation);
+					currPointMarker.setStrokeColor(color(color[0], color[1], color[2]));
+					currPointMarker.setColor(color(color[0], color[1], color[2]));
+					currPointMarker.setStrokeWeight(strokeWeight);
+					result.add(currPointMarker);
+				}
 				locationList.add(pointLocation);
 			}
 			SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
@@ -161,15 +173,21 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		List<Marker> result = new ArrayList<>();
 		List<Location> locationList = new ArrayList<>();
 		for (TrajectoryPoint n : traj.getSTPoints()) {
-//			Pair<Double, Double> currPoint = SpatialUtils.convertGCJ2WGS(n.x(), n.y());
-//			Pair<Double, Double> currPoint = new Pair<>(n.x(), n.y());
-			Location pointLocation = new Location(n.y(), n.x());
+			Pair<Double, Double> currPoint = SpatialUtils.convertGCJ2WGS(n.x(), n.y());
+			Location pointLocation = new Location(currPoint._2(), currPoint._1());
+//			Location pointLocation = new Location(n.y(), n.x());
+			SimplePointMarker currPointMarker = new SimplePointMarker(pointLocation);
+			currPointMarker.setStrokeColor(color(color[0], color[1], color[2]));
+			currPointMarker.setColor(color(color[0], color[1], color[2]));
+			currPointMarker.setStrokeWeight(strokeWeight);
+			result.add(currPointMarker);
 			locationList.add(pointLocation);
 		}
 		SimpleLinesMarker currLineMarker = new SimpleLinesMarker(locationList);
 		currLineMarker.setColor(color(color[0], color[1], color[2]));
 		currLineMarker.setStrokeWeight(strokeWeight);
 		result.add(currLineMarker);
+		
 		return result;
 	}
 //

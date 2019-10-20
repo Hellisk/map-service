@@ -107,7 +107,7 @@ public class MapMatchingEvaluationMain {
 		
 		if (dataSet.equals("Global")) {
 			long startTaskTime = System.currentTimeMillis();    // the start of the map-matching process
-			int samplingInterval = property.getPropertyInteger("data.global.SamplingInterval");
+			int samplingInterval = property.getPropertyInteger("data.DownSample");
 			LOG.info("Precision-recall map-matching evaluation of the " + matchingMethod + " method on " + dataSet + " dataset with input" +
 					" sampling interval: " + samplingInterval);
 			String rawDataFolder = property.getPropertyString("path.RawDataFolder");
