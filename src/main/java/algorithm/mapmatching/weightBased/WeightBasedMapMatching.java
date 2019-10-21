@@ -9,6 +9,7 @@ import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.spatialobject.Point;
 import util.object.spatialobject.Segment;
 import util.object.spatialobject.Trajectory;
+import util.object.spatialobject.TrajectoryPoint;
 import util.object.structure.Pair;
 import util.object.structure.PointMatch;
 import util.object.structure.SimpleTrajectoryMatchResult;
@@ -54,20 +55,21 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
     /**
      * Find all shortest paths between each candidate pair
      *
-     * @param sources      candidate set of initial point
-     * @param destinations candidate set of second point
-     * @param maxDistance  searching threshold
+     * @param destinations   Candidate set of second point.
+     * @param sources        Candidate set of initial point.
+     * @param referencePoint The reference point used in A* algorithm.
+     * @param maxDistance    Searching threshold.
      * @return Map<Pair < sourcePM, destinationPM>, Pair<shortestPathLength, PathSequence>>
      */
     private Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> getAllShortestPaths(
-            List<PointMatch> destinations, List<PointMatch> sources, double maxDistance) {
+            List<PointMatch> destinations, List<PointMatch> sources, TrajectoryPoint referencePoint, double maxDistance) {
 
         Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> shortestPaths = new HashMap<>();
         for (PointMatch source : sources) {
 
             // List<DestinationPM, shortestPathLength, Path>
             List<Triplet<PointMatch, Double, List<String>>> shortestPathToDestPm
-                    = Utilities.getShortestPaths(routingGraph, destinations, source, maxDistance);
+                    = Utilities.getShortestPaths(routingGraph, destinations, source, referencePoint, maxDistance);
 
             for (Triplet<PointMatch, Double, List<String>> triplet : shortestPathToDestPm) {
                 shortestPaths.put(new Pair<>(source, triplet._1()), new Pair<>(triplet._2(), triplet._3()));
@@ -93,7 +95,7 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
             // double is shortest path length
 
             double dijkstraThreshold = getDijkstraDistance(sampleIndex, sampleIndex + 1, trajectory);
-            candiPaths = getAllShortestPaths(secCandiPMs, firstCandiPMs, dijkstraThreshold);
+            candiPaths = getAllShortestPaths(secCandiPMs, firstCandiPMs, trajectory.get(sampleIndex + 1), dijkstraThreshold);
 
             sampleIndex += 1;
             iterations += 1;
@@ -114,9 +116,8 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
         }
 
         // double is tws
-        double dijkstraThreshold = getDijkstraDistance(sampleIndex - 1, sampleIndex, trajectory);
         Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> scoredCandiPaths =
-                Utilities.rankCandiMatches(candiPaths, trajectory.get(sampleIndex - 1), trajectory.get(sampleIndex), dijkstraThreshold,
+                Utilities.rankCandiMatches(candiPaths, trajectory.get(sampleIndex - 1), trajectory.get(sampleIndex),
                         trajectory.get(sampleIndex).heading(), headingWC, bearingWC, pdWC, shortestPathWC);
 
         List<String> pmIds = scoredCandiPaths.peek()._2()._2();
@@ -139,7 +140,7 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
         // List<DestinationPM, shortestPathLength, Path>
         double dijkstraThreshold = getDijkstraDistance(sampleIndex - 1, sampleIndex, trajectory);
         List<Triplet<PointMatch, Double, List<String>>> candiPaths =
-                Utilities.getShortestPaths(routingGraph, secCandiPMs, prevMatchedPM, dijkstraThreshold);
+                Utilities.getShortestPaths(routingGraph, secCandiPMs, prevMatchedPM, trajectory.get(sampleIndex), dijkstraThreshold);
 
         // double is shortest path length
         Map<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>> shortestPaths = new HashMap<>();
@@ -151,7 +152,7 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
         Queue<Pair<Pair<PointMatch, PointMatch>, Pair<Double, List<String>>>> scoredCandiPaths =
                 Utilities.rankCandiMatches(
                         shortestPaths, trajectory.get(sampleIndex - 1), trajectory.get(sampleIndex),
-                        dijkstraThreshold, trajectory.get(sampleIndex).heading(),
+                        trajectory.get(sampleIndex).heading(),
                         headingWC, bearingWC, pdWC, shortestPathWC);
 
         if (scoredCandiPaths.size() == 0) {

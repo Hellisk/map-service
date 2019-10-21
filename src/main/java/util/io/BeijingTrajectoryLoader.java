@@ -151,7 +151,9 @@ public class BeijingTrajectoryLoader {
 				currHeading = Double.parseDouble(currTrajectoryPoint[4]);
 				currHeading = currHeading > 180 ? currHeading - 360 : currHeading;
 				time2PointMatch.put(firstTime, null);
-				newTraj.add(Double.parseDouble(df.format(lon)), Double.parseDouble(df.format(lat)), firstTime, currSpeed, currHeading);
+				TrajectoryPoint currPoint = new TrajectoryPoint(Double.parseDouble(df.format(lon)), Double.parseDouble(df.format(lat)),
+						firstTime, currSpeed, currHeading, distFunc);
+				newTraj.add(currPoint);
 			}
 //			if (currIndex == trajectoryPointList.length - 1)  // the current trajectory is out of range
 //				continue;
@@ -189,9 +191,13 @@ public class BeijingTrajectoryLoader {
 					currHeading = Double.parseDouble(currTrajectoryPoint[4]);
 					currHeading = currHeading > 180 ? currHeading - 360 : currHeading;
 					prevTimeOffset = currTimeOffset;
+					TrajectoryPoint currPoint = new TrajectoryPoint(Double.parseDouble(df.format(lon)),
+							Double.parseDouble(df.format(lat)), time, currSpeed, currHeading, distFunc);
 					// remove duplicate points
-					time2PointMatch.put(time, null);
-					newTraj.add(Double.parseDouble(df.format(lon)), Double.parseDouble(df.format(lat)), time, currSpeed, currHeading);
+					if (newTraj.size() == 0 || !currPoint.equals2D(newTraj.get(newTraj.size() - 1))) {
+						time2PointMatch.put(time, null);
+						newTraj.add(currPoint);
+					}
 				} else if (startIndex != -1) {
 					// the current point sequence terminates
 					if (newTraj.duration() >= trajMinLengthSec && newTraj.length() >= Math.max(3 * trajMinLengthSec, 0)) {

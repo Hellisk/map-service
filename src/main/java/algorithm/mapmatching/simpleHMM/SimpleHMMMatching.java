@@ -78,7 +78,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             double timeDiff = sample.getTime() - previous.getTime();
             double maxDistance = Math.min((50 * timeDiff), linearDist * 8);
             List<Triplet<PointMatch, Double, List<String>>> shortestPath = Utilities.getShortestPaths(
-                    routingGraph, targets, predecessor.getPointMatch(), maxDistance);
+                    routingGraph, targets, predecessor.getPointMatch(), new Point(sample.x(), sample.y(), distFunc), maxDistance);
             //List<Triplet<PointMatch, Double, List<String>>> shortestPath = Utilities.getShortestPaths(
             //                    routingGraph, targets, predecessor.getPointMatch(), dijkstraDist);
 
