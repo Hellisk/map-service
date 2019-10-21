@@ -18,8 +18,8 @@ mvn compile
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-goh -wt300" -Dexec.cleanupDaemonThreads=false
 
 # experiment on fixed (on & off)
-mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
-mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-fixed -wt1" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-fixed -wt10" -Dexec.cleanupDaemonThreads=false
@@ -76,10 +76,23 @@ mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatching
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -ms0.05" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -ms0.05" -Dexec.cleanupDaemonThreads=false
 
-#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.2" -Dexec.cleanupDaemonThreads=false
-#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb.02" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.0001" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.0001" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.0005" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.0005" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.001" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.001" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.01" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.01" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.1" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.1" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.3" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.3" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.5" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.5" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb0.7" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb0.7" -Dexec.cleanupDaemonThreads=false
+
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb1" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM -mb1" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM -mb3" -Dexec.cleanupDaemonThreads=false
@@ -112,3 +125,32 @@ mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatching
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM-old" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmOF-HMM" -Dexec.cleanupDaemonThreads=false
+
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -wt1" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -wt1" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -wt20" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -wt20" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -wt35" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -wt35" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -wt50" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -wt50" -Dexec.cleanupDaemonThreads=false
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -wt100" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -wt100" -Dexec.cleanupDaemonThreads=false
+
+
+#mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -om0.1" -Dexec.cleanupDaemonThreads=false
+#mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -om0.1" -Dexec.cleanupDaemonThreads=false
+mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -om0.5" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -om0.5" -Dexec.cleanupDaemonThreads=false
+mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -om1" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -om1" -Dexec.cleanupDaemonThreads=false
+mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -om5" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -om5" -Dexec.cleanupDaemonThreads=false
+mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-FST -om10" -Dexec.cleanupDaemonThreads=false
+mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-FST -om10" -Dexec.cleanupDaemonThreads=false
+
+#-om0.1
+#-om0.5
+#-om1
+#-om5
+#-om10
