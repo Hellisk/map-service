@@ -28,9 +28,9 @@ public class Utilities {
 																				   List<PointMatch> destinations, PointMatch source, Point referencePoint, double maxDistance) {
 		
 		// The graph for Dijkstra shortest distance calculation
-//		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNDijkstraSP(source, destinations, maxDistance);
-		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNAStarSP(source, destinations, referencePoint,
-				maxDistance);
+		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNDijkstraSP(source, destinations, maxDistance);
+//		List<Pair<Double, List<String>>> shortestPaths = routingGraph.calculateOneToNAStarSP(source, destinations, referencePoint,
+//				maxDistance);
 		
 		List<Triplet<PointMatch, Double, List<String>>> shortestPathToDestPM = new ArrayList<>();
 		

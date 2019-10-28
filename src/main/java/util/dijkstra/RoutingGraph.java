@@ -149,10 +149,9 @@ public class RoutingGraph implements Serializable {
 	 * @return List of results which contain distance and shortest path. distance = Double.POSITIVE_INFINITY and path is empty if not
 	 * reachable within maxSearchDist.
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Pair<Double, List<String>>> calculateOneToNDijkstraSP(PointMatch source, List<PointMatch> pointList, double maxSearchDist) {
 		double[] distance = new double[pointList.size()];   // the distance to every destination
-		List<List<String>> path = new ArrayList();     // the path to every destination
+		List<List<String>> path = new ArrayList<>(pointList.size());     // the path to every destination
 		HashMap<Integer, Integer> parent = new HashMap<>();        // the parent of each vertex, used during Dijkstra traversal
 		HashMap<Integer, Double> vertexDistFromSource = new HashMap<>();    // the distance from the vertex to the source node
 		HashSet<Integer> vertexVisited = new HashSet<>();        // set of vertices visited
@@ -214,14 +213,14 @@ public class RoutingGraph implements Serializable {
 					if (!startRoadID.equals(destRoadID))
 						throw new IllegalArgumentException("Same mini edge occurred in different roads: " + destEdgeIndex + ".");
 					distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-//						path[i].add(pointList.get(i).getRoadID());
+//						path.get(i).add(pointList.get(i).getRoadID());
 					path.get(i).add(destRoadID);
 					destPointCount--;
 //					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
 //							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
 //						// and the sampling point may be located backward, it is not initially inside the algorithm
 //						distance[i] = 1.1 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-//						path[i].add(pointList.get(i).getRoadID());
+//						path.get(i).add(pointList.get(i).getRoadID());
 //						destPointCount--;
 				} else {
 					vertexID2DestIndexSet.put(this.routingEdges[destEdgeIndex].getFromNodeIndex(), i);
