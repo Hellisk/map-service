@@ -128,8 +128,6 @@ public interface MapMatchingMethod {
 		List<SimpleTrajectoryMatchResult> resultList = new ArrayList<>();
 		int completeCount = 0;
 		for (Trajectory currTraj : inputTrajectory) {
-			if (currTraj.getID().equals("1953"))
-				System.out.println("TEST");
 			if (isOnline) {
 				resultList.add(onlineMatching(currTraj)._2());
 			} else

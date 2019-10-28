@@ -5,6 +5,7 @@ import util.dijkstra.RoutingGraph;
 import util.function.DistanceFunction;
 import util.index.grid.Grid;
 import util.index.grid.GridPartition;
+import util.index.rtree.RTreeIndexing;
 import util.object.roadnetwork.RoadNetworkGraph;
 import util.object.roadnetwork.RoadWay;
 import util.object.spatialobject.Point;
@@ -55,9 +56,10 @@ public class HMMMapMatching implements Serializable {
 	 */
 	private final RoutingGraph routingGraph;
 	/**
-	 * The grid index for candidate generation
+	 * The index for candidate generation
 	 */
 	private Grid<SegmentWithIndex> grid;
+	private final RTreeIndexing rtree;
 	/**
 	 * the threshold for extra indexing point, segments that exceed such threshold will generate extra indexing point(s)
 	 */
@@ -91,6 +93,7 @@ public class HMMMapMatching implements Serializable {
 			}
 		}
 		buildGridIndex(roadNetworkGraph, isNewRoadIncluded);   // build grid index
+		this.rtree = new RTreeIndexing(roadNetworkGraph);
 		this.routingGraph = new RoutingGraph(roadNetworkGraph, isNewRoadIncluded, prop);
 	}
 	
@@ -286,7 +289,8 @@ public class HMMMapMatching implements Serializable {
 //        long startTime = System.currentTimeMillis();
 		int indexBeforeCurrBreak = -1;   // the index of the last point before current broken position, -1 = currently no breakpoint
 		final Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap = new HashMap<>(); //Map each point to a list of candidate nodes
-		computeCandidatesFromIndex(trajectory, candidatesMap, grid);
+//		computeCandidatesFromGridIndex(trajectory, candidatesMap);
+		computeCandidatesFromRTreeIndex(trajectory, candidatesMap);
 //        computeCandidates(trajectory);
 //        LOG.info("Time cost on candidate generation is: " + (System.currentTimeMillis() - startTime));
 		boolean isBrokenTraj = false;
@@ -584,7 +588,7 @@ public class HMMMapMatching implements Serializable {
 		double minDistance = Double.POSITIVE_INFINITY;
 		for (PointMatch p : pointMatches) {
 			double dist = distFunc.distance(p.getMatchPoint(), trajectoryPoint);
-			minDistance = dist < minDistance ? dist : minDistance;
+			minDistance = Math.min(dist, minDistance);
 		}
 		return minDistance;
 	}
@@ -595,8 +599,7 @@ public class HMMMapMatching implements Serializable {
 	 * @param pointsList    List of GPS trajectory points to map.
 	 * @param candidatesMap the candidate list for every trajectory point
 	 */
-	private void computeCandidatesFromIndex(Collection<TrajectoryPoint> pointsList, Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap,
-											Grid<SegmentWithIndex> grid) {
+	private void computeCandidatesFromGridIndex(Collection<TrajectoryPoint> pointsList, Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap) {
 //        int candidateCount = 0;
 		for (TrajectoryPoint p : pointsList) {
 			Set<String> candidateFilter = new HashSet<>();
@@ -629,6 +632,24 @@ public class HMMMapMatching implements Serializable {
 	}
 	
 	/**
+	 * Compute the candidates list for every GPS point using a radius query.
+	 *
+	 * @param pointsList    List of GPS trajectory points to map.
+	 * @param candidatesMap the candidate list for every trajectory point
+	 */
+	private void computeCandidatesFromRTreeIndex(Collection<TrajectoryPoint> pointsList,
+												 Map<TrajectoryPoint, Collection<PointMatch>> candidatesMap) {
+//        int candidateCount = 0;
+		for (TrajectoryPoint p : pointsList) {
+			List<PointMatch> searchResult = this.rtree.searchNeighbours(p, candidateRange);
+			for (PointMatch pointMatch : searchResult) {
+				pointMatch.setRoadID(pointMatch.getRoadID().split("\\|")[0]);
+			}
+			candidatesMap.put(p, searchResult);
+		}
+	}
+	
+	/**
 	 * Compute the emission probabilities between every GPS point and its candidates.
 	 *
 	 * @param timeStep the observation and its candidate
@@ -658,9 +679,9 @@ public class HMMMapMatching implements Serializable {
 				".UTurnPenalty") : 0;
 		for (PointMatch from : prevTimeStep.candidates) {
 			List<PointMatch> candidates = new ArrayList<>(timeStep.candidates);
-			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNDijkstraSP(from, candidates, maxDistance);
-//			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNAStarSP(from, candidates,
-//					timeStep.observation, maxDistance);
+//			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNDijkstraSP(from, candidates, maxDistance);
+			List<Pair<Double, List<String>>> shortestPathResultList = routingGraph.calculateOneToNAStarSP(from, candidates,
+					timeStep.observation, maxDistance);
 			for (int i = 0; i < candidates.size(); i++) {
 				if (shortestPathResultList.get(i)._1() != Double.POSITIVE_INFINITY) {
 					if (shortestPathResultList.get(i)._2().contains(reverseID(from.getRoadID())))
