@@ -152,14 +152,16 @@ public class RoutingGraph implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<Pair<Double, List<String>>> calculateOneToNDijkstraSP(PointMatch source, List<PointMatch> pointList, double maxSearchDist) {
 		double[] distance = new double[pointList.size()];   // the distance to every destination
-		List<String>[] path = new ArrayList[pointList.size()];     // the path to every destination
+		List<List<String>> path = new ArrayList();     // the path to every destination
 		HashMap<Integer, Integer> parent = new HashMap<>();        // the parent of each vertex, used during Dijkstra traversal
 		HashMap<Integer, Double> vertexDistFromSource = new HashMap<>();    // the distance from the vertex to the source node
 		HashSet<Integer> vertexVisited = new HashSet<>();        // set of vertices visited
 		List<Pair<Double, List<String>>> result;
 		
 		Arrays.fill(distance, Double.POSITIVE_INFINITY);
-		Arrays.fill(path, new ArrayList<>());
+		for (int i = 0; i < pointList.size(); i++) {
+			path.add(new ArrayList<>());
+		}
 		// the variables have been initialized during the last calculation. Start the process right away
 		HashMap<Integer, Integer> vertexID2DestIndexSet = new HashMap<>();        // all destinations that requires Dijkstra search,
 		// (destination vertex ID and destination index in pointList)
@@ -213,7 +215,7 @@ public class RoutingGraph implements Serializable {
 						throw new IllegalArgumentException("Same mini edge occurred in different roads: " + destEdgeIndex + ".");
 					distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
 //						path[i].add(pointList.get(i).getRoadID());
-					path[i].add(destRoadID);
+					path.get(i).add(destRoadID);
 					destPointCount--;
 //					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
 //							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
@@ -259,11 +261,13 @@ public class RoutingGraph implements Serializable {
 					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList
 							.get(i).getMatchPoint());
 					if (sourceDistance != 0)
-						path[i].add(startRoadID);
-					path[i].addAll(findPath(currIndex, parent));
+						path.get(i).add(startRoadID);
+					path.get(i).addAll(findPath(currIndex, parent));
+					if (path.get(i).size() > 1 && path.get(i).get(0).equals(path.get(i).get(1)))
+						path.get(i).remove(1);    // remove the duplicated start road ID
 					String lastRoadID = pointList.get(i).getRoadID().strip().split("\\|")[0];
-					if (!path[i].isEmpty() && lastRoadID.equals(path[i].get(path[i].size() - 1)))
-						path[i].add(lastRoadID);
+					if (!path.get(i).isEmpty() && !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
+						path.get(i).add(lastRoadID);
 				}
 				if (destPointCount == 0) {
 					result = new ArrayList<>(resultOutput(distance, path));
@@ -298,18 +302,19 @@ public class RoutingGraph implements Serializable {
 	 * @return List of results which contain distance and shortest path. distance = Double.POSITIVE_INFINITY and path is empty if not
 	 * reachable within maxSearchDist.
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Pair<Double, List<String>>> calculateOneToNAStarSP(PointMatch source, List<PointMatch> pointList,
 																   Point referencePoint, double maxSearchDist) {
 		double[] distance = new double[pointList.size()];   // the distance to every destination
-		List<String>[] path = new ArrayList[pointList.size()];     // the path to every destination
+		List<List<String>> path = new ArrayList<>(pointList.size());     // the path to every destination
 		HashMap<Integer, Integer> parent = new HashMap<>();        // the parent of each vertex, used during A* traversal
 		HashMap<Integer, Double> vertexDistFromSource = new HashMap<>();    // the distance from the vertex to the source node
 		HashSet<Integer> vertexVisited = new HashSet<>();        // set of vertices visited
 		List<Pair<Double, List<String>>> result;
 		
 		Arrays.fill(distance, Double.POSITIVE_INFINITY);
-		Arrays.fill(path, new ArrayList<>());
+		for (int i = 0; i < pointList.size(); i++) {
+			path.add(new ArrayList<>());
+		}
 		// the variables have been initialized during the last calculation. Start the process right away
 		HashMap<Integer, Integer> vertexID2DestIndexSet = new HashMap<>();        // all destinations that requires A* search,
 		// (destination vertex ID and destination index in pointList)
@@ -362,14 +367,14 @@ public class RoutingGraph implements Serializable {
 					if (!startRoadID.equals(destRoadID))
 						throw new IllegalArgumentException("Same mini edge occurred in different roads: " + destEdgeIndex + ".");
 					distance[i] = distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-//						path[i].add(pointList.get(i).getRoadID());
-					path[i].add(destRoadID);
+//						path.get(i).add(pointList.get(i).getRoadID());
+					path.get(i).add(destRoadID);
 					destPointCount--;
 //					} else if (destEdgeIndex == startEdgeIndex && distFunc.distance(source.getMatchPoint(),
 //							pointList.get(i).getMatchPoint()) < candidateRange * backwardsFactor) {  // vehicle may stop on the road
 //						// and the sampling point may be located backward, it is not initially inside the algorithm
 //						distance[i] = 1.1 * distFunc.distance(source.getMatchPoint(), pointList.get(i).getMatchPoint());
-//						path[i].add(pointList.get(i).getRoadID());
+//						path.get(i).add(pointList.get(i).getRoadID());
 //						destPointCount--;
 				} else {
 					vertexID2DestIndexSet.put(this.routingEdges[destEdgeIndex].getFromNodeIndex(), i);
@@ -416,11 +421,13 @@ public class RoutingGraph implements Serializable {
 					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList
 							.get(i).getMatchPoint());
 					if (sourceDistance != 0)
-						path[i].add(startRoadID);
-					path[i].addAll(findPath(currIndex, parent));
+						path.get(i).add(startRoadID);
+					path.get(i).addAll(findPath(currIndex, parent));
+					if (path.get(i).size() > 1 && path.get(i).get(0).equals(path.get(i).get(1)))
+						path.get(i).remove(1);    // remove the duplicated start road ID
 					String lastRoadID = pointList.get(i).getRoadID().strip().split("\\|")[0];
-					if (!path[i].isEmpty() && lastRoadID.equals(path[i].get(path[i].size() - 1)))
-						path[i].add(lastRoadID);
+					if (!path.get(i).isEmpty() && !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
+						path.get(i).add(lastRoadID);
 				}
 				if (destPointCount == 0) {
 					result = new ArrayList<>(resultOutput(distance, path));
@@ -459,10 +466,10 @@ public class RoutingGraph implements Serializable {
 		return roadIDList;
 	}
 	
-	private List<Pair<Double, List<String>>> resultOutput(double[] distance, List<String>[] path) {
+	private List<Pair<Double, List<String>>> resultOutput(double[] distance, List<List<String>> path) {
 		List<Pair<Double, List<String>>> result = new ArrayList<>();
 		for (int i = 0; i < distance.length; i++) {
-			result.add(new Pair<>(distance[i], path[i]));
+			result.add(new Pair<>(distance[i], path.get(i)));
 		}
 		return result;
 	}

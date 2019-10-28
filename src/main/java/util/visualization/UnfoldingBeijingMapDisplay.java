@@ -135,45 +135,74 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 //			fullMapDisplay.addMarkers(gtWayMarker);
 
 //			indexSearchTest(red, green, rawMap);
-			shortestPathSearchTest(rawMap, red, green);
+			shortestPathSearchTest(rawMap, black, pink, red, green);
 		}
 		currMapDisplay = fullMapDisplay;
 	}
 	
-	private void shortestPathSearchTest(RoadNetworkGraph roadMap, int[] pointColor, int[] routeColor) {
+	private void shortestPathSearchTest(RoadNetworkGraph roadMap, int[] sourceStartColor, int[] directionStartColor,
+										int[] directionEndColor, int[] routeColor) {
+		int destCount = 5;
 		RoutingGraph routingGraph = new RoutingGraph(roadMap, false, new MapMatchingProperty());
 		Random random = new Random();
 		List<PointMatch> destPointList = new ArrayList<>();
 		RoadWay startWay = roadMap.getWays().get(random.nextInt(roadMap.getWays().size()));
 		Point startPoint = new Point((startWay.getNode(0).lon() + startWay.getNode(1).lon()) / 2,
 				(startWay.getNode(0).lat() + startWay.getNode(1).lat()) / 2, distFunc);
+		Point startDirectionPoint = new Point(startWay.getNode(1).lon(), startWay.getNode(1).lat(), distFunc);
 		PointMatch startMatch = new PointMatch(startPoint, startWay.getEdges().get(0), startWay.getID() + "|0");
-		RoadWay endWay = roadMap.getWays().get(random.nextInt(roadMap.getWays().size()));
-		Point endPoint = new Point((endWay.getNode(0).lon() + endWay.getNode(1).lon()) / 2,
-				(endWay.getNode(0).lat() + endWay.getNode(1).lat()) / 2, distFunc);
 		
 		Pair<Double, Double> startCoordinate = SpatialUtils.convertGCJ2WGS(startPoint.x(), startPoint.y());
+		Pair<Double, Double> startDirectionCoordinate = SpatialUtils.convertGCJ2WGS(startDirectionPoint.x(), startDirectionPoint.y());
 		Location startLocation = new Location(startCoordinate._2(), startCoordinate._1());
+		Location startDirectionLocation = new Location(startDirectionCoordinate._2(), startDirectionCoordinate._1());
 //			Location startLocation = new Location(n.y(), n.x());
 		SimplePointMarker startPointMarker = new SimplePointMarker(startLocation);
-		startPointMarker.setStrokeColor(color(pointColor[0], pointColor[1], pointColor[2]));
-		startPointMarker.setColor(color(pointColor[0], pointColor[1], pointColor[2]));
-		startPointMarker.setStrokeWeight(2);
+		startPointMarker.setStrokeColor(color(sourceStartColor[0], sourceStartColor[1], sourceStartColor[2]));
+		startPointMarker.setColor(color(sourceStartColor[0], sourceStartColor[1], sourceStartColor[2]));
+		startPointMarker.setStrokeWeight(5);
+		fullMapDisplay.addMarker(startPointMarker);
+		SimplePointMarker startDirectionPointMarker = new SimplePointMarker(startDirectionLocation);
+		startDirectionPointMarker.setStrokeColor(color(directionEndColor[0], directionEndColor[1], directionEndColor[2]));
+		startDirectionPointMarker.setColor(color(directionEndColor[0], directionEndColor[1], directionEndColor[2]));
+		startDirectionPointMarker.setStrokeWeight(5);
+		fullMapDisplay.addMarker(startDirectionPointMarker);
 		
-		Pair<Double, Double> endCoordinate = SpatialUtils.convertGCJ2WGS(startPoint.x(), startPoint.y());
-		Location endLocation = new Location(endCoordinate._2(), endCoordinate._1());
+		double maxDistance = 0;
+		for (int i = 0; i < destCount; i++) {
+			RoadWay endWay = roadMap.getWays().get(random.nextInt(roadMap.getWays().size()));
+			Point endPoint = new Point((endWay.getNode(0).lon() + endWay.getNode(1).lon()) / 2,
+					(endWay.getNode(0).lat() + endWay.getNode(1).lat()) / 2, distFunc);
+			Point endDirectionPoint = new Point(endWay.getNode(0).lon(), endWay.getNode(0).lat(), distFunc);
+			Pair<Double, Double> endCoordinate = SpatialUtils.convertGCJ2WGS(endPoint.x(), endPoint.y());
+			Pair<Double, Double> endDirectionCoordinate = SpatialUtils.convertGCJ2WGS(endDirectionPoint.x(), endDirectionPoint.y());
+			Location endLocation = new Location(endCoordinate._2(), endCoordinate._1());
+			Location endDirectionLocation = new Location(endDirectionCoordinate._2(), endDirectionCoordinate._1());
 //			Location startLocation = new Location(n.y(), n.x());
-		SimplePointMarker endPointMarker = new SimplePointMarker(endLocation);
-		endPointMarker.setStrokeColor(color(pointColor[0], pointColor[1], pointColor[2]));
-		endPointMarker.setColor(color(pointColor[0], pointColor[1], pointColor[2]));
-		endPointMarker.setStrokeWeight(2);
+			SimplePointMarker endPointMarker = new SimplePointMarker(endLocation);
+			endPointMarker.setStrokeColor(color(directionEndColor[0], directionEndColor[1], directionEndColor[2]));
+			endPointMarker.setColor(color(directionEndColor[0], directionEndColor[1], directionEndColor[2]));
+			endPointMarker.setStrokeWeight(5);
+			SimplePointMarker endDirectionPointMarker = new SimplePointMarker(endDirectionLocation);
+			endDirectionPointMarker.setStrokeColor(color(directionStartColor[0], directionStartColor[1], directionStartColor[2]));
+			endDirectionPointMarker.setColor(color(directionStartColor[0], directionStartColor[1], directionStartColor[2]));
+			endDirectionPointMarker.setStrokeWeight(5);
+			fullMapDisplay.addMarker(endDirectionPointMarker);
+			fullMapDisplay.addMarker(endPointMarker);
+			destPointList.add(new PointMatch(endPoint, endWay.getEdges().get(0), endWay.getID() + "|0"));
+			maxDistance = Math.max(maxDistance, distFunc.distance(startPoint, endPoint) * 8);
+		}
 		
-		destPointList.add(new PointMatch(endPoint, endWay.getEdges().get(0), endWay.getID() + "|0"));
-		double maxDistance = distFunc.distance(startPoint, endPoint) * 8; // limit the maximum speed to 180km/h
-		List<Pair<Double, List<String>>> result = routingGraph.calculateOneToNAStarSP(startMatch, destPointList, endPoint, maxDistance);
+		List<Pair<Double, List<String>>> result = routingGraph.calculateOneToNDijkstraSP(startMatch, destPointList, maxDistance);
 		List<RoadWay> route = new ArrayList<>();
-		for (String roadID : result.get(0)._2()) {
-			route.add(roadMap.getWayByID(roadID.split("\\|")[0]));
+		for (Pair<Double, List<String>> resultPair : result) {
+			if (resultPair._2().size() == 0)
+				System.out.println("The current road pair is not reachable.");
+			List<String> strings = resultPair._2();
+			for (String roadID : strings) {
+				route.add(roadMap.getWayByID(roadID.split("\\|")[0]));
+			}
+			
 		}
 		fullMapDisplay.addMarkers(roadWayMarkerBeijingGen(route, routeColor, 2, true));
 	}
@@ -242,7 +271,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 					SimplePointMarker currPointMarker = new SimplePointMarker(pointLocation);
 					currPointMarker.setStrokeColor(color(color[0], color[1], color[2]));
 					currPointMarker.setColor(color(color[0], color[1], color[2]));
-					currPointMarker.setStrokeWeight(strokeWeight);
+					currPointMarker.setStrokeWeight(strokeWeight - 1);
 					result.add(currPointMarker);
 				}
 				locationList.add(pointLocation);

@@ -614,6 +614,7 @@ public class HMMMapMatching implements Serializable {
 								indexItem.getSegment().x2() + "," + indexItem.getSegment().y2() + "_" + indexItem.getRoadID())) {
 							Point matchingPoint = distFunc.getClosestPoint(p, indexItem.getSegment());
 							if (distFunc.distance(p, matchingPoint) < candidateRange) {
+//							if (distFunc.distance(p, matchingPoint) < candidateRange && !matchingPoint.equals2D(indexItem.getSegment().p1()) && !matchingPoint.equals2D(indexItem.getSegment().p2())) {
 								PointMatch candidate = new PointMatch(matchingPoint, indexItem.getSegment(), indexItem.getRoadID());
 								candidatesMap.get(p).add(candidate);
 //                                candidateCount++;
