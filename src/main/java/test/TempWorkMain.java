@@ -25,7 +25,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 /**
- * @author uqpchaoP
+ * Temp work for Lei.
+ *
+ * @author uqpchao
  * Created 5/09/2019
  */
 public class TempWorkMain {
@@ -46,7 +48,7 @@ public class TempWorkMain {
 		int downSampleRate = property.getPropertyInteger("data.DownSample");
 		RoadNetworkGraph roadMap = MapReader.readMap(mapFolder + "0.txt", false, distFunc);
 		MapMatchingMethod mapMatchingMethod = MapMatchingMain.chooseMatchMethod(matchingMethod, roadMap, property);
-		for (int i = 8; i <= 31; i++) {
+		for (int i = 1; i <= 31; i++) {
 			String currTrajFolder = trajFolder + i + "/";
 			String currOutputFolder = outputFolder + i + "/";
 			String currMatchResultFolder = matchResultOutputFolder + i + "/";

@@ -131,11 +131,11 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			}
 			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, blue, 2, false);
 			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2, false);
-//			fullMapDisplay.addMarkers(outputWayMarker);
+			fullMapDisplay.addMarkers(outputWayMarker);
 //			fullMapDisplay.addMarkers(gtWayMarker);
 
 //			indexSearchTest(red, green, rawMap);
-			shortestPathSearchTest(rawMap, black, pink, red, green);
+//			shortestPathSearchTest(rawMap, black, pink, red, green);
 		}
 		currMapDisplay = fullMapDisplay;
 	}

@@ -76,13 +76,13 @@ public class MapMatchingEvaluationMain {
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
 				break;
-			case "FST":
+			case "WGT":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
 				break;
-			case "WGT":
+			case "SCO":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
@@ -133,7 +133,7 @@ public class MapMatchingEvaluationMain {
 			List<Pair<Integer, List<String>>> gtRouteMatchResult = MatchResultReader.readRouteMatchResults(gtRouteMatchResultFolder);
 			List<Pair<Integer, List<PointMatch>>> gtPointMatchResult = MatchResultReader.readPointMatchResults(gtPointMatchResultFolder,
 					downSampleRate, distFunc);
-			if (!matchingMethod.contains("FST") && tolerance != 0) {
+			if (!matchingMethod.contains("WGT") && tolerance != 0) {
 				HashMap<Integer, List<PointMatch>> id2GTPointMatch = new HashMap<>();
 				List<Pair<Integer, List<PointMatch>>> revisedGTPointMatchResult = new ArrayList<>();
 				for (Pair<Integer, List<PointMatch>> currGTPair : gtPointMatchResult) {
@@ -190,7 +190,7 @@ public class MapMatchingEvaluationMain {
 //                LOG.info("Measure without GT evaluation finish, total time cost: " + (System.currentTimeMillis() - evaluationTime) / 1000.0 + "s.");
 //                evaluationResultList.add(nonGT);
 			
-			if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty()) {
+			if (!outputMatchResult.get(0).getPointMatchResultList().isEmpty() && !outputMatchResult.get(1).getPointMatchResultList().isEmpty()) {
 				List<Pair<Integer, List<PointMatch>>> pointMatchResult = new ArrayList<>();
 				LOG.info("Start point match result evaluation for " + matchingMethod + " method on " + dataSet + " dataset with input: " + dataSpec);
 				

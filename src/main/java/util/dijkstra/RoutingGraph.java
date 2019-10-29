@@ -257,16 +257,17 @@ public class RoutingGraph implements Serializable {
 					destPointCount--;
 					distance[i] = vertexDistFromSource.get(currIndex);
 					distance[i] += sourceDistance;
-					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList
-							.get(i).getMatchPoint());
+					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList.get(i).getMatchPoint());
 					if (sourceDistance != 0)
 						path.get(i).add(startRoadID);
 					path.get(i).addAll(findPath(currIndex, parent));
 					if (path.get(i).size() > 1 && path.get(i).get(0).equals(path.get(i).get(1)))
 						path.get(i).remove(1);    // remove the duplicated start road ID
 					String lastRoadID = pointList.get(i).getRoadID().strip().split("\\|")[0];
-					if (!path.get(i).isEmpty() && !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
-						path.get(i).add(lastRoadID);
+					if (!pointList.get(i).getMatchedSegment().p1().equals2D(pointList.get(i).getMatchPoint())) {
+						if (path.get(i).isEmpty() || !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
+							path.get(i).add(lastRoadID);
+					}
 				}
 				if (destPointCount == 0) {
 					result = new ArrayList<>(resultOutput(distance, path));
@@ -417,16 +418,17 @@ public class RoutingGraph implements Serializable {
 					destPointCount--;
 					distance[i] = vertexDistFromSource.get(currIndex);
 					distance[i] += sourceDistance;
-					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList
-							.get(i).getMatchPoint());
+					distance[i] += distFunc.distance(pointList.get(i).getMatchedSegment().p1(), pointList.get(i).getMatchPoint());
 					if (sourceDistance != 0)
 						path.get(i).add(startRoadID);
 					path.get(i).addAll(findPath(currIndex, parent));
 					if (path.get(i).size() > 1 && path.get(i).get(0).equals(path.get(i).get(1)))
 						path.get(i).remove(1);    // remove the duplicated start road ID
 					String lastRoadID = pointList.get(i).getRoadID().strip().split("\\|")[0];
-					if (!path.get(i).isEmpty() && !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
-						path.get(i).add(lastRoadID);
+					if (!pointList.get(i).getMatchedSegment().p1().equals2D(pointList.get(i).getMatchPoint())) {
+						if (path.get(i).isEmpty() || !lastRoadID.equals(path.get(i).get(path.get(i).size() - 1)))
+							path.get(i).add(lastRoadID);
+					}
 				}
 				if (destPointCount == 0) {
 					result = new ArrayList<>(resultOutput(distance, path));

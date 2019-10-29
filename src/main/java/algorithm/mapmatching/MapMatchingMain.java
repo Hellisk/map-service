@@ -81,13 +81,13 @@ public class MapMatchingMain {
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
 				break;
-			case "FST":
+			case "WGT":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.WindowSize") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
 				break;
-			case "WGT":
+			case "SCO":
 				parameters = property.getPropertyString("data.DownSample") + "_"
 						+ property.getPropertyString("data.OutlierPct") + "_"
 						+ property.getPropertyString("algorithm.mapmatching.Tolerance");
@@ -131,7 +131,7 @@ public class MapMatchingMain {
 						currTraj.remove(currPoint);
 					} else prevPoint = currPoint;
 				}
-				if (!matchingMethod.contains("FST") && tolerance != 0) {
+				if (!matchingMethod.contains("WGT") && tolerance != 0) {
 					List<Integer> keyTrajPointList = dpFilter.dpSimplifier(currTraj);    // the indices of the compressed
 					// trajectory points
 					List<TrajectoryPoint> compressedTrajPointList = new ArrayList<>();
@@ -167,7 +167,7 @@ public class MapMatchingMain {
 			distFunc = new GreatCircleDistanceFunction();
 			RoadNetworkGraph roadMap = MapReader.readMap(inputMapFolder + "0.txt", false, distFunc);
 			Stream<Trajectory> inputTrajStream;
-			if (!matchingMethod.contains("FST")) {
+			if (!matchingMethod.contains("WGT")) {
 				inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, tolerance, distFunc);
 			} else {
 				inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, 0, distFunc);
@@ -212,9 +212,9 @@ public class MapMatchingMain {
 		switch (matchingMethod.substring(3, 6)) {
 			case "HMM":
 				return new SimpleHMMMatching(roadMap, property);
-			case "FST":
-				return new FeatureSTMapMatching(roadMap, property);
 			case "WGT":
+				return new FeatureSTMapMatching(roadMap, property);
+			case "SCO":
 				return new WeightBasedMapMatching(roadMap, property);
 			default:
 				throw new IllegalArgumentException("The matching method is not found: " + matchingMethod);
