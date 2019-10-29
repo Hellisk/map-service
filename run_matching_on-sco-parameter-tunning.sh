@@ -48,10 +48,8 @@ mvn compile
 mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-SCO -he10 -be15 -pd25 -sh50" -Dexec.cleanupDaemonThreads=false
 mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-SCO -he10 -be15 -pd25 -sh50" -Dexec.cleanupDaemonThreads=false
 
-
 #-he10 -be15 -pd35 -sh50
 #-he -be -pd -sh
 #-he -be -pd -sh
 #-he -be -pd -sh
 #-he -be -pd -sh
-

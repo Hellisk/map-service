@@ -40,11 +40,11 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 //    private String outputRouteMatchResultPath =
 //            "/Users/macbookpro/Desktop/capstone/Beijing-S/output/matchResult/L180_I120_N-1/";
 //    private String gtRouteMatchResultPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
-	private String inputMapFolder = "C:/data/Beijing-S/input/map/";
-	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
+	private String inputMapFolder = "F:/data/Beijing-S/input/map/";
+	private String inputTrajPath = "F:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
 	private String outputRouteMatchResultPath =
-			"C:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
-	private String gtRouteMatchResultPath = "C:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
+			"F:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
+	private String gtRouteMatchResultPath = "F:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
 	//	private String inputMapFolder = "C:/data/Beijing-L/input/map/";
 //	private String inputTrajPath = "C:/data/db/";
 	private DistanceFunction distFunc = new GreatCircleDistanceFunction();

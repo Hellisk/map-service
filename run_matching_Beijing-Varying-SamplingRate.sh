@@ -24,7 +24,6 @@ mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatching
 mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-SCO -sa5" -Dexec.cleanupDaemonThreads=false
 mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-SCO -sa5" -Dexec.cleanupDaemonThreads=false
 
-
 # sampling rate 10
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-goh -sa10" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-goh -sa10" -Dexec.cleanupDaemonThreads=false

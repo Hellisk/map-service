@@ -201,7 +201,7 @@ public class SequenceMemory {
                 // HMM break
                 StateMemory breakState = stateMemoryVector.get(i);
                 StateCandidate estimate = breakState.getFiltProbCandidate();
-                System.out.println("hmm break: " + breakState.getSample().getTime());
+//                System.out.println("hmm break: " + breakState.getSample().getTime());
                 kEstimate = estimate.getPredecessor();
                 optimalCandidateSeq.put(stateID, estimate);
             }

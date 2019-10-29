@@ -157,7 +157,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         /* Get neighbouring points to this sample. If none, return empty an empty StateMemory object */
         Set<StateCandidate> neighbourPoints = getNeighbourPoints(sample);
         if (neighbourPoints.isEmpty()) {
-            System.out.println("no candidate: " + sample.getTime());
+//            System.out.println("no candidate: " + sample.getTime());
             return new StateMemory(stateCandidates, sample);
         }
 
@@ -200,7 +200,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         /* stateCandidates is empty if none of the neighbouring point connect to a predecessor (i.e. HMM break)*/
         /* predecessors is empty if HMM break happened in the previous (last) state */
         if (stateCandidates.isEmpty() || predecessors.isEmpty()) {
-            System.out.println("no trans: " + sample.getTime());
+//            System.out.println("no trans: " + sample.getTime());
             // either because initial map-matching or matching break
             for (StateCandidate candidate : neighbourPoints) {
                 if (candidate.getEmiProb() == 0) {
