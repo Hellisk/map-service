@@ -71,6 +71,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
             targets.add(candidate.getPointMatch());
         }
 
+        /* predecessor candidate id --> <candidate id, transition> */
         final Map<String, Map<String, Pair<StateTransition, Double>>> transitions = new ConcurrentHashMap<>();
 
         for (StateCandidate predecessor : prevMemory.getStateCandidates().values()) {
@@ -114,64 +115,16 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
      * Gets state vector, which is a StateMemory objects and with its emission
      * probability.
      *
-     * @param prevStateMemory Predecessor state memory
-     * @param sample          current sample
+     * @param sample current sample
      * @return Set of tuples consisting of a {@link StateCandidate} and its emission probability.
      */
-    private Set<StateCandidate> getNeighbourPoints(StateMemory prevStateMemory, StateSample sample) {
+    private Set<StateCandidate> getNeighbourPoints(StateSample sample) {
 
         List<PointMatch> neighbourPms = this.rtree.searchNeighbours(sample.getSampleMeasurement(), candidateRange);
-//        Set<PointMatch> neighbourPms = Minset.minimize(neighbourPms_, this.roadMap, this.distFunc);
-
-//        Map<String, PointMatch> map = new HashMap<>();
-//        for (PointMatch neighbourPm : neighbourPms) {
-//            map.put(neighbourPm.getRoadID(), neighbourPm);
-//        }
-//
-//        if (prevStateMemory != null) {
-//            Set<StateCandidate> predecessors = new LinkedHashSet<>(prevStateMemory.getStateCandidates().values());
-//
-//            for (StateCandidate predecessor : predecessors) {
-//                PointMatch curPM = map.get(predecessor.getPointMatch().getRoadID());
-//                if (curPM != null && curPM.getMatchedSegment() != null) {
-//                    // the cur pm and the predecessor pm is on a same roadway
-//                    Segment matchedSeg = curPM.getMatchedSegment();
-//
-//                    if (// the dijkstraDist between predecessor and current sample is less than measurement deviation
-//                            distFunc.pointToPointDistance(curPM.lat(), curPM.lon(),
-//                                    predecessor.getPointMatch().lat(), predecessor.getPointMatch().lon())
-//                                    < hmmProbabilities.getSigma())
-//
-//                        if (
-//                            // same direction, cur PM should be closer to endpoint than predecessor, otherwise it is a wrong candidate
-//                                (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-//                                        - prevStateMemory.getSample().getHeading()) < 45
-//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-//                                        > distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))
-//
-//                                        // opposite direction, cur PM should be further to endpoint, otherwise it is a incorrect
-//                                        || (Math.abs(Utilities.computeHeading(matchedSeg.x1(), matchedSeg.y1(), matchedSeg.x2(), matchedSeg.y2())
-//                                        - prevStateMemory.getSample().getHeading()) >= 135
-//                                        && distFunc.pointToPointDistance(curPM.lon(), curPM.lat(), matchedSeg.x2(), matchedSeg.y2())
-//                                        < distFunc.pointToPointDistance(predecessor.lon(), predecessor.lat(), matchedSeg.x2(), matchedSeg.y2()))) {
-//
-//                            neighbourPms.remove(curPM);
-//                            neighbourPms.add(predecessor.getPointMatch());
-//                        }
-//                }
-//            }
-//        }
-
         Set<StateCandidate> candidates = new LinkedHashSet<>();
         for (PointMatch neighbourPm : neighbourPms) {
             StateCandidate candidate = new StateCandidate(neighbourPm, sample);
             double dz = distFunc.pointToPointDistance(neighbourPm.lon(), neighbourPm.lat(), sample.x(), sample.y());
-//            if (hmmMethod.toLowerCase().contains("frechet")) {
-//                double timDiff = prevStateMemory == null ? 1 : sample.getTime() - prevStateMemory.getSample().getTime();
-//                candidate.setEmiProb(hmmProbabilities.emissionProbabilityWithTime(dz, timDiff));
-//            } else {
-//                candidate.setEmiProb(hmmProbabilities.emissionProbability(dz));
-//            }
             candidate.setEmiProb(hmmProbabilities.emissionProbability(dz));
             candidates.add(candidate);
         }
@@ -202,8 +155,11 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         Set<StateCandidate> stateCandidates = new HashSet<>();
 
         /* Get neighbouring points to this sample. If none, return empty an empty StateMemory object */
-        Set<StateCandidate> neighbourPoints = getNeighbourPoints(prevStateMemory, sample);
-        if (neighbourPoints.isEmpty()) return new StateMemory(stateCandidates, sample);
+        Set<StateCandidate> neighbourPoints = getNeighbourPoints(sample);
+        if (neighbourPoints.isEmpty()) {
+            System.out.println("no candidate: " + sample.getTime());
+            return new StateMemory(stateCandidates, sample);
+        }
 
         double normSum = 0;
 
@@ -244,6 +200,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         /* stateCandidates is empty if none of the neighbouring point connect to a predecessor (i.e. HMM break)*/
         /* predecessors is empty if HMM break happened in the previous (last) state */
         if (stateCandidates.isEmpty() || predecessors.isEmpty()) {
+            System.out.println("no trans: " + sample.getTime());
             // either because initial map-matching or matching break
             for (StateCandidate candidate : neighbourPoints) {
                 if (candidate.getEmiProb() == 0) {
@@ -345,7 +302,18 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
                 pointMatchResult.add(new PointMatch(distFunc));
             }
         }
-        return new Pair<>(latency, new Pair<>(pointMatchResult, routeMatchResult));
+        List<String> routeMatchResultSimplified = new ArrayList<>();
+        for (String route : routeMatchResult) {
+            if (routeMatchResultSimplified.size() > 0) {
+                String routeMatch = routeMatchResultSimplified.get(routeMatchResultSimplified.size() - 1);
+                if (!routeMatch.equals(route)) {
+                    routeMatchResultSimplified.add(route);
+                }
+            } else {
+                routeMatchResultSimplified.add(route);
+            }
+        }
+        return new Pair<>(latency, new Pair<>(pointMatchResult, routeMatchResultSimplified));
     }
 
     /**

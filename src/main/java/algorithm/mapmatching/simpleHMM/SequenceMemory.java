@@ -201,6 +201,7 @@ public class SequenceMemory {
                 // HMM break
                 StateMemory breakState = stateMemoryVector.get(i);
                 StateCandidate estimate = breakState.getFiltProbCandidate();
+                System.out.println("hmm break: " + breakState.getSample().getTime());
                 kEstimate = estimate.getPredecessor();
                 optimalCandidateSeq.put(stateID, estimate);
             }
@@ -217,7 +218,7 @@ public class SequenceMemory {
                 || (maxWaitingTime > 0 &&
                 stateMemoryVector.getLast().getSample().getTime() -
                         stateMemoryVector.peekFirst().getSample().getTime() > maxWaitingTime)) {
-            // force to output all states in window
+            // force to output all states in window except the one just added
             reverse(optimalCandidateSeq, stateMemoryVector.size() - 2);
             // preserve only current state
             while (stateMemoryVector.size() > 1) {
