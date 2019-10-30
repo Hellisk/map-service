@@ -88,7 +88,7 @@ public class HMMProbabilities implements Serializable {
 	
 	public double transitionProbability(double routeLength, double linearDistance, double timeDiff) {
 		double transitionMetric = normalizedTransitionMetric(routeLength, linearDistance, timeDiff);
-		return Distributions.normalDistribution(beta, transitionMetric);
+		return Distributions.exponentialDistribution(beta, transitionMetric);
 	}
 	
 	/**
