@@ -53,7 +53,7 @@ mvn compile
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-HMM-eddy -ga2" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-HMM-eddy -ga2" -Dexec.cleanupDaemonThreads=false
 
-# experiment on on-fst
+# experiment on on-wgt
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-WGT -wt1" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-WGT -wt1" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-WGT -wt20" -Dexec.cleanupDaemonThreads=false

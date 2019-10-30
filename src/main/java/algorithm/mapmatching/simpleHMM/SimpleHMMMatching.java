@@ -47,7 +47,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         turnWeight = property.getPropertyDouble("algorithm.mapmatching.hmm.turnWeight");
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
-//        this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
+//        this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.sco.DijkstraThreshold");
         this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
     }
 

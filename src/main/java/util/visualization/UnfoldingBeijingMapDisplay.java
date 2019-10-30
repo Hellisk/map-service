@@ -30,7 +30,7 @@ import java.util.*;
 /**
  * Simple Unfolding map app demo.
  *
- * @author uqdalves
+ * @author uqpchao
  */
 //http://unfoldingmaps.org/
 public class UnfoldingBeijingMapDisplay extends PApplet {
@@ -131,7 +131,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, blue, 2, false);
 			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2, false);
 			fullMapDisplay.addMarkers(outputWayMarker);
-//			fullMapDisplay.addMarkers(gtWayMarker);
+			fullMapDisplay.addMarkers(gtWayMarker);
 
 //			indexSearchTest(red, green, rawMap);
 //			shortestPathSearchTest(rawMap, black, pink, red, green);

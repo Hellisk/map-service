@@ -39,18 +39,18 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	/**
 	 * distance calculator between points. Method adopted from GraphHopper
 	 *
-     * @param lon1 longitude of the start point
-     * @param lat1 latitude of the start point
-     * @param lon2 longitude of the end point
-     * @param lat2 latitude of the end point
+	 * @param lon1 longitude of the start point
+	 * @param lat1 latitude of the start point
+	 * @param lon2 longitude of the end point
+	 * @param lat2 latitude of the end point
 	 * @return distance at metres
 	 */
 	@Override
-    public double pointToPointDistance(double lon1, double lat1, double lon2, double lat2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
+	public double pointToPointDistance(double lon1, double lat1, double lon2, double lat2) {
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLon = Math.toRadians(lon2 - lon1);
 		// use mean latitude as reference point for delta_lon
-        double tmp = Math.cos(Math.toRadians((lat1 + lat2) / 2)) * dLon;
+		double tmp = Math.cos(Math.toRadians((lat1 + lat2) / 2)) * dLon;
 		double normedDist = dLat * dLat + tmp * tmp;
 		return SpatialUtils.EARTH_RADIUS * Math.sqrt(normedDist);
 	}
@@ -64,12 +64,7 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 	 */
 	@Override
 	public Point getClosestPoint(Point p, Segment s) {
-		Point returnPoint = getClosestPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
-		if (returnPoint.x() == s.x1())
-			return s.p1();
-		else if (returnPoint.x() == s.x2())
-			return s.p2();
-		else return returnPoint;
+		return getClosestPoint(p.x(), p.y(), s.x1(), s.y1(), s.x2(), s.y2());
 	}
 	
 	/**
@@ -124,9 +119,23 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		double a = sy2 - sy1;
 		double b = sx1 - sx2;
 		double c = sx2 * sy1 - sx1 * sy2;
+		double ppx;
+		double ppy;
 		
-		double ppx = (b * b * x - a * b * y - a * c) / (a * a + b * b);
-		double ppy = (-a * b * x + a * a * y - b * c) / (a * a + b * b);
+		if (xDelta == 0) {
+			ppx = sx1;
+			ppy = y;
+			return new Point(ppx, ppy, this);
+		}
+		
+		if (yDelta == 0) {
+			ppx = x;
+			ppy = sy1;
+			return new Point(ppx, ppy, this);
+		}
+		
+		ppx = (b * b * x - a * b * y - a * c) / (a * a + b * b);
+		ppy = (-a * b * x + a * a * y - b * c) / (a * a + b * b);
 		
 		return new Point(ppx, ppy, this);
 	}
@@ -155,24 +164,25 @@ public class GreatCircleDistanceFunction implements DistanceFunction {
 		
 		// check whether the projection point is outside the segment
 		if (sx1 < sx2) {
-			if (ppx < sx1) {
+			if (ppx <= sx1) {
 				ppx = sx1;
 				ppy = sy1;
-			} else if (ppx > sx2) {
+			} else if (ppx >= sx2) {
 				ppx = sx2;
 				ppy = sy2;
 			}
-		} else if (Double.isNaN(ppx) || Double.isNaN(ppy)) {
-			ppx = sx1;
-			ppy = sy1;
-		} else {
-			if (ppx < sx2) {
+		} else if (sx1 > sx2) {
+			if (ppx <= sx2) {
 				ppx = sx2;
 				ppy = sy2;
-			} else if (ppx > sx1) {
+			} else if (ppx >= sx1) {
 				ppx = sx1;
 				ppy = sy1;
 			}
+		} else {    // sx1 == sx2
+			if (ppx != sx1)
+				throw new IllegalArgumentException("The point projection is not on the road: " + ppx + "," + ppy + "," + sx1 + "," + sy1 +
+						"," + sx2 + "," + sy2);
 		}
 		double pointX = 0;
 		double pointY = 0;

@@ -8,7 +8,6 @@ import com.github.davidmoten.rtree.geometry.Line;
 import com.github.davidmoten.rtree.geometry.Rectangle;
 import com.github.davidmoten.rtree.geometry.internal.PointDouble;
 import rx.Observable;
-import rx.functions.Func1;
 import util.function.DistanceFunction;
 import util.function.GreatCircleDistanceFunction;
 import util.object.roadnetwork.RoadNetworkGraph;
@@ -38,7 +37,7 @@ public class RTreeIndexing {
 	
 	
 	/**
-	 * Add polylines to rtree. One polyline is allowed to contain multiple simple lines.
+	 * Add polyline to rtree. One polyline is allowed to contain multiple simple lines.
 	 * Each simple line is an geometric object in rtree with a unique id in the tree: polylineID + startNodeId + endNodeID
 	 */
 	private void buildTree() {
@@ -88,25 +87,21 @@ public class RTreeIndexing {
 	 * @return Observations of lines
 	 */
 	private Observable<Entry<String, Line>> priSearch(double lon, double lat, final double distanceM) {
-		// First we need to calculate an enclosing lat long rectangle for this
-		// distance then we refine on the exact distance
+		// First we need to calculate an enclosing lat long rectangle for this distance then we refine on the exact distance
 		final Position from = Position.create(lat, lon);
 		DistanceFunction distFunc = currMap.getDistanceFunction();
 		final Point searchPoint = new Point(lon, lat, distFunc);
-//		Rectangle bounds = createBounds(from, distanceM * 1.5 / 1000);
-		Rectangle bounds = createBounds(from, distanceM / 1000);
+		Rectangle bounds = createBounds(from, distanceM * 1.5 / 1000);
+//		Rectangle bounds = createBounds(from, distanceM / 1000);
 		
 		return rTree
 				// do the first search using the bounds (using L2 distance)
 				.search(bounds)
 				// refine using the exact distance
-				.filter(new Func1<Entry<String, Line>, Boolean>() {
-					@Override
-					public Boolean call(Entry<String, Line> entry) {
-						Line line = entry.geometry();
-						Segment segment = new Segment(line.x1(), line.y1(), line.x2(), line.y2(), distFunc);
-						return distFunc.distance(searchPoint, segment) < distanceM;
-					}
+				.filter(entry -> {
+					Line line = entry.geometry();
+					Segment segment = new Segment(line.x1(), line.y1(), line.x2(), line.y2(), distFunc);
+					return distFunc.distance(searchPoint, segment) < distanceM;
 				});
 	}
 	

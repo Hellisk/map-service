@@ -75,7 +75,7 @@ public class MapMatchingProperty extends BaseProperty {
                             super.setProperty("algorithm.mapmatching.WindowSize", arg.substring(3));
                             break;
                         case "om":
-                            super.setProperty("algorithm.mapmatching.fst.Omega", arg.substring(3));
+							super.setProperty("algorithm.mapmatching.wgt.Omega", arg.substring(3));
                             break;
                         case "dg":
                             super.setProperty("algorithm.mapmatching.Tolerance", arg.substring(3));

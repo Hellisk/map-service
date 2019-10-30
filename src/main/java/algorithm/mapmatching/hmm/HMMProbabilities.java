@@ -123,7 +123,7 @@ public class HMMProbabilities implements Serializable {
 		}
 		double transitionMetric = normalizedTransitionMetric(routeLength + turnWeight * turnCost,
 				linearDistance, timeDiff);
-		return Distributions.normalDistribution(beta, transitionMetric);
+		return Distributions.exponentialDistribution(beta, transitionMetric);
 	}
 	
 	/**

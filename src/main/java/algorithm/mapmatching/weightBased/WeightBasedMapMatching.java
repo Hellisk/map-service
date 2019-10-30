@@ -45,11 +45,11 @@ public class WeightBasedMapMatching implements MapMatchingMethod, Serializable {
         this.rtree = new RTreeIndexing(roadMap);
         this.routingGraph = new RoutingGraph(roadMap, false, property);
 
-//		this.dijkstraThreshold = property.getPropertyDouble("algorithm.mapmatching.wgt.DijkstraThreshold");
-        this.headingWC = property.getPropertyDouble("algorithm.mapmatching.wgt.HeadingWC");
-        this.bearingWC = property.getPropertyDouble("algorithm.mapmatching.wgt.BearingWC");
-        this.pdWC = property.getPropertyDouble("algorithm.mapmatching.wgt.PDWC");
-        this.shortestPathWC = property.getPropertyDouble("algorithm.mapmatching.wgt.ShortestPathWC");
+//		this.dijkstraThreshold = property.getPropertyDouble("algorithm.mapmatching.sco.DijkstraThreshold");
+		this.headingWC = property.getPropertyDouble("algorithm.mapmatching.sco.HeadingWC");
+		this.bearingWC = property.getPropertyDouble("algorithm.mapmatching.sco.BearingWC");
+		this.pdWC = property.getPropertyDouble("algorithm.mapmatching.sco.PDWC");
+		this.shortestPathWC = property.getPropertyDouble("algorithm.mapmatching.sco.ShortestPathWC");
     }
 
     /**

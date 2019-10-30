@@ -1,5 +1,5 @@
 mvn compile
-# test on-wgt on all maps
+# test on-sco on all maps
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-SCO -do2" -Dexec.cleanupDaemonThreads=false
 #mvn compile exec:java -Dexec.mainClass=evaluation.matchingevaluation.MapMatchingEvaluationMain -Dexec.args="-mmON-SCO -do2" -Dexec.cleanupDaemonThreads=false
 #mvn exec:java -Dexec.mainClass=algorithm.mapmatching.MapMatchingMain -Dexec.args="-mmON-SCO -do4" -Dexec.cleanupDaemonThreads=false

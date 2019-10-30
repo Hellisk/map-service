@@ -142,24 +142,25 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 		
 		// check whether the projection point is outside the segment
 		if (sx1 < sx2) {
-			if (ppx < sx1) {
+			if (ppx <= sx1) {
 				ppx = sx1;
 				ppy = sy1;
-			} else if (ppx > sx2) {
+			} else if (ppx >= sx2) {
 				ppx = sx2;
 				ppy = sy2;
 			}
-		} else if (Double.isNaN(ppx) || Double.isNaN(ppy)) {
-			ppx = sx1;
-			ppy = sy1;
+		} else if (sx1 > sx2) {
+			if (ppx <= sx2) {
+				ppx = sx2;
+				ppy = sy2;
+			} else if (ppx >= sx1) {
+				ppx = sx1;
+				ppy = sy1;
+			}
 		} else {
-			if (ppx < sx2) {
-				ppx = sx2;
-				ppy = sy2;
-			} else if (ppx > sx1) {
-				ppx = sx1;
-				ppy = sy1;
-			}
+			if (ppx != sx1)
+				throw new IllegalArgumentException("The point projection is not on the road: " + ppx + "," + ppy + "," + sx1 + "," + sy1 +
+						"," + sx2 + "," + sy2);
 		}
 		double pointX = 0;
 		double pointY = 0;
@@ -189,13 +190,25 @@ public class EuclideanDistanceFunction implements DistanceFunction, VectorDistan
 		if (len2 == 0)
 			throw new IllegalArgumentException("Segment start equals segment end");
 		// the projection falls where d = [(p - p1) . (p2 - p1)] / |p2 - p1|^2
+		double px, py;
+		if (v1x == 0) {
+			px = sx1;
+			py = y;
+			return new Point(px, py, this);
+		}
+		
+		if (v1y == 0) {
+			px = x;
+			py = sy1;
+			return new Point(px, py, this);
+		}
 		double[] v1 = {v1x, v1y};
 		double[] v2 = {v2x, v2y};
 		double d = SpatialUtils.dotProduct(v1, v2) / len2;
 		
 		// projection is "in between" s.p1 and s.p2 get projection coordinates
-		double px = sx1 + d * (sx2 - sx1);
-		double py = sy1 + d * (sy2 - sy1);
+		px = sx1 + d * (sx2 - sx1);
+		py = sy1 + d * (sy2 - sy1);
 		
 		return new Point(px, py, this);
 	}
