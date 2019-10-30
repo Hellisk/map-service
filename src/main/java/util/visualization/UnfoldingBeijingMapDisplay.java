@@ -41,7 +41,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 //            "/Users/macbookpro/Desktop/capstone/Beijing-S/output/matchResult/L180_I120_N-1/";
 //    private String gtRouteMatchResultPath = "/Users/macbookpro/Desktop/capstone/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
 	private String inputMapFolder = "C:/data/Beijing-S/input/map/";
-	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N1/";
+	private String inputTrajPath = "C:/data/Beijing-S/input/trajectory/L180_I120_N-1/";
 	private String outputRouteMatchResultPath = "C:/data/Beijing-S/output/matchResult/L180_I120_N-1/";
 	private String gtRouteMatchResultPath = "C:/data/Beijing-S/groundTruth/matchResult/route/L180_I120_N-1/";
 	//	private String inputMapFolder = "C:/data/Beijing-L/input/map/";
@@ -111,7 +111,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		for (int index : routeMatchResultMap.keySet()) {
 			Trajectory currTraj = trajectoryMap.get(index);
 			List<Marker> trajMarker = trajMarkerBeijingGen(currTraj, red, 2);
-			fullMapDisplay.addMarkers(trajMarker);
+//			fullMapDisplay.addMarkers(trajMarker);
 			
 			Pair<Integer, List<String>> currOutputRouteMatchResult = new Pair<>(index, routeMatchResultMap.get(index));
 			
@@ -130,7 +130,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			}
 			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, blue, 2, false);
 			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2, false);
-//			fullMapDisplay.addMarkers(outputWayMarker);
+			fullMapDisplay.addMarkers(outputWayMarker);
 //			fullMapDisplay.addMarkers(gtWayMarker);
 
 //			indexSearchTest(red, green, rawMap);
