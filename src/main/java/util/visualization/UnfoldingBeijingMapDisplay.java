@@ -52,7 +52,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 	
 	public void setup() {
 		size(1440, 990);
-//		this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OpenStreetMapProvider());
+//		this.fullMapDisplay = new UnfoldingMap(this, new OpenStreetMap.OSMGrayProvider());
 //        this.fullMapDisplay = new UnfoldingMap(this, new BlankMap.BlankProvider());
 		this.fullMapDisplay = new UnfoldingMap(this, new Microsoft.HybridProvider());
 //		this.fullMapDisplay = new UnfoldingMap(this, new Google.GoogleMapProvider());
@@ -102,7 +102,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		
 		Map<Integer, List<String>> routeMatchResultMap = new HashMap<>();
 		for (SimpleTrajectoryMatchResult simpleTrajectoryMatchResult : routeMatchResultList) {
-			if (simpleTrajectoryMatchResult.getTrajID().equals("50")) {
+			if (simpleTrajectoryMatchResult.getTrajID().equals("35")) {
 				routeMatchResultMap.put(Integer.parseInt(simpleTrajectoryMatchResult.getTrajID()), simpleTrajectoryMatchResult.getRouteMatchResultList());
 				break;
 			}
@@ -111,7 +111,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 		for (int index : routeMatchResultMap.keySet()) {
 			Trajectory currTraj = trajectoryMap.get(index);
 			List<Marker> trajMarker = trajMarkerBeijingGen(currTraj, red, 2);
-//			fullMapDisplay.addMarkers(trajMarker);
+			fullMapDisplay.addMarkers(trajMarker);
 			
 			Pair<Integer, List<String>> currOutputRouteMatchResult = new Pair<>(index, routeMatchResultMap.get(index));
 			
@@ -130,7 +130,7 @@ public class UnfoldingBeijingMapDisplay extends PApplet {
 			}
 			List<Marker> outputWayMarker = roadWayMarkerBeijingGen(outPutList, blue, 2, false);
 			List<Marker> gtWayMarker = roadWayMarkerBeijingGen(gtWayList, green, 2, false);
-			fullMapDisplay.addMarkers(outputWayMarker);
+//			fullMapDisplay.addMarkers(outputWayMarker);
 			fullMapDisplay.addMarkers(gtWayMarker);
 
 //			indexSearchTest(red, green, rawMap);

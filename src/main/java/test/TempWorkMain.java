@@ -54,9 +54,9 @@ public class TempWorkMain {
 			String currMatchResultFolder = matchResultOutputFolder + i + "/";
 			Stream<Trajectory> trajectoryStream = TrajectoryReader.readTrajectoriesToStream(currTrajFolder, downSampleRate, 0, distFunc);
 			List<SimpleTrajectoryMatchResult> matchResult = mapMatchingMethod.parallelMatching(trajectoryStream, numOfThreads, false);
-			List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(currTrajFolder, downSampleRate, distFunc);
-//			MatchResultWriter.writeMatchResults(matchResult, currMatchResultFolder);
-			MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResult, roadMap, currOutputFolder);
+//			List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(currTrajFolder, downSampleRate, distFunc);
+			MatchResultWriter.writeMatchResults(matchResult, currMatchResultFolder);
+//			MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResult, roadMap, currOutputFolder);
 			LOG.info("Finish matching of the " + i + " folder.");
 		}
 	}
