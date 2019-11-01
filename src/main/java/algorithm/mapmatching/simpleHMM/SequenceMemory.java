@@ -24,9 +24,9 @@ public class SequenceMemory {
         this.maxStateNum = maxStateNum;
     }
 
-    public SequenceMemory(long maxWaitingTime) {
-        this.maxWaitingTime = maxWaitingTime;
-    }
+//    public SequenceMemory(long maxWaitingTime) {
+//        this.maxWaitingTime = maxWaitingTime;
+//    }
 
     public SequenceMemory(int maxStateNum, long maxWaitingTime) {
         this.maxStateNum = maxStateNum;

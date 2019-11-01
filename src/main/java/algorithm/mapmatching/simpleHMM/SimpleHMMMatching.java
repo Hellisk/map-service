@@ -30,7 +30,8 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
     private HMMProbabilities hmmProbabilities;
     private double candidateRange;
     //    private double dijkstraDist;
-    private long maxWaitingTime;
+//    private long maxWaitingTime;
+    private int maxStateNum;
     private double gamma;
     private double turnWeight;
     private String hmmMethod;
@@ -48,7 +49,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         this.hmmProbabilities = new HMMProbabilities(sigma, beta);
         this.candidateRange = property.getPropertyDouble("algorithm.mapmatching.CandidateRange");
 //        this.dijkstraDist = property.getPropertyDouble("algorithm.mapmatching.sco.DijkstraThreshold");
-        this.maxWaitingTime = property.getPropertyLong("algorithm.mapmatching.WindowSize");
+        this.maxStateNum = property.getPropertyInteger("algorithm.mapmatching.WindowSize");
     }
 
     /**
@@ -119,7 +120,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
      * @return Set of tuples consisting of a {@link StateCandidate} and its emission probability.
      */
     private Set<StateCandidate> getNeighbourPoints(StateSample sample) {
-
         List<PointMatch> neighbourPms = this.rtree.searchNeighbours(sample.getSampleMeasurement(), candidateRange);
         Set<StateCandidate> candidates = new LinkedHashSet<>();
         for (PointMatch neighbourPm : neighbourPms) {
@@ -157,7 +157,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         /* Get neighbouring points to this sample. If none, return empty an empty StateMemory object */
         Set<StateCandidate> neighbourPoints = getNeighbourPoints(sample);
         if (neighbourPoints.isEmpty()) {
-//            System.out.println("no candidate: " + sample.getTime());
             return new StateMemory(stateCandidates, sample);
         }
 
@@ -200,7 +199,6 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         /* stateCandidates is empty if none of the neighbouring point connect to a predecessor (i.e. HMM break)*/
         /* predecessors is empty if HMM break happened in the previous (last) state */
         if (stateCandidates.isEmpty() || predecessors.isEmpty()) {
-//            System.out.println("no trans: " + sample.getTime());
             // either because initial map-matching or matching break
             for (StateCandidate candidate : neighbourPoints) {
                 if (candidate.getEmiProb() == 0) {
@@ -339,7 +337,7 @@ public class SimpleHMMMatching implements MapMatchingMethod, Serializable {
         if (trajectory == null) return null;
         SequenceMemory sequenceMemory = null;
         if (hmmMethod.toLowerCase().contains("goh") || hmmMethod.toLowerCase().contains("fix")) {
-            sequenceMemory = new SequenceMemory(maxWaitingTime);
+            sequenceMemory = new SequenceMemory(maxStateNum);
         } else if (hmmMethod.toLowerCase().contains("eddy")) {
             sequenceMemory = new SequenceMemory();
         }
