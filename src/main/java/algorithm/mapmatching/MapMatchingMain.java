@@ -174,7 +174,7 @@ public class MapMatchingMain {
 			}
 
 //			Stream<Trajectory> inputTrajStream = TrajectoryReader.readTrajectoriesToStream(inputTrajFolder, downSampleRate, distFunc);
-//			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
+			List<Trajectory> inputTrajList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
 			if (matchingMethod.equals("OF-HMM-old")) {
 				HMMMapMatching mapMatching = new HMMMapMatching(roadMap, property);
 				long loadingTime = System.currentTimeMillis();
@@ -197,8 +197,8 @@ public class MapMatchingMain {
 				MapMatchingMethod mapMatching = chooseMatchMethod(matchingMethod, roadMap, property);
 				long loadingTime = System.currentTimeMillis();
 				LOG.info("Loading complete, loading time: " + (loadingTime - startTaskTime) / 1000.0 + "s.");
-//                matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
-				matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
+                matchResultList = mapMatching.sequentialMatching(inputTrajList, isOnline);
+//				matchResultList = mapMatching.parallelMatching(inputTrajStream, numOfThreads, isOnline);
 				MatchResultWriter.writeMatchResults(matchResultList, outputMatchResultFolder);
 //				List<Trajectory> trajectoryList = TrajectoryReader.readTrajectoriesToList(inputTrajFolder, downSampleRate, distFunc);
 //				MatchResultWriter.writeTravelHistoryResults(trajectoryList, matchResultList, roadMap, outputMatchResultFolder);
